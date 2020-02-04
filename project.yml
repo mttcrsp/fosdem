@@ -1,0 +1,49 @@
+version: 2.4.0
+name: Fosdem
+options:
+  createIntermediateGroups: true
+  bundleIdPrefix: com.mttcrsp.Fosdem
+settingGroups:
+  common:
+    INFOPLIST_FILE: "$(TARGET_NAME)/Info.plist"
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: 'YES'
+    SWIFT_VERSION: '5.1'
+targets:
+  Fosdem:
+    type: application
+    platform: iOS
+    deploymentTarget: '10.0'
+    sources:
+    - Sources
+    - Resources
+    scheme:
+      testTargets:
+        - Tests
+    postbuildScripts:
+    - script: swiftformat .
+    settings:
+      base:
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CURRENT_PROJECT_VERSION: 1
+        DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+        INFOPLIST_FILE: Resources/Info.plist
+        MARKETING_VERSION: 1.0.0
+        PRODUCT_BUNDLE_IDENTIFIER: com.mttcrsp.Fosdem
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        TARGETED_DEVICE_FAMILY: 1
+        VERSIONING_SYSTEM: apple-generic
+  Tests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: '10.0'
+    sources:
+    - Tests
+    dependencies:
+    - target: Fosdem
+    postbuildScripts:
+    - script: swiftformat .
+    settings:
+      INFOPLIST_FILE: Resources/Info-Tests.plist
+      ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
+      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Fosdem.app/Fosdem"
