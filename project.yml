@@ -19,6 +19,8 @@ targets:
     scheme:
       testTargets:
         - Tests
+    dependencies:
+    - carthage: XMLCoder
     postbuildScripts:
     - script: swiftformat .
     settings:
