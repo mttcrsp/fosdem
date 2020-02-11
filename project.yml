@@ -39,6 +39,7 @@ targets:
     deploymentTarget: '10.0'
     sources:
     - Tests
+    - Resources/Schedules
     dependencies:
     - target: Fosdem
     postbuildScripts:
