@@ -17,3 +17,6 @@ before_install:
 
 script:
   - xcodebuild -scheme Fosdem -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=13.3' build test | xcpretty -f `xcpretty-travis-formatter`
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

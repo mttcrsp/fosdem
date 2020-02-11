@@ -19,6 +19,7 @@ targets:
     scheme:
       testTargets:
         - Tests
+      gatherCoverageData: true
     dependencies:
     - carthage: XMLCoder
     postbuildScripts:
