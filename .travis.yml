@@ -1,0 +1,19 @@
+language: swift
+
+osx_image: xcode11.3
+
+addons:
+  homebrew:
+    update: true
+    packages:
+      - xcodegen
+      - carthage
+      - swiftformat
+
+before_install:
+  - gem install xcpretty-travis-formatter
+  - carthage update --platform ios
+  - xcodegen
+
+script:
+  - xcodebuild -scheme Fosdem -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=13.3' build test | xcpretty -f `xcpretty-travis-formatter`
