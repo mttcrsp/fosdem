@@ -1,21 +1,19 @@
 import UIKit
+import XMLCoder
 
 typealias Track = String
 
 final class ApplicationController {
     private weak var tracksViewController: TracksViewController?
 
-    private var indices: TracksIndices?
     private var selectedTrack: Track?
+    private var indices: TracksIndices?
 
-    private let schedule: Schedule
     private let services = Services()
 
-    init(schedule: Schedule) {
-        self.schedule = schedule
-
+    init() {
         DispatchQueue.global().async { [weak self] in
-            self?.indices = .init(schedule: schedule)
+            guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml"), let data = try? Data(contentsOf: url), let schedule = try? XMLDecoder.default.decode(Schedule.self, from: data) else { return }
 
             // The Schedule API does not model tracks with an explicit model.
             // Tracks information is stored within the event model itself. This
@@ -23,6 +21,8 @@ final class ApplicationController {
             // need to traverse all events, collect all tracks identifiers and
             // sort them. Given that most recent conferences had 400+ events,
             // this takes a while.
+            self?.indices = .init(schedule: schedule)
+
             DispatchQueue.main.async {
                 self?.tracksViewController?.reloadData()
             }
