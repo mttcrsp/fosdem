@@ -72,6 +72,19 @@ final class ApplicationController {
 
         return eventsViewController
     }
+
+    private func makeEventViewController(for event: Event) -> EventViewController {
+        let eventViewController = EventViewController()
+        eventViewController.dataSource = self
+        eventViewController.delegate = self
+        eventViewController.event = event
+
+        if #available(iOS 11.0, *) {
+            eventViewController.navigationItem.largeTitleDisplayMode = .never
+        }
+
+        return eventViewController
+    }
 }
 
 extension ApplicationController: TracksViewControllerDataSource, TracksViewControllerDelegate {
@@ -114,6 +127,17 @@ extension ApplicationController: EventsViewControllerDataSource, EventsViewContr
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        print(#function, eventsViewController, event)
+        eventsViewController.show(makeEventViewController(for: event), sender: nil)
+    }
+}
+
+extension ApplicationController: EventViewControllerDataSource, EventViewControllerDelegate {
+    func isEventFavorite(for eventViewController: EventViewController) -> Bool {
+        guard let _ = eventViewController.event else { return false }
+        return false
+    }
+
+    func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController) {
+        eventViewController.reloadFavoriteState()
     }
 }

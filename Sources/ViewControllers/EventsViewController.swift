@@ -56,6 +56,10 @@ final class EventsViewController: UITableViewController {
         view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
     }
 
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.eventsViewController(self, didSelect: event(for: indexPath.section))
+    }
+
     private func event(for section: Int) -> Event {
         events[section]
     }
