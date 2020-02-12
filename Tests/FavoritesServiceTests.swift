@@ -36,4 +36,69 @@ final class FavoritesServiceTests: XCTestCase {
         service.removeTrack("c")
         XCTAssertEqual(service.tracks, ["b"])
     }
+
+    func testAddEvent() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addEvent(withIdentifier: "1")
+        XCTAssert(service.containsEvent(withIdentifier: "1"))
+
+        service.addEvent(withIdentifier: "2")
+        XCTAssert(service.containsEvent(withIdentifier: "1"))
+        XCTAssert(service.containsEvent(withIdentifier: "2"))
+
+        service.addEvent(withIdentifier: "3")
+        XCTAssert(service.containsEvent(withIdentifier: "1"))
+        XCTAssert(service.containsEvent(withIdentifier: "2"))
+        XCTAssert(service.containsEvent(withIdentifier: "3"))
+    }
+
+    func testDuplicateEventAdd() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addEvent(withIdentifier: "1")
+        service.addEvent(withIdentifier: "1")
+        XCTAssert(service.containsEvent(withIdentifier: "1"))
+
+        service.addEvent(withIdentifier: "2")
+        service.addEvent(withIdentifier: "2")
+        XCTAssert(service.containsEvent(withIdentifier: "1"))
+        XCTAssert(service.containsEvent(withIdentifier: "2"))
+    }
+
+    func testRemoveEvent() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addEvent(withIdentifier: "1")
+        service.addEvent(withIdentifier: "2")
+        service.addEvent(withIdentifier: "3")
+
+        service.removeEvent(withIdentifier: "2")
+        XCTAssertTrue(service.containsEvent(withIdentifier: "1"))
+        XCTAssertTrue(service.containsEvent(withIdentifier: "3"))
+        XCTAssertFalse(service.containsEvent(withIdentifier: "2"))
+
+        service.removeEvent(withIdentifier: "1")
+        XCTAssertTrue(service.containsEvent(withIdentifier: "3"))
+        XCTAssertFalse(service.containsEvent(withIdentifier: "1"))
+        XCTAssertFalse(service.containsEvent(withIdentifier: "2"))
+
+        service.removeEvent(withIdentifier: "3")
+        XCTAssertFalse(service.containsEvent(withIdentifier: "3"))
+        XCTAssertFalse(service.containsEvent(withIdentifier: "1"))
+        XCTAssertFalse(service.containsEvent(withIdentifier: "2"))
+    }
+
+    func testMissingEventRemove() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: "2")
+        XCTAssertTrue(service.containsEvent(withIdentifier: "1"))
+        XCTAssertFalse(service.containsEvent(withIdentifier: "2"))
+    }
+
+    func testDuplicateEventRemove() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: "1")
+        XCTAssertFalse(service.containsEvent(withIdentifier: "1"))
+    }
 }
