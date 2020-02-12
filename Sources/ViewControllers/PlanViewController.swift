@@ -49,9 +49,11 @@ final class PlanViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        [.init(style: .destructive, title: NSLocalizedString("Unfavorite", comment: "")) { [weak self] _, indexPath in
-            if let self = self { self.delegate?.planViewController(self, didUnfavorite: self.event(at: indexPath)) }
-        }]
+        [.unfavorite { [weak self] indexPath in self?.unfavoriteTapped(at: indexPath) }]
+    }
+
+    private func unfavoriteTapped(at indexPath: IndexPath) {
+        delegate?.planViewController(self, didUnfavorite: event(at: indexPath))
     }
 
     func reloadData() {

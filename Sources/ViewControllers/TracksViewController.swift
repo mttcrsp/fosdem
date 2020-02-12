@@ -95,8 +95,16 @@ final class TracksViewController: UITableViewController {
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         favoriteTracks.contains(track(at: indexPath)) ?
-            [makeUnfavoriteAction(for: indexPath)] :
-            [makeFavoriteAction(for: indexPath)]
+            [.unfavorite { [weak self] indexPath in self?.unfavoriteTapped(at: indexPath) }] :
+            [.favorite { [weak self] indexPath in self?.favoriteTapped(at: indexPath) }]
+    }
+
+    private func favoriteTapped(at indexPath: IndexPath) {
+        delegate?.tracksViewController(self, didFavorite: track(at: indexPath))
+    }
+
+    private func unfavoriteTapped(at indexPath: IndexPath) {
+        delegate?.tracksViewController(self, didUnfavorite: track(at: indexPath))
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -147,20 +155,6 @@ final class TracksViewController: UITableViewController {
         }
 
         return sections
-    }
-
-    private func makeFavoriteAction(for indexPath: IndexPath) -> UITableViewRowAction {
-        let action = UITableViewRowAction(style: .normal, title: NSLocalizedString("Favorite", comment: "")) { [weak self] _, indexPath in
-            if let self = self { self.delegate?.tracksViewController(self, didFavorite: self.track(at: indexPath)) }
-        }
-        action.backgroundColor = .systemBlue
-        return action
-    }
-
-    private func makeUnfavoriteAction(for indexPath: IndexPath) -> UITableViewRowAction {
-        .init(style: .destructive, title: NSLocalizedString("Unfavorite", comment: "")) { [weak self] _, indexPath in
-            if let self = self { self.delegate?.tracksViewController(self, didUnfavorite: self.track(at: indexPath)) }
-        }
     }
 }
 
