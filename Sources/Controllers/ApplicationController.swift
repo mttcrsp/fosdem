@@ -5,6 +5,7 @@ typealias Track = String
 
 final class ApplicationController {
     private weak var tracksViewController: TracksViewController?
+    private weak var eventViewController: EventViewController?
     private weak var planViewController: PlanViewController?
 
     private var selectedTrack: Track?
@@ -13,6 +14,8 @@ final class ApplicationController {
     private let services = Services()
 
     init() {
+        services.favoritesService.delegate = self
+
         DispatchQueue.global().async { [weak self] in
             guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml"), let data = try? Data(contentsOf: url), let schedule = try? XMLDecoder.default.decode(Schedule.self, from: data) else { return }
 
@@ -65,10 +68,10 @@ final class ApplicationController {
 
     private func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController()
-        eventsViewController.title = track
-        eventsViewController.delegate = self
-        eventsViewController.dataSource = self
         eventsViewController.hidesBottomBarWhenPushed = true
+        eventsViewController.dataSource = self
+        eventsViewController.delegate = self
+        eventsViewController.title = track
 
         if #available(iOS 11.0, *) {
             eventsViewController.navigationItem.largeTitleDisplayMode = .always
@@ -82,6 +85,7 @@ final class ApplicationController {
         eventViewController.dataSource = self
         eventViewController.delegate = self
         eventViewController.event = event
+        self.eventViewController = eventViewController
 
         if #available(iOS 11.0, *) {
             eventViewController.navigationItem.largeTitleDisplayMode = .never
@@ -119,12 +123,10 @@ extension ApplicationController: TracksViewControllerDataSource, TracksViewContr
 
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
         favoritesService.addTrack(track)
-        tracksViewController?.reloadFavorites()
     }
 
     func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
         favoritesService.removeTrack(track)
-        tracksViewController?.reloadFavorites()
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -158,8 +160,6 @@ extension ApplicationController: EventViewControllerDataSource, EventViewControl
         } else {
             favoritesService.addEvent(withIdentifier: event.id)
         }
-
-        eventViewController.reloadFavoriteState()
     }
 }
 
@@ -174,5 +174,16 @@ extension ApplicationController: PlanViewControllerDataSource, PlanViewControlle
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
         favoritesService.removeEvent(withIdentifier: event.id)
+    }
+}
+
+extension ApplicationController: FavoritesServiceDelegate {
+    func favoritesServiceDidUpdateTracks(_: FavoritesService) {
+        tracksViewController?.reloadFavorites()
+    }
+
+    func favoritesServiceDidUpdateEvents(_: FavoritesService) {
+        eventViewController?.reloadFavoriteState()
+        planViewController?.reloadData()
     }
 }

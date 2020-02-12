@@ -1,6 +1,13 @@
 import Foundation
 
+protocol FavoritesServiceDelegate: AnyObject {
+    func favoritesServiceDidUpdateTracks(_ favoritesService: FavoritesService)
+    func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService)
+}
+
 final class FavoritesService {
+    weak var delegate: FavoritesServiceDelegate?
+
     private let defaultsService: DefaultsService
 
     init(defaultsService: DefaultsService) {
@@ -20,23 +27,29 @@ final class FavoritesService {
     func addTrack(_ track: String) {
         var tracks = self.tracks
 
-        if !tracks.contains(track) {
-            tracks.append(track)
-            tracks.sort()
-            self.tracks = tracks
-        }
+        guard !tracks.contains(track) else { return }
+
+        tracks.append(track)
+        tracks.sort()
+        self.tracks = tracks
+        delegate?.favoritesServiceDidUpdateTracks(self)
     }
 
     func removeTrack(_ track: String) {
-        tracks.removeAll { other in track == other }
+        guard let index = tracks.firstIndex(of: track) else { return }
+
+        tracks.remove(at: index)
+        delegate?.favoritesServiceDidUpdateTracks(self)
     }
 
     func addEvent(withIdentifier eventID: String) {
         eventsIdentifiers.insert(eventID)
+        delegate?.favoritesServiceDidUpdateEvents(self)
     }
 
     func removeEvent(withIdentifier eventID: String) {
         eventsIdentifiers.remove(eventID)
+        delegate?.favoritesServiceDidUpdateEvents(self)
     }
 
     func containsEvent(withIdentifier eventID: String) -> Bool {

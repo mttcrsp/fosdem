@@ -44,6 +44,10 @@ final class PlanViewController: UITableViewController {
         return cell
     }
 
+    func reloadData() {
+        tableView.reloadData()
+    }
+
     private func event(at indexPath: IndexPath) -> Event {
         events[indexPath.row]
     }
