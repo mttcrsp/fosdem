@@ -9,6 +9,9 @@ final class FavoritesServiceTests: XCTestCase {
         service.addTrack("2")
         service.addTrack("3")
         XCTAssertEqual(service.tracks, ["1", "2", "3"])
+
+        service.addTrack("3")
+        XCTAssertEqual(service.tracks, ["1", "2", "3"])
     }
 
     func testRemoveTrack() {
@@ -16,10 +19,28 @@ final class FavoritesServiceTests: XCTestCase {
         service.addTrack("1")
         service.addTrack("2")
         service.addTrack("3")
+
         service.removeTrack("3")
         XCTAssertEqual(service.tracks, ["1", "2"])
+
         service.removeTrack("2")
         XCTAssertEqual(service.tracks, ["1"])
+
+        service.removeTrack("1")
+        XCTAssertEqual(service.tracks, [])
+    }
+
+    func testMissingTrackRemove() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addTrack("2")
+        service.removeTrack("2")
+        XCTAssertEqual(service.tracks, [])
+    }
+
+    func testDuplicateTrackRemove() {
+        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        service.addTrack("1")
+        service.removeTrack("1")
         service.removeTrack("1")
         XCTAssertEqual(service.tracks, [])
     }
@@ -29,10 +50,13 @@ final class FavoritesServiceTests: XCTestCase {
         service.addTrack("c")
         service.addTrack("a")
         XCTAssertEqual(service.tracks, ["a", "c"])
+
         service.addTrack("b")
         XCTAssertEqual(service.tracks, ["a", "b", "c"])
+
         service.removeTrack("a")
         XCTAssertEqual(service.tracks, ["b", "c"])
+
         service.removeTrack("c")
         XCTAssertEqual(service.tracks, ["b"])
     }
