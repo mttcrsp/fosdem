@@ -1,7 +1,7 @@
 import UIKit
 
 protocol EventsViewControllerDataSource: AnyObject {
-    var events: [Event] { get }
+    func events(in eventsViewController: EventsViewController) -> [Event]
 }
 
 protocol EventsViewControllerDelegate: AnyObject {
@@ -13,7 +13,7 @@ final class EventsViewController: UITableViewController {
     weak var delegate: EventsViewControllerDelegate?
 
     private var events: [Event] {
-        dataSource?.events ?? []
+        dataSource?.events(in: self) ?? []
     }
 
     init() {

@@ -1,7 +1,7 @@
 import UIKit
 
 protocol PlanViewControllerDataSource: AnyObject {
-    var events: [Event] { get }
+    func events(in planViewController: PlanViewController) -> [Event]
 }
 
 protocol PlanViewControllerDelegate: AnyObject {
@@ -10,11 +10,11 @@ protocol PlanViewControllerDelegate: AnyObject {
 }
 
 final class PlanViewController: UITableViewController {
-    weak var dataSource: EventsViewControllerDataSource?
-    weak var delegate: EventsViewControllerDelegate?
+    weak var dataSource: PlanViewControllerDataSource?
+    weak var delegate: PlanViewControllerDelegate?
 
     private var events: [Event] {
-        dataSource?.events ?? []
+        dataSource?.events(in: self) ?? []
     }
 
     init() {

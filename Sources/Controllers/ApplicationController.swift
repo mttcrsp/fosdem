@@ -5,6 +5,7 @@ typealias Track = String
 
 final class ApplicationController {
     private weak var tracksViewController: TracksViewController?
+    private weak var planViewController: PlanViewController?
 
     private var selectedTrack: Track?
     private var indices: TracksIndices?
@@ -94,6 +95,7 @@ final class ApplicationController {
         planViewController.title = NSLocalizedString("Plan", comment: "")
         planViewController.dataSource = self
         planViewController.delegate = self
+        self.planViewController = planViewController
         return planViewController
     }
 }
@@ -132,7 +134,7 @@ extension ApplicationController: TracksViewControllerDataSource, TracksViewContr
 }
 
 extension ApplicationController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-    var events: [Event] {
+    func events(in _: EventsViewController) -> [Event] {
         guard let selectedTrack = selectedTrack, let eventsForTrack = indices?.eventsForTrack else { return [] }
         return eventsForTrack[selectedTrack] ?? []
     }
@@ -158,5 +160,19 @@ extension ApplicationController: EventViewControllerDataSource, EventViewControl
         }
 
         eventViewController.reloadFavoriteState()
+    }
+}
+
+extension ApplicationController: PlanViewControllerDataSource, PlanViewControllerDelegate {
+    func events(in _: PlanViewController) -> [Event] {
+        indices?.eventsForTrack["LLVM"] ?? []
+    }
+
+    func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
+        planViewController.show(makeEventViewController(for: event), sender: nil)
+    }
+
+    func planViewController(_: PlanViewController, didUnfavorite event: Event) {
+        favoritesService.removeEvent(withIdentifier: event.id)
     }
 }
