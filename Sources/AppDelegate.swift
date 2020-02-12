@@ -8,6 +8,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var tracksController: TracksController?
 
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        #if DEBUG
+            guard !isRunningUnitTests else { return false }
+        #endif
+
         guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml"), let data = try? Data(contentsOf: url), let schedule = try? XMLDecoder.default.decode(Schedule.self, from: data) else { return false }
 
         let services = Services()
@@ -30,4 +34,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return true
     }
+
+    #if DEBUG
+        private var isRunningUnitTests: Bool {
+            CommandLine.arguments.contains("-ApplePersistenceIgnoreState")
+        }
+    #endif
 }
