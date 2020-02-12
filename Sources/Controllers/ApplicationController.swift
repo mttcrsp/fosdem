@@ -1,8 +1,8 @@
-import Foundation
+import UIKit
 
 typealias Track = String
 
-final class TracksController {
+final class ApplicationController {
     typealias Dependencies = HasFavoritesService
 
     private weak var tracksViewController: TracksViewController?
@@ -32,7 +32,20 @@ final class TracksController {
         }
     }
 
-    func makeTracksViewController() -> TracksViewController {
+    func makeRootViewController() -> UIViewController {
+        let tracksViewController = makeTracksViewController()
+        let navigationController = UINavigationController(rootViewController: tracksViewController)
+
+        if #available(iOS 11.0, *) {
+            navigationController.navigationBar.prefersLargeTitles = true
+        }
+
+        let tabBarController = UITabBarController()
+        tabBarController.setViewControllers([navigationController], animated: true)
+        return tabBarController
+    }
+
+    private func makeTracksViewController() -> TracksViewController {
         let tracksViewController = TracksViewController()
         tracksViewController.delegate = self
         tracksViewController.dataSource = self
@@ -46,7 +59,7 @@ final class TracksController {
         return tracksViewController
     }
 
-    func makeEventsViewController(for track: Track) -> EventsViewController {
+    private func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController()
         eventsViewController.title = track
         eventsViewController.delegate = self
@@ -61,7 +74,7 @@ final class TracksController {
     }
 }
 
-extension TracksController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+extension ApplicationController: TracksViewControllerDataSource, TracksViewControllerDelegate {
     private var favoritesService: FavoritesService {
         dependencies.favoritesService
     }
@@ -94,7 +107,7 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
     }
 }
 
-extension TracksController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension ApplicationController: EventsViewControllerDataSource, EventsViewControllerDelegate {
     var events: [Event] {
         guard let selectedTrack = selectedTrack, let eventsForTrack = indices?.eventsForTrack else { return [] }
         return eventsForTrack[selectedTrack] ?? []
