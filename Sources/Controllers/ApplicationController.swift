@@ -133,11 +133,19 @@ extension ApplicationController: EventsViewControllerDataSource, EventsViewContr
 
 extension ApplicationController: EventViewControllerDataSource, EventViewControllerDelegate {
     func isEventFavorite(for eventViewController: EventViewController) -> Bool {
-        guard let _ = eventViewController.event else { return false }
-        return false
+        guard let event = eventViewController.event else { return false }
+        return favoritesService.containsEvent(withIdentifier: event.id)
     }
 
     func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController) {
+        guard let event = eventViewController.event else { return }
+
+        if isEventFavorite(for: eventViewController) {
+            favoritesService.removeEvent(withIdentifier: event.id)
+        } else {
+            favoritesService.addEvent(withIdentifier: event.id)
+        }
+
         eventViewController.reloadFavoriteState()
     }
 }
