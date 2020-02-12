@@ -3,19 +3,16 @@ import UIKit
 typealias Track = String
 
 final class ApplicationController {
-    typealias Dependencies = HasFavoritesService
-
     private weak var tracksViewController: TracksViewController?
 
     private var indices: TracksIndices?
     private var selectedTrack: Track?
 
     private let schedule: Schedule
-    private let dependencies: Dependencies
+    private let services = Services()
 
-    init(schedule: Schedule, dependencies: Dependencies) {
+    init(schedule: Schedule) {
         self.schedule = schedule
-        self.dependencies = dependencies
 
         DispatchQueue.global().async { [weak self] in
             self?.indices = .init(schedule: schedule)
@@ -89,7 +86,7 @@ final class ApplicationController {
 
 extension ApplicationController: TracksViewControllerDataSource, TracksViewControllerDelegate {
     private var favoritesService: FavoritesService {
-        dependencies.favoritesService
+        services.favoritesService
     }
 
     var tracks: [Track] {

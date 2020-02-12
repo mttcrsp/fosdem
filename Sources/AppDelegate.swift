@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml"), let data = try? Data(contentsOf: url), let schedule = try? XMLDecoder.default.decode(Schedule.self, from: data) else { return false }
 
-        applicationController = ApplicationController(schedule: schedule, dependencies: Services())
+        applicationController = ApplicationController(schedule: schedule)
 
         window = UIWindow()
         window?.rootViewController = applicationController?.makeRootViewController()
