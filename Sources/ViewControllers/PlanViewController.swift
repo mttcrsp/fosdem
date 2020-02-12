@@ -44,6 +44,16 @@ final class PlanViewController: UITableViewController {
         return cell
     }
 
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.planViewController(self, didSelect: event(at: indexPath))
+    }
+
+    override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        [.init(style: .destructive, title: NSLocalizedString("Unfavorite", comment: "")) { [weak self] _, indexPath in
+            if let self = self { self.delegate?.planViewController(self, didUnfavorite: self.event(at: indexPath)) }
+        }]
+    }
+
     func reloadData() {
         tableView.reloadData()
     }
