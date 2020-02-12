@@ -31,14 +31,20 @@ final class ApplicationController {
 
     func makeRootViewController() -> UIViewController {
         let tracksViewController = makeTracksViewController()
-        let navigationController = UINavigationController(rootViewController: tracksViewController)
+        let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
 
+        let planViewController = makePlanViewController()
+        let planNavigationController = UINavigationController(rootViewController: planViewController)
+
+        let navigationControllers = [tracksNavigationController, planNavigationController]
         if #available(iOS 11.0, *) {
-            navigationController.navigationBar.prefersLargeTitles = true
+            for navigationController in navigationControllers {
+                navigationController.navigationBar.prefersLargeTitles = true
+            }
         }
 
         let tabBarController = UITabBarController()
-        tabBarController.setViewControllers([navigationController], animated: true)
+        tabBarController.setViewControllers(navigationControllers, animated: false)
         return tabBarController
     }
 
@@ -81,6 +87,14 @@ final class ApplicationController {
         }
 
         return eventViewController
+    }
+
+    private func makePlanViewController() -> PlanViewController {
+        let planViewController = PlanViewController()
+        planViewController.title = NSLocalizedString("Plan", comment: "")
+        planViewController.dataSource = self
+        planViewController.delegate = self
+        return planViewController
     }
 }
 
