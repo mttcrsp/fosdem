@@ -48,7 +48,7 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        DateComponentsFormatter.default.string(from: event(for: section).start)
+        event(for: section).formattedStart
     }
 
     override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
@@ -63,14 +63,6 @@ final class EventsViewController: UITableViewController {
     private func event(for section: Int) -> Event {
         events[section]
     }
-}
-
-private extension DateComponentsFormatter {
-    static let `default`: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute]
-        return formatter
-    }()
 }
 
 private extension UITableViewCell {

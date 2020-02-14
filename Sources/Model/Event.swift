@@ -28,6 +28,12 @@ extension Event: Hashable, Equatable {
     }
 }
 
+extension Event {
+    var formattedStart: String? {
+        DateComponentsFormatter.time.string(from: start)
+    }
+}
+
 extension Event: Decodable {
     enum CodingKeys: String, CodingKey {
         case id, room, track, start, duration
