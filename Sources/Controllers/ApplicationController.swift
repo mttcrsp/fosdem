@@ -40,15 +40,18 @@ final class ApplicationController {
         let planViewController = makePlanViewController()
         let planNavigationController = UINavigationController(rootViewController: planViewController)
 
-        let navigationControllers = [tracksNavigationController, planNavigationController]
+        let mapViewController = makeMapViewController()
+
         if #available(iOS 11.0, *) {
-            for navigationController in navigationControllers {
+            for navigationController in [tracksNavigationController, planNavigationController] {
                 navigationController.navigationBar.prefersLargeTitles = true
             }
         }
 
+        let viewControllers = [tracksNavigationController, planNavigationController, mapViewController]
+
         let tabBarController = UITabBarController()
-        tabBarController.setViewControllers(navigationControllers, animated: false)
+        tabBarController.setViewControllers(viewControllers, animated: false)
         return tabBarController
     }
 
@@ -101,6 +104,12 @@ final class ApplicationController {
         planViewController.delegate = self
         self.planViewController = planViewController
         return planViewController
+    }
+
+    private func makeMapViewController() -> MapViewController {
+        let mapViewController = MapViewController()
+        mapViewController.title = NSLocalizedString("Map", comment: "")
+        return mapViewController
     }
 }
 
