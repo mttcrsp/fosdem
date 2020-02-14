@@ -145,7 +145,7 @@ private extension Event {
             return nil
         }
 
-        return attributedString.string
+        return attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     var formattedDuration: String? {
