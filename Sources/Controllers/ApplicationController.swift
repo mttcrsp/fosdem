@@ -1,8 +1,6 @@
 import UIKit
 import XMLCoder
 
-typealias Track = String
-
 final class ApplicationController {
     private weak var tracksViewController: TracksViewController?
     private weak var eventViewController: EventViewController?
