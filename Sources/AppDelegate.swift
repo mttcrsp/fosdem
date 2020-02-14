@@ -62,8 +62,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let tabBarController = UITabBarController()
         tabBarController.setViewControllers([
-            tracksNavigationController,
             planNavigationController,
+            tracksNavigationController,
             mapViewController,
             moreViewController,
         ], animated: false)
