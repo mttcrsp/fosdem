@@ -96,6 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func makeEventViewController(for event: Event) -> EventViewController {
         let eventViewController = EventViewController()
+        eventViewController.hidesBottomBarWhenPushed = true
         eventViewController.dataSource = self
         eventViewController.delegate = self
         eventViewController.event = event
