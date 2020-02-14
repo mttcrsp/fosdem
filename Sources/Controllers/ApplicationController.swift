@@ -118,7 +118,7 @@ extension ApplicationController: TracksViewControllerDataSource, TracksViewContr
     }
 
     var favoriteTracks: [Track] {
-        favoritesService.tracks
+        favoritesService.tracks.sorted()
     }
 
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
@@ -149,7 +149,7 @@ extension ApplicationController: EventsViewControllerDataSource, EventsViewContr
 extension ApplicationController: EventViewControllerDataSource, EventViewControllerDelegate {
     func isEventFavorite(for eventViewController: EventViewController) -> Bool {
         guard let event = eventViewController.event else { return false }
-        return favoritesService.containsEvent(withIdentifier: event.id)
+        return favoritesService.eventsIdentifiers.contains(event.id)
     }
 
     func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController) {
@@ -165,7 +165,9 @@ extension ApplicationController: EventViewControllerDataSource, EventViewControl
 
 extension ApplicationController: PlanViewControllerDataSource, PlanViewControllerDelegate {
     func events(in _: PlanViewController) -> [Event] {
-        indices?.eventsForTrack["LLVM"] ?? []
+        favoritesService.eventsIdentifiers.sorted().compactMap { identifier in
+            indices?.eventForIdentifier[identifier]
+        }
     }
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {

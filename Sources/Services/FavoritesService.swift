@@ -14,51 +14,45 @@ final class FavoritesService {
         self.defaultsService = defaultsService
     }
 
-    private(set) var tracks: [String] {
+    private(set) var tracks: Set<String> {
         get { defaultsService.favoriteTracks }
         set { defaultsService.favoriteTracks = newValue }
     }
 
-    private var eventsIdentifiers: Set<String> {
+    private(set) var eventsIdentifiers: Set<String> {
         get { defaultsService.favoriteEventsIdentifiers }
         set { defaultsService.favoriteEventsIdentifiers = newValue }
     }
 
     func addTrack(_ track: String) {
-        var tracks = self.tracks
-
-        guard !tracks.contains(track) else { return }
-
-        tracks.append(track)
-        tracks.sort()
-        self.tracks = tracks
-        delegate?.favoritesServiceDidUpdateTracks(self)
+        let (inserted, _) = tracks.insert(track)
+        if inserted {
+            delegate?.favoritesServiceDidUpdateTracks(self)
+        }
     }
 
     func removeTrack(_ track: String) {
-        guard let index = tracks.firstIndex(of: track) else { return }
-
-        tracks.remove(at: index)
-        delegate?.favoritesServiceDidUpdateTracks(self)
+        if let _ = tracks.remove(track) {
+            delegate?.favoritesServiceDidUpdateTracks(self)
+        }
     }
 
     func addEvent(withIdentifier eventID: String) {
-        eventsIdentifiers.insert(eventID)
-        delegate?.favoritesServiceDidUpdateEvents(self)
+        let (inserted, _) = eventsIdentifiers.insert(eventID)
+        if inserted {
+            delegate?.favoritesServiceDidUpdateEvents(self)
+        }
     }
 
     func removeEvent(withIdentifier eventID: String) {
-        eventsIdentifiers.remove(eventID)
-        delegate?.favoritesServiceDidUpdateEvents(self)
-    }
-
-    func containsEvent(withIdentifier eventID: String) -> Bool {
-        eventsIdentifiers.contains(eventID)
+        if let _ = eventsIdentifiers.remove(eventID) {
+            delegate?.favoritesServiceDidUpdateEvents(self)
+        }
     }
 }
 
 private extension DefaultsService {
-    var favoriteTracks: [String] {
+    var favoriteTracks: Set<String> {
         get { value(for: .favoriteTracks) ?? [] }
         set { set(newValue, for: .favoriteTracks) }
     }
@@ -70,7 +64,7 @@ private extension DefaultsService {
 }
 
 private extension DefaultsService.Key {
-    static var favoriteTracks: DefaultsService.Key<[String]> {
+    static var favoriteTracks: DefaultsService.Key<Set<String>> {
         DefaultsService.Key(name: #function)
     }
 
