@@ -52,6 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let planNavigationController = UINavigationController(rootViewController: planViewController)
 
         let mapViewController = makeMapViewController()
+        let moreViewController = makeMoreViewController()
 
         if #available(iOS 11.0, *) {
             for navigationController in [tracksNavigationController, planNavigationController] {
@@ -59,10 +60,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        let viewControllers = [tracksNavigationController, planNavigationController, mapViewController]
-
         let tabBarController = UITabBarController()
-        tabBarController.setViewControllers(viewControllers, animated: false)
+        tabBarController.setViewControllers([
+            tracksNavigationController,
+            planNavigationController,
+            mapViewController,
+            moreViewController,
+        ], animated: false)
         return tabBarController
     }
 
@@ -115,6 +119,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         planViewController.dataSource = self
         planViewController.delegate = self
         self.planViewController = planViewController
+
+        if #available(iOS 11.0, *) {
+            planViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
         return planViewController
     }
 
@@ -122,6 +131,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let mapViewController = MapViewController()
         mapViewController.title = NSLocalizedString("Map", comment: "")
         return mapViewController
+    }
+
+    private func makeMoreViewController() -> MoreViewController {
+        let moreViewController = MoreViewController()
+        moreViewController.title = NSLocalizedString("More", comment: "")
+        moreViewController.delegate = self
+        return moreViewController
     }
 }
 
@@ -197,6 +213,12 @@ extension AppDelegate: PlanViewControllerDataSource, PlanViewControllerDelegate 
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
         favoritesService.removeEvent(withIdentifier: event.id)
+    }
+}
+
+extension AppDelegate: MoreViewControllerDelegate {
+    func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
+        print(#function, item, moreViewController)
     }
 }
 
