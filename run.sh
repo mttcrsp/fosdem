@@ -17,6 +17,14 @@ if ! hash carthage 2>/dev/null; then
 	exit 1
 fi
 
+if ! hash swiftformat 2>/dev/null; then
+	echo "You need to install SwiftFormat to continue
+
+	https://github.com/nicklockwood/SwiftFormat#command-line-tool
+	"
+	exit 1
+fi
+
 if ! hash license-plist 2>/dev/null; then
 	echo "You need to install LicensePlist to continue
 
