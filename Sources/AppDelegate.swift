@@ -15,6 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private lazy var services = Services()
 
+    private var favoritesService: FavoritesService {
+        services.favoritesService
+    }
+
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         #if DEBUG
             guard !isRunningUnitTests else { return false }
@@ -24,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = makeTabBarController()
         window?.makeKeyAndVisible()
 
-        services.favoritesService.delegate = self
+        favoritesService.delegate = self
 
         DispatchQueue.global().async { [weak self] in
             guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml"), let data = try? Data(contentsOf: url), let schedule = try? XMLDecoder.default.decode(Schedule.self, from: data) else { return }
@@ -160,10 +164,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    private var favoritesService: FavoritesService {
-        services.favoritesService
-    }
-
     var tracks: [Track] {
         indices?.tracks ?? []
     }
