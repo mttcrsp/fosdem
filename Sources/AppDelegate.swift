@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private weak var tabBarController: UITabBarController?
 
     private var selectedTrack: Track?
-    private var indices: TracksIndices?
+    private var indices: Indices?
 
     private lazy var services = Services()
 
@@ -162,6 +162,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return welcomeViewController
     }
+
+    private func makeSpeakersViewController() -> SpeakersViewController {
+        let speakersViewController = SpeakersViewController()
+        speakersViewController.title = NSLocalizedString("Speakers", comment: "")
+        speakersViewController.hidesBottomBarWhenPushed = true
+        speakersViewController.dataSource = self
+        speakersViewController.delegate = self
+
+        if #available(iOS 11.0, *) {
+            speakersViewController.navigationItem.largeTitleDisplayMode = .never
+        }
+
+        return speakersViewController
+    }
 }
 
 extension AppDelegate: TracksViewControllerDataSource, TracksViewControllerDelegate {
@@ -237,7 +251,12 @@ extension AppDelegate: PlanViewControllerDataSource, PlanViewControllerDelegate 
 
 extension AppDelegate: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
-        print(#function, item, moreViewController)
+        switch item {
+        case .speakers: moreViewController.show(makeSpeakersViewController(), sender: nil)
+        case .acknowledgements: break
+        case .transportation: break
+        case .years: break
+        }
     }
 }
 
@@ -249,6 +268,23 @@ extension AppDelegate: WelcomeViewControllerDelegate {
             if let navigationController = viewController as? UINavigationController, navigationController.viewControllers.first is TracksViewController {
                 tabBarController.selectedIndex = index
             }
+
+extension AppDelegate: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
+    var people: [Person] {
+        indices?.people ?? []
+    }
+
+    func speakersViewController(_ speakersViewController: SpeakersViewController, didSelect person: Person) {
+        print(#function, person, speakersViewController)
+    }
+}
+
+extension AppDelegate: UINavigationControllerDelegate {
+    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated _: Bool) {
+        switch viewController {
+        case _ as MoreViewController: navigationController.setNavigationBarHidden(true, animated: true)
+        case _ as SpeakersViewController: navigationController.setNavigationBarHidden(false, animated: true)
+        default: break
         }
     }
 }
