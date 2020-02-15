@@ -46,22 +46,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func makeTabBarController() -> UIViewController {
+        var rootViewControllers: [UIViewController] = []
+
+        if favoritesService.eventsIdentifiers.isEmpty {
+            let welcomeViewController = makeWelcomeViewController()
+            rootViewControllers.append(makeRootNavigationController(with: welcomeViewController))
+        } else {
+            let planViewController = makePlanViewController()
+            rootViewControllers.append(makeRootNavigationController(with: planViewController))
+        }
+
         let tracksViewController = makeTracksViewController()
-        let tracksNavigationController = makeRootNavigationController(with: tracksViewController)
-
-        let planViewController = makePlanViewController()
-        let planNavigationController = makeRootNavigationController(with: planViewController)
-
-        let mapViewController = makeMapViewController()
-        let moreViewController = makeMoreViewController()
+        rootViewControllers.append(makeRootNavigationController(with: tracksViewController))
+        rootViewControllers.append(makeMapViewController())
+        rootViewControllers.append(makeMoreViewController())
 
         let tabBarController = UITabBarController()
-        tabBarController.setViewControllers([
-            planNavigationController,
-            tracksNavigationController,
-            mapViewController,
-            moreViewController,
-        ], animated: false)
+        tabBarController.setViewControllers(rootViewControllers, animated: false)
+        self.tabBarController = tabBarController
         return tabBarController
     }
 
@@ -145,7 +147,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private func makeWelcomeViewController() -> WelcomeViewController {
         let welcomeViewController = WelcomeViewController()
-        welcomeViewController.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
+        welcomeViewController.title = NSLocalizedString("FOSDEM", comment: "")
+        welcomeViewController.navigationItem.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
         welcomeViewController.delegate = self
 
         if #available(iOS 11.0, *) {
@@ -252,9 +255,26 @@ extension AppDelegate: FavoritesServiceDelegate {
         tracksViewController?.reloadFavorites()
     }
 
-    func favoritesServiceDidUpdateEvents(_: FavoritesService) {
-        eventViewController?.reloadFavoriteState()
+    func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService) {
+        let hasFavoriteEvents = !favoritesService.eventsIdentifiers.isEmpty
+        let firstNavigationController = tabBarController?.viewControllers?.first as? UINavigationController
+        let firstViewController = firstNavigationController?.viewControllers.first
+
+        switch (hasFavoriteEvents, firstViewController) {
+        case (true, _ as WelcomeViewController):
+            let planViewController = makePlanViewController()
+            let planNavigationController = makeRootNavigationController(with: planViewController)
+            tabBarController?.viewControllers?[0] = planNavigationController
+        case (false, _ as PlanViewController):
+            let welcomeViewController = makeWelcomeViewController()
+            let welcomeNavigationController = makeRootNavigationController(with: welcomeViewController)
+            tabBarController?.viewControllers?[0] = welcomeNavigationController
+        default:
+            break
+        }
+
         planViewController?.reloadData()
+        eventViewController?.reloadFavoriteState()
     }
 }
 
