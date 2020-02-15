@@ -1,12 +1,10 @@
-version: 2.4.0
 name: Fosdem
 options:
   createIntermediateGroups: true
   bundleIdPrefix: com.mttcrsp.Fosdem
-settingGroups:
-  common:
-    SWIFT_TREAT_WARNINGS_AS_ERRORS: 'YES'
-    SWIFT_VERSION: '5.1'
+settings:
+  SWIFT_TREAT_WARNINGS_AS_ERRORS: 'YES'
+  SWIFT_VERSION: '5.1'
 targets:
   Fosdem:
     type: application
