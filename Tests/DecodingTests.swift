@@ -61,8 +61,6 @@ final class DecodingTests: XCTestCase {
     }
 
     private func testDecoding(forYear year: Int) {
-        let bundle = Bundle(for: DecodingTests.self)
-
         guard let url = bundle.url(forResource: "\(year)", withExtension: "xml"),
             let data = try? Data(contentsOf: url) else {
             return XCTFail("Unable to load schedule data for year '\(year)'")

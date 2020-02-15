@@ -9,11 +9,11 @@ addons:
       - xcodegen
       - carthage
       - swiftformat
+      - mono0926/license-plist/license-plist 
 
 before_install:
   - gem install xcpretty-travis-formatter
-  - carthage update --platform ios
-  - xcodegen
+  - bash run.sh
 
 script:
   - xcodebuild -scheme Fosdem -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=13.3' build test | xcpretty -f `xcpretty-travis-formatter`
