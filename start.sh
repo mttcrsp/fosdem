@@ -26,12 +26,3 @@ fi
 
 # Generate Xcode project via Xcodegen
 (cd $PROJECT_DIR; xcodegen)
-
-# Workaround for missing Info.plist file in MobileVLCKit
-cp \
-	$PROJECT_DIR/Resources/Info-MobileVLCKit.plist \
-	$PROJECT_DIR/Carthage/Build/iOS/MobileVLCKit.framework/
-
-mv \
-	$PROJECT_DIR/Carthage/Build/iOS/MobileVLCKit.framework/Info-MobileVLCKit.plist \
-	$PROJECT_DIR/Carthage/Build/iOS/MobileVLCKit.framework/Info.plist

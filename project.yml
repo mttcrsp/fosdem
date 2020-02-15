@@ -19,13 +19,6 @@ targets:
       gatherCoverageData: true
     dependencies:
     - carthage: XMLCoder
-    - carthage: MobileVLCKit
-    - sdk: AudioToolbox.framework
-    - sdk: AVFoundation.framework
-    - sdk: CoreMedia.framework
-    - sdk: VideoToolbox.framework
-    - sdk: libiconv.tbd
-    - sdk: libbz2.tbd
     postbuildScripts:
     - script: swiftformat .
     settings:
