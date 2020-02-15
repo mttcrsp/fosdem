@@ -47,19 +47,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func makeTabBarController() -> UIViewController {
         let tracksViewController = makeTracksViewController()
-        let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
+        let tracksNavigationController = makeRootNavigationController(with: tracksViewController)
 
         let planViewController = makePlanViewController()
-        let planNavigationController = UINavigationController(rootViewController: planViewController)
+        let planNavigationController = makeRootNavigationController(with: planViewController)
 
         let mapViewController = makeMapViewController()
         let moreViewController = makeMoreViewController()
-
-        if #available(iOS 11.0, *) {
-            for navigationController in [tracksNavigationController, planNavigationController] {
-                navigationController.navigationBar.prefersLargeTitles = true
-            }
-        }
 
         let tabBarController = UITabBarController()
         tabBarController.setViewControllers([
@@ -69,6 +63,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             moreViewController,
         ], animated: false)
         return tabBarController
+    }
+
+    private func makeRootNavigationController(with rootViewController: UIViewController) -> UINavigationController {
+        let navigationController = UINavigationController(rootViewController: rootViewController)
+        if #available(iOS 11.0, *) {
+            navigationController.navigationBar.prefersLargeTitles = true
+        }
+        return navigationController
     }
 
     private func makeTracksViewController() -> TracksViewController {
