@@ -5,9 +5,14 @@ import XMLCoder
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
+    private weak var tracksNavigationController: UINavigationController?
     private weak var tracksViewController: TracksViewController?
-    private weak var eventViewController: EventViewController?
+
+    private weak var planNavigationController: UINavigationController?
     private weak var planViewController: PlanViewController?
+
+    private weak var welcomeNavigationController: UINavigationController?
+    private weak var eventViewController: EventViewController?
     private weak var tabBarController: UITabBarController?
 
     private var selectedTrack: Track?
@@ -52,19 +57,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func makeTabBarController() -> UIViewController {
         var rootViewControllers: [UIViewController] = []
-
         if favoritesService.eventsIdentifiers.isEmpty {
-            let welcomeViewController = makeWelcomeViewController()
-            rootViewControllers.append(makeRootNavigationController(with: welcomeViewController))
+            rootViewControllers.append(makeWelcomeNavigationController())
         } else {
-            let planViewController = makePlanViewController()
-            rootViewControllers.append(makeRootNavigationController(with: planViewController))
+            rootViewControllers.append(makePlanNavigationController())
         }
 
-        let tracksViewController = makeTracksViewController()
-        rootViewControllers.append(makeRootNavigationController(with: tracksViewController))
+        rootViewControllers.append(makeTracksNavigationController())
         rootViewControllers.append(makeMapViewController())
-        rootViewControllers.append(makeMoreViewController())
+        rootViewControllers.append(makeMoreNavigationController())
 
         let tabBarController = UITabBarController()
         tabBarController.setViewControllers(rootViewControllers, animated: false)
@@ -92,6 +93,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         return tracksViewController
+    }
+
+    private func makeTracksNavigationController() -> UINavigationController {
+        let tracksNavigationController = makeRootNavigationController(with: makeTracksViewController())
+        self.tracksNavigationController = tracksNavigationController
+        return tracksNavigationController
     }
 
     private func makeEventsViewController(for track: Track) -> EventsViewController {
@@ -137,6 +144,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return planViewController
     }
 
+    private func makePlanNavigationController() -> UINavigationController {
+        let planNavigationController = makeRootNavigationController(with: makePlanViewController())
+        self.planNavigationController = planNavigationController
+        return planNavigationController
+    }
+
     private func makeMapViewController() -> MapViewController {
         let mapViewController = MapViewController()
         mapViewController.title = NSLocalizedString("Map", comment: "")
@@ -150,6 +163,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return moreViewController
     }
 
+    private func makeMoreNavigationController() -> UINavigationController {
+        let navigationController = makeRootNavigationController(with: makeMoreViewController())
+        navigationController.setNavigationBarHidden(true, animated: false)
+        navigationController.delegate = self
+        return navigationController
+    }
+
     private func makeWelcomeViewController() -> WelcomeViewController {
         let welcomeViewController = WelcomeViewController()
         welcomeViewController.title = NSLocalizedString("FOSDEM", comment: "")
@@ -161,6 +181,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         return welcomeViewController
+    }
+
+    private func makeWelcomeNavigationController() -> UINavigationController {
+        let welcomeNavigationController = makeRootNavigationController(with: makeWelcomeViewController())
+        self.welcomeNavigationController = welcomeNavigationController
+        return welcomeNavigationController
     }
 
     private func makeSpeakersViewController() -> SpeakersViewController {
@@ -264,10 +290,11 @@ extension AppDelegate: WelcomeViewControllerDelegate {
     func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
         guard let tabBarController = tabBarController, let viewControllers = tabBarController.viewControllers else { return }
 
-        for (index, viewController) in viewControllers.enumerated() {
-            if let navigationController = viewController as? UINavigationController, navigationController.viewControllers.first is TracksViewController {
-                tabBarController.selectedIndex = index
-            }
+        for (index, viewController) in viewControllers.enumerated() where viewController == tracksNavigationController {
+            tabBarController.selectedIndex = index
+        }
+    }
+}
 
 extension AppDelegate: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
     var people: [Person] {
@@ -296,20 +323,12 @@ extension AppDelegate: FavoritesServiceDelegate {
 
     func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService) {
         let hasFavoriteEvents = !favoritesService.eventsIdentifiers.isEmpty
-        let firstNavigationController = tabBarController?.viewControllers?.first as? UINavigationController
-        let firstViewController = firstNavigationController?.viewControllers.first
+        let firstViewController = tabBarController?.viewControllers?.first
 
         switch (hasFavoriteEvents, firstViewController) {
-        case (true, _ as WelcomeViewController):
-            let planViewController = makePlanViewController()
-            let planNavigationController = makeRootNavigationController(with: planViewController)
-            tabBarController?.viewControllers?[0] = planNavigationController
-        case (false, _ as PlanViewController):
-            let welcomeViewController = makeWelcomeViewController()
-            let welcomeNavigationController = makeRootNavigationController(with: welcomeViewController)
-            tabBarController?.viewControllers?[0] = welcomeNavigationController
-        default:
-            break
+        case (true, welcomeNavigationController): tabBarController?.viewControllers?[0] = makePlanNavigationController()
+        case (false, planNavigationController): tabBarController?.viewControllers?[0] = makeWelcomeNavigationController()
+        default: break
         }
 
         planViewController?.reloadData()
