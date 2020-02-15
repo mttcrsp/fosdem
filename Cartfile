@@ -1,1 +1,3 @@
+binary "https://code.videolan.org/videolan/VLCKit/raw/master/Packaging/MobileVLCKit.json"
 github "MaxDesiatov/XMLCoder"
+
