@@ -244,8 +244,10 @@ extension AppDelegate: WelcomeViewControllerDelegate {
     func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
         guard let tabBarController = tabBarController, let viewControllers = tabBarController.viewControllers else { return }
 
-        for (index, viewController) in viewControllers.enumerated() where viewController is PlanViewController {
-            tabBarController.selectedIndex = index
+        for (index, viewController) in viewControllers.enumerated() {
+            if let navigationController = viewController as? UINavigationController, navigationController.viewControllers.first is TracksViewController {
+                tabBarController.selectedIndex = index
+            }
         }
     }
 }
