@@ -42,6 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self?.indices = .init(schedule: schedule)
 
             DispatchQueue.main.async {
+                self?.planViewController?.reloadData()
                 self?.tracksViewController?.reloadData()
             }
         }
