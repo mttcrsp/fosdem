@@ -5,6 +5,7 @@ protocol EventViewControllerDataSource: AnyObject {
 }
 
 protocol EventViewControllerDelegate: AnyObject {
+    func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
     func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController)
 }
 
@@ -15,7 +16,8 @@ final class EventViewController: UITableViewController {
     }
 
     fileprivate struct Item {
-        let field, value: String
+        let field: String?
+        let value: String
     }
 
     var event: Event? {
@@ -53,10 +55,7 @@ final class EventViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         navigationItem.rightBarButtonItem = favoriteButton
-
-        tableView.allowsSelection = false
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
@@ -69,10 +68,16 @@ final class EventViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = items[indexPath.section]
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-        cell.textLabel?.text = items[indexPath.section].value
+        cell.textLabel?.text = item.value
         cell.textLabel?.numberOfLines = 0
+        cell.selectionStyle = item.field == nil ? .default : .none
         return cell
+    }
+
+    override func tableView(_: UITableView, didSelectRowAt _: IndexPath) {
+        delegate?.eventViewControllerDidTapVideo(self)
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -126,6 +131,11 @@ final class EventViewController: UITableViewController {
         if let value = event.formattedDuration {
             let field = NSLocalizedString("Duration", comment: "")
             items.append(.init(field: field, value: value))
+        }
+
+        if let _ = event.video {
+            let value = NSLocalizedString("Watch now", comment: "")
+            items.append(.init(field: nil, value: value))
         }
 
         return items

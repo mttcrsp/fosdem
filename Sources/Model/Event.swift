@@ -32,6 +32,10 @@ extension Event {
     var formattedStart: String? {
         DateComponentsFormatter.time.string(from: start)
     }
+
+    var video: Link? {
+        links.first { link in link.url?.pathExtension == "mp4" }
+    }
 }
 
 extension Event: Decodable {

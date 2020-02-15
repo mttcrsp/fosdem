@@ -1,3 +1,4 @@
+import AVKit
 import UIKit
 import XMLCoder
 
@@ -202,6 +203,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return speakersViewController
     }
+
+    private func makeVideoViewController(for url: URL) -> AVPlayerViewController {
+        let videoViewController = AVPlayerViewController()
+        videoViewController.player = AVPlayer(url: url)
+        videoViewController.allowsPictureInPicturePlayback = true
+        return videoViewController
+    }
 }
 
 extension AppDelegate: TracksViewControllerDataSource, TracksViewControllerDelegate {
@@ -256,6 +264,11 @@ extension AppDelegate: EventViewControllerDataSource, EventViewControllerDelegat
         } else {
             favoritesService.addEvent(withIdentifier: event.id)
         }
+    }
+
+    func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
+        guard let event = eventViewController.event, let video = event.video, let url = video.url else { return }
+        eventViewController.present(makeVideoViewController(for: url), animated: true)
     }
 }
 
