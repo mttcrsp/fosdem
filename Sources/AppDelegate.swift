@@ -8,6 +8,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private weak var tracksViewController: TracksViewController?
     private weak var eventViewController: EventViewController?
     private weak var planViewController: PlanViewController?
+    private weak var tabBarController: UITabBarController?
 
     private var selectedTrack: Track?
     private var indices: TracksIndices?
@@ -139,6 +140,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         moreViewController.delegate = self
         return moreViewController
     }
+
+    private func makeWelcomeViewController() -> WelcomeViewController {
+        let welcomeViewController = WelcomeViewController()
+        welcomeViewController.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
+        welcomeViewController.delegate = self
+
+        if #available(iOS 11.0, *) {
+            welcomeViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        return welcomeViewController
+    }
 }
 
 extension AppDelegate: TracksViewControllerDataSource, TracksViewControllerDelegate {
@@ -219,6 +232,16 @@ extension AppDelegate: PlanViewControllerDataSource, PlanViewControllerDelegate 
 extension AppDelegate: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         print(#function, item, moreViewController)
+    }
+}
+
+extension AppDelegate: WelcomeViewControllerDelegate {
+    func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
+        guard let tabBarController = tabBarController, let viewControllers = tabBarController.viewControllers else { return }
+
+        for (index, viewController) in viewControllers.enumerated() where viewController is PlanViewController {
+            tabBarController.selectedIndex = index
+        }
     }
 }
 
