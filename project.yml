@@ -26,6 +26,7 @@ targets:
       gatherCoverageData: true
     dependencies:
     - package: XMLCoder
+    - package: GRDB
     postbuildScripts:
     - script: swiftformat .
     settings:
