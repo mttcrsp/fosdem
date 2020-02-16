@@ -1,19 +1,15 @@
-struct Person: Decodable {
+import GRDB
+
+struct Person: Codable {
     let id, name: String
 }
 
-extension Person: Hashable, Equatable {
+extension Person: Equatable, Hashable {
     static func == (lhs: Person, rhs: Person) -> Bool {
         lhs.id == rhs.id
     }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-    }
-}
-
-extension Person {
-    enum CodingKeys: String, CodingKey {
-        case id, name = "value"
     }
 }
