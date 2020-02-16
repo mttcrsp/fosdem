@@ -54,10 +54,10 @@ class DefaultsService {
     }
 
     private func isSwiftCodableType<Value>(_ type: Value.Type) -> Bool {
-        return type is String.Type || type is Bool.Type || type is Int.Type || type is Float.Type || type is Double.Type
+        type is String.Type || type is Bool.Type || type is Int.Type || type is Float.Type || type is Double.Type
     }
 
     private func isFoundationCodableType<Value>(_ type: Value.Type) -> Bool {
-        return type is Date.Type
+        type is Date.Type
     }
 }

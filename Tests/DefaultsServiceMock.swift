@@ -5,7 +5,7 @@ final class DefaultsServiceMock: DefaultsService {
     private(set) var results: [String: Any] = [:]
 
     override func value<Value>(for key: Key<Value>) -> Value? {
-        return results[key.name] as? Value
+        results[key.name] as? Value
     }
 
     override func set<Value>(_ value: Value?, for key: Key<Value>) {
