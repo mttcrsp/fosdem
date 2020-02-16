@@ -11,7 +11,7 @@ class DefaultsService {
         defaults = userDefaults
     }
 
-    func value<Value>(for key: Key<Value>) -> Value? {
+    func value<Value>(for key: Key<Value>) throws -> Value? {
         if isSwiftCodableType(Value.self) || isFoundationCodableType(Value.self) {
             return defaults.value(forKey: key.name) as? Value
         }
@@ -20,18 +20,12 @@ class DefaultsService {
             return nil
         }
 
-        do {
-            let decoder = JSONDecoder()
-            let decoded = try decoder.decode(Value.self, from: data)
-            return decoded
-        } catch {
-            assertionFailure(error.localizedDescription)
-        }
-
-        return nil
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(Value.self, from: data)
+        return decoded
     }
 
-    func set<Value>(_ value: Value?, for key: Key<Value>) {
+    func set<Value>(_ value: Value?, for key: Key<Value>) throws {
         if isSwiftCodableType(Value.self) || isFoundationCodableType(Value.self) {
             return defaults.set(value, forKey: key.name)
         }
@@ -40,13 +34,9 @@ class DefaultsService {
             return defaults.removeObject(forKey: key.name)
         }
 
-        do {
-            let encoder = JSONEncoder()
-            let encoded = try encoder.encode(value)
-            defaults.set(encoded, forKey: key.name)
-        } catch {
-            assertionFailure(error.localizedDescription)
-        }
+        let encoder = JSONEncoder()
+        let encoded = try encoder.encode(value)
+        defaults.set(encoded, forKey: key.name)
     }
 
     func clear() {

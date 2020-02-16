@@ -53,13 +53,13 @@ final class FavoritesService {
 
 private extension DefaultsService {
     var favoriteTracks: Set<String> {
-        get { value(for: .favoriteTracks) ?? [] }
-        set { set(newValue, for: .favoriteTracks) }
+        get { (try? value(for: .favoriteTracks)) ?? [] }
+        set { try? set(newValue, for: .favoriteTracks) }
     }
 
     var favoriteEventsIdentifiers: Set<String> {
-        get { value(for: .favoriteEventsIdentifiers) ?? [] }
-        set { set(newValue, for: .favoriteEventsIdentifiers) }
+        get { (try? value(for: .favoriteEventsIdentifiers)) ?? [] }
+        set { try? set(newValue, for: .favoriteEventsIdentifiers) }
     }
 }
 
