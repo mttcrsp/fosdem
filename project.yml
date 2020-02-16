@@ -40,7 +40,6 @@ targets:
     sources:
     - Tests
     - Resources/Schedules
-    - Resources/Licenses
     dependencies:
     - target: Fosdem
     postbuildScripts:
