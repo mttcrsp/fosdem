@@ -207,7 +207,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeVideoViewController(for url: URL) -> AVPlayerViewController {
         let videoViewController = AVPlayerViewController()
         videoViewController.player = AVPlayer(url: url)
+        videoViewController.player?.play()
         videoViewController.allowsPictureInPicturePlayback = true
+
+        if #available(iOS 11.0, *) {
+            videoViewController.exitsFullScreenWhenPlaybackEnds = true
+        }
+
         return videoViewController
     }
 }
