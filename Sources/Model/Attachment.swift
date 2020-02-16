@@ -1,15 +1,9 @@
 import Foundation
 
-enum AttachmentType: String, Decodable {
+enum AttachmentType: String, Equatable, Codable {
     case slides, audio, video, paper, other
 }
 
-struct Attachment: Decodable {
+struct Attachment: Equatable, Codable {
     let type: AttachmentType, url: URL, name: String?
-}
-
-extension Attachment {
-    enum CodingKeys: String, CodingKey {
-        case type, url = "href", name = "value"
-    }
 }
