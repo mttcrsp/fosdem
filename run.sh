@@ -9,14 +9,6 @@ if ! hash xcodegen 2>/dev/null; then
 	exit 1
 fi
 
-if ! hash carthage 2>/dev/null; then
-	echo "You need to install Carthage to continue
-
-	https://github.com/Carthage/Carthage#installing-carthage
-	"
-	exit 1
-fi
-
 if ! hash swiftformat 2>/dev/null; then
 	echo "You need to install SwiftFormat to continue
 
@@ -34,11 +26,6 @@ if ! hash license-plist 2>/dev/null; then
 fi
 
 PROJECT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
-
-# Download all dependencies via Carthage
-if [ ! -d $PROJECT_DIR/Carthage ]; then
-	( cd $PROJECT_DIR; carthage update --platform ios &>/dev/null )
-fi
 
 # Generate Xcode project via Xcodegen
 ( cd $PROJECT_DIR; xcodegen &>/dev/null )

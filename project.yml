@@ -1,4 +1,11 @@
 name: Fosdem
+packages:
+  XMLCoder:
+    url: https://github.com/MaxDesiatov/XMLCoder
+    version: 0.9.0
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    version: 4.9.0
 options:
   createIntermediateGroups: true
   bundleIdPrefix: com.mttcrsp.Fosdem
@@ -18,7 +25,7 @@ targets:
         - Tests
       gatherCoverageData: true
     dependencies:
-    - carthage: XMLCoder
+    - package: XMLCoder
     postbuildScripts:
     - script: swiftformat .
     settings:

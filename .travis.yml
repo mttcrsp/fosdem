@@ -7,12 +7,10 @@ addons:
     update: true
     packages:
       - xcodegen
-      - carthage
       - swiftformat
 
 before_install:
   - gem install xcpretty-travis-formatter
-  - carthage update --platform ios
   - xcodegen
 
 script:
