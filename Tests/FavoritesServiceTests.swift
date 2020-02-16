@@ -4,7 +4,7 @@ import XCTest
 
 final class FavoritesServiceTests: XCTestCase {
     func testAddTrack() {
-        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        let service = FavoritesService(userDefaults: UserDefaultsMock())
         service.addTrack("1")
         XCTAssertEqual(service.tracks, ["1"])
 
@@ -22,7 +22,7 @@ final class FavoritesServiceTests: XCTestCase {
     }
 
     func testRemoveTrack() {
-        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        let service = FavoritesService(userDefaults: UserDefaultsMock())
         service.addTrack("1")
         service.addTrack("2")
         service.addTrack("3")
@@ -47,7 +47,7 @@ final class FavoritesServiceTests: XCTestCase {
     }
 
     func testAddEvent() {
-        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        let service = FavoritesService(userDefaults: UserDefaultsMock())
         service.addEvent(withIdentifier: "1")
         XCTAssertEqual(service.eventsIdentifiers, ["1"])
 
@@ -65,7 +65,7 @@ final class FavoritesServiceTests: XCTestCase {
     }
 
     func testRemoveEvent() {
-        let service = FavoritesService(defaultsService: DefaultsServiceMock())
+        let service = FavoritesService(userDefaults: UserDefaultsMock())
         service.addEvent(withIdentifier: "1")
         service.addEvent(withIdentifier: "2")
         service.addEvent(withIdentifier: "3")
@@ -87,5 +87,17 @@ final class FavoritesServiceTests: XCTestCase {
 
         service.removeEvent(withIdentifier: "1")
         XCTAssertEqual(service.eventsIdentifiers, [])
+    }
+}
+
+private final class UserDefaultsMock: FavoritesServiceDefaults {
+    private var dictionary: [String: Any] = [:]
+
+    func set(_ value: Any?, forKey defaultName: String) {
+        dictionary[defaultName] = value
+    }
+
+    func value(forKey key: String) -> Any? {
+        dictionary[key]
     }
 }

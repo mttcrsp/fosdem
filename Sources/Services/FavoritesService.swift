@@ -5,23 +5,30 @@ protocol FavoritesServiceDelegate: AnyObject {
     func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService)
 }
 
+protocol FavoritesServiceDefaults: AnyObject {
+    func value(forKey key: String) -> Any?
+    func set(_ value: Any?, forKey defaultName: String)
+}
+
+extension UserDefaults: FavoritesServiceDefaults {}
+
 final class FavoritesService {
     weak var delegate: FavoritesServiceDelegate?
 
-    private let defaultsService: DefaultsService
+    private let userDefaults: FavoritesServiceDefaults
 
-    init(defaultsService: DefaultsService) {
-        self.defaultsService = defaultsService
+    init(userDefaults: FavoritesServiceDefaults = UserDefaults.standard) {
+        self.userDefaults = userDefaults
     }
 
-    private(set) var tracks: Set<String> {
-        get { defaultsService.favoriteTracks }
-        set { defaultsService.favoriteTracks = newValue }
+    var tracks: Set<String> {
+        get { userDefaults.tracks }
+        set { userDefaults.tracks = newValue }
     }
 
-    private(set) var eventsIdentifiers: Set<String> {
-        get { defaultsService.favoriteEventsIdentifiers }
-        set { defaultsService.favoriteEventsIdentifiers = newValue }
+    var eventsIdentifiers: Set<String> {
+        get { userDefaults.eventsIdentifiers }
+        set { userDefaults.eventsIdentifiers = newValue }
     }
 
     func addTrack(_ track: String) {
@@ -51,24 +58,31 @@ final class FavoritesService {
     }
 }
 
-private extension DefaultsService {
-    var favoriteTracks: Set<String> {
-        get { (try? value(for: .favoriteTracks)) ?? [] }
-        set { try? set(newValue, for: .favoriteTracks) }
+private extension FavoritesServiceDefaults {
+    var tracks: Set<String> {
+        get { value(forKey: .favoriteTracks) }
+        set { set(newValue, forKey: .favoriteTracks) }
     }
 
-    var favoriteEventsIdentifiers: Set<String> {
-        get { (try? value(for: .favoriteEventsIdentifiers)) ?? [] }
-        set { try? set(newValue, for: .favoriteEventsIdentifiers) }
+    var eventsIdentifiers: Set<String> {
+        get { value(forKey: .favoriteEvents) }
+        set { set(newValue, forKey: .favoriteEvents) }
+    }
+
+    private func value(forKey key: String) -> Set<String> {
+        let object = value(forKey: key)
+        let array = object as? [String] ?? []
+        return Set(array)
+    }
+
+    private func set(_ value: Set<String>, forKey defaultName: String) {
+        let array = Array(value)
+        let arrayPlist = NSArray(array: array)
+        set(arrayPlist, forKey: defaultName)
     }
 }
 
-private extension DefaultsService.Key {
-    static var favoriteTracks: DefaultsService.Key<Set<String>> {
-        DefaultsService.Key(name: #function)
-    }
-
-    static var favoriteEventsIdentifiers: DefaultsService.Key<Set<String>> {
-        DefaultsService.Key(name: #function)
-    }
+private extension String {
+    static var favoriteTracks: String { #function }
+    static var favoriteEvents: String { #function }
 }
