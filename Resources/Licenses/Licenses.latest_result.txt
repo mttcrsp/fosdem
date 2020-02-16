@@ -1,0 +1,5 @@
+name: XMLCoder, nameSpecified: , owner: MaxDesiatov, version: 0.9.0
+
+add-version-numbers: false
+
+LicensePlist Version: 2.12.0

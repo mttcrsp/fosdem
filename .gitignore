@@ -1,7 +1,5 @@
 *.xcodeproj
 
-Resources/Licenses
-
 # General
 .DS_Store
 .AppleDouble
