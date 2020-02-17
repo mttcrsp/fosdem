@@ -17,47 +17,6 @@ final class PersistenceServiceTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testTracks() {
-        guard let service = try? PersistenceService(path: nil) else {
-            return XCTFail("Failed to instantiate test persistence service")
-        }
-
-        let e = expectation(description: #function)
-        service.import(schedule) { _ in
-            service.tracks { result in
-                switch result {
-                case let .failure(error): XCTFail(error.localizedDescription)
-                case let .success(tracks): XCTAssertEqual(tracks, ["1", "2", "3"])
-                }
-
-                e.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 1)
-    }
-
-    func testEventsForTrack() {
-        guard let service = try? PersistenceService(path: nil) else {
-            return XCTFail("Failed to instantiate test persistence service")
-        }
-
-        let e = expectation(description: #function)
-        service.import(schedule) { _ in
-            service.events(for: "2") { result in
-                switch result {
-                case let .failure(error):
-                    XCTFail(error.localizedDescription)
-                case let .success(events):
-                    XCTAssertEqual(events.count, 1)
-                    XCTAssertEqual(events.first?.id, "3")
-                }
-
-                e.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 1)
-    }
-
     func testPeople() {
         guard let service = try? PersistenceService(path: nil) else {
             return XCTFail("Failed to instantiate test persistence service")

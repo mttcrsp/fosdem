@@ -37,36 +37,6 @@ final class PersistenceService {
         })
     }
 
-    func tracks(completion: @escaping (Result<[String], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    completion(.success(try String.fetchAll(database, sql: "SELECT DISTINCT track FROM events")))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-
-    func events(for track: Track, completion: @escaping (Result<[Event], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    completion(.success(try Event.fetchAll(database, sql: "SELECT * FROM events WHERE track = ?", arguments: [track])))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-
     func people(completion: @escaping (Result<[Person], Error>) -> Void) {
         database.asyncRead { result in
             switch result {
