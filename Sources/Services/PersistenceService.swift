@@ -76,6 +76,7 @@ final class PersistenceService {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("create events table", migrate: createEventsTable)
         migrator.registerMigration("create people table", migrate: createPeopleTable)
+        migrator.registerMigration("create tracks table", migrate: createTracksTable)
         migrator.registerMigration("create participations table", migrate: createParticipationsTable)
         return migrator
     }
@@ -104,6 +105,14 @@ final class PersistenceService {
             table.column(Event.Columns.links.rawValue, .blob).notNull()
             table.column(Event.Columns.people.rawValue, .blob).notNull()
             table.column(Event.Columns.attachments.rawValue, .blob).notNull()
+        }
+    }
+
+    private func createTracksTable(in database: GRDB.Database) throws {
+        try database.create(table: Track.databaseTableName) { table in
+            table.column(Track.Columns.name.rawValue).primaryKey(onConflict: .replace)
+            table.column(Track.Columns.day.rawValue, .integer)
+            table.column(Track.Columns.date.rawValue, .date)
         }
     }
 
