@@ -28,6 +28,10 @@ final class EventsViewController: UITableViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func reloadData() {
+        tableView.reloadData()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)

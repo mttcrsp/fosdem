@@ -44,6 +44,10 @@ final class FavoritesService {
         }
     }
 
+    func contains(_ track: Track) -> Bool {
+        tracksIdentifiers.contains(track.name)
+    }
+
     func addEvent(withIdentifier eventID: String) {
         let (inserted, _) = eventsIdentifiers.insert(eventID)
         if inserted {
@@ -55,6 +59,10 @@ final class FavoritesService {
         if let _ = eventsIdentifiers.remove(eventID) {
             delegate?.favoritesServiceDidUpdateEvents(self)
         }
+    }
+
+    func contains(_ event: Event) -> Bool {
+        eventsIdentifiers.contains(event.id)
     }
 }
 

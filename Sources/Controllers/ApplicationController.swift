@@ -1,17 +1,10 @@
-import AVKit
 import UIKit
 
 final class ApplicationController: UITabBarController {
-    private weak var tracksNavigationController: UINavigationController?
-    private weak var tracksViewController: TracksViewController?
-
     private weak var planNavigationController: UINavigationController?
     private weak var planViewController: PlanViewController?
 
     private weak var welcomeNavigationController: UINavigationController?
-    private weak var eventViewController: EventViewController?
-
-    private var selectedTrack: Track?
 
     private let services: Services
 
@@ -27,12 +20,12 @@ final class ApplicationController: UITabBarController {
             viewControllers.append(makePlanNavigationController())
         }
 
-        viewControllers.append(makeTracksNavigationController())
+        viewControllers.append(TracksController(services: services))
         viewControllers.append(makeMapViewController())
         viewControllers.append(makeMoreNavigationController())
         setViewControllers(viewControllers, animated: false)
 
-        self.services.favoritesService.delegate = self
+        services.favoritesService.delegate = self
     }
 
     required init?(coder _: NSCoder) {
@@ -45,59 +38,8 @@ final class ApplicationController: UITabBarController {
 
     private func makeRootNavigationController(with rootViewController: UIViewController) -> UINavigationController {
         let navigationController = UINavigationController(rootViewController: rootViewController)
-        if #available(iOS 11.0, *) {
-            navigationController.navigationBar.prefersLargeTitles = true
-        }
+
         return navigationController
-    }
-
-    private func makeTracksViewController() -> TracksViewController {
-        let tracksViewController = TracksViewController()
-        tracksViewController.delegate = self
-        tracksViewController.dataSource = self
-        tracksViewController.title = NSLocalizedString("Tracks", comment: "")
-        self.tracksViewController = tracksViewController
-
-        if #available(iOS 11.0, *) {
-            tracksViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return tracksViewController
-    }
-
-    private func makeTracksNavigationController() -> UINavigationController {
-        let tracksNavigationController = makeRootNavigationController(with: makeTracksViewController())
-        self.tracksNavigationController = tracksNavigationController
-        return tracksNavigationController
-    }
-
-    private func makeEventsViewController(for track: Track) -> EventsViewController {
-        let eventsViewController = EventsViewController()
-        eventsViewController.hidesBottomBarWhenPushed = true
-        eventsViewController.title = track.name
-        eventsViewController.dataSource = self
-        eventsViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            eventsViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return eventsViewController
-    }
-
-    private func makeEventViewController(for event: Event) -> EventViewController {
-        let eventViewController = EventViewController()
-        eventViewController.hidesBottomBarWhenPushed = true
-        eventViewController.dataSource = self
-        eventViewController.delegate = self
-        eventViewController.event = event
-        self.eventViewController = eventViewController
-
-        if #available(iOS 11.0, *) {
-            eventViewController.navigationItem.largeTitleDisplayMode = .never
-        }
-
-        return eventViewController
     }
 
     private func makePlanViewController() -> PlanViewController {
@@ -172,78 +114,6 @@ final class ApplicationController: UITabBarController {
 
         return speakersViewController
     }
-
-    private func makeVideoViewController(for url: URL) -> AVPlayerViewController {
-        let videoViewController = AVPlayerViewController()
-        videoViewController.player = AVPlayer(url: url)
-        videoViewController.player?.play()
-        videoViewController.allowsPictureInPicturePlayback = true
-
-        if #available(iOS 11.0, *) {
-            videoViewController.exitsFullScreenWhenPlaybackEnds = true
-        }
-
-        return videoViewController
-    }
-}
-
-extension ApplicationController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    var tracks: [Track] {
-        [] // FIXME:
-    }
-
-    var tracksForDay: [[Track]] {
-        [] // FIXME:
-    }
-
-    var favoriteTracks: [Track] {
-        [] // FIXME:
-    }
-
-    func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-        _ = track // FIXME:
-    }
-
-    func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-        _ = track // FIXME:
-    }
-
-    func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-        selectedTrack = tracksViewController.selectedTrack
-        tracksViewController.show(makeEventsViewController(for: track), sender: nil)
-    }
-}
-
-extension ApplicationController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-    func events(in _: EventsViewController) -> [Event] {
-        [] // FIXME:
-    }
-
-    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        eventsViewController.show(makeEventViewController(for: event), sender: nil)
-    }
-}
-
-extension ApplicationController: EventViewControllerDataSource, EventViewControllerDelegate {
-    func isEventFavorite(for eventViewController: EventViewController) -> Bool {
-        guard let event = eventViewController.event else { return false }
-        return favoritesService.eventsIdentifiers.contains(event.id)
-    }
-
-    func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController) {
-        guard let event = eventViewController.event else { return }
-
-        if isEventFavorite(for: eventViewController) {
-            favoritesService.removeEvent(withIdentifier: event.id)
-        } else {
-            favoritesService.addEvent(withIdentifier: event.id)
-        }
-    }
-
-    func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
-        guard let event = eventViewController.event, let video = event.video, let url = video.url else { return }
-        eventViewController.present(makeVideoViewController(for: url), animated: true)
-    }
 }
 
 extension ApplicationController: PlanViewControllerDataSource, PlanViewControllerDelegate {
@@ -252,7 +122,7 @@ extension ApplicationController: PlanViewControllerDataSource, PlanViewControlle
     }
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
-        planViewController.show(makeEventViewController(for: event), sender: nil)
+        planViewController.show(EventController(event: event, services: services), sender: nil)
     }
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
@@ -275,7 +145,7 @@ extension ApplicationController: WelcomeViewControllerDelegate {
     func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
         guard let tabBarController = tabBarController, let viewControllers = tabBarController.viewControllers else { return }
 
-        for (index, viewController) in viewControllers.enumerated() where viewController == tracksNavigationController {
+        for (index, viewController) in viewControllers.enumerated() where viewController is TracksController {
             tabBarController.selectedIndex = index
         }
     }
@@ -303,7 +173,7 @@ extension ApplicationController: UINavigationControllerDelegate {
 
 extension ApplicationController: FavoritesServiceDelegate {
     func favoritesServiceDidUpdateTracks(_: FavoritesService) {
-        tracksViewController?.reloadFavorites()
+        // FIXME: update tracks controller
     }
 
     func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService) {
@@ -317,6 +187,7 @@ extension ApplicationController: FavoritesServiceDelegate {
         }
 
         planViewController?.reloadData()
-        eventViewController?.reloadFavoriteState()
+
+        // FIXME: update event view controllers
     }
 }

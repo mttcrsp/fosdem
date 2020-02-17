@@ -1,19 +1,11 @@
 import UIKit
 
-protocol EventViewControllerDataSource: AnyObject {
-    func isEventFavorite(for eventViewController: EventViewController) -> Bool
-}
-
 protocol EventViewControllerDelegate: AnyObject {
     func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
-    func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController)
 }
 
 final class EventViewController: UITableViewController {
     weak var delegate: EventViewControllerDelegate?
-    weak var dataSource: EventViewControllerDataSource? {
-        didSet { reloadFavoriteState() }
-    }
 
     fileprivate struct Item {
         let field: String?
@@ -26,19 +18,6 @@ final class EventViewController: UITableViewController {
 
     private var items: [Item] = [] {
         didSet { itemsChanged() }
-    }
-
-    private var isEventFavorite: Bool {
-        dataSource?.isEventFavorite(for: self) ?? false
-    }
-
-    private lazy var favoriteButton: UIBarButtonItem =
-        UIBarButtonItem(title: favoriteButtonTitle, style: .plain, target: self, action: #selector(favoriteTapped))
-
-    private var favoriteButtonTitle: String {
-        isEventFavorite
-            ? NSLocalizedString("Unfavorite", comment: "")
-            : NSLocalizedString("Favorite", comment: "")
     }
 
     init() {
@@ -55,7 +34,6 @@ final class EventViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.rightBarButtonItem = favoriteButton
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
@@ -89,17 +67,7 @@ final class EventViewController: UITableViewController {
         view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
     }
 
-    @objc private func favoriteTapped() {
-        delegate?.eventViewControllerDidTapFavorite(self)
-    }
-
-    func reloadFavoriteState() {
-        favoriteButton.title = favoriteButtonTitle
-    }
-
     private func eventChanged() {
-        reloadFavoriteState()
-
         if let event = event {
             items = makeItems(for: event)
         } else {
