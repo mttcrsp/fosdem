@@ -1,10 +1,5 @@
 import Foundation
 
-protocol FavoritesServiceDelegate: AnyObject {
-    func favoritesServiceDidUpdateTracks(_ favoritesService: FavoritesService)
-    func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService)
-}
-
 protocol FavoritesServiceDefaults: AnyObject {
     func value(forKey key: String) -> Any?
     func set(_ value: Any?, forKey defaultName: String)
@@ -13,9 +8,8 @@ protocol FavoritesServiceDefaults: AnyObject {
 extension UserDefaults: FavoritesServiceDefaults {}
 
 final class FavoritesService {
-    weak var delegate: FavoritesServiceDelegate?
-
     private let userDefaults: FavoritesServiceDefaults
+    private let notificationCenter = NotificationCenter()
 
     init(userDefaults: FavoritesServiceDefaults = UserDefaults.standard) {
         self.userDefaults = userDefaults
@@ -31,16 +25,24 @@ final class FavoritesService {
         set { userDefaults.eventsIdentifiers = newValue }
     }
 
+    func addObserverForTracks(_ handler: @escaping () -> Void) -> NSObjectProtocol {
+        notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil, using: { _ in handler() })
+    }
+
+    func addObserverForEvents(_ handler: @escaping () -> Void) -> NSObjectProtocol {
+        notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil, using: { _ in handler() })
+    }
+
     func addTrack(withIdentifier trackID: String) {
         let (inserted, _) = tracksIdentifiers.insert(trackID)
         if inserted {
-            delegate?.favoritesServiceDidUpdateTracks(self)
+            notificationCenter.post(Notification(name: .favoriteTracksDidChange))
         }
     }
 
     func removeTrack(withIdentifier trackID: String) {
         if let _ = tracksIdentifiers.remove(trackID) {
-            delegate?.favoritesServiceDidUpdateTracks(self)
+            notificationCenter.post(Notification(name: .favoriteTracksDidChange))
         }
     }
 
@@ -51,13 +53,13 @@ final class FavoritesService {
     func addEvent(withIdentifier eventID: String) {
         let (inserted, _) = eventsIdentifiers.insert(eventID)
         if inserted {
-            delegate?.favoritesServiceDidUpdateEvents(self)
+            notificationCenter.post(Notification(name: .favoriteEventsDidChange))
         }
     }
 
     func removeEvent(withIdentifier eventID: String) {
         if let _ = eventsIdentifiers.remove(eventID) {
-            delegate?.favoritesServiceDidUpdateEvents(self)
+            notificationCenter.post(Notification(name: .favoriteEventsDidChange))
         }
     }
 
@@ -93,4 +95,9 @@ private extension FavoritesServiceDefaults {
 private extension String {
     static var favoriteTracks: String { #function }
     static var favoriteEvents: String { #function }
+}
+
+private extension Notification.Name {
+    static var favoriteTracksDidChange: Notification.Name { Notification.Name(#function) }
+    static var favoriteEventsDidChange: Notification.Name { Notification.Name(#function) }
 }

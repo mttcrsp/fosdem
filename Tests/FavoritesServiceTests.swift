@@ -88,4 +88,35 @@ final class FavoritesServiceTests: XCTestCase {
         service.removeEvent(withIdentifier: "1")
         XCTAssertEqual(service.eventsIdentifiers, [])
     }
+
+    func testNotifiesObservers() {
+        let tracksExpectation = expectation(description: "tracks changes are notified")
+        let eventsExpectation = expectation(description: "events changes are notified")
+
+        for expectation in [tracksExpectation, eventsExpectation] {
+            expectation.expectedFulfillmentCount = 2
+        }
+
+        let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
+        var tracksObservation: NSObjectProtocol? = service.addObserverForTracks { tracksExpectation.fulfill() }
+        var eventsObservation: NSObjectProtocol? = service.addObserverForEvents { eventsExpectation.fulfill() }
+
+        service.addTrack(withIdentifier: "1")
+        service.addTrack(withIdentifier: "1")
+        service.removeTrack(withIdentifier: "1")
+        service.removeTrack(withIdentifier: "1")
+
+        service.addEvent(withIdentifier: "1")
+        service.addEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: "1")
+
+        waitForExpectations(timeout: 1)
+
+        _ = tracksObservation
+        _ = eventsObservation
+
+        tracksObservation = nil
+        eventsObservation = nil
+    }
 }

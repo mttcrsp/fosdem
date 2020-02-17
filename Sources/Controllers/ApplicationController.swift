@@ -21,8 +21,6 @@ final class ApplicationController: UITabBarController {
         viewControllers.append(makeMapViewController())
         viewControllers.append(makeMoreNavigationController())
         setViewControllers(viewControllers, animated: false)
-
-        services.favoritesService.delegate = self
     }
 
     required init?(coder _: NSCoder) {
@@ -73,12 +71,6 @@ extension ApplicationController: UINavigationControllerDelegate {
         default: break
         }
     }
-}
-
-extension ApplicationController: FavoritesServiceDelegate {
-    func favoritesServiceDidUpdateTracks(_: FavoritesService) {}
-
-    func favoritesServiceDidUpdateEvents(_: FavoritesService) {}
 }
 
 private extension ApplicationController {
