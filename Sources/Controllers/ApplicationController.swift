@@ -1,9 +1,6 @@
 import UIKit
 
 final class ApplicationController: UITabBarController {
-    private weak var planNavigationController: UINavigationController?
-    private weak var planViewController: PlanViewController?
-
     private weak var welcomeNavigationController: UINavigationController?
 
     private let services: Services
@@ -17,7 +14,7 @@ final class ApplicationController: UITabBarController {
         if favoritesService.eventsIdentifiers.isEmpty {
             viewControllers.append(makeWelcomeNavigationController())
         } else {
-            viewControllers.append(makePlanNavigationController())
+            viewControllers.append(PlanController(services: services))
         }
 
         viewControllers.append(TracksController(services: services))
@@ -40,26 +37,6 @@ final class ApplicationController: UITabBarController {
         let navigationController = UINavigationController(rootViewController: rootViewController)
 
         return navigationController
-    }
-
-    private func makePlanViewController() -> PlanViewController {
-        let planViewController = PlanViewController()
-        planViewController.title = NSLocalizedString("Plan", comment: "")
-        planViewController.dataSource = self
-        planViewController.delegate = self
-        self.planViewController = planViewController
-
-        if #available(iOS 11.0, *) {
-            planViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return planViewController
-    }
-
-    private func makePlanNavigationController() -> UINavigationController {
-        let planNavigationController = makeRootNavigationController(with: makePlanViewController())
-        self.planNavigationController = planNavigationController
-        return planNavigationController
     }
 
     private func makeMapViewController() -> MapViewController {
@@ -116,20 +93,6 @@ final class ApplicationController: UITabBarController {
     }
 }
 
-extension ApplicationController: PlanViewControllerDataSource, PlanViewControllerDelegate {
-    func events(in _: PlanViewController) -> [Event] {
-        [] // FIXME:
-    }
-
-    func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
-        planViewController.show(EventController(event: event, services: services), sender: nil)
-    }
-
-    func planViewController(_: PlanViewController, didUnfavorite event: Event) {
-        favoritesService.removeEvent(withIdentifier: event.id)
-    }
-}
-
 extension ApplicationController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
@@ -172,22 +135,7 @@ extension ApplicationController: UINavigationControllerDelegate {
 }
 
 extension ApplicationController: FavoritesServiceDelegate {
-    func favoritesServiceDidUpdateTracks(_: FavoritesService) {
-        // FIXME: update tracks controller
-    }
+    func favoritesServiceDidUpdateTracks(_: FavoritesService) {}
 
-    func favoritesServiceDidUpdateEvents(_ favoritesService: FavoritesService) {
-        let hasFavoriteEvents = !favoritesService.eventsIdentifiers.isEmpty
-        let firstViewController = tabBarController?.viewControllers?.first
-
-        switch (hasFavoriteEvents, firstViewController) {
-        case (true, welcomeNavigationController): tabBarController?.viewControllers?[0] = makePlanNavigationController()
-        case (false, planNavigationController): tabBarController?.viewControllers?[0] = makeWelcomeNavigationController()
-        default: break
-        }
-
-        planViewController?.reloadData()
-
-        // FIXME: update event view controllers
-    }
+    func favoritesServiceDidUpdateEvents(_: FavoritesService) {}
 }
