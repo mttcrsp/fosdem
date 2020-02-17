@@ -5,45 +5,45 @@ import XCTest
 final class FavoritesServiceTests: XCTestCase {
     func testAddTrack() {
         let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
-        service.addTrack("1")
-        XCTAssertEqual(service.tracks, ["1"])
+        service.addTrack(withIdentifier: "1")
+        XCTAssertEqual(service.tracksIdentifiers, ["1"])
 
-        service.addTrack("1")
-        XCTAssertEqual(service.tracks, ["1"])
+        service.addTrack(withIdentifier: "1")
+        XCTAssertEqual(service.tracksIdentifiers, ["1"])
 
-        service.addTrack("2")
-        XCTAssertEqual(service.tracks, ["1", "2"])
+        service.addTrack(withIdentifier: "2")
+        XCTAssertEqual(service.tracksIdentifiers, ["1", "2"])
 
-        service.addTrack("3")
-        XCTAssertEqual(service.tracks, ["1", "2", "3"])
+        service.addTrack(withIdentifier: "3")
+        XCTAssertEqual(service.tracksIdentifiers, ["1", "2", "3"])
 
-        service.addTrack("3")
-        XCTAssertEqual(service.tracks, ["1", "2", "3"])
+        service.addTrack(withIdentifier: "3")
+        XCTAssertEqual(service.tracksIdentifiers, ["1", "2", "3"])
     }
 
     func testRemoveTrack() {
         let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
-        service.addTrack("1")
-        service.addTrack("2")
-        service.addTrack("3")
+        service.addTrack(withIdentifier: "1")
+        service.addTrack(withIdentifier: "2")
+        service.addTrack(withIdentifier: "3")
 
-        service.removeTrack("4")
-        XCTAssertEqual(service.tracks, ["1", "2", "3"])
+        service.removeTrack(withIdentifier: "4")
+        XCTAssertEqual(service.tracksIdentifiers, ["1", "2", "3"])
 
-        service.removeTrack("3")
-        XCTAssertEqual(service.tracks, ["1", "2"])
+        service.removeTrack(withIdentifier: "3")
+        XCTAssertEqual(service.tracksIdentifiers, ["1", "2"])
 
-        service.removeTrack("2")
-        XCTAssertEqual(service.tracks, ["1"])
+        service.removeTrack(withIdentifier: "2")
+        XCTAssertEqual(service.tracksIdentifiers, ["1"])
 
-        service.removeTrack("2")
-        XCTAssertEqual(service.tracks, ["1"])
+        service.removeTrack(withIdentifier: "2")
+        XCTAssertEqual(service.tracksIdentifiers, ["1"])
 
-        service.removeTrack("1")
-        XCTAssertEqual(service.tracks, [])
+        service.removeTrack(withIdentifier: "1")
+        XCTAssertEqual(service.tracksIdentifiers, [])
 
-        service.removeTrack("1")
-        XCTAssertEqual(service.tracks, [])
+        service.removeTrack(withIdentifier: "1")
+        XCTAssertEqual(service.tracksIdentifiers, [])
     }
 
     func testAddEvent() {

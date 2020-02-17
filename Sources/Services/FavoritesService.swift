@@ -21,9 +21,9 @@ final class FavoritesService {
         self.userDefaults = userDefaults
     }
 
-    var tracks: Set<String> {
-        get { userDefaults.tracks }
-        set { userDefaults.tracks = newValue }
+    var tracksIdentifiers: Set<String> {
+        get { userDefaults.tracksIdentifiers }
+        set { userDefaults.tracksIdentifiers = newValue }
     }
 
     var eventsIdentifiers: Set<String> {
@@ -31,15 +31,15 @@ final class FavoritesService {
         set { userDefaults.eventsIdentifiers = newValue }
     }
 
-    func addTrack(_ track: String) {
-        let (inserted, _) = tracks.insert(track)
+    func addTrack(withIdentifier trackID: String) {
+        let (inserted, _) = tracksIdentifiers.insert(trackID)
         if inserted {
             delegate?.favoritesServiceDidUpdateTracks(self)
         }
     }
 
-    func removeTrack(_ track: String) {
-        if let _ = tracks.remove(track) {
+    func removeTrack(withIdentifier trackID: String) {
+        if let _ = tracksIdentifiers.remove(trackID) {
             delegate?.favoritesServiceDidUpdateTracks(self)
         }
     }
@@ -59,7 +59,7 @@ final class FavoritesService {
 }
 
 private extension FavoritesServiceDefaults {
-    var tracks: Set<String> {
+    var tracksIdentifiers: Set<String> {
         get { value(forKey: .favoriteTracks) }
         set { set(newValue, forKey: .favoriteTracks) }
     }
