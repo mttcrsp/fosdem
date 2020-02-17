@@ -107,6 +107,29 @@ final class PersistenceServiceTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testEventsWithIdentifiers() {
+        guard let service = try? PersistenceService(path: nil) else {
+            return XCTFail("Failed to instantiate test persistence service")
+        }
+
+        let e = expectation(description: #function)
+        service.import(schedule) { _ in
+            service.events(withIdentifiers: ["1", "4"]) { result in
+                switch result {
+                case let .failure(error):
+                    XCTFail(error.localizedDescription)
+                case let .success(events):
+                    XCTAssertEqual(events.count, 2)
+                    XCTAssertEqual(events.first?.id, "1")
+                    XCTAssertEqual(events.last?.id, "4")
+                }
+
+                e.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1)
+    }
+
     private var schedule: Schedule {
         let conference = Conference(title: "", subtitle: "", venue: "", city: "", start: .init(), end: .init())
         let person1 = Person(id: "1", name: "1")

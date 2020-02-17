@@ -105,6 +105,21 @@ final class PersistenceService {
         }
     }
 
+    func events(withIdentifiers identifiers: Set<String>, completion: @escaping (Result<[Event], Error>) -> Void) {
+        database.asyncRead { result in
+            switch result {
+            case let .failure(error):
+                completion(.failure(error))
+            case let .success(database):
+                do {
+                    completion(.success(try Event.filter(identifiers.contains(Event.Columns.id)).fetchAll(database)))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
     private var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("create events table", migrate: createEventsTable)
