@@ -67,11 +67,46 @@ final class PersistenceService {
         }
     }
 
+    func people(completion: @escaping (Result<[Person], Error>) -> Void) {
+        database.asyncRead { result in
+            switch result {
+            case let .failure(error):
+                completion(.failure(error))
+            case let .success(database):
+                do {
+                    completion(.success(try Person.fetchAll(database)))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
+    func events(forPersonWithIdentifier personID: String, completion: @escaping (Result<[Event], Error>) -> Void) {
+        database.asyncRead { result in
+            switch result {
+            case let .failure(error):
+                completion(.failure(error))
+            case let .success(database):
+                do {
+                    let sql = """
+                    SELECT *
+                    FROM events JOIN participations ON participations.eventID = events.id
+                    WHERE participations.personID = ?
+                    """
+                    completion(.success(try Event.fetchAll(database, sql: sql, arguments: [personID])))
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+
     private var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("create events table", migrate: createEventsTable)
         migrator.registerMigration("create people table", migrate: createPeopleTable)
-        migrator.registerMigration("create participation table", migrate: createParticipationTable)
+        migrator.registerMigration("create participations table", migrate: createParticipationsTable)
         return migrator
     }
 
@@ -102,7 +137,7 @@ final class PersistenceService {
         }
     }
 
-    private func createParticipationTable(in database: GRDB.Database) throws {
+    private func createParticipationsTable(in database: GRDB.Database) throws {
         try database.create(table: Participation.databaseTableName) { table in
             table.column(Participation.Columns.personID.rawValue).notNull()
             table.column(Participation.Columns.eventID.rawValue).notNull()
