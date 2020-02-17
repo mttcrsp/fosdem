@@ -17,6 +17,28 @@ final class PersistenceServiceTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testTracks() {
+        guard let service = try? PersistenceService(path: nil) else {
+            return XCTFail("Failed to instantiate test persistence service")
+        }
+
+        let e = expectation(description: #function)
+        service.import(schedule) { _ in
+            service.tracks { result in
+                switch result {
+                case let .failure(error):
+                    XCTFail(error.localizedDescription)
+                case let .success(tracks):
+                    let names = Set(tracks.map { track in track.name })
+                    XCTAssertEqual(names, ["1", "2", "3"])
+                }
+
+                e.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1)
+    }
+
     func testEventsForTrack() {
         guard let service = try? PersistenceService(path: nil) else {
             return XCTFail("Failed to instantiate test persistence service")
