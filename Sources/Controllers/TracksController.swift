@@ -20,14 +20,6 @@ final class TracksController: UINavigationController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private var favoritesService: FavoritesService {
-        services.favoritesService
-    }
-
-    private var persistenceService: PersistenceService {
-        services.persistenceService
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -44,7 +36,15 @@ final class TracksController: UINavigationController {
             }
         }
     }
+    
+    private var favoritesService: FavoritesService {
+        services.favoritesService
+    }
 
+    private var persistenceService: PersistenceService {
+        services.persistenceService
+    }
+    
     private func loadingFailed(with _: Error) {
         viewControllers = [ErrorController()]
     }
@@ -73,35 +73,6 @@ final class TracksController: UINavigationController {
         }
 
         viewControllers = [makeTracksViewController()]
-    }
-
-    private func makeTracksViewController() -> TracksViewController {
-        let tracksViewController = TracksViewController()
-        tracksViewController.delegate = self
-        tracksViewController.dataSource = self
-        tracksViewController.title = NSLocalizedString("Tracks", comment: "")
-        self.tracksViewController = tracksViewController
-
-        if #available(iOS 11.0, *) {
-            tracksViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return tracksViewController
-    }
-
-    private func makeEventsViewController(for track: Track) -> EventsViewController {
-        let eventsViewController = EventsViewController()
-        eventsViewController.hidesBottomBarWhenPushed = true
-        eventsViewController.title = track.name
-        eventsViewController.dataSource = self
-        eventsViewController.delegate = self
-        self.eventsViewController = eventsViewController
-
-        if #available(iOS 11.0, *) {
-            eventsViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return eventsViewController
     }
 }
 
@@ -139,6 +110,37 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         eventsViewController.show(EventController(event: event, services: services), sender: nil)
+    }
+}
+
+private extension TracksController {
+    func makeTracksViewController() -> TracksViewController {
+        let tracksViewController = TracksViewController()
+        tracksViewController.delegate = self
+        tracksViewController.dataSource = self
+        tracksViewController.title = NSLocalizedString("Tracks", comment: "")
+        self.tracksViewController = tracksViewController
+
+        if #available(iOS 11.0, *) {
+            tracksViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        return tracksViewController
+    }
+
+    func makeEventsViewController(for track: Track) -> EventsViewController {
+        let eventsViewController = EventsViewController()
+        eventsViewController.hidesBottomBarWhenPushed = true
+        eventsViewController.title = track.name
+        eventsViewController.dataSource = self
+        eventsViewController.delegate = self
+        self.eventsViewController = eventsViewController
+
+        if #available(iOS 11.0, *) {
+            eventsViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        return eventsViewController
     }
 }
 

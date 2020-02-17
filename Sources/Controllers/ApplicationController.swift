@@ -32,65 +32,6 @@ final class ApplicationController: UITabBarController {
     private var favoritesService: FavoritesService {
         services.favoritesService
     }
-
-    private func makeRootNavigationController(with rootViewController: UIViewController) -> UINavigationController {
-        let navigationController = UINavigationController(rootViewController: rootViewController)
-
-        return navigationController
-    }
-
-    private func makeMapViewController() -> MapViewController {
-        let mapViewController = MapViewController()
-        mapViewController.title = NSLocalizedString("Map", comment: "")
-        return mapViewController
-    }
-
-    private func makeMoreViewController() -> MoreViewController {
-        let moreViewController = MoreViewController()
-        moreViewController.title = NSLocalizedString("More", comment: "")
-        moreViewController.delegate = self
-        return moreViewController
-    }
-
-    private func makeMoreNavigationController() -> UINavigationController {
-        let navigationController = makeRootNavigationController(with: makeMoreViewController())
-        navigationController.setNavigationBarHidden(true, animated: false)
-        navigationController.delegate = self
-        return navigationController
-    }
-
-    private func makeWelcomeViewController() -> WelcomeViewController {
-        let welcomeViewController = WelcomeViewController()
-        welcomeViewController.title = NSLocalizedString("FOSDEM", comment: "")
-        welcomeViewController.navigationItem.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
-        welcomeViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            welcomeViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return welcomeViewController
-    }
-
-    private func makeWelcomeNavigationController() -> UINavigationController {
-        let welcomeNavigationController = makeRootNavigationController(with: makeWelcomeViewController())
-        self.welcomeNavigationController = welcomeNavigationController
-        return welcomeNavigationController
-    }
-
-    private func makeSpeakersViewController() -> SpeakersViewController {
-        let speakersViewController = SpeakersViewController()
-        speakersViewController.title = NSLocalizedString("Speakers", comment: "")
-        speakersViewController.hidesBottomBarWhenPushed = true
-        speakersViewController.dataSource = self
-        speakersViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            speakersViewController.navigationItem.largeTitleDisplayMode = .never
-        }
-
-        return speakersViewController
-    }
 }
 
 extension ApplicationController: MoreViewControllerDelegate {
@@ -138,4 +79,65 @@ extension ApplicationController: FavoritesServiceDelegate {
     func favoritesServiceDidUpdateTracks(_: FavoritesService) {}
 
     func favoritesServiceDidUpdateEvents(_: FavoritesService) {}
+}
+
+private extension ApplicationController {
+    func makeRootNavigationController(with rootViewController: UIViewController) -> UINavigationController {
+        let navigationController = UINavigationController(rootViewController: rootViewController)
+
+        return navigationController
+    }
+
+    func makeMapViewController() -> MapViewController {
+        let mapViewController = MapViewController()
+        mapViewController.title = NSLocalizedString("Map", comment: "")
+        return mapViewController
+    }
+
+    func makeMoreViewController() -> MoreViewController {
+        let moreViewController = MoreViewController()
+        moreViewController.title = NSLocalizedString("More", comment: "")
+        moreViewController.delegate = self
+        return moreViewController
+    }
+
+    func makeMoreNavigationController() -> UINavigationController {
+        let navigationController = makeRootNavigationController(with: makeMoreViewController())
+        navigationController.setNavigationBarHidden(true, animated: false)
+        navigationController.delegate = self
+        return navigationController
+    }
+
+    func makeWelcomeViewController() -> WelcomeViewController {
+        let welcomeViewController = WelcomeViewController()
+        welcomeViewController.title = NSLocalizedString("FOSDEM", comment: "")
+        welcomeViewController.navigationItem.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
+        welcomeViewController.delegate = self
+
+        if #available(iOS 11.0, *) {
+            welcomeViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        return welcomeViewController
+    }
+
+    func makeWelcomeNavigationController() -> UINavigationController {
+        let welcomeNavigationController = makeRootNavigationController(with: makeWelcomeViewController())
+        self.welcomeNavigationController = welcomeNavigationController
+        return welcomeNavigationController
+    }
+
+    func makeSpeakersViewController() -> SpeakersViewController {
+        let speakersViewController = SpeakersViewController()
+        speakersViewController.title = NSLocalizedString("Speakers", comment: "")
+        speakersViewController.hidesBottomBarWhenPushed = true
+        speakersViewController.dataSource = self
+        speakersViewController.delegate = self
+
+        if #available(iOS 11.0, *) {
+            speakersViewController.navigationItem.largeTitleDisplayMode = .never
+        }
+
+        return speakersViewController
+    }
 }

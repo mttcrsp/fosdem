@@ -43,19 +43,6 @@ final class PlanController: UINavigationController {
             }
         }
     }
-
-    private func makePlanViewController() -> PlanViewController {
-        let planViewController = PlanViewController()
-        planViewController.title = NSLocalizedString("Plan", comment: "")
-        planViewController.dataSource = self
-        planViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            planViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        return planViewController
-    }
 }
 
 extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelegate {
@@ -69,5 +56,20 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
         favoritesService.removeEvent(withIdentifier: event.id)
+    }
+}
+
+private extension PlanController {
+    func makePlanViewController() -> PlanViewController {
+        let planViewController = PlanViewController()
+        planViewController.title = NSLocalizedString("Plan", comment: "")
+        planViewController.dataSource = self
+        planViewController.delegate = self
+
+        if #available(iOS 11.0, *) {
+            planViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        return planViewController
     }
 }

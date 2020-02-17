@@ -51,28 +51,6 @@ final class EventController: UIViewController {
             : NSLocalizedString("Favorite", comment: "")
     }
 
-    private func makeEventViewController(for event: Event) -> EventViewController {
-        let eventViewController = EventViewController()
-        eventViewController.hidesBottomBarWhenPushed = true
-        eventViewController.delegate = self
-        eventViewController.event = event
-        self.eventViewController = eventViewController
-        return eventViewController
-    }
-
-    private func makeVideoViewController(for url: URL) -> AVPlayerViewController {
-        let videoViewController = AVPlayerViewController()
-        videoViewController.player = AVPlayer(url: url)
-        videoViewController.player?.play()
-        videoViewController.allowsPictureInPicturePlayback = true
-
-        if #available(iOS 11.0, *) {
-            videoViewController.exitsFullScreenWhenPlaybackEnds = true
-        }
-
-        return videoViewController
-    }
-
     @objc private func favoriteTapped() {
         if isEventFavorite {
             favoritesService.removeEvent(withIdentifier: event.id)
@@ -86,5 +64,29 @@ extension EventController: EventViewControllerDelegate {
     func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
         guard let video = event.video, let url = video.url else { return }
         eventViewController.present(makeVideoViewController(for: url), animated: true)
+    }
+}
+
+private extension EventController {
+    func makeEventViewController(for event: Event) -> EventViewController {
+        let eventViewController = EventViewController()
+        eventViewController.hidesBottomBarWhenPushed = true
+        eventViewController.delegate = self
+        eventViewController.event = event
+        self.eventViewController = eventViewController
+        return eventViewController
+    }
+
+    func makeVideoViewController(for url: URL) -> AVPlayerViewController {
+        let videoViewController = AVPlayerViewController()
+        videoViewController.player = AVPlayer(url: url)
+        videoViewController.player?.play()
+        videoViewController.allowsPictureInPicturePlayback = true
+
+        if #available(iOS 11.0, *) {
+            videoViewController.exitsFullScreenWhenPlaybackEnds = true
+        }
+
+        return videoViewController
     }
 }
