@@ -17,7 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private weak var tabBarController: UITabBarController?
 
     private var selectedTrack: Track?
-    private var indices: Indices?
 
     private lazy var services = Services()
 
@@ -35,23 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
 
         favoritesService.delegate = self
-
-        DispatchQueue.global().async { [weak self] in
-            guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml"), let data = try? Data(contentsOf: url), let schedule = try? XMLDecoder.default.decode(Schedule.self, from: data) else { return }
-
-            // The Schedule API does not model tracks with an explicit model.
-            // Tracks information is stored within the event model itself. This
-            // means that in order to be able to get the list of all tracks you
-            // need to traverse all events, collect all tracks identifiers and
-            // sort them. Given that most recent conferences had 400+ events,
-            // this takes a while.
-            self?.indices = .init(schedule: schedule)
-
-            DispatchQueue.main.async {
-                self?.planViewController?.reloadData()
-                self?.tracksViewController?.reloadData()
-            }
-        }
 
         return true
     }
@@ -220,23 +202,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: TracksViewControllerDataSource, TracksViewControllerDelegate {
     var tracks: [Track] {
-        indices?.tracks ?? []
+        [] // FIXME:
     }
 
     var tracksForDay: [[Track]] {
-        indices?.tracksForDay ?? []
+        [] // FIXME:
     }
 
     var favoriteTracks: [Track] {
-        favoritesService.tracks.sorted()
+        [] // FIXME:
     }
 
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-        favoritesService.addTrack(track)
+        _ = track // FIXME:
     }
 
     func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-        favoritesService.removeTrack(track)
+        _ = track // FIXME:
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -247,8 +229,7 @@ extension AppDelegate: TracksViewControllerDataSource, TracksViewControllerDeleg
 
 extension AppDelegate: EventsViewControllerDataSource, EventsViewControllerDelegate {
     func events(in _: EventsViewController) -> [Event] {
-        guard let selectedTrack = selectedTrack, let eventsForTrack = indices?.eventsForTrack else { return [] }
-        return eventsForTrack[selectedTrack] ?? []
+        [] // FIXME:
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
@@ -280,9 +261,7 @@ extension AppDelegate: EventViewControllerDataSource, EventViewControllerDelegat
 
 extension AppDelegate: PlanViewControllerDataSource, PlanViewControllerDelegate {
     func events(in _: PlanViewController) -> [Event] {
-        favoritesService.eventsIdentifiers.sorted().compactMap { identifier in
-            indices?.eventForIdentifier[identifier]
-        }
+        [] // FIXME:
     }
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
@@ -317,7 +296,7 @@ extension AppDelegate: WelcomeViewControllerDelegate {
 
 extension AppDelegate: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
     var people: [Person] {
-        indices?.people ?? []
+        [] // FIXME:
     }
 
     func speakersViewController(_ speakersViewController: SpeakersViewController, didSelect person: Person) {
