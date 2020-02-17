@@ -7,6 +7,8 @@ final class TracksController: UINavigationController {
     private(set) var favoriteTracks: [Track] = []
     private(set) var tracksForDay: [[Track]] = []
     private(set) var tracks: [Track] = []
+
+    private var observation: NSObjectProtocol?
     private var events: [Event] = []
 
     private let services: Services
@@ -35,8 +37,20 @@ final class TracksController: UINavigationController {
                 }
             }
         }
+
+        observation = favoritesService.addObserverForTracks { [weak self] in
+            guard let self = self else { return }
+
+            self.favoriteTracks = []
+            for track in self.tracks where self.favoritesService.contains(track) {
+                self.favoriteTracks.append(track)
+            }
+            self.favoriteTracks.sortByName()
+
+            self.tracksViewController?.reloadFavorites()
+        }
     }
-    
+
     private var favoritesService: FavoritesService {
         services.favoritesService
     }
@@ -44,7 +58,7 @@ final class TracksController: UINavigationController {
     private var persistenceService: PersistenceService {
         services.persistenceService
     }
-    
+
     private func loadingFailed(with _: Error) {
         viewControllers = [ErrorController()]
     }

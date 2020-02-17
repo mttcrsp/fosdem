@@ -3,32 +3,49 @@ import UIKit
 final class ApplicationController: UITabBarController {
     private weak var welcomeNavigationController: UINavigationController?
 
+    private var observation: NSObjectProtocol?
+
     private let services: Services
 
     init(services: Services) {
         self.services = services
-
         super.init(nibName: nil, bundle: nil)
-
-        var viewControllers: [UIViewController] = []
-        if favoritesService.eventsIdentifiers.isEmpty {
-            viewControllers.append(makeWelcomeNavigationController())
-        } else {
-            viewControllers.append(PlanController(services: services))
-        }
-
-        viewControllers.append(TracksController(services: services))
-        viewControllers.append(makeMapViewController())
-        viewControllers.append(makeMoreNavigationController())
-        setViewControllers(viewControllers, animated: false)
     }
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private var favoritesService: FavoritesService {
-        services.favoritesService
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        var viewControllers: [UIViewController] = []
+        if hasFavoriteEvents {
+            viewControllers.append(PlanController(services: services))
+        } else {
+            viewControllers.append(makeWelcomeNavigationController())
+        }
+
+        viewControllers.append(TracksController(services: services))
+        viewControllers.append(makeMapViewController())
+        viewControllers.append(makeMoreNavigationController())
+        setViewControllers(viewControllers, animated: false)
+
+        observation = services.favoritesService.addObserverForEvents { [weak self] in
+            self?.favoriteEventsChanged()
+        }
+    }
+
+    private func favoriteEventsChanged() {
+        if hasFavoriteEvents, viewControllers?.first == welcomeNavigationController {
+            viewControllers?[0] = PlanController(services: services)
+        } else if !hasFavoriteEvents, viewControllers?.first is PlanController {
+            viewControllers?[0] = makeWelcomeNavigationController()
+        }
+    }
+
+    private var hasFavoriteEvents: Bool {
+        !services.favoritesService.eventsIdentifiers.isEmpty
     }
 }
 
@@ -76,31 +93,13 @@ extension ApplicationController: UINavigationControllerDelegate {
 private extension ApplicationController {
     func makeRootNavigationController(with rootViewController: UIViewController) -> UINavigationController {
         let navigationController = UINavigationController(rootViewController: rootViewController)
-
+        if #available(iOS 11.0, *) {
+            navigationController.navigationBar.prefersLargeTitles = true
+        }
         return navigationController
     }
 
-    func makeMapViewController() -> MapViewController {
-        let mapViewController = MapViewController()
-        mapViewController.title = NSLocalizedString("Map", comment: "")
-        return mapViewController
-    }
-
-    func makeMoreViewController() -> MoreViewController {
-        let moreViewController = MoreViewController()
-        moreViewController.title = NSLocalizedString("More", comment: "")
-        moreViewController.delegate = self
-        return moreViewController
-    }
-
-    func makeMoreNavigationController() -> UINavigationController {
-        let navigationController = makeRootNavigationController(with: makeMoreViewController())
-        navigationController.setNavigationBarHidden(true, animated: false)
-        navigationController.delegate = self
-        return navigationController
-    }
-
-    func makeWelcomeViewController() -> WelcomeViewController {
+    func makeWelcomeNavigationController() -> UINavigationController {
         let welcomeViewController = WelcomeViewController()
         welcomeViewController.title = NSLocalizedString("FOSDEM", comment: "")
         welcomeViewController.navigationItem.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
@@ -110,13 +109,26 @@ private extension ApplicationController {
             welcomeViewController.navigationItem.largeTitleDisplayMode = .always
         }
 
-        return welcomeViewController
+        let navigationController = makeRootNavigationController(with: welcomeViewController)
+        welcomeNavigationController = navigationController
+        return navigationController
     }
 
-    func makeWelcomeNavigationController() -> UINavigationController {
-        let welcomeNavigationController = makeRootNavigationController(with: makeWelcomeViewController())
-        self.welcomeNavigationController = welcomeNavigationController
-        return welcomeNavigationController
+    func makeMapViewController() -> MapViewController {
+        let mapViewController = MapViewController()
+        mapViewController.title = NSLocalizedString("Map", comment: "")
+        return mapViewController
+    }
+
+    func makeMoreNavigationController() -> UINavigationController {
+        let moreViewController = MoreViewController()
+        moreViewController.title = NSLocalizedString("More", comment: "")
+        moreViewController.delegate = self
+
+        let navigationController = makeRootNavigationController(with: moreViewController)
+        navigationController.setNavigationBarHidden(true, animated: false)
+        navigationController.delegate = self
+        return navigationController
     }
 
     func makeSpeakersViewController() -> SpeakersViewController {

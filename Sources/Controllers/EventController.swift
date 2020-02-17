@@ -3,8 +3,7 @@ import AVKit
 final class EventController: UIViewController {
     private weak var eventViewController: EventViewController?
 
-    private lazy var favoriteButton: UIBarButtonItem =
-        UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: #selector(favoriteTapped))
+    private var observation: NSObjectProtocol?
 
     private let event: Event
     private let services: Services
@@ -22,14 +21,19 @@ final class EventController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if #available(iOS 11.0, *) {
-            navigationItem.largeTitleDisplayMode = .never
-        }
-
         let eventViewController = makeEventViewController(for: event)
         addChild(eventViewController)
         view.addSubview(eventViewController.view)
         eventViewController.didMove(toParent: self)
+
+        if #available(iOS 11.0, *) {
+            navigationItem.largeTitleDisplayMode = .never
+        }
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: #selector(favoriteTapped))
+        observation = favoritesService.addObserverForEvents { [weak self] in
+            self?.navigationItem.rightBarButtonItem?.title = self?.favoriteTitle
+        }
     }
 
     override func viewDidLayoutSubviews() {

@@ -1,6 +1,9 @@
 import UIKit
 
 final class PlanController: UINavigationController {
+    private weak var planViewController: PlanViewController?
+
+    private var observation: NSObjectProtocol?
     private var events: [Event] = []
 
     private let services: Services
@@ -34,11 +37,27 @@ final class PlanController: UINavigationController {
                 guard let self = self else { return }
 
                 switch result {
+                case .failure:
+                    self.viewControllers = [ErrorController()]
                 case let .success(events):
                     self.events = events
                     self.viewControllers = [self.makePlanViewController()]
-                case .failure:
-                    self.viewControllers = [ErrorController()]
+                }
+            }
+        }
+
+        observation = favoritesService.addObserverForEvents { [weak self] in
+            guard let self = self else { return }
+
+            self.persistenceService.events(withIdentifiers: self.favoritesService.eventsIdentifiers) { result in
+                DispatchQueue.main.async { [weak self] in
+                    switch result {
+                    case .failure:
+                        self?.viewControllers = [ErrorController()]
+                    case let .success(events):
+                        self?.events = events
+                        self?.planViewController?.reloadData()
+                    }
                 }
             }
         }
@@ -65,6 +84,7 @@ private extension PlanController {
         planViewController.title = NSLocalizedString("Plan", comment: "")
         planViewController.dataSource = self
         planViewController.delegate = self
+        self.planViewController = planViewController
 
         if #available(iOS 11.0, *) {
             planViewController.navigationItem.largeTitleDisplayMode = .always
