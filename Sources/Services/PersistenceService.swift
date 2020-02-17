@@ -19,6 +19,9 @@ final class PersistenceService {
                 for event in day.events {
                     try event.insert(database)
 
+                    let track = Track(name: event.track, day: day.index, date: day.date)
+                    try track.insert(database)
+
                     for person in event.people {
                         try person.insert(database)
 
