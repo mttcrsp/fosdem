@@ -186,7 +186,7 @@ private extension TracksViewController.Sorting {
 
 private extension UITableViewCell {
     func configure(with track: Track) {
-        textLabel?.text = track
+        textLabel?.text = track.name
         accessoryType = .disclosureIndicator
     }
 }

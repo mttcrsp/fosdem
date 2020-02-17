@@ -87,9 +87,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController()
         eventsViewController.hidesBottomBarWhenPushed = true
+        eventsViewController.title = track.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self
-        eventsViewController.title = track
 
         if #available(iOS 11.0, *) {
             eventsViewController.navigationItem.largeTitleDisplayMode = .always
