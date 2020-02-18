@@ -22,6 +22,14 @@ final class TracksController: UINavigationController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var favoritesService: FavoritesService {
+        services.favoritesService
+    }
+
+    private var persistenceService: PersistenceService {
+        services.persistenceService
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -49,14 +57,6 @@ final class TracksController: UINavigationController {
 
             self.tracksViewController?.reloadFavorites()
         }
-    }
-
-    private var favoritesService: FavoritesService {
-        services.favoritesService
-    }
-
-    private var persistenceService: PersistenceService {
-        services.persistenceService
     }
 
     private func loadingFailed(with _: Error) {

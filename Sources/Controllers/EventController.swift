@@ -18,6 +18,20 @@ final class EventController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var favoritesService: FavoritesService {
+        services.favoritesService
+    }
+
+    private var isEventFavorite: Bool {
+        favoritesService.contains(event)
+    }
+
+    private var favoriteTitle: String {
+        isEventFavorite
+            ? NSLocalizedString("Unfavorite", comment: "")
+            : NSLocalizedString("Favorite", comment: "")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -39,20 +53,6 @@ final class EventController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         eventViewController?.view.frame = view.bounds
-    }
-
-    private var favoritesService: FavoritesService {
-        services.favoritesService
-    }
-
-    private var isEventFavorite: Bool {
-        favoritesService.contains(event)
-    }
-
-    private var favoriteTitle: String {
-        isEventFavorite
-            ? NSLocalizedString("Unfavorite", comment: "")
-            : NSLocalizedString("Favorite", comment: "")
     }
 
     @objc private func favoriteTapped() {
