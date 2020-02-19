@@ -32,32 +32,23 @@ final class PlanController: UINavigationController {
             navigationBar.prefersLargeTitles = true
         }
 
+        viewControllers = [makePlanViewController()]
+
+        reloadFavoriteEvents()
+        observation = favoritesService.addObserverForEvents { [weak self] in
+            self?.reloadFavoriteEvents()
+        }
+    }
+
+    private func reloadFavoriteEvents() {
         persistenceService.events(withIdentifiers: favoritesService.eventsIdentifiers) { result in
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-
                 switch result {
-                case .failure:
-                    self.viewControllers = [ErrorController()]
                 case let .success(events):
-                    self.events = events
-                    self.viewControllers = [self.makePlanViewController()]
-                }
-            }
-        }
-
-        observation = favoritesService.addObserverForEvents { [weak self] in
-            guard let self = self else { return }
-
-            self.persistenceService.events(withIdentifiers: self.favoritesService.eventsIdentifiers) { result in
-                DispatchQueue.main.async { [weak self] in
-                    switch result {
-                    case .failure:
-                        self?.viewControllers = [ErrorController()]
-                    case let .success(events):
-                        self?.events = events
-                        self?.planViewController?.reloadData()
-                    }
+                    self?.events = events
+                    self?.planViewController?.reloadData()
+                case .failure:
+                    self?.viewControllers = [ErrorController()]
                 }
             }
         }
