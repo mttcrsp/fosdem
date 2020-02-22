@@ -12,7 +12,8 @@ enum MoreItem: CaseIterable {
 final class MoreController: UINavigationController {
     private weak var speakersViewController: SpeakersViewController?
 
-    var speakers: [Person] = []
+    private(set) var speakers: [Person] = []
+    private(set) var acknowledgements: [Acknowledgement] = []
 
     private let services: Services
 
@@ -70,6 +71,22 @@ final class MoreController: UINavigationController {
         devroomsViewController.hidesBottomBarWhenPushed = true
         return devroomsViewController
     }
+
+    private func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
+        let acknowledgementsViewController = AcknowledgementsViewController()
+        acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
+        acknowledgementsViewController.hidesBottomBarWhenPushed = true
+        acknowledgementsViewController.dataSource = self
+        acknowledgementsViewController.delegate = self
+        return acknowledgementsViewController
+    }
+
+    private func makeLicenseViewController(for acknowledgement: Acknowledgement, withLicense license: String) -> TextViewController {
+        let licenseViewController = TextViewController()
+        licenseViewController.title = acknowledgement
+        licenseViewController.text = license
+        return licenseViewController
+    }
 }
 
 extension MoreController: MoreViewControllerDelegate {
@@ -77,8 +94,8 @@ extension MoreController: MoreViewControllerDelegate {
         switch item {
         case .years: break
         case .transportation: break
-        case .acknowledgements: break
         case .speakers: speakersTapped(in: moreViewController)
+        case .acknowledgements: acknowledgementsTapped(in: moreViewController)
         case .history: moreViewController.show(makeHistoryViewController(), sender: nil)
         case .devrooms: moreViewController.show(makeDevroomsViewController(), sender: nil)
         }
@@ -99,6 +116,23 @@ extension MoreController: MoreViewControllerDelegate {
             }
         }
     }
+
+    private func acknowledgementsTapped(in moreViewController: MoreViewController) {
+        DispatchQueue.global().async { [weak self, weak moreViewController] in
+            let acknowledgements = self?.services.acknowledgementsService.loadAcknowledgements()
+
+            DispatchQueue.main.async {
+                guard let self = self, let moreViewController = moreViewController else { return }
+
+                if let acknowledgements = acknowledgements {
+                    self.acknowledgements = acknowledgements
+                    moreViewController.show(self.makeAcknowledgementsViewController(), sender: nil)
+                } else {
+                    moreViewController.present(ErrorController(), animated: true)
+                }
+            }
+        }
+    }
 }
 
 extension MoreController: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
@@ -110,5 +144,31 @@ extension MoreController: SpeakersViewControllerDelegate, SpeakersViewController
 extension MoreController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated _: Bool) {
         navigationController.setNavigationBarHidden(viewController is MoreViewController, animated: true)
+    }
+}
+
+extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
+    func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
+        DispatchQueue.global().async { [weak self, weak acknowledgementsViewController] in
+            guard let self = self else { return }
+
+            let acknowledgementsService = self.services.acknowledgementsService
+            var license = acknowledgementsService.loadLicense(for: acknowledgement)
+            if let licence = license {
+                license = acknowledgementsService.makeFormattedLicense(fromLicense: licence)
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let acknowledgementsViewController = acknowledgementsViewController else { return }
+
+                if let license = license {
+                    let licenseViewController = self.makeLicenseViewController(for: acknowledgement, withLicense: license)
+                    acknowledgementsViewController.show(licenseViewController, sender: nil)
+                } else {
+                    let errorViewController = ErrorController()
+                    acknowledgementsViewController.present(errorViewController, animated: true)
+                }
+            }
+        }
     }
 }
