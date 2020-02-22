@@ -1,12 +1,5 @@
 import UIKit
 
-enum MoreItem: CaseIterable {
-    case speakers
-    case years
-    case transportation
-    case acknowledgements
-}
-
 protocol MoreViewControllerDelegate: AnyObject {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem)
 }

@@ -28,7 +28,7 @@ final class ApplicationController: UITabBarController {
 
         viewControllers.append(TracksController(services: services))
         viewControllers.append(makeMapViewController())
-        viewControllers.append(makeMoreNavigationController())
+        viewControllers.append(MoreController(services: services))
         setViewControllers(viewControllers, animated: false)
 
         observation = services.favoritesService.addObserverForEvents { [weak self] in
@@ -49,43 +49,12 @@ final class ApplicationController: UITabBarController {
     }
 }
 
-extension ApplicationController: MoreViewControllerDelegate {
-    func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
-        switch item {
-        case .speakers: moreViewController.show(makeSpeakersViewController(), sender: nil)
-        case .acknowledgements: break
-        case .transportation: break
-        case .years: break
-        }
-    }
-}
-
 extension ApplicationController: WelcomeViewControllerDelegate {
     func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
         guard let tabBarController = tabBarController, let viewControllers = tabBarController.viewControllers else { return }
 
         for (index, viewController) in viewControllers.enumerated() where viewController is TracksController {
             tabBarController.selectedIndex = index
-        }
-    }
-}
-
-extension ApplicationController: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
-    var people: [Person] {
-        [] // FIXME:
-    }
-
-    func speakersViewController(_ speakersViewController: SpeakersViewController, didSelect person: Person) {
-        print(#function, person, speakersViewController)
-    }
-}
-
-extension ApplicationController: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated _: Bool) {
-        switch viewController {
-        case _ as MoreViewController: navigationController.setNavigationBarHidden(true, animated: true)
-        case _ as SpeakersViewController: navigationController.setNavigationBarHidden(false, animated: true)
-        default: break
         }
     }
 }
@@ -118,30 +87,5 @@ private extension ApplicationController {
         let mapViewController = MapViewController()
         mapViewController.title = NSLocalizedString("Map", comment: "")
         return mapViewController
-    }
-
-    func makeMoreNavigationController() -> UINavigationController {
-        let moreViewController = MoreViewController()
-        moreViewController.title = NSLocalizedString("More", comment: "")
-        moreViewController.delegate = self
-
-        let navigationController = makeRootNavigationController(with: moreViewController)
-        navigationController.setNavigationBarHidden(true, animated: false)
-        navigationController.delegate = self
-        return navigationController
-    }
-
-    func makeSpeakersViewController() -> SpeakersViewController {
-        let speakersViewController = SpeakersViewController()
-        speakersViewController.title = NSLocalizedString("Speakers", comment: "")
-        speakersViewController.hidesBottomBarWhenPushed = true
-        speakersViewController.dataSource = self
-        speakersViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            speakersViewController.navigationItem.largeTitleDisplayMode = .never
-        }
-
-        return speakersViewController
     }
 }

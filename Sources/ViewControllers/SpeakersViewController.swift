@@ -5,15 +5,15 @@ protocol SpeakersViewControllerDelegate: AnyObject {
 }
 
 protocol SpeakersViewControllerDataSource: AnyObject {
-    var people: [Person] { get }
+    var speakers: [Person] { get }
 }
 
 final class SpeakersViewController: UITableViewController {
     weak var dataSource: SpeakersViewControllerDataSource?
     weak var delegate: SpeakersViewControllerDelegate?
 
-    private var people: [Person] {
-        dataSource?.people ?? []
+    private var speakers: [Person] {
+        dataSource?.speakers ?? []
     }
 
     init() {
@@ -28,27 +28,31 @@ final class SpeakersViewController: UITableViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func reloadData() {
+        tableView.reloadData()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        people.count
+        speakers.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-        cell.configure(with: person(at: indexPath))
+        cell.configure(with: speakers(at: indexPath))
         return cell
     }
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.speakersViewController(self, didSelect: person(at: indexPath))
+        delegate?.speakersViewController(self, didSelect: speakers(at: indexPath))
     }
 
-    private func person(at indexPath: IndexPath) -> Person {
-        people[indexPath.row]
+    private func speakers(at indexPath: IndexPath) -> Person {
+        speakers[indexPath.row]
     }
 }
 
