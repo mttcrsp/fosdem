@@ -17,10 +17,10 @@ final class AcknowledgementsService {
         self.plist = plist
     }
 
-    func loadAcknowledgements() -> [String]? {
+    func loadAcknowledgements() -> [Acknowledgement]? {
         guard let specifiers = preferencesSpecifiers(forResource: "Licenses") else { return [] }
 
-        var acknowledgements: [String] = []
+        var acknowledgements: [Acknowledgement] = []
         for specifier in specifiers {
             if let acknowledgement = specifier["Title"] as? String, let _ = specifier["File"] as? String {
                 acknowledgements.append(acknowledgement)
@@ -30,7 +30,7 @@ final class AcknowledgementsService {
         return acknowledgements
     }
 
-    func loadLicense(for acknowledgement: String) -> String? {
+    func loadLicense(for acknowledgement: Acknowledgement) -> String? {
         guard let specifiers = preferencesSpecifiers(forResource: acknowledgement) else { return nil }
 
         for specifier in specifiers {
