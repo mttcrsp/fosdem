@@ -56,12 +56,12 @@ private extension UITableViewCell {
 private extension MoreItem {
     var title: String {
         switch self {
-        case .history: return NSLocalizedString("History", comment: "")
-        case .speakers: return NSLocalizedString("Speakers", comment: "")
-        case .years: return NSLocalizedString("Previous years", comment: "")
-        case .devrooms: return NSLocalizedString("Developer Rooms", comment: "")
-        case .transportation: return NSLocalizedString("Transportation", comment: "")
-        case .acknowledgements: return NSLocalizedString("Acknowledgements", comment: "")
+        case .years: return NSLocalizedString("years.title", comment: "")
+        case .history: return NSLocalizedString("history.title", comment: "")
+        case .devrooms: return NSLocalizedString("devrooms.title", comment: "")
+        case .speakers: return NSLocalizedString("speakers.title", comment: "")
+        case .transportation: return NSLocalizedString("transportation.title", comment: "")
+        case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
         }
     }
 }

@@ -1,0 +1,49 @@
+/// MARK: - Welcome
+"welcome.title" = "FOSDEM";
+"welcome.tab" = "Welcome to FOSDEM";
+"welcome.message" = "FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels.";
+"welcome.plan" = "See all talks and events for this year";
+
+/// MARK: - Plan
+"plan.title" = "Plan";
+
+/// MARK: - Event
+"event.favorite" = "Favorite";
+"event.unfavorite" = "Unfavorite";
+"event.title" = "Title";
+"event.subtitle" = "Subtitle";
+"event.abstract" = "Abstract";
+"event.duration" = "Duration";
+"event.video" = "Watch now";
+
+/// MARK: - Tracks
+"tracks.title" = "Tracks";
+"tracks.section.favorites" = "Favorite tracks";
+"tracks.section.day" = "Day %d";
+"tracks.section.all" = "All tracks";
+"tracks.sorting.day" = "By day";
+"tracks.sorting.alphabet" = "Alphabetical";
+
+/// MARK: - Map
+"map.title" = "Map";
+
+/// MARK: - More
+"more.title" = "More";
+
+/// MARK: - History
+"history.title" = "History";
+
+/// MARK: - Speakers
+"speakers.title" = "Speakers";
+
+/// MARK: - Years
+"years.title" = "Previous years";
+
+/// MARK: - DevRooms
+"devrooms.title" = "Developer Rooms";
+
+/// MARK: - Transportation
+"transportation.title" = "Transportation";
+
+/// MARK: - Acknowledgements
+"acknowledgements.title" = "Acknowledgements";

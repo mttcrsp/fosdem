@@ -72,7 +72,7 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 private extension PlanController {
     func makePlanViewController() -> PlanViewController {
         let planViewController = PlanViewController()
-        planViewController.title = NSLocalizedString("Plan", comment: "")
+        planViewController.title = NSLocalizedString("plan.title", comment: "")
         planViewController.dataSource = self
         planViewController.delegate = self
         self.planViewController = planViewController

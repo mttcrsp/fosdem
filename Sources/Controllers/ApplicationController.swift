@@ -70,8 +70,8 @@ private extension ApplicationController {
 
     func makeWelcomeNavigationController() -> UINavigationController {
         let welcomeViewController = WelcomeViewController()
-        welcomeViewController.title = NSLocalizedString("FOSDEM", comment: "")
-        welcomeViewController.navigationItem.title = NSLocalizedString("Welcome to FOSDEM", comment: "")
+        welcomeViewController.title = NSLocalizedString("welcome.title", comment: "")
+        welcomeViewController.navigationItem.title = NSLocalizedString("welcome.tab", comment: "")
         welcomeViewController.delegate = self
 
         if #available(iOS 11.0, *) {
@@ -85,7 +85,7 @@ private extension ApplicationController {
 
     func makeMapViewController() -> MapViewController {
         let mapViewController = MapViewController()
-        mapViewController.title = NSLocalizedString("Map", comment: "")
+        mapViewController.title = NSLocalizedString("map.title", comment: "")
         return mapViewController
     }
 }

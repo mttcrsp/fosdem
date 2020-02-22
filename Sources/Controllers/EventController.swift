@@ -28,8 +28,8 @@ final class EventController: UIViewController {
 
     private var favoriteTitle: String {
         isEventFavorite
-            ? NSLocalizedString("Unfavorite", comment: "")
-            : NSLocalizedString("Favorite", comment: "")
+            ? NSLocalizedString("event.unfavorite", comment: "")
+            : NSLocalizedString("event.favorite", comment: "")
     }
 
     override func viewDidLoad() {

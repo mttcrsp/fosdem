@@ -132,7 +132,7 @@ private extension TracksController {
         let tracksViewController = TracksViewController()
         tracksViewController.delegate = self
         tracksViewController.dataSource = self
-        tracksViewController.title = NSLocalizedString("Tracks", comment: "")
+        tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
         self.tracksViewController = tracksViewController
 
         if #available(iOS 11.0, *) {

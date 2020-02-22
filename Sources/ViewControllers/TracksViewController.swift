@@ -161,9 +161,13 @@ final class TracksViewController: UITableViewController {
 private extension TracksViewController.SectionType {
     var title: String {
         switch self {
-        case .favorites: return NSLocalizedString("Favorite tracks", comment: "")
-        case let .day(day): return NSLocalizedString("Day \(day)", comment: "")
-        case .all: return NSLocalizedString("All tracks", comment: "")
+        case .all:
+            return NSLocalizedString("tracks.section.all", comment: "")
+        case .favorites:
+            return NSLocalizedString("tracks.section.favorites", comment: "")
+        case let .day(day):
+            let format = NSLocalizedString("tracks.section.day", comment: "")
+            return String(format: format, day)
         }
     }
 }
@@ -178,8 +182,8 @@ private extension TracksViewController.Sorting {
 
     var title: String {
         switch self {
-        case .byDay: return NSLocalizedString("By day", comment: "")
-        case .alphabetical: return NSLocalizedString("Alphabetical", comment: "")
+        case .byDay: return NSLocalizedString("tracks.sorting.day", comment: "")
+        case .alphabetical: return NSLocalizedString("tracks.sorting.alphabet", comment: "")
         }
     }
 }

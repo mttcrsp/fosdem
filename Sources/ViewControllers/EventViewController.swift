@@ -83,26 +83,26 @@ final class EventViewController: UITableViewController {
         var items: [Item] = []
 
         let titleValue = event.title
-        let titleField = NSLocalizedString("Title", comment: "")
+        let titleField = NSLocalizedString("event.title", comment: "")
         items.append(.init(field: titleField, value: titleValue))
 
         if let value = event.subtitle {
-            let field = NSLocalizedString("Subtitle", comment: "")
+            let field = NSLocalizedString("event.subtitle", comment: "")
             items.append(.init(field: field, value: value))
         }
 
         if let value = event.formattedAbstract {
-            let field = NSLocalizedString("Abstract", comment: "")
+            let field = NSLocalizedString("event.abstract", comment: "")
             items.append(.init(field: field, value: value))
         }
 
         if let value = event.formattedDuration {
-            let field = NSLocalizedString("Duration", comment: "")
+            let field = NSLocalizedString("event.duration", comment: "")
             items.append(.init(field: field, value: value))
         }
 
         if let _ = event.video {
-            let value = NSLocalizedString("Watch now", comment: "")
+            let value = NSLocalizedString("event.video", comment: "")
             items.append(.init(field: nil, value: value))
         }
 

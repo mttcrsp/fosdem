@@ -35,14 +35,14 @@ final class MoreController: UINavigationController {
 
     private func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController()
-        moreViewController.title = NSLocalizedString("More", comment: "")
+        moreViewController.title = NSLocalizedString("more.title", comment: "")
         moreViewController.delegate = self
         return moreViewController
     }
 
     private func makeSpeakersViewController() -> SpeakersViewController {
         let speakersViewController = SpeakersViewController()
-        speakersViewController.title = NSLocalizedString("Speakers", comment: "")
+        speakersViewController.title = NSLocalizedString("speakers.title", comment: "")
         speakersViewController.hidesBottomBarWhenPushed = true
         speakersViewController.dataSource = self
         speakersViewController.delegate = self

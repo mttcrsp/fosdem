@@ -66,14 +66,8 @@ private extension UITableViewCell {
 private extension WelcomeViewController.Item {
     var title: String {
         switch self {
-        case .message:
-            return NSLocalizedString("""
-            This app lets you enjoy the best FOSDEM experience by providing you with all information about sessions and logistics.
-
-            Organize you stay at FOSDEM by listing all events you want to attend. Find out how to get to a specific events. ...
-            """, comment: "")
-        case .plan:
-            return NSLocalizedString("See all talks and events for this year", comment: "")
+        case .message: return NSLocalizedString("welcome.message", comment: "")
+        case .plan: return NSLocalizedString("welcome.plan", comment: "")
         }
     }
 }
