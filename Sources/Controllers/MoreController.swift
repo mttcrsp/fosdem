@@ -33,75 +33,37 @@ final class MoreController: UINavigationController {
         viewControllers = [makeMoreViewController()]
         setNavigationBarHidden(true, animated: false)
     }
-
-    private func makeMoreViewController() -> MoreViewController {
-        let moreViewController = MoreViewController()
-        moreViewController.title = NSLocalizedString("more.title", comment: "")
-        moreViewController.delegate = self
-        return moreViewController
-    }
-
-    private func makeSpeakersViewController() -> SpeakersViewController {
-        let speakersViewController = SpeakersViewController()
-        speakersViewController.title = NSLocalizedString("speakers.title", comment: "")
-        speakersViewController.hidesBottomBarWhenPushed = true
-        speakersViewController.dataSource = self
-        speakersViewController.delegate = self
-        self.speakersViewController = speakersViewController
-
-        if #available(iOS 11.0, *) {
-            speakersViewController.navigationItem.largeTitleDisplayMode = .never
-        }
-
-        return speakersViewController
-    }
-
-    private func makeHistoryViewController() -> TextViewController {
-        let historyViewController = TextViewController()
-        historyViewController.title = NSLocalizedString("history.title", comment: "")
-        historyViewController.text = NSLocalizedString("history.body", comment: "")
-        historyViewController.hidesBottomBarWhenPushed = true
-        return historyViewController
-    }
-
-    private func makeDevroomsViewController() -> TextViewController {
-        let devroomsViewController = TextViewController()
-        devroomsViewController.title = NSLocalizedString("devrooms.title", comment: "")
-        devroomsViewController.text = NSLocalizedString("devrooms.body", comment: "")
-        devroomsViewController.hidesBottomBarWhenPushed = true
-        return devroomsViewController
-    }
-
-    private func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
-        let acknowledgementsViewController = AcknowledgementsViewController()
-        acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
-        acknowledgementsViewController.hidesBottomBarWhenPushed = true
-        acknowledgementsViewController.dataSource = self
-        acknowledgementsViewController.delegate = self
-        return acknowledgementsViewController
-    }
-
-    private func makeLicenseViewController(for acknowledgement: Acknowledgement, withLicense license: String) -> TextViewController {
-        let licenseViewController = TextViewController()
-        licenseViewController.title = acknowledgement
-        licenseViewController.text = license
-        return licenseViewController
-    }
 }
 
 extension MoreController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
-        case .years: break
-        case .transportation: break
-        case .speakers: speakersTapped(in: moreViewController)
-        case .acknowledgements: acknowledgementsTapped(in: moreViewController)
-        case .history: moreViewController.show(makeHistoryViewController(), sender: nil)
-        case .devrooms: moreViewController.show(makeDevroomsViewController(), sender: nil)
+        case .years: moreViewControllerDidSelectYears(moreViewController)
+        case .history: moreViewControllerDidSelectHistory(moreViewController)
+        case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
+        case .speakers: moreViewControllerDidSelectSpeakers(moreViewController)
+        case .transportation: moreViewControllerDidSelectTransportation(moreViewController)
+        case .acknowledgements: moreViewControllerDidSelectAcknowledgements(moreViewController)
         }
     }
 
-    private func speakersTapped(in moreViewController: MoreViewController) {
+    private func moreViewControllerDidSelectYears(_ moreViewController: MoreViewController) {
+        print(#function, moreViewController)
+    }
+
+    private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
+        print(#function, moreViewController)
+    }
+
+    private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
+        moreViewController.show(makeHistoryViewController(), sender: nil)
+    }
+
+    private func moreViewControllerDidSelectDevrooms(_ moreViewController: MoreViewController) {
+        moreViewController.show(makeDevroomsViewController(), sender: nil)
+    }
+
+    private func moreViewControllerDidSelectSpeakers(_ moreViewController: MoreViewController) {
         moreViewController.show(makeSpeakersViewController(), sender: nil)
 
         services.persistenceService.people { result in
@@ -117,7 +79,7 @@ extension MoreController: MoreViewControllerDelegate {
         }
     }
 
-    private func acknowledgementsTapped(in moreViewController: MoreViewController) {
+    private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
         DispatchQueue.global().async { [weak self, weak moreViewController] in
             let acknowledgements = self?.services.acknowledgementsService.loadAcknowledgements()
 
@@ -170,5 +132,61 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
                 }
             }
         }
+    }
+}
+
+private extension MoreController {
+    func makeMoreViewController() -> MoreViewController {
+        let moreViewController = MoreViewController()
+        moreViewController.title = NSLocalizedString("more.title", comment: "")
+        moreViewController.delegate = self
+        return moreViewController
+    }
+
+    func makeSpeakersViewController() -> SpeakersViewController {
+        let speakersViewController = SpeakersViewController()
+        speakersViewController.title = NSLocalizedString("speakers.title", comment: "")
+        speakersViewController.hidesBottomBarWhenPushed = true
+        speakersViewController.dataSource = self
+        speakersViewController.delegate = self
+        self.speakersViewController = speakersViewController
+
+        if #available(iOS 11.0, *) {
+            speakersViewController.navigationItem.largeTitleDisplayMode = .never
+        }
+
+        return speakersViewController
+    }
+
+    func makeHistoryViewController() -> TextViewController {
+        let historyViewController = TextViewController()
+        historyViewController.title = NSLocalizedString("history.title", comment: "")
+        historyViewController.text = NSLocalizedString("history.body", comment: "")
+        historyViewController.hidesBottomBarWhenPushed = true
+        return historyViewController
+    }
+
+    func makeDevroomsViewController() -> TextViewController {
+        let devroomsViewController = TextViewController()
+        devroomsViewController.title = NSLocalizedString("devrooms.title", comment: "")
+        devroomsViewController.text = NSLocalizedString("devrooms.body", comment: "")
+        devroomsViewController.hidesBottomBarWhenPushed = true
+        return devroomsViewController
+    }
+
+    func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
+        let acknowledgementsViewController = AcknowledgementsViewController()
+        acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
+        acknowledgementsViewController.hidesBottomBarWhenPushed = true
+        acknowledgementsViewController.dataSource = self
+        acknowledgementsViewController.delegate = self
+        return acknowledgementsViewController
+    }
+
+    func makeLicenseViewController(for acknowledgement: Acknowledgement, withLicense license: String) -> TextViewController {
+        let licenseViewController = TextViewController()
+        licenseViewController.title = acknowledgement
+        licenseViewController.text = license
+        return licenseViewController
     }
 }
