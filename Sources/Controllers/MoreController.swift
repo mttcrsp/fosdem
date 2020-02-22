@@ -54,17 +54,33 @@ final class MoreController: UINavigationController {
 
         return speakersViewController
     }
+
+    private func makeHistoryViewController() -> TextViewController {
+        let historyViewController = TextViewController()
+        historyViewController.title = NSLocalizedString("history.title", comment: "")
+        historyViewController.text = NSLocalizedString("history.body", comment: "")
+        historyViewController.hidesBottomBarWhenPushed = true
+        return historyViewController
+    }
+
+    private func makeDevroomsViewController() -> TextViewController {
+        let devroomsViewController = TextViewController()
+        devroomsViewController.title = NSLocalizedString("devrooms.title", comment: "")
+        devroomsViewController.text = NSLocalizedString("devrooms.body", comment: "")
+        devroomsViewController.hidesBottomBarWhenPushed = true
+        return devroomsViewController
+    }
 }
 
 extension MoreController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
         case .years: break
-        case .speakers: speakersTapped(in: moreViewController)
-        case .history: break
-        case .devrooms: break
         case .transportation: break
         case .acknowledgements: break
+        case .speakers: speakersTapped(in: moreViewController)
+        case .history: moreViewController.show(makeHistoryViewController(), sender: nil)
+        case .devrooms: moreViewController.show(makeDevroomsViewController(), sender: nil)
         }
     }
 
@@ -93,10 +109,6 @@ extension MoreController: SpeakersViewControllerDelegate, SpeakersViewController
 
 extension MoreController: UINavigationControllerDelegate {
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated _: Bool) {
-        switch viewController {
-        case _ as MoreViewController: navigationController.setNavigationBarHidden(true, animated: true)
-        case _ as SpeakersViewController: navigationController.setNavigationBarHidden(false, animated: true)
-        default: break
-        }
+        navigationController.setNavigationBarHidden(viewController is MoreViewController, animated: true)
     }
 }
