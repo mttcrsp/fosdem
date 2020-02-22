@@ -41,10 +41,19 @@ final class AcknowledgementsService {
         return nil
     }
 
+    func makeFormattedLicense(fromLicense license: String) -> String? {
+        NSRegularExpression.singleNewLineFinder?.stringByReplacingMatches(in: license, range: NSRange(location: 0, length: license.count), withTemplate: " ")
+    }
+
     private func preferencesSpecifiers(forResource resource: String) -> [[String: Any]]? {
         guard let path = bundle.path(forResource: resource, ofType: "plist"), let root = plist.dictionary(withContentsOfFile: path) else { return nil }
         return root["PreferenceSpecifiers"] as? [[String: Any]]
     }
+}
+
+private extension NSRegularExpression {
+    // https://github.com/vtourraine/AcknowList/issues/41
+    static let singleNewLineFinder = try? NSRegularExpression(pattern: "(?<=.)(\\h)*(\\R)(\\h)*(?=.)")
 }
 
 extension Bundle: AcknowledgementsServiceBundle {}
