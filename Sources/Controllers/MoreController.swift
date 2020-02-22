@@ -1,8 +1,10 @@
 import UIKit
 
 enum MoreItem: CaseIterable {
-    case speakers
     case years
+    case speakers
+    case history
+    case devrooms
     case transportation
     case acknowledgements
 }
@@ -57,10 +59,12 @@ final class MoreController: UINavigationController {
 extension MoreController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
-        case .speakers: speakersTapped(in: moreViewController)
-        case .acknowledgements: break
-        case .transportation: break
         case .years: break
+        case .speakers: speakersTapped(in: moreViewController)
+        case .history: break
+        case .devrooms: break
+        case .transportation: break
+        case .acknowledgements: break
         }
     }
 
