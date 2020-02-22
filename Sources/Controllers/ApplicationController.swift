@@ -51,10 +51,10 @@ final class ApplicationController: UITabBarController {
 
 extension ApplicationController: WelcomeViewControllerDelegate {
     func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
-        guard let tabBarController = tabBarController, let viewControllers = tabBarController.viewControllers else { return }
+        guard let viewControllers = viewControllers else { return }
 
         for (index, viewController) in viewControllers.enumerated() where viewController is TracksController {
-            tabBarController.selectedIndex = index
+            selectedIndex = index
         }
     }
 }
