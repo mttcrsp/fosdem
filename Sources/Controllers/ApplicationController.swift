@@ -21,14 +21,14 @@ final class ApplicationController: UITabBarController {
 
         var viewControllers: [UIViewController] = []
         if hasFavoriteEvents {
-            viewControllers.append(PlanController(services: services))
+            viewControllers.append(makePlanController())
         } else {
             viewControllers.append(makeWelcomeNavigationController())
         }
 
-        viewControllers.append(TracksController(services: services))
+        viewControllers.append(makeTracksController())
         viewControllers.append(makeMapViewController())
-        viewControllers.append(MoreController(services: services))
+        viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
 
         observation = services.favoritesService.addObserverForEvents { [weak self] in
@@ -60,14 +60,6 @@ extension ApplicationController: WelcomeViewControllerDelegate {
 }
 
 private extension ApplicationController {
-    func makeRootNavigationController(with rootViewController: UIViewController) -> UINavigationController {
-        let navigationController = UINavigationController(rootViewController: rootViewController)
-        if #available(iOS 11.0, *) {
-            navigationController.navigationBar.prefersLargeTitles = true
-        }
-        return navigationController
-    }
-
     func makeWelcomeNavigationController() -> UINavigationController {
         let welcomeViewController = WelcomeViewController()
         welcomeViewController.title = NSLocalizedString("welcome.title", comment: "")
@@ -78,14 +70,36 @@ private extension ApplicationController {
             welcomeViewController.navigationItem.largeTitleDisplayMode = .always
         }
 
-        let navigationController = makeRootNavigationController(with: welcomeViewController)
+        let navigationController = UINavigationController(rootViewController: welcomeViewController)
+        if #available(iOS 11.0, *) {
+            navigationController.navigationBar.prefersLargeTitles = true
+        }
+
         welcomeNavigationController = navigationController
         return navigationController
+    }
+
+    func makePlanController() -> PlanController {
+        let planController = PlanController(services: services)
+        planController.title = NSLocalizedString("plan.title", comment: "")
+        return planController
+    }
+
+    func makeTracksController() -> TracksController {
+        let tracksController = TracksController(services: services)
+        tracksController.title = NSLocalizedString("tracks.title", comment: "")
+        return tracksController
     }
 
     func makeMapViewController() -> MapViewController {
         let mapViewController = MapViewController()
         mapViewController.title = NSLocalizedString("map.title", comment: "")
         return mapViewController
+    }
+
+    func makeMoreController() -> MoreController {
+        let moreController = MoreController(services: services)
+        moreController.title = NSLocalizedString("more.title", comment: "")
+        return moreController
     }
 }
