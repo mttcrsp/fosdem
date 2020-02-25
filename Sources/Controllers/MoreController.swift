@@ -109,6 +109,10 @@ extension MoreController: SpeakersViewControllerDelegate, SpeakersViewController
     func speakersViewController(_ speakersViewController: SpeakersViewController, didSelect person: Person) {
         print(#function, person, speakersViewController)
     }
+
+    func speakersViewController(_ speakersViewController: SpeakersViewController, didEnter query: String) {
+        print(#function, query, speakersViewController)
+    }
 }
 
 extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
@@ -146,7 +150,7 @@ private extension MoreController {
     }
 
     func makeSpeakersViewController() -> SpeakersViewController {
-        let speakersViewController = SpeakersViewController()
+        let speakersViewController = SpeakersViewController(style: .grouped)
         speakersViewController.title = NSLocalizedString("speakers.title", comment: "")
         speakersViewController.hidesBottomBarWhenPushed = true
         speakersViewController.dataSource = self

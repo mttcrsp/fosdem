@@ -39,6 +39,7 @@
 
 /// MARK: - Speakers
 "speakers.title" = "Speakers";
+"speakers.search" = "Search by name";
 
 /// MARK: - Years
 "years.title" = "Previous years";
