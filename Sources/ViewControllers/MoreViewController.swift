@@ -7,27 +7,30 @@ protocol MoreViewControllerDelegate: AnyObject {
 final class MoreViewController: UITableViewController {
     weak var delegate: MoreViewControllerDelegate?
 
-    private let items = MoreItem.allCases
-
-    init() {
-        if #available(iOS 13.0, *) {
-            super.init(style: .insetGrouped)
-        } else {
-            super.init(style: .grouped)
-        }
-    }
-
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    private let sections = MoreSection.allCases
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
-    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        items.count
+    override func numberOfSections(in _: UITableView) -> Int {
+        sections.count
+    }
+
+    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        sections[section].title
+    }
+
+    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        sections[section].items.count
+    }
+
+    override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
+        if let view = view as? UITableViewHeaderFooterView {
+            view.textLabel?.font = .preferredFont(for: .action)
+            view.textLabel?.text = view.textLabel?.text?.localizedCapitalized
+        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -41,7 +44,7 @@ final class MoreViewController: UITableViewController {
     }
 
     private func item(at indexPath: IndexPath) -> MoreItem {
-        items[indexPath.row]
+        sections[indexPath.section].items[indexPath.row]
     }
 }
 

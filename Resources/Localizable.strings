@@ -29,6 +29,9 @@
 
 /// MARK: - More
 "more.title" = "More";
+"more.section.search" = "Search";
+"more.section.about" = "About";
+"more.section.other" = "Other";
 
 /// MARK: - History
 "history.title" = "History";

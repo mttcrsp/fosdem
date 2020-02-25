@@ -1,5 +1,11 @@
 import UIKit
 
+enum MoreSection: CaseIterable {
+    case search
+    case about
+    case other
+}
+
 enum MoreItem: CaseIterable {
     case years
     case speakers
@@ -188,5 +194,23 @@ private extension MoreController {
         licenseViewController.title = acknowledgement
         licenseViewController.text = license
         return licenseViewController
+    }
+}
+
+extension MoreSection {
+    var items: [MoreItem] {
+        switch self {
+        case .other: return [.acknowledgements]
+        case .search: return [.years, .speakers]
+        case .about: return [.history, .devrooms, .transportation]
+        }
+    }
+
+    var title: String? {
+        switch self {
+        case .about: return NSLocalizedString("more.section.about", comment: "")
+        case .other: return NSLocalizedString("more.section.other", comment: "")
+        case .search: return NSLocalizedString("more.section.search", comment: "")
+        }
     }
 }
