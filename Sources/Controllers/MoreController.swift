@@ -175,7 +175,7 @@ private extension MoreController {
     }
 
     func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
-        let acknowledgementsViewController = AcknowledgementsViewController()
+        let acknowledgementsViewController = AcknowledgementsViewController(style: .grouped)
         acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
         acknowledgementsViewController.hidesBottomBarWhenPushed = true
         acknowledgementsViewController.dataSource = self

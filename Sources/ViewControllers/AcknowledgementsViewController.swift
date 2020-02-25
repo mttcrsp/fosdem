@@ -27,7 +27,7 @@ final class AcknowledgementsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-        cell.textLabel?.text = acknowledgement(at: indexPath)
+        cell.configure(with: acknowledgement(at: indexPath))
         return cell
     }
 
@@ -37,5 +37,12 @@ final class AcknowledgementsViewController: UITableViewController {
 
     private func acknowledgement(at indexPath: IndexPath) -> Acknowledgement {
         acknowledgements[indexPath.row]
+    }
+}
+
+private extension UITableViewCell {
+    func configure(with acknowledgement: Acknowledgement) {
+        textLabel?.text = acknowledgement
+        accessoryType = .disclosureIndicator
     }
 }
