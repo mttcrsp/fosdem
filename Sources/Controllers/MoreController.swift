@@ -35,9 +35,11 @@ final class MoreController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        delegate = self
+        if #available(iOS 11.0, *) {
+            navigationBar.prefersLargeTitles = true
+        }
+
         viewControllers = [makeMoreViewController()]
-        setNavigationBarHidden(true, animated: false)
     }
 }
 
@@ -109,12 +111,6 @@ extension MoreController: SpeakersViewControllerDelegate, SpeakersViewController
     }
 }
 
-extension MoreController: UINavigationControllerDelegate {
-    func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated _: Bool) {
-        navigationController.setNavigationBarHidden(viewController is MoreViewController, animated: true)
-    }
-}
-
 extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
     func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
         DispatchQueue.global().async { [weak self, weak acknowledgementsViewController] in
@@ -143,7 +139,7 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
 
 private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
-        let moreViewController = MoreViewController()
+        let moreViewController = MoreViewController(style: .grouped)
         moreViewController.title = NSLocalizedString("more.title", comment: "")
         moreViewController.delegate = self
         return moreViewController
@@ -156,11 +152,6 @@ private extension MoreController {
         speakersViewController.dataSource = self
         speakersViewController.delegate = self
         self.speakersViewController = speakersViewController
-
-        if #available(iOS 11.0, *) {
-            speakersViewController.navigationItem.largeTitleDisplayMode = .never
-        }
-
         return speakersViewController
     }
 

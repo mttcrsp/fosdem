@@ -26,13 +26,6 @@ final class MoreViewController: UITableViewController {
         sections[section].items.count
     }
 
-    override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
-        if let view = view as? UITableViewHeaderFooterView {
-            view.textLabel?.font = .preferredFont(for: .action)
-            view.textLabel?.text = view.textLabel?.text?.localizedCapitalized
-        }
-    }
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
         cell.configure(with: item(at: indexPath))
