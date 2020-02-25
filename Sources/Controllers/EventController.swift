@@ -74,7 +74,6 @@ extension EventController: EventViewControllerDelegate {
 private extension EventController {
     func makeEventViewController(for event: Event) -> EventViewController {
         let eventViewController = EventViewController()
-        eventViewController.hidesBottomBarWhenPushed = true
         eventViewController.delegate = self
         eventViewController.event = event
         self.eventViewController = eventViewController

@@ -73,6 +73,7 @@ private extension PlanController {
     func makePlanViewController() -> PlanViewController {
         let planViewController = PlanViewController()
         planViewController.title = NSLocalizedString("plan.title", comment: "")
+        planViewController.hidesBottomBarWhenPushed = true
         planViewController.dataSource = self
         planViewController.delegate = self
         self.planViewController = planViewController
