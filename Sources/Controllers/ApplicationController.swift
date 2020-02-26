@@ -1,10 +1,6 @@
 import UIKit
 
 final class ApplicationController: UITabBarController {
-    private weak var welcomeNavigationController: UINavigationController?
-
-    private var observation: NSObjectProtocol?
-
     private let services: Services
 
     init(services: Services) {
@@ -20,65 +16,15 @@ final class ApplicationController: UITabBarController {
         super.viewDidLoad()
 
         var viewControllers: [UIViewController] = []
-        if hasFavoriteEvents {
-            viewControllers.append(makePlanController())
-        } else {
-            viewControllers.append(makeWelcomeNavigationController())
-        }
-
         viewControllers.append(makeTracksController())
+        viewControllers.append(makePlanController())
         viewControllers.append(makeMapViewController())
         viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
-
-        observation = services.favoritesService.addObserverForEvents { [weak self] in
-            self?.favoriteEventsChanged()
-        }
-    }
-
-    private func favoriteEventsChanged() {
-        if hasFavoriteEvents, viewControllers?.first == welcomeNavigationController {
-            viewControllers?[0] = PlanController(services: services)
-        } else if !hasFavoriteEvents, viewControllers?.first is PlanController {
-            viewControllers?[0] = makeWelcomeNavigationController()
-        }
-    }
-
-    private var hasFavoriteEvents: Bool {
-        !services.favoritesService.eventsIdentifiers.isEmpty
-    }
-}
-
-extension ApplicationController: WelcomeViewControllerDelegate {
-    func welcomeViewControllerDidTapPlan(_: WelcomeViewController) {
-        guard let viewControllers = viewControllers else { return }
-
-        for (index, viewController) in viewControllers.enumerated() where viewController is TracksController {
-            selectedIndex = index
-        }
     }
 }
 
 private extension ApplicationController {
-    func makeWelcomeNavigationController() -> UINavigationController {
-        let welcomeViewController = WelcomeViewController()
-        welcomeViewController.title = NSLocalizedString("welcome.title", comment: "")
-        welcomeViewController.navigationItem.title = NSLocalizedString("welcome.tab", comment: "")
-        welcomeViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            welcomeViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
-        let navigationController = UINavigationController(rootViewController: welcomeViewController)
-        if #available(iOS 11.0, *) {
-            navigationController.navigationBar.prefersLargeTitles = true
-        }
-
-        welcomeNavigationController = navigationController
-        return navigationController
-    }
-
     func makePlanController() -> PlanController {
         let planController = PlanController(services: services)
         planController.title = NSLocalizedString("plan.title", comment: "")
