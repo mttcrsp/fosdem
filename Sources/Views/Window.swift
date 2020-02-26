@@ -14,5 +14,8 @@ final class Window: UIWindow {
         let tabBar = UITabBar.appearance()
         tabBar.shadowImage = UIImage()
         tabBar.isTranslucent = false
+
+        let tableView = UITableView.appearance()
+        tableView.backgroundColor = .fos_systemBackground
     }
 }

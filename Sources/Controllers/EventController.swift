@@ -73,7 +73,7 @@ extension EventController: EventViewControllerDelegate {
 
 private extension EventController {
     func makeEventViewController(for event: Event) -> EventViewController {
-        let eventViewController = EventViewController()
+        let eventViewController = EventViewController(style: .grouped)
         eventViewController.delegate = self
         eventViewController.event = event
         self.eventViewController = eventViewController

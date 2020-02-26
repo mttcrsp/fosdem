@@ -129,7 +129,7 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 
 private extension TracksController {
     func makeTracksViewController() -> TracksViewController {
-        let tracksViewController = TracksViewController()
+        let tracksViewController = TracksViewController(style: .grouped)
         tracksViewController.delegate = self
         tracksViewController.dataSource = self
         tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
@@ -143,7 +143,7 @@ private extension TracksController {
     }
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
-        let eventsViewController = EventsViewController()
+        let eventsViewController = EventsViewController(style: .grouped)
         eventsViewController.hidesBottomBarWhenPushed = true
         eventsViewController.title = track.name
         eventsViewController.dataSource = self

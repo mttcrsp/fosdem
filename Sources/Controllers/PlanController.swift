@@ -77,7 +77,7 @@ private extension PlanController {
     }
 
     func makePlanViewController() -> PlanViewController {
-        let planViewController = PlanViewController()
+        let planViewController = PlanViewController(style: .grouped)
         planViewController.title = NSLocalizedString("plan.title", comment: "")
         planViewController.dataSource = self
         planViewController.delegate = self
