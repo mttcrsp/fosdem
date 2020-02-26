@@ -61,7 +61,7 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
     }
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
-        planViewController.show(EventController(event: event, services: services), sender: nil)
+        planViewController.show(makeEventViewController(for: event), sender: nil)
     }
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
@@ -70,6 +70,12 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 }
 
 private extension PlanController {
+    func makeEventViewController(for event: Event) -> EventController {
+        let eventViewController = EventController(event: event, services: services)
+        eventViewController.hidesBottomBarWhenPushed = true
+        return eventViewController
+    }
+
     func makePlanViewController() -> PlanViewController {
         let planViewController = PlanViewController()
         planViewController.title = NSLocalizedString("plan.title", comment: "")
