@@ -16,18 +16,6 @@ final class EventsViewController: UITableViewController {
         dataSource?.events(in: self) ?? []
     }
 
-    init() {
-        if #available(iOS 13.0, *) {
-            super.init(style: .insetGrouped)
-        } else {
-            super.init(style: .grouped)
-        }
-    }
-
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     func reloadData() {
         tableView.reloadData()
     }
