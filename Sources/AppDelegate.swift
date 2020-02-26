@@ -2,20 +2,26 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    lazy var window: UIWindow? = UIWindow()
+    var window: UIWindow?
 
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         #if DEBUG
             guard !isRunningUnitTests else { return false }
         #endif
 
+        let rootViewController: UIViewController
         do {
-            window?.rootViewController = ApplicationController(services: try .init())
-            window?.makeKeyAndVisible()
+            rootViewController = ApplicationController(services: try .init())
         } catch {
-            window?.rootViewController = ErrorController()
-            window?.makeKeyAndVisible()
+            rootViewController = ErrorController()
         }
+
+        let window = Window()
+        window.configure()
+        window.configureAppearanceProxies()
+        window.rootViewController = rootViewController
+        window.makeKeyAndVisible()
+        self.window = window
 
         return true
     }
