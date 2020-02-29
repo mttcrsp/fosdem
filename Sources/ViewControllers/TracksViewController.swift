@@ -156,5 +156,9 @@ private extension SegmentedTableViewHeaderFooterView {
         for (index, filter) in filters.enumerated() {
             insertSegment(withTitle: filter.title, at: index, animated: false)
         }
+
+        if selectedSegmentIndex == nil, !filters.isEmpty {
+            selectedSegmentIndex = 0
+        }
     }
 }
