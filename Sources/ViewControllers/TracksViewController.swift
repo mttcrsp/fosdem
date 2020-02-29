@@ -92,9 +92,11 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        favoriteTracks.contains(track(at: indexPath)) ?
-            [.unfavorite { [weak self] indexPath in self?.didUnfavoriteTrack(at: indexPath) }] :
-            [.favorite { [weak self] indexPath in self?.didFavoriteTrack(at: indexPath) }]
+        if favoriteTracks.contains(track(at: indexPath)) {
+            return [.unfavorite { [weak self] indexPath in self?.didUnfavoriteTrack(at: indexPath) }]
+        } else {
+            return [.favorite { [weak self] indexPath in self?.didFavoriteTrack(at: indexPath) }]
+        }
     }
 
     override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
@@ -116,9 +118,11 @@ final class TracksViewController: UITableViewController {
     private func makeFilters() -> [Filter] {
         var filters: [Filter] = []
         filters.append(.all)
+        
         for index in tracksByDay.indices {
             filters.append(.day(index + 1))
         }
+        
         filters.append(.favorites)
         return filters
     }
@@ -136,8 +140,7 @@ private extension TracksViewController.Filter {
         case .favorites:
             return NSLocalizedString("tracks.filter.favorites", comment: "")
         case let .day(day):
-            let format = NSLocalizedString("tracks.filter.day", comment: "")
-            return String(format: format, day)
+            return String(format: NSLocalizedString("tracks.filter.day", comment: ""), day)
         }
     }
 }
