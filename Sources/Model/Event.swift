@@ -1,7 +1,7 @@
 import Foundation
 import GRDB
 
-struct Event: Decodable {
+struct Event: Codable {
     let id: String
     let room: String
     let track: String
