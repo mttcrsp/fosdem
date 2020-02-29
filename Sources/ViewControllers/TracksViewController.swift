@@ -48,29 +48,19 @@ final class TracksViewController: UITableViewController {
     }
 
     private var selectedFilter: Filter? {
-        if let selectedIndex = filterView.selectedSegmentIndex {
+        if let selectedIndex = filtersView.selectedSegmentIndex {
             return filters[selectedIndex]
         } else {
             return nil
         }
     }
 
-    private lazy var filterView: SegmentedTableViewHeaderFooterView = {
-        let filterView = SegmentedTableViewHeaderFooterView()
-        filterView.addTarget(self, action: #selector(didSelectFilter), for: .valueChanged)
-        filterView.insertSegments(for: filters)
-
-        if !filters.isEmpty {
-            filterView.selectedSegmentIndex = 0
-        }
-
-        return filterView
-    }()
-
+    private lazy var filtersView = SegmentedTableViewHeaderFooterView()
     private lazy var filters: [Filter] = makeFilters()
 
     func reloadData() {
         filters = makeFilters()
+        filtersView.setSegments(for: filters)
         tableView.reloadData()
     }
 
@@ -84,6 +74,7 @@ final class TracksViewController: UITableViewController {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        filtersView.addTarget(self, action: #selector(didSelectFilter), for: .valueChanged)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
@@ -107,7 +98,7 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        filterView
+        filtersView
     }
 
     private func didFavoriteTrack(at indexPath: IndexPath) {
@@ -159,7 +150,9 @@ private extension UITableViewCell {
 }
 
 private extension SegmentedTableViewHeaderFooterView {
-    func insertSegments(for filters: [TracksViewController.Filter]) {
+    func setSegments(for filters: [TracksViewController.Filter]) {
+        removeAllSegments()
+
         for (index, filter) in filters.enumerated() {
             insertSegment(withTitle: filter.title, at: index, animated: false)
         }

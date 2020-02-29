@@ -42,4 +42,8 @@ final class SegmentedTableViewHeaderFooterView: UITableViewHeaderFooterView {
     func addTarget(_ target: Any?, action: Selector, for controlEvents: UIControl.Event) {
         segmentedControl.addTarget(target, action: action, for: controlEvents)
     }
+
+    func removeAllSegments() {
+        segmentedControl.removeAllSegments()
+    }
 }

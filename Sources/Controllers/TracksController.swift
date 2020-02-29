@@ -33,6 +33,8 @@ final class TracksController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        viewControllers = [makeTracksViewController()]
+
         if #available(iOS 11.0, *) {
             navigationBar.prefersLargeTitles = true
         }
@@ -40,8 +42,8 @@ final class TracksController: UINavigationController {
         persistenceService.tracks { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
-                case let .failure(error): self?.loadingFailed(with: error)
-                case let .success(tracks): self?.loadingSucceded(with: tracks)
+                case let .failure(error): self?.loadingDidFail(with: error)
+                case let .success(tracks): self?.loadingDidFinish(with: tracks)
                 }
             }
         }
@@ -59,11 +61,11 @@ final class TracksController: UINavigationController {
         }
     }
 
-    private func loadingFailed(with _: Error) {
+    private func loadingDidFail(with _: Error) {
         viewControllers = [ErrorController()]
     }
 
-    private func loadingSucceded(with tracks: [Track]) {
+    private func loadingDidFinish(with tracks: [Track]) {
         var tracksForDay: [Int: [Track]] = [:]
         for track in tracks {
             tracksForDay[track.day, default: []].append(track)
@@ -86,7 +88,7 @@ final class TracksController: UINavigationController {
             self.tracksForDay[i].sortByName()
         }
 
-        viewControllers = [makeTracksViewController()]
+        tracksViewController?.reloadData()
     }
 }
 
@@ -130,9 +132,9 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 private extension TracksController {
     func makeTracksViewController() -> TracksViewController {
         let tracksViewController = TracksViewController()
-        tracksViewController.delegate = self
-        tracksViewController.dataSource = self
         tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
+        tracksViewController.dataSource = self
+        tracksViewController.delegate = self
         self.tracksViewController = tracksViewController
 
         if #available(iOS 11.0, *) {
