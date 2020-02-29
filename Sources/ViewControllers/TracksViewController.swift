@@ -183,8 +183,3 @@ private extension UITableViewCell {
     }
 }
 
-extension UITableViewCell {
-    static var reuseIdentifier: String {
-        .init(describing: self)
-    }
-}
