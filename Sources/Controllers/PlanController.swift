@@ -45,7 +45,7 @@ final class PlanController: UINavigationController {
             self?.reloadFavoriteEvents()
         }
 
-        activityService.attemptActivityRestoration { (activity: ViewEventForPlanActivity) in
+        activityService.attemptRestoration(of: ViewEventForPlanActivity.self) { activity in
             pushViewController(makeEventViewController(for: activity.event), animated: false)
         }
     }

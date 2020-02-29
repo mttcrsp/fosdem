@@ -45,13 +45,13 @@ final class TracksController: UINavigationController {
 
         viewControllers = [tracksViewController]
 
-        activityService.attemptActivityRestoration { (activity: ViewEventsForTrackActivity) in
-            self.events = activity.events
-            pushViewController(makeEventsViewController(for: activity.track), animated: false)
+        activityService.attemptRestoration(of: ViewEventForTrackActivity.self) { activity in
+            pushViewController(makeEventViewController(for: activity.event), animated: false)
         }
 
-        activityService.attemptActivityRestoration { (activity: ViewEventForTrackActivity) in
-            pushViewController(EventController(event: activity.event, services: services), animated: false)
+        activityService.attemptRestoration(of: ViewEventsForTrackActivity.self) { activity in
+            self.events = activity.events
+            pushViewController(makeEventsViewController(for: activity.track), animated: false)
         }
 
         persistenceService.tracks { result in
@@ -143,7 +143,7 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        eventsViewController.show(EventController(event: event, services: services), sender: nil)
+        eventsViewController.show(makeEventViewController(for: event), sender: nil)
 
         let activity = ViewEventForTrackActivity(event: event)
         activityService.register(activity)
@@ -179,6 +179,10 @@ private extension TracksController {
         }
 
         return eventsViewController
+    }
+
+    func makeEventViewController(for event: Event) -> EventController {
+        .init(event: event, services: services)
     }
 }
 

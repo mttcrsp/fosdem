@@ -22,13 +22,11 @@ final class ActivityService {
         defaults.set(try? encoder.encode(activity), forKey: .userActivityKey)
     }
 
-    func attemptActivityRestoration<ActivityType: Activity>(_ restorationBlock: (ActivityType) -> Void) {
-        guard let data = defaults.data(forKey: .userActivityKey),
-            let activity = try? decoder.decode(ActivityType.self, from: data)
-        else { return }
-
-        restorationBlock(activity)
-        defaults.set(nil, forKey: .userActivityKey)
+    func attemptRestoration<ActivityType: Activity>(of _: ActivityType.Type, _ restorationBlock: (ActivityType) -> Void) {
+        if let data = defaults.data(forKey: .userActivityKey), let activity = try? decoder.decode(ActivityType.self, from: data) {
+            restorationBlock(activity)
+            defaults.set(nil, forKey: .userActivityKey)
+        }
     }
 }
 
