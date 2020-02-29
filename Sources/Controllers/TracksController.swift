@@ -144,6 +144,7 @@ private extension TracksController {
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController(style: .grouped)
+        eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.hidesBottomBarWhenPushed = true
         eventsViewController.title = track.name
         eventsViewController.dataSource = self
