@@ -112,7 +112,7 @@ final class SegmentedControl: UIControl {
         buttons[segment].isSelected
     }
 
-    @objc private func tapped(_ sender: RoundedButton) {
+    @objc private func didTapButton(_ sender: RoundedButton) {
         guard let index = buttons.firstIndex(of: sender) else {
             return assertionFailure("Unexpected selection event received from sender \(sender) not managed by receiver \(self).")
         }
@@ -126,7 +126,7 @@ final class SegmentedControl: UIControl {
     private func makeButton(withTitle title: String?) -> RoundedButton {
         let button = RoundedButton()
         button.setTitle(title, for: .normal)
-        button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
         return button
     }
 

@@ -44,7 +44,7 @@ final class EventController: UIViewController {
             navigationItem.largeTitleDisplayMode = .never
         }
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: #selector(favoriteTapped))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: #selector(didToggleFavorite))
         observation = favoritesService.addObserverForEvents { [weak self] in
             self?.navigationItem.rightBarButtonItem?.title = self?.favoriteTitle
         }
@@ -55,7 +55,7 @@ final class EventController: UIViewController {
         eventViewController?.view.frame = view.bounds
     }
 
-    @objc private func favoriteTapped() {
+    @objc private func didToggleFavorite() {
         if isEventFavorite {
             favoritesService.removeEvent(withIdentifier: event.id)
         } else {

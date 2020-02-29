@@ -50,10 +50,10 @@ final class PlanViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        [.unfavorite { [weak self] indexPath in self?.unfavoriteTapped(at: indexPath) }]
+        [.unfavorite { [weak self] indexPath in self?.didUnfavoriteEvent(at: indexPath) }]
     }
 
-    private func unfavoriteTapped(at indexPath: IndexPath) {
+    private func didUnfavoriteEvent(at indexPath: IndexPath) {
         delegate?.planViewController(self, didUnfavorite: event(for: indexPath.section))
     }
 

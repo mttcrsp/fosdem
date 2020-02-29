@@ -13,11 +13,11 @@ final class EventViewController: UITableViewController {
     }
 
     var event: Event? {
-        didSet { eventChanged() }
+        didSet { didChangeEvent() }
     }
 
     private var items: [Item] = [] {
-        didSet { itemsChanged() }
+        didSet { didChangeItems() }
     }
 
     override func viewDidLoad() {
@@ -55,7 +55,7 @@ final class EventViewController: UITableViewController {
         view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
     }
 
-    private func eventChanged() {
+    private func didChangeEvent() {
         if let event = event {
             items = makeItems(for: event)
         } else {
@@ -63,7 +63,7 @@ final class EventViewController: UITableViewController {
         }
     }
 
-    private func itemsChanged() {
+    private func didChangeItems() {
         tableView.reloadData()
     }
 

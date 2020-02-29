@@ -9,8 +9,8 @@ final class RoundedButton: UIButton {
 
         updateColors()
 
-        addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
-        addTarget(self, action: #selector(touchUp), for: [.touchUpInside, .touchUpOutside, .touchDragExit])
+        addTarget(self, action: #selector(didTouchDown), for: [.touchDown, .touchDragEnter])
+        addTarget(self, action: #selector(didTouchUp), for: [.touchUpInside, .touchUpOutside, .touchDragExit])
     }
 
     required init?(coder _: NSCoder) {
@@ -46,13 +46,13 @@ final class RoundedButton: UIButton {
         setBackgroundImage(image, for: state)
     }
 
-    @objc private func touchDown() {
+    @objc private func didTouchDown() {
         UIView.animate(withDuration: 0.1) { [weak self] in
             self?.transform = .init(scaleX: 0.95, y: 0.95)
         }
     }
 
-    @objc private func touchUp() {
+    @objc private func didTouchUp() {
         UIView.animate(withDuration: 0.1) { [weak self] in
             self?.transform = .identity
         }
