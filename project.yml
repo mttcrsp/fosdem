@@ -27,7 +27,7 @@ targets:
     dependencies:
     - package: XMLCoder
     - package: GRDB
-    postbuildScripts:
+    prebuildScripts:
     - script: swiftformat .
     settings:
       base:
