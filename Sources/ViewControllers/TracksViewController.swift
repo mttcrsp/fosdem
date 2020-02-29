@@ -16,6 +16,10 @@ final class TracksViewController: UITableViewController {
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
 
+    fileprivate enum Filter {
+        case all, favorites, day(Int)
+    }
+
     var selectedTrack: Track? {
         tableView.indexPathForSelectedRow.map(track)
     }
@@ -32,13 +36,58 @@ final class TracksViewController: UITableViewController {
         dataSource?.favoriteTracks ?? []
     }
 
+    private var filteredTracks: [Track] {
+        switch selectedFilter {
+        case .none, .all:
+            return tracks
+        case .favorites:
+            return favoriteTracks
+        case let .day(number):
+            return tracksByDay[number - 1]
+        }
+    }
+
+    private var selectedFilter: Filter? {
+        if let selectedIndex = filterView.selectedSegmentIndex {
+            return filters[selectedIndex]
+        } else {
+            return nil
+        }
+    }
+
+    private lazy var filterView: SegmentedTableViewHeaderFooterView = {
+        let filterView = SegmentedTableViewHeaderFooterView()
+        filterView.addTarget(self, action: #selector(didSelectFilter), for: .valueChanged)
+        filterView.insertSegments(for: filters)
+
+        if !filters.isEmpty {
+            filterView.selectedSegmentIndex = 0
+        }
+
+        return filterView
+    }()
+
+    private lazy var filters: [Filter] = makeFilters()
+
+    func reloadData() {
+        filters = makeFilters()
+        tableView.reloadData()
+    }
+
+    func reloadFavorites() {
+        if case .some(.favorites) = selectedFilter {
+            tableView.reloadData()
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.tableFooterView = UIView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        0
+        filteredTracks.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -53,28 +102,52 @@ final class TracksViewController: UITableViewController {
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         favoriteTracks.contains(track(at: indexPath)) ?
-            [.unfavorite { [weak self] indexPath in self?.unfavoriteTapped(at: indexPath) }] :
-            [.favorite { [weak self] indexPath in self?.favoriteTapped(at: indexPath) }]
+            [.unfavorite { [weak self] indexPath in self?.didUnfavoriteTrack(at: indexPath) }] :
+            [.favorite { [weak self] indexPath in self?.didFavoriteTrack(at: indexPath) }]
     }
 
-    private func favoriteTapped(at indexPath: IndexPath) {
+    override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        filterView
+    }
+
+    private func didFavoriteTrack(at indexPath: IndexPath) {
         delegate?.tracksViewController(self, didFavorite: track(at: indexPath))
     }
 
-    private func unfavoriteTapped(at indexPath: IndexPath) {
+    private func didUnfavoriteTrack(at indexPath: IndexPath) {
         delegate?.tracksViewController(self, didUnfavorite: track(at: indexPath))
     }
 
-    func reloadData() {
+    @objc private func didSelectFilter() {
         tableView.reloadData()
     }
 
-    func reloadFavorites() {
-        reloadData()
+    private func makeFilters() -> [Filter] {
+        var filters: [Filter] = []
+        filters.append(.all)
+        for index in tracksByDay.indices {
+            filters.append(.day(index + 1))
+        }
+        filters.append(.favorites)
+        return filters
     }
 
-    private func track(at _: IndexPath) -> Track {
-        fatalError()
+    private func track(at indexPath: IndexPath) -> Track {
+        filteredTracks[indexPath.row]
+    }
+}
+
+private extension TracksViewController.Filter {
+    var title: String {
+        switch self {
+        case .all:
+            return NSLocalizedString("tracks.filter.all", comment: "")
+        case .favorites:
+            return NSLocalizedString("tracks.filter.favorites", comment: "")
+        case let .day(day):
+            let format = NSLocalizedString("tracks.filter.day", comment: "")
+            return String(format: format, day)
+        }
     }
 }
 
@@ -82,5 +155,13 @@ private extension UITableViewCell {
     func configure(with track: Track) {
         textLabel?.text = track.name
         accessoryType = .disclosureIndicator
+    }
+}
+
+private extension SegmentedTableViewHeaderFooterView {
+    func insertSegments(for filters: [TracksViewController.Filter]) {
+        for (index, filter) in filters.enumerated() {
+            insertSegment(withTitle: filter.title, at: index, animated: false)
+        }
     }
 }

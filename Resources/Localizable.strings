@@ -18,9 +18,9 @@
 
 /// MARK: - Tracks
 "tracks.title" = "Tracks";
-"tracks.section.favorites" = "Favorite tracks";
-"tracks.section.day" = "Day %d";
-"tracks.section.all" = "All tracks";
+"tracks.filter.day" = "Day %d";
+"tracks.filter.all" = "All tracks";
+"tracks.filter.favorites" = "Your Favorites";
 
 /// MARK: - Map
 "map.title" = "Map";
