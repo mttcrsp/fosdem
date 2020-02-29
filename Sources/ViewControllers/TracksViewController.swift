@@ -16,27 +16,9 @@ final class TracksViewController: UITableViewController {
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
 
-    var sorting: Sorting = .alphabetical {
-        didSet { sortingChanged() }
-    }
-
     var selectedTrack: Track? {
         tableView.indexPathForSelectedRow.map(track)
     }
-
-    enum Sorting {
-        case alphabetical, byDay
-    }
-
-    private struct Section {
-        let type: SectionType, tracks: [Track]
-    }
-
-    fileprivate enum SectionType: Equatable {
-        case all, favorites, day(Int)
-    }
-
-    private var sections: [Section] = []
 
     private var tracks: [Track] {
         dataSource?.tracks ?? []
@@ -50,25 +32,13 @@ final class TracksViewController: UITableViewController {
         dataSource?.favoriteTracks ?? []
     }
 
-    private lazy var sortingButton: UIBarButtonItem = {
-        let sortingTitle = sorting.next.title
-        let sortingAction = #selector(sortingTapped)
-        return UIBarButtonItem(title: sortingTitle, style: .plain, target: self, action: sortingAction)
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        sections = makeSections()
-        navigationItem.rightBarButtonItem = sortingButton
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
-    override func numberOfSections(in _: UITableView) -> Int {
-        sections.count
-    }
-
-    override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tracks(forSection: section).count
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        0
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -95,21 +65,7 @@ final class TracksViewController: UITableViewController {
         delegate?.tracksViewController(self, didUnfavorite: track(at: indexPath))
     }
 
-    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        sections[section].type.title
-    }
-
-    override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
-        guard let view = view as? UITableViewHeaderFooterView else { return }
-        view.textLabel?.font = .preferredFont(forTextStyle: .headline)
-    }
-
-    @objc private func sortingTapped() {
-        sorting = sorting.next
-    }
-
     func reloadData() {
-        sections = makeSections()
         tableView.reloadData()
     }
 
@@ -117,62 +73,8 @@ final class TracksViewController: UITableViewController {
         reloadData()
     }
 
-    private func sortingChanged() {
-        reloadData()
-        sortingButton.title = sorting.next.title
-    }
-
-    private func tracks(forSection section: Int) -> [Track] {
-        sections[section].tracks
-    }
-
-    private func track(at indexPath: IndexPath) -> Track {
-        tracks(forSection: indexPath.section)[indexPath.row]
-    }
-
-    private func makeSections() -> [Section] {
-        var sections: [Section] = [.init(type: .favorites, tracks: favoriteTracks)]
-
-        switch sorting {
-        case .alphabetical:
-            sections.append(.init(type: .all, tracks: tracks))
-        case .byDay:
-            sections.append(contentsOf: tracksByDay.enumerated().map { i, tracks in
-                .init(type: .day(i + 1), tracks: tracks)
-            })
-        }
-
-        return sections
-    }
-}
-
-private extension TracksViewController.SectionType {
-    var title: String {
-        switch self {
-        case .all:
-            return NSLocalizedString("tracks.section.all", comment: "")
-        case .favorites:
-            return NSLocalizedString("tracks.section.favorites", comment: "")
-        case let .day(day):
-            let format = NSLocalizedString("tracks.section.day", comment: "")
-            return String(format: format, day)
-        }
-    }
-}
-
-private extension TracksViewController.Sorting {
-    var next: TracksViewController.Sorting {
-        switch self {
-        case .alphabetical: return .byDay
-        case .byDay: return .alphabetical
-        }
-    }
-
-    var title: String {
-        switch self {
-        case .byDay: return NSLocalizedString("tracks.sorting.day", comment: "")
-        case .alphabetical: return NSLocalizedString("tracks.sorting.alphabet", comment: "")
-        }
+    private func track(at _: IndexPath) -> Track {
+        fatalError()
     }
 }
 
@@ -182,4 +84,3 @@ private extension UITableViewCell {
         accessoryType = .disclosureIndicator
     }
 }
-

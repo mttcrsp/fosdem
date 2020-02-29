@@ -21,8 +21,6 @@
 "tracks.section.favorites" = "Favorite tracks";
 "tracks.section.day" = "Day %d";
 "tracks.section.all" = "All tracks";
-"tracks.sorting.day" = "By day";
-"tracks.sorting.alphabet" = "Alphabetical";
 
 /// MARK: - Map
 "map.title" = "Map";
