@@ -72,6 +72,9 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
         planViewController.show(makeEventViewController(for: event), sender: nil)
+
+        let activity = ViewEventForPlanActivity(event: event)
+        activityService.register(activity)
     }
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
