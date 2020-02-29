@@ -152,6 +152,7 @@ private extension MoreController {
     func makeSpeakersViewController() -> SpeakersViewController {
         let speakersViewController = SpeakersViewController(style: .grouped)
         speakersViewController.title = NSLocalizedString("speakers.title", comment: "")
+        speakersViewController.extendedLayoutIncludesOpaqueBars = true
         speakersViewController.hidesBottomBarWhenPushed = true
         speakersViewController.dataSource = self
         speakersViewController.delegate = self
@@ -163,6 +164,7 @@ private extension MoreController {
         let historyViewController = TextViewController()
         historyViewController.title = NSLocalizedString("history.title", comment: "")
         historyViewController.text = NSLocalizedString("history.body", comment: "")
+        historyViewController.extendedLayoutIncludesOpaqueBars = true
         historyViewController.hidesBottomBarWhenPushed = true
         return historyViewController
     }
@@ -171,6 +173,7 @@ private extension MoreController {
         let devroomsViewController = TextViewController()
         devroomsViewController.title = NSLocalizedString("devrooms.title", comment: "")
         devroomsViewController.text = NSLocalizedString("devrooms.body", comment: "")
+        devroomsViewController.extendedLayoutIncludesOpaqueBars = true
         devroomsViewController.hidesBottomBarWhenPushed = true
         return devroomsViewController
     }
@@ -178,6 +181,7 @@ private extension MoreController {
     func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
         let acknowledgementsViewController = AcknowledgementsViewController(style: .grouped)
         acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
+        acknowledgementsViewController.extendedLayoutIncludesOpaqueBars = true
         acknowledgementsViewController.hidesBottomBarWhenPushed = true
         acknowledgementsViewController.dataSource = self
         acknowledgementsViewController.delegate = self
@@ -186,6 +190,7 @@ private extension MoreController {
 
     func makeLicenseViewController(for acknowledgement: Acknowledgement, withLicense license: String) -> TextViewController {
         let licenseViewController = TextViewController()
+        licenseViewController.extendedLayoutIncludesOpaqueBars = true
         licenseViewController.title = acknowledgement
         licenseViewController.text = license
         return licenseViewController
