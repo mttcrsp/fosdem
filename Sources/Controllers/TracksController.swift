@@ -1,6 +1,14 @@
 import UIKit
 
 final class TracksController: UINavigationController {
+    private struct ViewEvents: Activity, Codable {
+        let track: Track, events: [Event]
+    }
+
+    private struct ViewEvent: Activity, Codable {
+        let event: Event
+    }
+
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
 
@@ -45,11 +53,11 @@ final class TracksController: UINavigationController {
 
         viewControllers = [tracksViewController]
 
-        activityService.attemptRestoration(of: ViewEventForTrackActivity.self) { activity in
+        activityService.attemptRestoration(of: ViewEvent.self) { activity in
             pushViewController(makeEventViewController(for: activity.event), animated: false)
         }
 
-        activityService.attemptRestoration(of: ViewEventsForTrackActivity.self) { activity in
+        activityService.attemptRestoration(of: ViewEvents.self) { activity in
             self.events = activity.events
             pushViewController(makeEventsViewController(for: activity.track), animated: false)
         }
@@ -128,9 +136,7 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
                 case let .success(events):
                     self?.events = events
                     self?.eventsViewController?.reloadData()
-
-                    let activity = ViewEventsForTrackActivity(track: track, events: events)
-                    self?.activityService.register(activity)
+                    self?.activityService.register(ViewEvents(track: track, events: events))
                 }
             }
         }
@@ -144,9 +150,7 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         eventsViewController.show(makeEventViewController(for: event), sender: nil)
-
-        let activity = ViewEventForTrackActivity(event: event)
-        activityService.register(activity)
+        activityService.register(ViewEvent(event: event))
     }
 }
 
@@ -184,15 +188,6 @@ private extension TracksController {
     func makeEventViewController(for event: Event) -> EventController {
         .init(event: event, services: services)
     }
-}
-
-private struct ViewEventsForTrackActivity: Activity, Codable {
-    let track: Track
-    let events: [Event]
-}
-
-private struct ViewEventForTrackActivity: Activity, Codable {
-    let event: Event
 }
 
 private extension Array where Element == Track {

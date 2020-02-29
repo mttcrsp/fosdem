@@ -1,6 +1,10 @@
 import UIKit
 
 final class PlanController: UINavigationController {
+    private struct ViewEvent: Activity, Codable {
+        let event: Event
+    }
+
     private weak var planViewController: PlanViewController?
 
     private var observation: NSObjectProtocol?
@@ -45,7 +49,7 @@ final class PlanController: UINavigationController {
             self?.reloadFavoriteEvents()
         }
 
-        activityService.attemptRestoration(of: ViewEventForPlanActivity.self) { activity in
+        activityService.attemptRestoration(of: ViewEvent.self) { activity in
             pushViewController(makeEventViewController(for: activity.event), animated: false)
         }
     }
@@ -72,9 +76,7 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
         planViewController.show(makeEventViewController(for: event), sender: nil)
-
-        let activity = ViewEventForPlanActivity(event: event)
-        activityService.register(activity)
+        activityService.register(ViewEvent(event: event))
     }
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
@@ -102,8 +104,4 @@ private extension PlanController {
 
         return planViewController
     }
-}
-
-private struct ViewEventForPlanActivity: Activity, Codable {
-    let event: Event
 }
