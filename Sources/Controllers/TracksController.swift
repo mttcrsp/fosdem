@@ -22,6 +22,10 @@ final class TracksController: UINavigationController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var activityService: ActivityService {
+        services.activityService
+    }
+
     private var favoritesService: FavoritesService {
         services.favoritesService
     }
@@ -33,10 +37,21 @@ final class TracksController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        viewControllers = [makeTracksViewController()]
+        let tracksViewController = makeTracksViewController()
 
         if #available(iOS 11.0, *) {
             navigationBar.prefersLargeTitles = true
+        }
+
+        viewControllers = [tracksViewController]
+
+        activityService.attemptActivityRestoration { (activity: ViewEventsForTrackActivity) in
+            self.events = activity.events
+            pushViewController(makeEventsViewController(for: activity.track), animated: false)
+        }
+
+        activityService.attemptActivityRestoration { (activity: ViewEventForTrackActivity) in
+            pushViewController(EventController(event: activity.event, services: services), animated: false)
         }
 
         persistenceService.tracks { result in
@@ -108,11 +123,14 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
         persistenceService.events(forTrackWithIdentifier: track.name) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
+                case .failure:
+                    self?.eventsViewController?.present(ErrorController(), animated: true)
                 case let .success(events):
                     self?.events = events
                     self?.eventsViewController?.reloadData()
-                case .failure:
-                    self?.eventsViewController?.present(ErrorController(), animated: true)
+
+                    let activity = ViewEventsForTrackActivity(track: track, events: events)
+                    self?.activityService.register(activity)
                 }
             }
         }
@@ -126,6 +144,9 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         eventsViewController.show(EventController(event: event, services: services), sender: nil)
+
+        let activity = ViewEventForTrackActivity(event: event)
+        activityService.register(activity)
     }
 }
 
@@ -159,6 +180,15 @@ private extension TracksController {
 
         return eventsViewController
     }
+}
+
+private struct ViewEventsForTrackActivity: Activity, Codable {
+    let track: Track
+    let events: [Event]
+}
+
+private struct ViewEventForTrackActivity: Activity, Codable {
+    let event: Event
 }
 
 private extension Array where Element == Track {
