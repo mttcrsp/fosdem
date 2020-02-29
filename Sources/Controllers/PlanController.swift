@@ -17,6 +17,10 @@ final class PlanController: UINavigationController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var activityService: ActivityService {
+        services.activityService
+    }
+
     private var favoritesService: FavoritesService {
         services.favoritesService
     }
@@ -32,11 +36,17 @@ final class PlanController: UINavigationController {
             navigationBar.prefersLargeTitles = true
         }
 
-        viewControllers = [makePlanViewController()]
+        let planViewController = makePlanViewController()
+
+        viewControllers = [planViewController]
 
         reloadFavoriteEvents()
         observation = favoritesService.addObserverForEvents { [weak self] in
             self?.reloadFavoriteEvents()
+        }
+
+        activityService.attemptActivityRestoration { (activity: ViewEventForPlanActivity) in
+            pushViewController(makeEventViewController(for: activity.event), animated: false)
         }
     }
 
@@ -89,4 +99,8 @@ private extension PlanController {
 
         return planViewController
     }
+}
+
+private struct ViewEventForPlanActivity: Activity, Codable {
+    let event: Event
 }

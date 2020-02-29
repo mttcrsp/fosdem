@@ -118,11 +118,11 @@ final class TracksViewController: UITableViewController {
     private func makeFilters() -> [Filter] {
         var filters: [Filter] = []
         filters.append(.all)
-        
+
         for index in tracksByDay.indices {
             filters.append(.day(index + 1))
         }
-        
+
         filters.append(.favorites)
         return filters
     }
