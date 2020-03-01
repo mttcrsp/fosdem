@@ -1,22 +1,28 @@
 import Foundation
 
 final class XMLScheduleDecoder: NSObject, XMLParserDelegate {
-    private typealias Element = (elementName: String, attributesDict: [String: String])
-    private var elementsStack: [Element] = []
+    fileprivate struct EventState {
+        var attachments: [Attachment] = [], people: [Person] = [], links: [Link] = []
+    }
 
-    private var attachments: [Attachment] = []
-    private var people: [Person] = []
-    private var links: [Link] = []
+    fileprivate struct DayState {
+        var events: [Event] = [], rooms: [Room] = []
+    }
 
-    private var events: [Event] = []
-    private var rooms: [Room] = []
-    private var days: [Day] = []
+    fileprivate struct ScheduleState {
+        var days: [Day] = [], conference: Conference?
+    }
 
-    private var conference: Conference?
+    private typealias Element = (name: String, attributes: [String: String])
+
+    private var scheduleState = ScheduleState()
+    private var eventState = EventState()
+    private var dayState = DayState()
+    private var stack: [Element] = []
 
     private(set) var schedule: Schedule?
-    private(set) var validationError: Error?
     private(set) var parseError: Error?
+    private(set) var validationError: Error?
 
     private let parser: XMLParser
 
@@ -30,77 +36,45 @@ final class XMLScheduleDecoder: NSObject, XMLParserDelegate {
         parser.parse()
     }
 
-    func parserDidStartDocument(_ parser: XMLParser) {
-        print(#function, parser)
-    }
-
-    func parserDidEndDocument(_ parser: XMLParser) {
-        print(#function, parser)
-    }
-
-    func parser(_: XMLParser, didStartElement elementName: String, namespaceURI _: String?, qualifiedName _: String?, attributes attributeDict: [String: String] = [:]) {
-        elementsStack.append((elementName, attributeDict))
+    func parser(_: XMLParser, didStartElement name: String, namespaceURI _: String?, qualifiedName _: String?, attributes attributeDict: [String: String] = [:]) {
+        stack.append((name, attributeDict))
     }
 
     func parser(_: XMLParser, foundCharacters string: String) {
         let value = string.trimmingCharacters(in: .whitespacesAndNewlines)
         if !value.isEmpty {
-            var (elementName, attributesDict) = elementsStack.removeLast()
-            attributesDict["value", default: ""] += value
-            elementsStack.append((elementName, attributesDict))
+            var (name, attributes) = stack.removeLast()
+            attributes["value", default: ""] += value
+            stack.append((name, attributes))
         }
     }
 
-    func parser(_: XMLParser, didEndElement elementName: String, namespaceURI _: String?, qualifiedName _: String?) {
-        let (elementName, attributesDict) = elementsStack.removeLast()
+    func parser(_: XMLParser, didEndElement name: String, namespaceURI _: String?, qualifiedName _: String?) {
+        let (name, attributes) = stack.removeLast()
 
-        if elementName == "link", let link = Link(attributesDict: attributesDict) {
-            return links.append(link)
-        }
-
-        if elementName == "person", let person = Person(attributesDict: attributesDict) {
-            return people.append(person)
-        }
-
-        if elementName == "attachment", let attachment = Attachment(attributesDict: attributesDict) {
-            return attachments.append(attachment)
-        }
-
-        if eventElementsNames.contains(elementName), elementsStack.last?.elementName == "event" {
-            var (eventElementName, eventAttributesDict) = elementsStack.removeLast()
-            eventAttributesDict[elementName] = attributesDict["value"]
-            return elementsStack.append((eventElementName, eventAttributesDict))
-        }
-
-        if conferenceElementsNames.contains(elementName), elementsStack.last?.elementName == "conference" {
-            var (conferenceElementName, conferenceAttributesDict) = elementsStack.removeLast()
-            conferenceAttributesDict[elementName] = attributesDict["value"]
-            return elementsStack.append((conferenceElementName, conferenceAttributesDict))
-        }
-
-        if elementName == "event", let event = Event(attributesDict: attributesDict, links: links, people: people, attachments: attachments) {
-            links = []; people = []; attachments = []
-            return events.append(event)
-        }
-
-        if elementName == "room", let room = Room(attributesDict: attributesDict, events: events) {
-            events = []
-            return rooms.append(room)
-        }
-
-        if elementName == "day", let day = Day(attributesDict: attributesDict, rooms: rooms, events: events) {
-            rooms = []; events = []
-            return days.append(day)
-        }
-
-        if elementName == "conference", let conference = Conference(attributesDict: attributesDict) {
-            self.conference = conference
-            return
-        }
-
-        if elementName == "schedule", let conference = conference {
-            schedule = Schedule(conference: conference, days: days)
-            return print(schedule?.days.count as Any, schedule?.days.first?.events.count as Any)
+        switch name {
+        case Link.name:
+            didParseLink(with: attributes)
+        case Person.name:
+            didParsePerson(with: attributes)
+        case Attachment.name:
+            didParseAttachment(with: attributes)
+        case let name where Event.attributesNames.contains(name) && stack.last?.name == Event.name:
+            didParseEventAttribute(withName: name, attributes: attributes)
+        case Event.name:
+            didParseEvent(with: attributes)
+        case Room.name:
+            didParseRoom(with: attributes)
+        case Day.name:
+            didParseDay(with: attributes)
+        case let name where Conference.attributesNames.contains(name) && stack.last?.name == Conference.name:
+            didParseConferenceAttribute(withName: name, attributes: attributes)
+        case Conference.name:
+            didParseConference(with: attributes)
+        case Schedule.name:
+            didParseSchedule()
+        default:
+            break
         }
     }
 
@@ -113,22 +87,73 @@ final class XMLScheduleDecoder: NSObject, XMLParserDelegate {
     }
 
     private var entityNames: Set<String> {
-        ["schedule", "conference", "day", "room", "event", "person", "attachment", "link"]
+        [Schedule.name, Conference.name, Day.name, Room.name, Event.name, Person.name, Attachment.name, Link.name]
     }
 
-    private var eventElementsNames: Set<String> {
-        ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description"]
+    private func didParseLink(with attributes: [String: String]) {
+        guard let link = Link(attributes: attributes) else { return }
+        eventState.links.append(link)
     }
 
-    private var conferenceElementsNames: Set<String> {
-        ["title", "subtitle", "venue", "city", "start", "end", "days", "day_change", "timeslot_duration"]
+    private func didParsePerson(with attributes: [String: String]) {
+        guard let person = Person(attributes: attributes) else { return }
+        eventState.people.append(person)
+    }
+
+    private func didParseAttachment(with attributes: [String: String]) {
+        guard let attachment = Attachment(attributes: attributes) else { return }
+        eventState.attachments.append(attachment)
+    }
+
+    private func didParseEvent(with attributes: [String: String]) {
+        guard let event = Event(attributes: attributes, state: eventState) else { return }
+        dayState.events.append(event)
+        eventState = .init()
+    }
+
+    private func didParseRoom(with attributes: [String: String]) {
+        guard let room = Room(attributes: attributes, events: dayState.events) else { return }
+        dayState.rooms.append(room)
+        dayState.events = []
+    }
+
+    private func didParseDay(with attributes: [String: String]) {
+        guard let day = Day(attributes: attributes, state: dayState) else { return }
+        scheduleState.days.append(day)
+        dayState = .init()
+    }
+
+    private func didParseConference(with attributes: [String: String]) {
+        guard let conference = Conference(attributes: attributes) else { return }
+        scheduleState.conference = conference
+    }
+
+    private func didParseSchedule() {
+        guard let conference = scheduleState.conference else { return }
+        schedule = Schedule(conference: conference, days: scheduleState.days)
+    }
+
+    private func didParseEventAttribute(withName name: String, attributes: [String: String]) {
+        var (eventName, eventAttributes) = stack.removeLast()
+        eventAttributes[name] = attributes["value"]
+        stack.append((eventName, eventAttributes))
+    }
+
+    private func didParseConferenceAttribute(withName name: String, attributes: [String: String]) {
+        var (conferenceName, conferenceAttributes) = stack.removeLast()
+        conferenceAttributes[name] = attributes["value"]
+        stack.append((conferenceName, conferenceAttributes))
     }
 }
 
 private extension Link {
-    init?(attributesDict: [String: String]) {
-        guard let href = attributesDict["href"], let name = attributesDict["value"] else {
-            assertionFailure("Malfomed link found \(attributesDict)")
+    static var name: String {
+        "link"
+    }
+
+    init?(attributes: [String: String]) {
+        guard let href = attributes["href"], let name = attributes["value"] else {
+            assertionFailure("Malfomed link found \(attributes)")
             return nil
         }
 
@@ -140,9 +165,13 @@ private extension Link {
 }
 
 private extension Person {
-    init?(attributesDict: [String: String]) {
-        guard let idRawValue = attributesDict["id"], let name = attributesDict["value"] else {
-            assertionFailure("Malfomed person found \(attributesDict)")
+    static var name: String {
+        "person"
+    }
+
+    init?(attributes: [String: String]) {
+        guard let idRawValue = attributes["id"], let name = attributes["value"] else {
+            assertionFailure("Malfomed person found \(attributes)")
             return nil
         }
 
@@ -156,9 +185,13 @@ private extension Person {
 }
 
 private extension Attachment {
-    init?(attributesDict: [String: String]) {
-        guard let href = attributesDict["href"], let typeRawValue = attributesDict["type"] else {
-            assertionFailure("Malfomed attachment found \(attributesDict)")
+    static var name: String {
+        "attachment"
+    }
+
+    init?(attributes: [String: String]) {
+        guard let href = attributes["href"], let typeRawValue = attributes["type"] else {
+            assertionFailure("Malfomed attachment found \(attributes)")
             return nil
         }
 
@@ -172,14 +205,22 @@ private extension Attachment {
             return nil
         }
 
-        self.init(type: type, url: url, name: attributesDict["value"])
+        self.init(type: type, url: url, name: attributes["value"])
     }
 }
 
 private extension Event {
-    init?(attributesDict: [String: String], links: [Link], people: [Person], attachments: [Attachment]) {
-        guard let idRawValue = attributesDict["id"], let room = attributesDict["room"], let track = attributesDict["track"], let title = attributesDict["title"], let startRawValue = attributesDict["start"], let durationRawValue = attributesDict["duration"] else {
-            assertionFailure("Malfomed event found \(attributesDict)")
+    static var name: String {
+        "event"
+    }
+
+    static var attributesNames: Set<String> {
+        ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description"]
+    }
+
+    init?(attributes: [String: String], state: XMLScheduleDecoder.EventState) {
+        guard let idRawValue = attributes["id"], let room = attributes["room"], let track = attributes["track"], let title = attributes["title"], let startRawValue = attributes["start"], let durationRawValue = attributes["duration"] else {
+            assertionFailure("Malfomed event found \(attributes)")
             return nil
         }
 
@@ -200,27 +241,23 @@ private extension Event {
             return nil
         }
 
-        self.init(
-            id: id,
-            room: room,
-            track: track,
-            title: title,
-            summary: attributesDict["summary"],
-            subtitle: attributesDict["subtitle"],
-            abstract: attributesDict["abstract"],
-            start: DateComponents(hour: startHour, minute: startMinute),
-            duration: DateComponents(hour: durationHour, minute: durationMinute),
-            links: links,
-            people: people,
-            attachments: attachments
-        )
+        let summary = attributes["summary"]
+        let subtitle = attributes["subtitle"]
+        let abstract = attributes["abstract"]
+        let start = DateComponents(hour: startHour, minute: startMinute)
+        let duration = DateComponents(hour: durationHour, minute: durationMinute)
+        self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, start: start, duration: duration, links: state.links, people: state.people, attachments: state.attachments)
     }
 }
 
 private extension Room {
-    init?(attributesDict: [String: String], events: [Event]) {
-        guard let name = attributesDict["name"] else {
-            assertionFailure("Malfomed room found \(attributesDict)")
+    static var name: String {
+        "room"
+    }
+
+    init?(attributes: [String: String], events: [Event]) {
+        guard let name = attributes["name"] else {
+            assertionFailure("Malfomed room found \(attributes)")
             return nil
         }
 
@@ -229,9 +266,13 @@ private extension Room {
 }
 
 private extension Day {
-    init?(attributesDict: [String: String], rooms: [Room], events: [Event]) {
-        guard let indexRawValue = attributesDict["index"], let dateRawValue = attributesDict["date"] else {
-            assertionFailure("Malfomed day found \(attributesDict)")
+    static var name: String {
+        "day"
+    }
+
+    init?(attributes: [String: String], state: XMLScheduleDecoder.DayState) {
+        guard let indexRawValue = attributes["index"], let dateRawValue = attributes["date"] else {
+            assertionFailure("Malfomed day found \(attributes)")
             return nil
         }
 
@@ -247,15 +288,24 @@ private extension Day {
 
         // The format used by the Schedule API changed slightly between 2012 and
         // 2013 when a room entity was introduced.
-        let roomsEvents = rooms.flatMap { room in room.events }
-        self.init(index: index, date: date, events: roomsEvents + events)
+        let roomsEvents = state.rooms.flatMap { room in room.events }
+        let allEvents = roomsEvents + state.events
+        self.init(index: index, date: date, events: allEvents)
     }
 }
 
 private extension Conference {
-    init?(attributesDict: [String: String]) {
-        guard let title = attributesDict["title"], let venue = attributesDict["venue"], let city = attributesDict["city"], let startRawValue = attributesDict["start"], let endRawValue = attributesDict["end"] else {
-            assertionFailure("Malfomed conference found \(attributesDict)")
+    static var name: String {
+        "conference"
+    }
+
+    static var attributesNames: Set<String> {
+        ["title", "subtitle", "venue", "city", "start", "end", "days", "day_change", "timeslot_duration"]
+    }
+
+    init?(attributes: [String: String]) {
+        guard let title = attributes["title"], let venue = attributes["venue"], let city = attributes["city"], let startRawValue = attributes["start"], let endRawValue = attributes["end"] else {
+            assertionFailure("Malfomed conference found \(attributes)")
             return nil
         }
 
@@ -269,13 +319,13 @@ private extension Conference {
             return nil
         }
 
-        self.init(
-            title: title,
-            subtitle: attributesDict["subtitle"],
-            venue: venue,
-            city: city,
-            start: start,
-            end: end
-        )
+        let subtitle = attributes["subtitle"]
+        self.init(title: title, subtitle: subtitle, venue: venue, city: city, start: start, end: end)
+    }
+}
+
+private extension Schedule {
+    static var name: String {
+        "schedule"
     }
 }
