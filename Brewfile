@@ -1,4 +1,3 @@
-brew "carthage"
 brew "xcodegen"
 brew "swiftformat"
 tap "mono0926/license-plist"
