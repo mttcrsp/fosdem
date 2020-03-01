@@ -18,9 +18,10 @@ targets:
     - Sources
     - Resources
     scheme:
-      testTargets:
-        - Tests
       gatherCoverageData: true
+      testTargets:
+        - name: Tests
+          randomExecutionOrder: true
     dependencies:
     - package: GRDB
     prebuildScripts:
