@@ -1,5 +1,5 @@
 import Foundation
 
-struct Day: Decodable {
+struct Day: Codable {
     let index: Int, date: Date, events: [Event]
 }

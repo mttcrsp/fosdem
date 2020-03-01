@@ -1,9 +1,7 @@
 import Foundation
 
 struct Track: Codable {
-    let name: String
-    let day: Int
-    let date: Date
+    let name: String, day: Int, date: Date
 }
 
 extension Track: Equatable {

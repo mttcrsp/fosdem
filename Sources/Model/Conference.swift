@@ -1,6 +1,6 @@
 import Foundation
 
-struct Conference: Decodable {
+struct Conference: Codable {
     let title: String
     let subtitle: String?
     let venue: String

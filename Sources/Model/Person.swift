@@ -1,5 +1,3 @@
-import GRDB
-
 struct Person: Codable {
     let id: Int, name: String
 }

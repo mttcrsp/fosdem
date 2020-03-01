@@ -132,6 +132,9 @@ private extension Link {
             return nil
         }
 
+        // Links returned by the FOSDEM API are sometimes malformed. Most of the
+        // time the issue is caused by some leftover whitespaces at the end of
+        // the URL.
         self.init(name: name, url: URL(string: href))
     }
 }
@@ -242,6 +245,8 @@ private extension Day {
             return nil
         }
 
+        // The format used by the Schedule API changed slightly between 2012 and
+        // 2013 when a room entity was introduced.
         let roomsEvents = rooms.flatMap { room in room.events }
         self.init(index: index, date: date, events: roomsEvents + events)
     }

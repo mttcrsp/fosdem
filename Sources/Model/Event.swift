@@ -1,5 +1,4 @@
 import Foundation
-import GRDB
 
 struct Event: Codable {
     let id: Int
