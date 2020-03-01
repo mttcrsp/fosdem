@@ -2,7 +2,7 @@ import Foundation
 import GRDB
 
 struct Event: Codable {
-    let id: String
+    let id: Int
     let room: String
     let track: String
 

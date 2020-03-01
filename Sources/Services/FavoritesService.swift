@@ -20,7 +20,7 @@ final class FavoritesService {
         set { userDefaults.tracksIdentifiers = newValue }
     }
 
-    var eventsIdentifiers: Set<String> {
+    var eventsIdentifiers: Set<Int> {
         get { userDefaults.eventsIdentifiers }
         set { userDefaults.eventsIdentifiers = newValue }
     }
@@ -50,14 +50,14 @@ final class FavoritesService {
         tracksIdentifiers.contains(track.name)
     }
 
-    func addEvent(withIdentifier eventID: String) {
+    func addEvent(withIdentifier eventID: Int) {
         let (inserted, _) = eventsIdentifiers.insert(eventID)
         if inserted {
             notificationCenter.post(Notification(name: .favoriteEventsDidChange))
         }
     }
 
-    func removeEvent(withIdentifier eventID: String) {
+    func removeEvent(withIdentifier eventID: Int) {
         if let _ = eventsIdentifiers.remove(eventID) {
             notificationCenter.post(Notification(name: .favoriteEventsDidChange))
         }
@@ -70,22 +70,22 @@ final class FavoritesService {
 
 private extension FavoritesServiceDefaults {
     var tracksIdentifiers: Set<String> {
-        get { value(forKey: .favoriteTracks) }
-        set { set(newValue, forKey: .favoriteTracks) }
+        get { value(forKey: .favoriteTracksKey) }
+        set { set(newValue, forKey: .favoriteTracksKey) }
     }
 
-    var eventsIdentifiers: Set<String> {
-        get { value(forKey: .favoriteEvents) }
-        set { set(newValue, forKey: .favoriteEvents) }
+    var eventsIdentifiers: Set<Int> {
+        get { value(forKey: .favoriteEventsKey) }
+        set { set(newValue, forKey: .favoriteEventsKey) }
     }
 
-    private func value(forKey key: String) -> Set<String> {
+    private func value<Value: Hashable>(forKey key: String) -> Set<Value> {
         let object = value(forKey: key)
-        let array = object as? [String] ?? []
+        let array = object as? [Value] ?? []
         return Set(array)
     }
 
-    private func set(_ value: Set<String>, forKey defaultName: String) {
+    private func set<Value: Hashable>(_ value: Set<Value>, forKey defaultName: String) {
         let array = Array(value)
         let arrayPlist = NSArray(array: array)
         set(arrayPlist, forKey: defaultName)
@@ -93,8 +93,8 @@ private extension FavoritesServiceDefaults {
 }
 
 private extension String {
-    static var favoriteTracks: String { #function }
-    static var favoriteEvents: String { #function }
+    static var favoriteTracksKey: String { #function }
+    static var favoriteEventsKey: String { #function }
 }
 
 private extension Notification.Name {

@@ -85,7 +85,7 @@ final class PersistenceService {
         }
     }
 
-    func events(forPersonWithIdentifier personID: String, completion: @escaping (Result<[Event], Error>) -> Void) {
+    func events(forPersonWithIdentifier personID: Int, completion: @escaping (Result<[Event], Error>) -> Void) {
         database.asyncRead { result in
             switch result {
             case let .failure(error):
@@ -105,7 +105,7 @@ final class PersistenceService {
         }
     }
 
-    func events(withIdentifiers identifiers: Set<String>, completion: @escaping (Result<[Event], Error>) -> Void) {
+    func events(withIdentifiers identifiers: Set<Int>, completion: @escaping (Result<[Event], Error>) -> Void) {
         database.asyncRead { result in
             switch result {
             case let .failure(error):

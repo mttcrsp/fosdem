@@ -48,44 +48,44 @@ final class FavoritesServiceTests: XCTestCase {
 
     func testAddEvent() {
         let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
-        service.addEvent(withIdentifier: "1")
-        XCTAssertEqual(service.eventsIdentifiers, ["1"])
+        service.addEvent(withIdentifier: 1)
+        XCTAssertEqual(service.eventsIdentifiers, [1])
 
-        service.addEvent(withIdentifier: "1")
-        XCTAssertEqual(service.eventsIdentifiers, ["1"])
+        service.addEvent(withIdentifier: 1)
+        XCTAssertEqual(service.eventsIdentifiers, [1])
 
-        service.addEvent(withIdentifier: "2")
-        XCTAssertEqual(service.eventsIdentifiers, ["1", "2"])
+        service.addEvent(withIdentifier: 2)
+        XCTAssertEqual(service.eventsIdentifiers, [1, 2])
 
-        service.addEvent(withIdentifier: "3")
-        XCTAssertEqual(service.eventsIdentifiers, ["1", "2", "3"])
+        service.addEvent(withIdentifier: 3)
+        XCTAssertEqual(service.eventsIdentifiers, [1, 2, 3])
 
-        service.addEvent(withIdentifier: "3")
-        XCTAssertEqual(service.eventsIdentifiers, ["1", "2", "3"])
+        service.addEvent(withIdentifier: 3)
+        XCTAssertEqual(service.eventsIdentifiers, [1, 2, 3])
     }
 
     func testRemoveEvent() {
         let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
-        service.addEvent(withIdentifier: "1")
-        service.addEvent(withIdentifier: "2")
-        service.addEvent(withIdentifier: "3")
+        service.addEvent(withIdentifier: 1)
+        service.addEvent(withIdentifier: 2)
+        service.addEvent(withIdentifier: 3)
 
-        service.removeEvent(withIdentifier: "4")
-        XCTAssertEqual(service.eventsIdentifiers, ["1", "2", "3"])
+        service.removeEvent(withIdentifier: 4)
+        XCTAssertEqual(service.eventsIdentifiers, [1, 2, 3])
 
-        service.removeEvent(withIdentifier: "3")
-        XCTAssertEqual(service.eventsIdentifiers, ["1", "2"])
+        service.removeEvent(withIdentifier: 3)
+        XCTAssertEqual(service.eventsIdentifiers, [1, 2])
 
-        service.removeEvent(withIdentifier: "2")
-        XCTAssertEqual(service.eventsIdentifiers, ["1"])
+        service.removeEvent(withIdentifier: 2)
+        XCTAssertEqual(service.eventsIdentifiers, [1])
 
-        service.removeEvent(withIdentifier: "2")
-        XCTAssertEqual(service.eventsIdentifiers, ["1"])
+        service.removeEvent(withIdentifier: 2)
+        XCTAssertEqual(service.eventsIdentifiers, [1])
 
-        service.removeEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: 1)
         XCTAssertEqual(service.eventsIdentifiers, [])
 
-        service.removeEvent(withIdentifier: "1")
+        service.removeEvent(withIdentifier: 1)
         XCTAssertEqual(service.eventsIdentifiers, [])
     }
 
@@ -106,10 +106,10 @@ final class FavoritesServiceTests: XCTestCase {
         service.removeTrack(withIdentifier: "1")
         service.removeTrack(withIdentifier: "1")
 
-        service.addEvent(withIdentifier: "1")
-        service.addEvent(withIdentifier: "1")
-        service.removeEvent(withIdentifier: "1")
-        service.removeEvent(withIdentifier: "1")
+        service.addEvent(withIdentifier: 1)
+        service.addEvent(withIdentifier: 1)
+        service.removeEvent(withIdentifier: 1)
+        service.removeEvent(withIdentifier: 1)
 
         waitForExpectations(timeout: 1)
 

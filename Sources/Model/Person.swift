@@ -1,7 +1,7 @@
 import GRDB
 
 struct Person: Codable {
-    let id, name: String
+    let id: Int, name: String
 }
 
 extension Person: Equatable, Hashable {

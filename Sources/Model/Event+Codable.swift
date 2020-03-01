@@ -19,7 +19,7 @@ extension Event {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
+        id = try container.decode(Int.self, forKey: .id)
         room = try container.decode(String.self, forKey: .room)
         track = try container.decode(String.self, forKey: .track)
         title = try container.decode(String.self, forKey: .title)
