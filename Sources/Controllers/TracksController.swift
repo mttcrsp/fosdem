@@ -79,8 +79,7 @@ final class TracksController: UINavigationController {
                 self.favoriteTracks.append(track)
             }
             self.favoriteTracks.sortByName()
-
-            self.tracksViewController?.reloadFavorites()
+            self.tracksViewController?.reloadData()
         }
     }
 
@@ -116,6 +115,18 @@ final class TracksController: UINavigationController {
 }
 
 extension TracksController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+    func numberOfTracks(in tracksViewController: TracksViewController) -> Int {
+        tracks.count
+    }
+    
+    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+        tracks[indexPath.row]
+    }
+    
+    func tracksViewController(_ tracksViewController: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
+        !favoritesService.contains(tracks[indexPath.row])
+    }
+    
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
         favoritesService.addTrack(withIdentifier: track.name)
     }
