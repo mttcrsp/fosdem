@@ -1,6 +1,6 @@
 import Foundation
 
-final class XMLScheduleDecoder: NSObject, XMLParserDelegate {
+final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     fileprivate struct EventState {
         var attachments: [Attachment] = [], people: [Person] = [], links: [Link] = []
     }
@@ -218,7 +218,7 @@ private extension Event {
         ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description"]
     }
 
-    init?(attributes: [String: String], state: XMLScheduleDecoder.EventState) {
+    init?(attributes: [String: String], state: ScheduleXMLParser.EventState) {
         guard let idRawValue = attributes["id"], let room = attributes["room"], let track = attributes["track"], let title = attributes["title"], let startRawValue = attributes["start"], let durationRawValue = attributes["duration"] else {
             assertionFailure("Malfomed event found \(attributes)")
             return nil
@@ -270,7 +270,7 @@ private extension Day {
         "day"
     }
 
-    init?(attributes: [String: String], state: XMLScheduleDecoder.DayState) {
+    init?(attributes: [String: String], state: ScheduleXMLParser.DayState) {
         guard let indexRawValue = attributes["index"], let dateRawValue = attributes["date"] else {
             assertionFailure("Malfomed day found \(attributes)")
             return nil

@@ -1,7 +1,6 @@
 @testable
 import Fosdem
 import XCTest
-import XMLCoder
 
 final class PersistenceServiceTests: XCTestCase {
     func testImport() {
