@@ -13,6 +13,10 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
         var days: [Day] = [], conference: Conference?
     }
 
+    fileprivate struct Error {
+        let element: String, value: CustomStringConvertible
+    }
+
     private typealias Element = (name: String, attributes: [String: String])
 
     private var scheduleState = ScheduleState()
@@ -21,8 +25,8 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     private var stack: [Element] = []
 
     private(set) var schedule: Schedule?
-    private(set) var parseError: Error?
-    private(set) var validationError: Error?
+    private(set) var parseError: Swift.Error?
+    private(set) var validationError: Swift.Error?
 
     private let parser: XMLParser
 
@@ -34,6 +38,7 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
 
     func parse() -> Bool {
         parser.parse()
+        return schedule != nil
     }
 
     func parser(_: XMLParser, didStartElement name: String, namespaceURI _: String?, qualifiedName _: String?, attributes attributeDict: [String: String] = [:]) {
@@ -52,37 +57,41 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     func parser(_: XMLParser, didEndElement name: String, namespaceURI _: String?, qualifiedName _: String?) {
         let (name, attributes) = stack.removeLast()
 
-        switch name {
-        case Link.name:
-            didParseLink(with: attributes)
-        case Person.name:
-            didParsePerson(with: attributes)
-        case Attachment.name:
-            didParseAttachment(with: attributes)
-        case let name where Event.attributesNames.contains(name) && stack.last?.name == Event.name:
-            didParseEventAttribute(withName: name, attributes: attributes)
-        case Event.name:
-            didParseEvent(with: attributes)
-        case Room.name:
-            didParseRoom(with: attributes)
-        case Day.name:
-            didParseDay(with: attributes)
-        case let name where Conference.attributesNames.contains(name) && stack.last?.name == Conference.name:
-            didParseConferenceAttribute(withName: name, attributes: attributes)
-        case Conference.name:
-            didParseConference(with: attributes)
-        case Schedule.name:
-            didParseSchedule()
-        default:
-            break
+        do {
+            switch name {
+            case Link.name:
+                try didParseLink(with: attributes)
+            case Person.name:
+                try didParsePerson(with: attributes)
+            case Attachment.name:
+                try didParseAttachment(with: attributes)
+            case let name where Event.attributesNames.contains(name) && stack.last?.name == Event.name:
+                didParseEventAttribute(withName: name, attributes: attributes)
+            case Event.name:
+                try didParseEvent(with: attributes)
+            case Room.name:
+                try didParseRoom(with: attributes)
+            case Day.name:
+                try didParseDay(with: attributes)
+            case let name where Conference.attributesNames.contains(name) && stack.last?.name == Conference.name:
+                didParseConferenceAttribute(withName: name, attributes: attributes)
+            case Conference.name:
+                try didParseConference(with: attributes)
+            case Schedule.name:
+                try didParseSchedule()
+            default:
+                break
+            }
+        } catch {
+            parseError = error
         }
     }
 
-    func parser(_: XMLParser, parseErrorOccurred parseError: Error) {
+    func parser(_: XMLParser, parseErrorOccurred parseError: Swift.Error) {
         self.parseError = parseError
     }
 
-    func parser(_: XMLParser, validationErrorOccurred validationError: Error) {
+    func parser(_: XMLParser, validationErrorOccurred validationError: Swift.Error) {
         self.validationError = validationError
     }
 
@@ -90,46 +99,47 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
         [Schedule.name, Conference.name, Day.name, Room.name, Event.name, Person.name, Attachment.name, Link.name]
     }
 
-    private func didParseLink(with attributes: [String: String]) {
-        guard let link = Link(attributes: attributes) else { return }
+    private func didParseLink(with attributes: [String: String]) throws {
+        let link = try Link(attributes: attributes)
         eventState.links.append(link)
     }
 
-    private func didParsePerson(with attributes: [String: String]) {
-        guard let person = Person(attributes: attributes) else { return }
+    private func didParsePerson(with attributes: [String: String]) throws {
+        let person = try Person(attributes: attributes)
         eventState.people.append(person)
     }
 
-    private func didParseAttachment(with attributes: [String: String]) {
-        guard let attachment = Attachment(attributes: attributes) else { return }
+    private func didParseAttachment(with attributes: [String: String]) throws {
+        let attachment = try Attachment(attributes: attributes)
         eventState.attachments.append(attachment)
     }
 
-    private func didParseEvent(with attributes: [String: String]) {
-        guard let event = Event(attributes: attributes, state: eventState) else { return }
+    private func didParseEvent(with attributes: [String: String]) throws {
+        let event = try Event(attributes: attributes, state: eventState)
         dayState.events.append(event)
         eventState = .init()
     }
 
-    private func didParseRoom(with attributes: [String: String]) {
-        guard let room = Room(attributes: attributes, events: dayState.events) else { return }
+    private func didParseRoom(with attributes: [String: String]) throws {
+        let room = try Room(attributes: attributes, events: dayState.events)
         dayState.rooms.append(room)
         dayState.events = []
     }
 
-    private func didParseDay(with attributes: [String: String]) {
-        guard let day = Day(attributes: attributes, state: dayState) else { return }
+    private func didParseDay(with attributes: [String: String]) throws {
+        let day = try Day(attributes: attributes, state: dayState)
         scheduleState.days.append(day)
         dayState = .init()
     }
 
-    private func didParseConference(with attributes: [String: String]) {
-        guard let conference = Conference(attributes: attributes) else { return }
-        scheduleState.conference = conference
+    private func didParseConference(with attributes: [String: String]) throws {
+        scheduleState.conference = try Conference(attributes: attributes)
     }
 
-    private func didParseSchedule() {
-        guard let conference = scheduleState.conference else { return }
+    private func didParseSchedule() throws {
+        guard let conference = scheduleState.conference else {
+            throw Error(element: "schedule", value: "missing conference")
+        }
         schedule = Schedule(conference: conference, days: scheduleState.days)
     }
 
@@ -146,15 +156,30 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     }
 }
 
+extension ScheduleXMLParser.Error: Swift.Error, CustomNSError {
+    var localizedDescription: String {
+        "Malfomed \(element) found: \(value)"
+    }
+
+    var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: localizedDescription]
+    }
+
+    static var errorDomain: String {
+        "org.fosdem.fosdem.\(String(describing: ScheduleXMLParser.self))"
+    }
+}
+
+private typealias Error = ScheduleXMLParser.Error
+
 private extension Link {
     static var name: String {
         "link"
     }
 
-    init?(attributes: [String: String]) {
+    init(attributes: [String: String]) throws {
         guard let href = attributes["href"], let name = attributes["value"] else {
-            assertionFailure("Malfomed link found \(attributes)")
-            return nil
+            throw Error(element: "link", value: attributes)
         }
 
         // Links returned by the FOSDEM API are sometimes malformed. Most of the
@@ -169,15 +194,13 @@ private extension Person {
         "person"
     }
 
-    init?(attributes: [String: String]) {
+    init(attributes: [String: String]) throws {
         guard let idRawValue = attributes["id"], let name = attributes["value"] else {
-            assertionFailure("Malfomed person found \(attributes)")
-            return nil
+            throw Error(element: "person", value: attributes)
         }
 
         guard let id = Int(idRawValue) else {
-            assertionFailure("Malfomed person id found \(idRawValue)")
-            return nil
+            throw Error(element: "person id", value: idRawValue)
         }
 
         self.init(id: id, name: name)
@@ -189,20 +212,17 @@ private extension Attachment {
         "attachment"
     }
 
-    init?(attributes: [String: String]) {
+    init(attributes: [String: String]) throws {
         guard let href = attributes["href"], let typeRawValue = attributes["type"] else {
-            assertionFailure("Malfomed attachment found \(attributes)")
-            return nil
+            throw Error(element: "attachment", value: attributes)
         }
 
         guard let type = AttachmentType(rawValue: typeRawValue) else {
-            assertionFailure("Malfomed attachment url found \(href)")
-            return nil
+            throw Error(element: "attachment type", value: typeRawValue)
         }
 
         guard let url = URL(string: href) else {
-            assertionFailure("Malfomed attachment url found \(href)")
-            return nil
+            throw Error(element: "attachment url", value: href)
         }
 
         self.init(type: type, url: url, name: attributes["value"])
@@ -218,27 +238,23 @@ private extension Event {
         ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description"]
     }
 
-    init?(attributes: [String: String], state: ScheduleXMLParser.EventState) {
+    init(attributes: [String: String], state: ScheduleXMLParser.EventState) throws {
         guard let idRawValue = attributes["id"], let room = attributes["room"], let track = attributes["track"], let title = attributes["title"], let startRawValue = attributes["start"], let durationRawValue = attributes["duration"] else {
-            assertionFailure("Malfomed event found \(attributes)")
-            return nil
+            throw Error(element: "event", value: attributes)
         }
 
         guard let id = Int(idRawValue) else {
-            assertionFailure("Malformed event id found \(idRawValue)")
-            return nil
+            throw Error(element: "event id", value: idRawValue)
         }
 
         let startComponents = startRawValue.components(separatedBy: ":")
         guard startComponents.count == 2, let startHour = Int(startComponents[0]), let startMinute = Int(startComponents[1]) else {
-            assertionFailure("Malformed event start found \(startRawValue)")
-            return nil
+            throw Error(element: "event start", value: startRawValue)
         }
 
         let durationComponents = durationRawValue.components(separatedBy: ":")
         guard durationComponents.count == 2, let durationHour = Int(durationComponents[0]), let durationMinute = Int(durationComponents[1]) else {
-            assertionFailure("Malformed event duration found \(durationRawValue)")
-            return nil
+            throw Error(element: "event duration", value: durationRawValue)
         }
 
         let summary = attributes["summary"]
@@ -255,10 +271,9 @@ private extension Room {
         "room"
     }
 
-    init?(attributes: [String: String], events: [Event]) {
+    init(attributes: [String: String], events: [Event]) throws {
         guard let name = attributes["name"] else {
-            assertionFailure("Malfomed room found \(attributes)")
-            return nil
+            throw Error(element: "room", value: attributes)
         }
 
         self.init(name: name, events: events)
@@ -270,20 +285,17 @@ private extension Day {
         "day"
     }
 
-    init?(attributes: [String: String], state: ScheduleXMLParser.DayState) {
+    init(attributes: [String: String], state: ScheduleXMLParser.DayState) throws {
         guard let indexRawValue = attributes["index"], let dateRawValue = attributes["date"] else {
-            assertionFailure("Malfomed day found \(attributes)")
-            return nil
+            throw Error(element: "day", value: attributes)
         }
 
         guard let index = Int(indexRawValue) else {
-            assertionFailure("Malfomed day index found \(indexRawValue)")
-            return nil
+            throw Error(element: "day index", value: indexRawValue)
         }
 
         guard let date = DateFormatter.default.date(from: dateRawValue) else {
-            assertionFailure("Malfomed day date found \(dateRawValue)")
-            return nil
+            throw Error(element: "day date", value: dateRawValue)
         }
 
         // The format used by the Schedule API changed slightly between 2012 and
@@ -303,20 +315,17 @@ private extension Conference {
         ["title", "subtitle", "venue", "city", "start", "end", "days", "day_change", "timeslot_duration"]
     }
 
-    init?(attributes: [String: String]) {
+    init(attributes: [String: String]) throws {
         guard let title = attributes["title"], let venue = attributes["venue"], let city = attributes["city"], let startRawValue = attributes["start"], let endRawValue = attributes["end"] else {
-            assertionFailure("Malfomed conference found \(attributes)")
-            return nil
+            throw Error(element: "conference", value: attributes)
         }
 
         guard let start = DateFormatter.default.date(from: startRawValue) else {
-            assertionFailure("Malfomed conference start found \(startRawValue)")
-            return nil
+            throw Error(element: "conference start", value: startRawValue)
         }
 
         guard let end = DateFormatter.default.date(from: endRawValue) else {
-            assertionFailure("Malfomed conference end found \(endRawValue)")
-            return nil
+            throw Error(element: "conference end", value: endRawValue)
         }
 
         let subtitle = attributes["subtitle"]
