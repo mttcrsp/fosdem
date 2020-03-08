@@ -128,7 +128,8 @@ extension MoreController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let query = searchController.searchBar.text, !query.isEmpty else { return }
 
-        services.persistenceService.searchEvents(for: query) { [weak self] result in
+        let operation = EventsForSearch(query: query)
+        services.persistenceService.performRead(operation) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .failure:

@@ -57,7 +57,7 @@ final class TracksController: UINavigationController {
 
         viewControllers = [tracksViewController]
 
-        persistenceService.tracks { result in
+        persistenceService.performRead(AllTracks()) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
                 case let .failure(error): self?.loadingDidFail(with: error)
@@ -153,7 +153,7 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
         tracksViewController.show(eventsViewController, sender: nil)
 
         events = []
-        persistenceService.events(forTrackWithIdentifier: track.name) { result in
+        persistenceService.performRead(EventsForTrack(track: track.name)) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
                 case .failure:

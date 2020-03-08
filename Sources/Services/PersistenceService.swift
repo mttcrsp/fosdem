@@ -1,5 +1,15 @@
 import GRDB
 
+protocol PersistenceServiceWrite {
+    func perform(in database: Database) throws
+}
+
+protocol PersistenceServiceRead {
+    func perform(in database: Database) throws -> Model
+
+    associatedtype Model
+}
+
 final class PersistenceService {
     private let database: DatabaseQueue
 
@@ -13,88 +23,40 @@ final class PersistenceService {
         try migrator.migrate(database)
     }
 
-    func `import`(_ schedule: Schedule, completion: @escaping (Error?) -> Void) {
+    func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void) {
         database.asyncWrite({ database in
-            for day in schedule.days {
-                for event in day.events {
-                    try event.insert(database)
-
-                    let track = Track(name: event.track, day: day.index, date: day.date)
-                    try track.insert(database)
-
-                    for person in event.people {
-                        try person.insert(database)
-
-                        let participation = Participation(personID: person.id, eventID: event.id)
-                        try participation.insert(database)
-                    }
-                }
-            }
+            try write.perform(in: database)
         }, completion: { _, result in
             switch result {
-            case let .failure(error):
-                completion(error)
             case .success:
                 completion(nil)
+            case let .failure(error):
+                completion(error)
             }
         })
     }
 
-    func tracks(completion: @escaping (Result<[Track], Error>) -> Void) {
-        performAsyncRead(withCompletion: completion) { database in
-            try Track.fetchAll(database)
-        }
-    }
-
-    func events(forTrackWithIdentifier trackID: String, completion: @escaping (Result<[Event], Error>) -> Void) {
-        performAsyncRead(withCompletion: completion) { database in
-            try Event.fetchAll(database, sql: """
-            SELECT *
-            FROM events
-            WHERE track = ?
-            """, arguments: [trackID])
-        }
-    }
-
-    func events(forPersonWithIdentifier personID: Int, completion: @escaping (Result<[Event], Error>) -> Void) {
-        performAsyncRead(withCompletion: completion) { database in
-            try Event.fetchAll(database, sql: """
-            SELECT *
-            FROM events JOIN participations ON participations.eventID = events.id
-            WHERE participations.personID = ?
-            """, arguments: [personID])
-        }
-    }
-
-    func events(withIdentifiers identifiers: Set<Int>, completion: @escaping (Result<[Event], Error>) -> Void) {
-        performAsyncRead(withCompletion: completion) { database in
-            try Event.filter(identifiers.contains(Event.Columns.id)).fetchAll(database)
-        }
-    }
-
-    func searchEvents(for query: String, completion: @escaping (Result<[Event], Error>) -> Void) {
-        performAsyncRead(withCompletion: completion) { database in
-            try Event.fetchAll(database, sql: """
-            SELECT events.*
-            FROM events JOIN events_search ON events.id == events_search.id
-            WHERE events_search MATCH ?
-            """, arguments: [FTS3Pattern(matchingAllTokensIn: query)])
-        }
-    }
-
-    private func performAsyncRead<Output>(withCompletion completion: @escaping (Result<Output, Error>) -> Void, readOperation read: @escaping (Database) throws -> Output) {
+    func performRead<Read: PersistenceServiceRead>(_ read: Read, completion: @escaping (Result<Read.Model, Error>) -> Void) {
         database.asyncRead { result in
             switch result {
             case let .failure(error):
                 completion(.failure(error))
             case let .success(database):
                 do {
-                    completion(.success(try read(database)))
+                    completion(.success(try read.perform(in: database)))
                 } catch {
                     completion(.failure(error))
                 }
             }
         }
+    }
+
+    func performWriteSync(_ write: PersistenceServiceWrite) throws {
+        try database.write(write.perform)
+    }
+
+    func performReadSync<Read: PersistenceServiceRead>(_ read: Read) throws -> Read.Model {
+        try database.read(read.perform)
     }
 
     private var migrator: DatabaseMigrator {

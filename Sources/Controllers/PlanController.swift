@@ -43,7 +43,10 @@ final class PlanController: UINavigationController {
     }
 
     private func reloadFavoriteEvents() {
-        persistenceService.events(withIdentifiers: favoritesService.eventsIdentifiers) { result in
+        let identifiers = favoritesService.eventsIdentifiers
+        let operation = EventsForIdentifiers(identifiers: identifiers)
+
+        persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
                 case let .success(events):
