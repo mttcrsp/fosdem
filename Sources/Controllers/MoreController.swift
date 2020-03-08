@@ -8,7 +8,6 @@ enum MoreSection: CaseIterable {
 
 enum MoreItem: CaseIterable {
     case years
-    case speakers
     case history
     case devrooms
     case transportation
@@ -16,11 +15,8 @@ enum MoreItem: CaseIterable {
 }
 
 final class MoreController: UINavigationController {
-    private weak var speakersViewController: SpeakersViewController?
-
-    private var events: [Event] = []
-    private(set) var speakers: [Person] = []
     private(set) var acknowledgements: [Acknowledgement] = []
+    private var events: [Event] = []
 
     private let services: Services
 
@@ -50,7 +46,6 @@ extension MoreController: MoreViewControllerDelegate {
         case .years: moreViewControllerDidSelectYears(moreViewController)
         case .history: moreViewControllerDidSelectHistory(moreViewController)
         case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
-        case .speakers: moreViewControllerDidSelectSpeakers(moreViewController)
         case .transportation: moreViewControllerDidSelectTransportation(moreViewController)
         case .acknowledgements: moreViewControllerDidSelectAcknowledgements(moreViewController)
         }
@@ -72,22 +67,6 @@ extension MoreController: MoreViewControllerDelegate {
         moreViewController.show(makeDevroomsViewController(), sender: nil)
     }
 
-    private func moreViewControllerDidSelectSpeakers(_ moreViewController: MoreViewController) {
-        moreViewController.show(makeSpeakersViewController(), sender: nil)
-
-        services.persistenceService.people { result in
-            DispatchQueue.main.async { [weak self] in
-                switch result {
-                case .failure:
-                    self?.popToRootViewController(animated: true)
-                case let .success(speakers):
-                    self?.speakers = speakers
-                    self?.speakersViewController?.reloadData()
-                }
-            }
-        }
-    }
-
     private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
         DispatchQueue.global().async { [weak self, weak moreViewController] in
             let acknowledgements = self?.services.acknowledgementsService.loadAcknowledgements()
@@ -103,36 +82,6 @@ extension MoreController: MoreViewControllerDelegate {
                 }
             }
         }
-    }
-}
-
-extension MoreController: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
-    func speakersViewController(_ speakersViewController: SpeakersViewController, didSelect person: Person) {
-        events = []
-        services.persistenceService.events(forPersonWithIdentifier: person.id) { [weak self, weak speakersViewController] result in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-
-                switch result {
-                case .failure:
-                    speakersViewController?.present(ErrorController(), animated: true)
-                case let .success(events):
-                    self.events = events
-
-                    if events.count == 1, let event = events.first {
-                        let eventViewController = EventController(event: event, services: self.services)
-                        speakersViewController?.show(eventViewController, sender: nil)
-                    } else {
-                        let eventsViewController = self.makeEventsViewController(for: person)
-                        speakersViewController?.show(eventsViewController, sender: nil)
-                    }
-                }
-            }
-        }
-    }
-
-    func speakersViewController(_ speakersViewController: SpeakersViewController, didEnter query: String) {
-        print(#function, query, speakersViewController)
     }
 }
 
@@ -179,17 +128,6 @@ private extension MoreController {
         moreViewController.title = NSLocalizedString("more.title", comment: "")
         moreViewController.delegate = self
         return moreViewController
-    }
-
-    func makeSpeakersViewController() -> SpeakersViewController {
-        let speakersViewController = SpeakersViewController(style: .grouped)
-        speakersViewController.title = NSLocalizedString("speakers.title", comment: "")
-        speakersViewController.extendedLayoutIncludesOpaqueBars = true
-        speakersViewController.hidesBottomBarWhenPushed = true
-        speakersViewController.dataSource = self
-        speakersViewController.delegate = self
-        self.speakersViewController = speakersViewController
-        return speakersViewController
     }
 
     func makeHistoryViewController() -> TextViewController {
@@ -247,8 +185,8 @@ private extension MoreController {
 extension MoreSection {
     var items: [MoreItem] {
         switch self {
+        case .search: return [.years]
         case .other: return [.acknowledgements]
-        case .search: return [.years, .speakers]
         case .about: return [.history, .devrooms, .transportation]
         }
     }
