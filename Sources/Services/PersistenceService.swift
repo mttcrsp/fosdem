@@ -41,100 +41,55 @@ final class PersistenceService {
     }
 
     func tracks(completion: @escaping (Result<[Track], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    completion(.success(try Track.fetchAll(database)))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
+        performAsyncRead(withCompletion: completion) { database in
+            try Track.fetchAll(database)
         }
     }
 
     func events(forTrackWithIdentifier trackID: String, completion: @escaping (Result<[Event], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    completion(.success(try Event.fetchAll(database, sql: "SELECT * FROM events WHERE track = ?", arguments: [trackID])))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-
-    func people(completion: @escaping (Result<[Person], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    completion(.success(try Person.fetchAll(database)))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
+        performAsyncRead(withCompletion: completion) { database in
+            try Event.fetchAll(database, sql: """
+            SELECT *
+            FROM events
+            WHERE track = ?
+            """, arguments: [trackID])
         }
     }
 
     func events(forPersonWithIdentifier personID: Int, completion: @escaping (Result<[Event], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    let sql = """
-                    SELECT *
-                    FROM events JOIN participations ON participations.eventID = events.id
-                    WHERE participations.personID = ?
-                    """
-                    completion(.success(try Event.fetchAll(database, sql: sql, arguments: [personID])))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
+        performAsyncRead(withCompletion: completion) { database in
+            try Event.fetchAll(database, sql: """
+            SELECT *
+            FROM events JOIN participations ON participations.eventID = events.id
+            WHERE participations.personID = ?
+            """, arguments: [personID])
         }
     }
 
     func events(withIdentifiers identifiers: Set<Int>, completion: @escaping (Result<[Event], Error>) -> Void) {
-        database.asyncRead { result in
-            switch result {
-            case let .failure(error):
-                completion(.failure(error))
-            case let .success(database):
-                do {
-                    completion(.success(try Event.filter(identifiers.contains(Event.Columns.id)).fetchAll(database)))
-                } catch {
-                    completion(.failure(error))
-                }
-            }
+        performAsyncRead(withCompletion: completion) { database in
+            try Event.filter(identifiers.contains(Event.Columns.id)).fetchAll(database)
         }
     }
 
     func searchEvents(for query: String, completion: @escaping (Result<[Event], Error>) -> Void) {
+        performAsyncRead(withCompletion: completion) { database in
+            try Event.fetchAll(database, sql: """
+            SELECT events.*
+            FROM events JOIN events_search ON events.id == events_search.id
+            WHERE events_search MATCH ?
+            """, arguments: [FTS3Pattern(matchingAllTokensIn: query)])
+        }
+    }
+
+    private func performAsyncRead<Output>(withCompletion completion: @escaping (Result<Output, Error>) -> Void, readOperation read: @escaping (Database) throws -> Output) {
         database.asyncRead { result in
             switch result {
             case let .failure(error):
                 completion(.failure(error))
             case let .success(database):
                 do {
-                    let pattern = FTS3Pattern(matchingAllTokensIn: query)
-                    let sql = """
-                    SELECT events.*
-                    FROM events JOIN events_search ON events.id == events_search.id
-                    WHERE events_search MATCH ?
-                    """
-                    let events = try Event.fetchAll(database, sql: sql, arguments: [pattern])
-                    completion(.success(events))
+                    completion(.success(try read(database)))
                 } catch {
                     completion(.failure(error))
                 }
