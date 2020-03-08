@@ -18,6 +18,7 @@ enum MoreItem: CaseIterable {
 final class MoreController: UINavigationController {
     private weak var speakersViewController: SpeakersViewController?
 
+    private var events: [Event] = []
     private(set) var speakers: [Person] = []
     private(set) var acknowledgements: [Acknowledgement] = []
 
@@ -107,7 +108,27 @@ extension MoreController: MoreViewControllerDelegate {
 
 extension MoreController: SpeakersViewControllerDelegate, SpeakersViewControllerDataSource {
     func speakersViewController(_ speakersViewController: SpeakersViewController, didSelect person: Person) {
-        print(#function, person, speakersViewController)
+        events = []
+        services.persistenceService.events(forPersonWithIdentifier: person.id) { [weak self, weak speakersViewController] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+
+                switch result {
+                case .failure:
+                    speakersViewController?.present(ErrorController(), animated: true)
+                case let .success(events):
+                    self.events = events
+
+                    if events.count == 1, let event = events.first {
+                        let eventViewController = EventController(event: event, services: self.services)
+                        speakersViewController?.show(eventViewController, sender: nil)
+                    } else {
+                        let eventsViewController = self.makeEventsViewController(for: person)
+                        speakersViewController?.show(eventsViewController, sender: nil)
+                    }
+                }
+            }
+        }
     }
 
     func speakersViewController(_ speakersViewController: SpeakersViewController, didEnter query: String) {
@@ -138,6 +159,17 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
                 }
             }
         }
+    }
+}
+
+extension MoreController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+    func events(in _: EventsViewController) -> [Event] {
+        events
+    }
+
+    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
+        let eventViewController = EventController(event: event, services: services)
+        eventsViewController.show(eventViewController, sender: nil)
     }
 }
 
@@ -194,6 +226,21 @@ private extension MoreController {
         licenseViewController.title = acknowledgement
         licenseViewController.text = license
         return licenseViewController
+    }
+
+    func makeEventsViewController(for person: Person) -> EventsViewController {
+        let eventsViewController = EventsViewController(style: .grouped)
+        eventsViewController.extendedLayoutIncludesOpaqueBars = true
+        eventsViewController.hidesBottomBarWhenPushed = true
+        eventsViewController.title = person.name
+        eventsViewController.dataSource = self
+        eventsViewController.delegate = self
+
+        if #available(iOS 11.0, *) {
+            eventsViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        return eventsViewController
     }
 }
 
