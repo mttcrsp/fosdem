@@ -1,4 +1,4 @@
-name: XMLCoder, nameSpecified: , owner: MaxDesiatov, version: 0.9.0
+name: GRDB.swift, nameSpecified: , owner: groue, version: 4.9.0
 
 add-version-numbers: false
 
