@@ -6,7 +6,11 @@ extension Event: PersistableRecord, FetchableRecord {
         "events"
     }
 
-    enum Columns: String, ColumnExpression {
+    static var searchDatabaseTableName: String {
+        "\(databaseTableName)_search"
+    }
+
+    enum Columns: String, CaseIterable, ColumnExpression {
         case id, room, track, start, duration, title, subtitle, abstract, summary, people, attachments, links
     }
 
