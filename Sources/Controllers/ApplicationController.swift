@@ -12,8 +12,15 @@ final class ApplicationController: UITabBarController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var previouslySelectedViewController: String? {
+        get { UserDefaults.standard.selectedViewController }
+        set { UserDefaults.standard.selectedViewController = newValue }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        delegate = self
 
         var viewControllers: [UIViewController] = []
         viewControllers.append(makeTracksController())
@@ -21,6 +28,10 @@ final class ApplicationController: UITabBarController {
         viewControllers.append(makeMapViewController())
         viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
+
+        for (index, viewController) in viewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
+            selectedIndex = index
+        }
     }
 }
 
@@ -48,4 +59,21 @@ private extension ApplicationController {
         moreController.title = NSLocalizedString("more.title", comment: "")
         return moreController
     }
+}
+
+extension ApplicationController: UITabBarControllerDelegate {
+    func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
+        previouslySelectedViewController = String(describing: type(of: viewController))
+    }
+}
+
+private extension UserDefaults {
+    var selectedViewController: String? {
+        get { string(forKey: .selectedViewControllerKey) }
+        set { set(newValue, forKey: .selectedViewControllerKey) }
+    }
+}
+
+private extension String {
+    static var selectedViewControllerKey: String { #function }
 }
