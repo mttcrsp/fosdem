@@ -17,4 +17,11 @@ extension Person: PersistableRecord, FetchableRecord {
         container[Columns.id.rawValue] = id
         container[Columns.name.rawValue] = name
     }
+
+    static func createTable(in database: Database) throws {
+        try database.create(table: Person.databaseTableName) { table in
+            table.column(Person.Columns.id.rawValue).primaryKey(onConflict: .replace)
+            table.column(Person.Columns.name.rawValue).notNull().indexed()
+        }
+    }
 }

@@ -14,6 +14,37 @@ extension Event: PersistableRecord, FetchableRecord {
         case id, room, track, start, duration, title, subtitle, abstract, summary, people, attachments, links
     }
 
+    static func createTable(in database: GRDB.Database) throws {
+        try database.create(table: Event.databaseTableName) { table in
+            table.column(Event.Columns.id.rawValue).primaryKey(onConflict: .replace)
+            table.column(Event.Columns.room.rawValue).notNull().indexed()
+            table.column(Event.Columns.track.rawValue).notNull().indexed()
+
+            table.column(Event.Columns.title.rawValue).notNull()
+            table.column(Event.Columns.summary.rawValue)
+            table.column(Event.Columns.subtitle.rawValue)
+            table.column(Event.Columns.abstract.rawValue)
+
+            table.column(Event.Columns.start.rawValue).notNull()
+            table.column(Event.Columns.duration.rawValue).notNull()
+
+            table.column(Event.Columns.links.rawValue, .blob).notNull()
+            table.column(Event.Columns.people.rawValue, .blob).notNull()
+            table.column(Event.Columns.attachments.rawValue, .blob).notNull()
+        }
+    }
+
+    static func createSearchTable(in database: GRDB.Database) throws {
+        try database.create(virtualTable: Event.searchDatabaseTableName, using: FTS4()) { table in
+            table.synchronize(withTable: Event.databaseTableName)
+            table.tokenizer = .unicode61()
+
+            for column in Event.Columns.allCases {
+                table.column(column.rawValue)
+            }
+        }
+    }
+
     init(row: Row) {
         self.init(
             id: row[Columns.id],
