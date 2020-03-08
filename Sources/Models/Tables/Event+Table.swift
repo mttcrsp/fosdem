@@ -46,20 +46,22 @@ extension Event: PersistableRecord, FetchableRecord {
     }
 
     init(row: Row) {
-        self.init(
-            id: row[Columns.id],
-            room: row[Columns.room],
-            track: row[Columns.track],
-            title: row[Columns.title],
-            summary: row[Columns.summary],
-            subtitle: row[Columns.subtitle],
-            abstract: row[Columns.abstract],
-            start: row.decode(for: Columns.start.rawValue, default: .init()),
-            duration: row.decode(for: Columns.duration.rawValue, default: .init()),
-            links: row.decode(for: Columns.links.rawValue, default: .init()),
-            people: row.decode(for: Columns.people.rawValue, default: []),
-            attachments: row.decode(for: Columns.attachments.rawValue, default: [])
-        )
+        let id = row[Columns.id] as Int
+        let room = row[Columns.room] as String
+        let track = row[Columns.track] as String
+        let title = row[Columns.title] as String
+        let summary = row[Columns.summary] as String?
+        let subtitle = row[Columns.subtitle] as String?
+        let abstract = row[Columns.abstract] as String?
+
+        let start = row.decode(for: Columns.start.rawValue, default: DateComponents())
+        let duration = row.decode(for: Columns.duration.rawValue, default: DateComponents())
+
+        let links = row.decode(for: Columns.links.rawValue, default: [] as [Link])
+        let people = row.decode(for: Columns.people.rawValue, default: [] as [Person])
+        let attachments = row.decode(for: Columns.attachments.rawValue, default: [] as [Attachment])
+
+        self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, start: start, duration: duration, links: links, people: people, attachments: attachments)
     }
 
     func encode(to container: inout PersistenceContainer) {
@@ -89,14 +91,17 @@ extension Event: PersistableRecord, FetchableRecord {
 private extension Row {
     func decode<Value: Codable>(for column: String, default: Value) -> Value {
         guard let value = self[column] else {
+            assertionFailure("Failed to extract value for column '\(column)' in row '\(self)'")
             return `default`
         }
 
         guard case let .blob(data) = value.databaseValue.storage else {
+            assertionFailure("Unexpectedly found non blob value type for column '\(column)' in row '\(self)'. Found 'value.databaseValue.storage' instead.")
             return `default`
         }
 
         guard let decoded = try? JSONDecoder().decode(Value.self, from: data) else {
+            assertionFailure("Failed to blob for column '\(column)' in row '\(self)'. Found '\(String(data: data, encoding: .utf8) as Any)'.")
             return `default`
         }
 
