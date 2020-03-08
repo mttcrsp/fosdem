@@ -18,9 +18,11 @@
 
 /// MARK: - Tracks
 "tracks.title" = "Tracks";
+"tracks.filter.title" = "Filters";
 "tracks.filter.day" = "Day %d";
 "tracks.filter.all" = "All tracks";
 "tracks.filter.favorites" = "Your Favorites";
+"tracks.filter.cancel" = "Cancel";
 
 /// MARK: - Map
 "map.title" = "Map";

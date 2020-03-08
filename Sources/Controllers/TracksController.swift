@@ -16,6 +16,9 @@ final class TracksController: UINavigationController {
     private(set) var tracksForDay: [[Track]] = []
     private(set) var tracks: [Track] = []
 
+    private var filters: [TracksFilter] = []
+    private var selectedFilter: TracksFilter = .all
+
     private var observation: NSObjectProtocol?
     private var events: [Event] = []
 
@@ -110,23 +113,36 @@ final class TracksController: UINavigationController {
             self.tracksForDay[i].sortByName()
         }
 
+        filters = []
+        filters.append(.all)
+        filters.append(contentsOf: (1 ... tracksForDay.count).map { number in .day(number) })
+        filters.append(.favorites)
+
         tracksViewController?.reloadData()
     }
 }
 
 extension TracksController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    func numberOfTracks(in tracksViewController: TracksViewController) -> Int {
-        tracks.count
+    private var filteredTracks: [Track] {
+        switch selectedFilter {
+        case .all: return tracks
+        case .favorites: return favoriteTracks
+        case let .day(number): return tracksForDay[number - 1]
+        }
     }
-    
-    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        tracks[indexPath.row]
+
+    func numberOfTracks(in _: TracksViewController) -> Int {
+        filteredTracks.count
     }
-    
-    func tracksViewController(_ tracksViewController: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
-        !favoritesService.contains(tracks[indexPath.row])
+
+    func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+        filteredTracks[indexPath.row]
     }
-    
+
+    func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
+        !favoritesService.contains(filteredTracks[indexPath.row])
+    }
+
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
         favoritesService.addTrack(withIdentifier: track.name)
     }
@@ -152,6 +168,16 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
             }
         }
     }
+
+    @objc private func didTapChangeFilter() {
+        let filtersViewController = makeFiltersViewController(with: filters, selectedFilter: selectedFilter)
+        tracksViewController?.present(filtersViewController, animated: true)
+    }
+
+    private func didSelectFilter(_ filter: TracksFilter) {
+        selectedFilter = filter
+        tracksViewController?.reloadData()
+    }
 }
 
 extension TracksController: EventsViewControllerDataSource, EventsViewControllerDelegate {
@@ -167,8 +193,13 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 
 private extension TracksController {
     func makeTracksViewController() -> TracksViewController {
+        let filtersTitle = NSLocalizedString("tracks.filter.title", comment: "")
+        let filtersAction = #selector(didTapChangeFilter)
+        let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
+
         let tracksViewController = TracksViewController()
         tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
+        tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.dataSource = self
         tracksViewController.delegate = self
         self.tracksViewController = tracksViewController
@@ -178,6 +209,22 @@ private extension TracksController {
         }
 
         return tracksViewController
+    }
+
+    func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+
+        for filter in filters where filter != selectedFilter {
+            let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in self?.didSelectFilter(filter) }
+            let action = UIAlertAction(title: filter.title, style: .default, handler: actionHandler)
+            alertController.addAction(action)
+        }
+
+        let cancelTitle = NSLocalizedString("tracks.filter.cancel", comment: "")
+        let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
+        alertController.addAction(cancelAction)
+
+        return alertController
     }
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
@@ -204,5 +251,22 @@ private extension TracksController {
 private extension Array where Element == Track {
     mutating func sortByName() {
         sort { lhs, rhs in lhs.name < rhs.name }
+    }
+}
+
+enum TracksFilter: Equatable {
+    case all, favorites, day(Int)
+}
+
+private extension TracksFilter {
+    var title: String {
+        switch self {
+        case .all:
+            return NSLocalizedString("tracks.filter.all", comment: "")
+        case .favorites:
+            return NSLocalizedString("tracks.filter.favorites", comment: "")
+        case let .day(day):
+            return String(format: NSLocalizedString("tracks.filter.day", comment: ""), day)
+        }
     }
 }
