@@ -1,14 +1,6 @@
 import UIKit
 
 final class TracksController: UINavigationController {
-    private struct ViewEvents: Activity, Codable {
-        let track: Track, events: [Event]
-    }
-
-    private struct ViewEvent: Activity, Codable {
-        let event: Event
-    }
-
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
 
@@ -32,10 +24,6 @@ final class TracksController: UINavigationController {
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private var activityService: ActivityService {
-        services.activityService
     }
 
     private var favoritesService: FavoritesService {
@@ -68,15 +56,6 @@ final class TracksController: UINavigationController {
         }
 
         viewControllers = [tracksViewController]
-
-        activityService.attemptRestoration(of: ViewEvent.self) { activity in
-            pushViewController(makeEventViewController(for: activity.event), animated: false)
-        }
-
-        activityService.attemptRestoration(of: ViewEvents.self) { activity in
-            self.events = activity.events
-            pushViewController(makeEventsViewController(for: activity.track), animated: false)
-        }
 
         persistenceService.tracks { result in
             DispatchQueue.main.async { [weak self] in
@@ -182,7 +161,6 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
                 case let .success(events):
                     self?.events = events
                     self?.eventsViewController?.reloadData()
-                    self?.activityService.register(ViewEvents(track: track, events: events))
                 }
             }
         }
@@ -206,7 +184,6 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         eventsViewController.show(makeEventViewController(for: event), sender: nil)
-        activityService.register(ViewEvent(event: event))
     }
 
     @objc private func didToggleFavorite() {

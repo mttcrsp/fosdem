@@ -1,10 +1,6 @@
 import UIKit
 
 final class PlanController: UINavigationController {
-    private struct ViewEvent: Activity, Codable {
-        let event: Event
-    }
-
     private weak var planViewController: PlanViewController?
 
     private var observation: NSObjectProtocol?
@@ -19,10 +15,6 @@ final class PlanController: UINavigationController {
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private var activityService: ActivityService {
-        services.activityService
     }
 
     private var favoritesService: FavoritesService {
@@ -48,10 +40,6 @@ final class PlanController: UINavigationController {
         observation = favoritesService.addObserverForEvents { [weak self] in
             self?.reloadFavoriteEvents()
         }
-
-        activityService.attemptRestoration(of: ViewEvent.self) { activity in
-            pushViewController(makeEventViewController(for: activity.event), animated: false)
-        }
     }
 
     private func reloadFavoriteEvents() {
@@ -76,7 +64,6 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 
     func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
         planViewController.show(makeEventViewController(for: event), sender: nil)
-        activityService.register(ViewEvent(event: event))
     }
 
     func planViewController(_: PlanViewController, didUnfavorite event: Event) {
