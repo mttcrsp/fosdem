@@ -28,8 +28,8 @@ final class EventController: UIViewController {
 
     private var favoriteTitle: String {
         isEventFavorite
-            ? NSLocalizedString("event.unfavorite", comment: "")
-            : NSLocalizedString("event.favorite", comment: "")
+            ? NSLocalizedString("unfavorite", comment: "")
+            : NSLocalizedString("favorite", comment: "")
     }
 
     override func viewDidLoad() {
@@ -44,9 +44,12 @@ final class EventController: UIViewController {
             navigationItem.largeTitleDisplayMode = .never
         }
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: #selector(didToggleFavorite))
-        observation = favoritesService.addObserverForEvents { [weak self] in
-            self?.navigationItem.rightBarButtonItem?.title = self?.favoriteTitle
+        let favoriteAction = #selector(didToggleFavorite)
+        let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
+        navigationItem.rightBarButtonItem = favoriteButton
+
+        observation = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
+            favoriteButton?.title = self?.favoriteTitle
         }
     }
 

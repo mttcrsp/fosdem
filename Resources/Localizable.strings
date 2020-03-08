@@ -7,9 +7,11 @@
 /// MARK: - Plan
 "plan.title" = "Plan";
 
+/// MARK: - Favorite
+"favorite" = "Favorite";
+"unfavorite" = "Unfavorite";
+
 /// MARK: - Event
-"event.favorite" = "Favorite";
-"event.unfavorite" = "Unfavorite";
 "event.title" = "Title";
 "event.subtitle" = "Subtitle";
 "event.abstract" = "Abstract";

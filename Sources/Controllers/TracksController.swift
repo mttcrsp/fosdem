@@ -16,11 +16,12 @@ final class TracksController: UINavigationController {
     private(set) var tracksForDay: [[Track]] = []
     private(set) var tracks: [Track] = []
 
+    private var events: [Event] = []
     private var filters: [TracksFilter] = []
     private var selectedFilter: TracksFilter = .all
+    private var selectedTrack: Track?
 
     private var observation: NSObjectProtocol?
-    private var events: [Event] = []
 
     private let services: Services
 
@@ -43,6 +44,18 @@ final class TracksController: UINavigationController {
 
     private var persistenceService: PersistenceService {
         services.persistenceService
+    }
+
+    private var favoriteTitle: String? {
+        guard let selectedTrack = selectedTrack else {
+            return nil
+        }
+
+        if favoritesService.contains(selectedTrack) {
+            return NSLocalizedString("unfavorite", comment: "")
+        } else {
+            return NSLocalizedString("favorite", comment: "")
+        }
     }
 
     override func viewDidLoad() {
@@ -82,7 +95,10 @@ final class TracksController: UINavigationController {
                 self.favoriteTracks.append(track)
             }
             self.favoriteTracks.sortByName()
-            self.tracksViewController?.reloadData()
+
+            if self.selectedFilter == .favorites {
+                self.tracksViewController?.reloadData()
+            }
         }
     }
 
@@ -152,7 +168,10 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-        tracksViewController.show(makeEventsViewController(for: track), sender: nil)
+        selectedTrack = track
+
+        let eventsViewController = makeEventsViewController(for: track)
+        tracksViewController.show(eventsViewController, sender: nil)
 
         events = []
         persistenceService.events(forTrackWithIdentifier: track.name) { result in
@@ -188,6 +207,16 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         eventsViewController.show(makeEventViewController(for: event), sender: nil)
         activityService.register(ViewEvent(event: event))
+    }
+
+    @objc private func didToggleFavorite() {
+        guard let selectedTrack = selectedTrack else { return }
+
+        if favoritesService.contains(selectedTrack) {
+            favoritesService.removeTrack(withIdentifier: selectedTrack.name)
+        } else {
+            favoritesService.addTrack(withIdentifier: selectedTrack.name)
+        }
     }
 }
 
@@ -228,7 +257,11 @@ private extension TracksController {
     }
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
+        let favoriteAction = #selector(didToggleFavorite)
+        let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
+
         let eventsViewController = EventsViewController(style: .grouped)
+        eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
         eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.hidesBottomBarWhenPushed = true
         eventsViewController.title = track.name
@@ -238,6 +271,10 @@ private extension TracksController {
 
         if #available(iOS 11.0, *) {
             eventsViewController.navigationItem.largeTitleDisplayMode = .always
+        }
+
+        observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in
+            favoriteButton?.title = self?.favoriteTitle
         }
 
         return eventsViewController
