@@ -1,7 +1,6 @@
 import UIKit
 
 enum MoreSection: CaseIterable {
-    case search
     case about
     case other
 }
@@ -214,8 +213,7 @@ private extension MoreController {
 extension MoreSection {
     var items: [MoreItem] {
         switch self {
-        case .search: return [.years]
-        case .other: return [.acknowledgements]
+        case .other: return [.years, .acknowledgements]
         case .about: return [.history, .devrooms, .transportation]
         }
     }
@@ -224,7 +222,6 @@ extension MoreSection {
         switch self {
         case .about: return NSLocalizedString("more.section.about", comment: "")
         case .other: return NSLocalizedString("more.section.other", comment: "")
-        case .search: return NSLocalizedString("more.section.search", comment: "")
         }
     }
 }
