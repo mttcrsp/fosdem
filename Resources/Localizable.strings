@@ -31,6 +31,7 @@
 
 /// MARK: - More
 "more.title" = "More";
+"more.search.prompt" = "Search for events and speakers";
 "more.section.search" = "Search";
 "more.section.about" = "About";
 "more.section.other" = "Other";

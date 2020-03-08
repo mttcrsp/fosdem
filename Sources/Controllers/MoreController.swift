@@ -15,8 +15,11 @@ enum MoreItem: CaseIterable {
 }
 
 final class MoreController: UINavigationController {
+    private weak var eventsViewController: EventsViewController?
+    private weak var moreViewController: MoreViewController?
+
     private(set) var acknowledgements: [Acknowledgement] = []
-    private var events: [Event] = []
+    private(set) var events: [Event] = []
 
     private let services: Services
 
@@ -116,9 +119,27 @@ extension MoreController: EventsViewControllerDataSource, EventsViewControllerDe
         events
     }
 
-    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        let eventViewController = EventController(event: event, services: services)
-        eventsViewController.show(eventViewController, sender: nil)
+    func eventsViewController(_: EventsViewController, didSelect event: Event) {
+        let eventViewController = makeEventViewController(for: event)
+        moreViewController?.show(eventViewController, sender: nil)
+    }
+}
+
+extension MoreController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let query = searchController.searchBar.text, !query.isEmpty else { return }
+
+        services.persistenceService.searchEvents(for: query) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure:
+                    break
+                case let .success(events):
+                    self?.events = events
+                    self?.eventsViewController?.reloadData()
+                }
+            }
+        }
     }
 }
 
@@ -126,7 +147,9 @@ private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
         moreViewController.title = NSLocalizedString("more.title", comment: "")
+        moreViewController.addSearchViewController(makeSearchController())
         moreViewController.delegate = self
+        self.moreViewController = moreViewController
         return moreViewController
     }
 
@@ -166,19 +189,25 @@ private extension MoreController {
         return licenseViewController
     }
 
-    func makeEventsViewController(for person: Person) -> EventsViewController {
+    func makeSearchController() -> UISearchController {
+        let searchController = UISearchController(searchResultsController: makeEventsViewController())
+        searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
+        searchController.searchResultsUpdater = self
+        return searchController
+    }
+
+    func makeEventsViewController() -> EventsViewController {
         let eventsViewController = EventsViewController(style: .grouped)
-        eventsViewController.extendedLayoutIncludesOpaqueBars = true
-        eventsViewController.hidesBottomBarWhenPushed = true
-        eventsViewController.title = person.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self
-
-        if #available(iOS 11.0, *) {
-            eventsViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
+        self.eventsViewController = eventsViewController
         return eventsViewController
+    }
+
+    func makeEventViewController(for event: Event) -> EventController {
+        let eventController = EventController(event: event, services: services)
+        eventController.hidesBottomBarWhenPushed = true
+        return eventController
     }
 }
 

@@ -41,6 +41,17 @@ final class MoreViewController: UITableViewController {
     }
 }
 
+extension MoreViewController {
+    func addSearchViewController(_ searchController: UISearchController) {
+        if #available(iOS 11.0, *) {
+            navigationItem.searchController = searchController
+            navigationItem.hidesSearchBarWhenScrolling = false
+        } else {
+            tableView.tableHeaderView = searchController.searchBar
+        }
+    }
+}
+
 private extension UITableViewCell {
     func configure(with item: MoreItem) {
         textLabel?.text = item.title
