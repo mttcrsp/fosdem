@@ -1,11 +1,19 @@
 import UIKit
 
 enum MoreSection: CaseIterable {
+    #if DEBUG
+        case debug
+    #endif
+
     case about
     case other
 }
 
 enum MoreItem: CaseIterable {
+    #if DEBUG
+        case `import`
+    #endif
+
     case years
     case history
     case devrooms
@@ -45,6 +53,9 @@ final class MoreController: UINavigationController {
 extension MoreController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
+        #if DEBUG
+            case .import: moreViewControllerDidSelectImport(moreViewController)
+        #endif
         case .years: moreViewControllerDidSelectYears(moreViewController)
         case .history: moreViewControllerDidSelectHistory(moreViewController)
         case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
@@ -68,6 +79,30 @@ extension MoreController: MoreViewControllerDelegate {
     private func moreViewControllerDidSelectDevrooms(_ moreViewController: MoreViewController) {
         moreViewController.show(makeDevroomsViewController(), sender: nil)
     }
+
+    #if DEBUG
+        private func moreViewControllerDidSelectImport(_: MoreViewController) {
+            guard let url = Bundle.main.url(forResource: "2020", withExtension: "xml") else {
+                return assertionFailure("2020 schedule XML was not found in the main bundle")
+            }
+
+            guard let data = try? Data(contentsOf: url) else {
+                return assertionFailure("Failed to load data for the 2020 schedule")
+            }
+
+            let parser = ScheduleXMLParser(data: data)
+
+            guard parser.parse(), let schedule = parser.schedule else {
+                let error = parser.validationError ?? parser.parseError
+                return assertionFailure(error?.localizedDescription ?? "Failed to parse the 2020 schedule")
+            }
+
+            let importSchedule = ImportSchedule(schedule: schedule)
+            services.persistenceService.performWrite(importSchedule) { error in
+                assert(error == nil)
+            }
+        }
+    #endif
 
     private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
         DispatchQueue.global().async { [weak self, weak moreViewController] in
@@ -214,6 +249,9 @@ private extension MoreController {
 extension MoreSection {
     var items: [MoreItem] {
         switch self {
+        #if DEBUG
+            case .debug: return [.import]
+        #endif
         case .other: return [.years, .acknowledgements]
         case .about: return [.history, .devrooms, .transportation]
         }
@@ -221,6 +259,9 @@ extension MoreSection {
 
     var title: String? {
         switch self {
+        #if DEBUG
+            case .debug: return "Debug"
+        #endif
         case .about: return NSLocalizedString("more.section.about", comment: "")
         case .other: return NSLocalizedString("more.section.other", comment: "")
         }

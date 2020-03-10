@@ -63,6 +63,9 @@ private extension UITableViewCell {
 private extension MoreItem {
     var title: String {
         switch self {
+        #if DEBUG
+            case .import: return "Import schedule"
+        #endif
         case .years: return NSLocalizedString("years.title", comment: "")
         case .history: return NSLocalizedString("history.title", comment: "")
         case .devrooms: return NSLocalizedString("devrooms.title", comment: "")
