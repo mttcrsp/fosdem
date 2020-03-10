@@ -8,8 +8,12 @@ final class EventViewController: UITableViewController {
     weak var delegate: EventViewControllerDelegate?
 
     fileprivate struct Item {
-        let field: String?
+        let type: ItemType
         let value: String
+    }
+
+    fileprivate enum ItemType {
+        case title, subtitle, abstract, duration, video
     }
 
     var event: Event? {
@@ -34,30 +38,34 @@ final class EventViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = items[indexPath.section]
+        let item = self.item(forSection: indexPath.section)
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+        cell.selectionStyle = item.type == .video ? .default : .none
         cell.textLabel?.text = item.value
         cell.textLabel?.numberOfLines = 0
-        cell.selectionStyle = item.field == nil ? .default : .none
         return cell
     }
 
-    override func tableView(_: UITableView, didSelectRowAt _: IndexPath) {
-        delegate?.eventViewControllerDidTapVideo(self)
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let item = self.item(forSection: indexPath.section)
+        if case .video = item.type {
+            delegate?.eventViewControllerDidTapVideo(self)
+        }
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        items[section].field
+        item(forSection: section).type.field
     }
 
     override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
-        guard let view = view as? UITableViewHeaderFooterView else { return }
-        view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
+        if let view = view as? UITableViewHeaderFooterView {
+            view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
+        }
     }
 
     private func didChangeEvent() {
         if let event = event {
-            items = makeItems(for: event)
+            items = event.makeItems()
         } else {
             items = []
         }
@@ -67,34 +75,46 @@ final class EventViewController: UITableViewController {
         tableView.reloadData()
     }
 
-    private func makeItems(for event: Event) -> [Item] {
-        var items: [Item] = []
+    private func item(forSection section: Int) -> Item {
+        items[section]
+    }
+}
 
-        let titleValue = event.title
-        let titleField = NSLocalizedString("event.title", comment: "")
-        items.append(.init(field: titleField, value: titleValue))
+private extension Event {
+    func makeItems() -> [EventViewController.Item] {
+        var items: [EventViewController.Item] = []
+        items.append(.init(type: .title, value: title))
 
-        if let value = event.subtitle {
-            let field = NSLocalizedString("event.subtitle", comment: "")
-            items.append(.init(field: field, value: value))
+        if let value = subtitle {
+            items.append(.init(type: .subtitle, value: value))
         }
 
-        if let value = event.formattedAbstract {
-            let field = NSLocalizedString("event.abstract", comment: "")
-            items.append(.init(field: field, value: value))
+        if let value = formattedAbstract {
+            items.append(.init(type: .abstract, value: value))
         }
 
-        if let value = event.formattedDuration {
-            let field = NSLocalizedString("event.duration", comment: "")
-            items.append(.init(field: field, value: value))
+        if let value = formattedDuration {
+            items.append(.init(type: .duration, value: value))
         }
 
-        if let _ = event.video {
+        if let _ = video {
             let value = NSLocalizedString("event.video", comment: "")
-            items.append(.init(field: nil, value: value))
+            items.append(.init(type: .video, value: value))
         }
 
         return items
+    }
+}
+
+private extension EventViewController.ItemType {
+    var field: String? {
+        switch self {
+        case .title: return NSLocalizedString("event.title", comment: "")
+        case .subtitle: return NSLocalizedString("event.subtitle", comment: "")
+        case .abstract: return NSLocalizedString("event.abstract", comment: "")
+        case .duration: return NSLocalizedString("event.duration", comment: "")
+        case .video: return nil
+        }
     }
 }
 
