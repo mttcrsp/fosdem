@@ -91,17 +91,14 @@ extension Event: PersistableRecord, FetchableRecord {
 private extension Row {
     func decode<Value: Codable>(for column: String, default: Value) -> Value {
         guard let value = self[column] else {
-            assertionFailure("Failed to extract value for column '\(column)' in row '\(self)'")
             return `default`
         }
 
         guard case let .blob(data) = value.databaseValue.storage else {
-            assertionFailure("Unexpectedly found non blob value type for column '\(column)' in row '\(self)'. Found 'value.databaseValue.storage' instead.")
             return `default`
         }
 
         guard let decoded = try? JSONDecoder().decode(Value.self, from: data) else {
-            assertionFailure("Failed to blob for column '\(column)' in row '\(self)'. Found '\(String(data: data, encoding: .utf8) as Any)'.")
             return `default`
         }
 
