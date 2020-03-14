@@ -63,12 +63,10 @@ final class TracksController: UINavigationController {
 
         viewControllers = [tracksViewController]
 
-        persistenceService.performRead(AllTracksOrderedByName()) { result in
-            DispatchQueue.main.async { [weak self] in
-                switch result {
-                case let .failure(error): self?.loadingDidFail(with: error)
-                case let .success(tracks): self?.loadingDidFinish(with: tracks)
-                }
+        persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
+            switch result {
+            case let .failure(error): self?.loadingDidFail(with: error)
+            case let .success(tracks): self?.loadingDidFinish(with: tracks)
             }
         }
 
@@ -86,7 +84,9 @@ final class TracksController: UINavigationController {
     }
 
     private func loadingDidFail(with _: Error) {
-        viewControllers = [ErrorController()]
+        DispatchQueue.main.async { [weak self] in
+            self?.viewControllers = [ErrorController()]
+        }
     }
 
     private func loadingDidFinish(with tracks: [Track]) {
@@ -115,7 +115,9 @@ final class TracksController: UINavigationController {
             }
         }
 
-        tracksViewController?.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.tracksViewController?.reloadData()
+        }
     }
 
     private func makeFilters(withDaysCount days: Int) -> [TracksFilter] {
