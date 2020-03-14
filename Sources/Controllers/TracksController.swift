@@ -63,7 +63,7 @@ final class TracksController: UINavigationController {
 
         viewControllers = [tracksViewController]
 
-        persistenceService.performRead(AllTracks()) { result in
+        persistenceService.performRead(AllTracksOrderedByName()) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
                 case let .failure(error): self?.loadingDidFail(with: error)

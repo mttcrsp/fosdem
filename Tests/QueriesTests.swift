@@ -15,10 +15,11 @@ final class QueriesTests: XCTestCase {
     func testAllTracks() {
         XCTAssertNoThrow(try {
             let service = try self.makePersistentServiceWithSchedule()
-            let tracks = try service.performReadSync(AllTracks())
+            let tracks = try service.performReadSync(AllTracksOrderedByName())
 
-            let names = Set(tracks.map { track in track.name })
-            XCTAssertEqual(names, ["1", "2", "3"])
+            let names1 = tracks.map { track in track.name }
+            let names2 = ["1", "2", "3", "5"]
+            XCTAssertEqual(names1, names2)
 
             let track = tracks.first
             XCTAssertEqual(track?.day, 1)
@@ -102,7 +103,7 @@ final class QueriesTests: XCTestCase {
         let link = Link(name: "name", url: url)
         let person1 = Person(id: 1, name: "1")
         let person2 = Person(id: 2, name: "2")
-        let event1 = Event(id: 1, room: "room", track: "1", title: "title 1", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1, person2], attachments: [attachment])
+        let event1 = Event(id: 1, room: "room", track: "5", title: "title 1", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1, person2], attachments: [attachment])
         let event2 = Event(id: 2, room: "room", track: "1", title: "title 2", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1], attachments: [attachment])
         let event3 = Event(id: 3, room: "room", track: "2", title: "title 3", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person2], attachments: [attachment])
         let event4 = Event(id: 4, room: "room", track: "3", title: "title 4", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [], attachments: [attachment])
