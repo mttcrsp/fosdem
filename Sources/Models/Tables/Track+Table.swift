@@ -18,12 +18,4 @@ extension Track: PersistableRecord, FetchableRecord {
         container[Columns.name.rawValue] = name
         container[Columns.date.rawValue] = date
     }
-
-    static func createTable(in database: Database) throws {
-        try database.create(table: Track.databaseTableName) { table in
-            table.column(Track.Columns.name.rawValue).primaryKey(onConflict: .replace)
-            table.column(Track.Columns.day.rawValue, .integer)
-            table.column(Track.Columns.date.rawValue, .date)
-        }
-    }
 }

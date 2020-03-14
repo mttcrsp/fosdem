@@ -59,7 +59,13 @@ final class QueriesTests: XCTestCase {
     }
 
     private func makePersistenceService() throws -> PersistenceService {
-        try PersistenceService(path: nil)
+        var migrations: [PersistenceServiceMigration] = []
+        migrations.append(CreateTracksTable())
+        migrations.append(CreatePeopleTable())
+        migrations.append(CreateEventsTable())
+        migrations.append(CreateEventsSearchTable())
+        migrations.append(CreateParticipationsTable())
+        return try PersistenceService(path: nil, migrations: migrations)
     }
 
     private func makePersistentServiceWithSchedule() throws -> PersistenceService {

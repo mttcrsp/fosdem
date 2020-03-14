@@ -1,15 +1,22 @@
 import Foundation
 
 final class Services {
-    let acknowledgementsService: AcknowledgementsService
+    let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
-    let favoritesService: FavoritesService
+    let acknowledgementsService = AcknowledgementsService()
 
     init() throws {
         let applicationSupportURL = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        let databaseURL = applicationSupportURL.appendingPathComponent("db.sqlite")
-        persistenceService = try PersistenceService(path: databaseURL.path)
-        acknowledgementsService = AcknowledgementsService()
-        favoritesService = FavoritesService()
+        let applicationDatabaseURL = applicationSupportURL.appendingPathComponent("db.sqlite")
+        let path = applicationDatabaseURL.path
+
+        var migrations: [PersistenceServiceMigration] = []
+        migrations.append(CreateTracksTable())
+        migrations.append(CreatePeopleTable())
+        migrations.append(CreateEventsTable())
+        migrations.append(CreateEventsSearchTable())
+        migrations.append(CreateParticipationsTable())
+
+        persistenceService = try PersistenceService(path: path, migrations: migrations)
     }
 }

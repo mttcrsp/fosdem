@@ -6,20 +6,28 @@ protocol PersistenceServiceWrite {
 
 protocol PersistenceServiceRead {
     func perform(in database: Database) throws -> Model
-
     associatedtype Model
+}
+
+protocol PersistenceServiceMigration {
+    func perform(in database: Database) throws -> Void
+    var identifier: String { get }
 }
 
 final class PersistenceService {
     private let database: DatabaseQueue
 
-    init(path: String?) throws {
+    init(path: String?, migrations: [PersistenceServiceMigration]) throws {
         if let path = path {
             database = try DatabaseQueue(path: path)
         } else {
             database = DatabaseQueue()
         }
 
+        var migrator = DatabaseMigrator()
+        for migration in migrations {
+            migrator.registerMigration(migration.identifier, migrate: migration.perform)
+        }
         try migrator.migrate(database)
     }
 
@@ -57,17 +65,5 @@ final class PersistenceService {
                 }
             }
         }
-    }
-}
-
-private extension PersistenceService {
-    var migrator: DatabaseMigrator {
-        var migrator = DatabaseMigrator()
-        migrator.registerMigration("create events table", migrate: Event.createTable)
-        migrator.registerMigration("create events search table", migrate: Event.createSearchTable)
-        migrator.registerMigration("create tracks table", migrate: Track.createTable)
-        migrator.registerMigration("create people table", migrate: Person.createTable)
-        migrator.registerMigration("create participations table", migrate: Participation.createTable)
-        return migrator
     }
 }
