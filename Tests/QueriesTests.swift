@@ -16,8 +16,13 @@ final class QueriesTests: XCTestCase {
         XCTAssertNoThrow(({
             let service = try self.makePersistentServiceWithSchedule()
             let tracks = try service.performReadSync(AllTracks())
+
             let names = Set(tracks.map { track in track.name })
             XCTAssertEqual(names, ["1", "2", "3"])
+
+            let track = tracks.first
+            XCTAssertEqual(track?.day, 1)
+            XCTAssertEqual(track?.name, "1")
         }))
     }
 
@@ -26,7 +31,20 @@ final class QueriesTests: XCTestCase {
             let service = try self.makePersistentServiceWithSchedule()
             let events = try service.performReadSync(EventsForTrack(track: "2"))
             XCTAssertEqual(events.count, 1)
-            XCTAssertEqual(events.first?.id, 3)
+
+            let event = events.first
+            XCTAssertEqual(event?.id, 3)
+            XCTAssertEqual(event?.room, "room")
+            XCTAssertEqual(event?.track, "2")
+            XCTAssertEqual(event?.title, "title 3")
+            XCTAssertEqual(event?.summary, "summary")
+            XCTAssertEqual(event?.abstract, "abstract")
+            XCTAssertEqual(event?.subtitle, "subtitle")
+            XCTAssertEqual(event?.people, [Person(id: 2, name: "2")])
+            XCTAssertEqual(event?.start, DateComponents(hour: 9, minute: 30))
+            XCTAssertEqual(event?.duration, DateComponents(hour: 10, minute: 15))
+            XCTAssertEqual(event?.links, [Link(name: "name", url: URL(string: "https://www.fosdem.org"))])
+            XCTAssertEqual(event?.attachments, [Attachment(type: .paper, url: URL(string: "https://www.fosdem.org")!, name: "name")])
         }))
     }
 
@@ -36,7 +54,7 @@ final class QueriesTests: XCTestCase {
             let events = try service.performReadSync(EventsForPerson(person: 2))
             XCTAssertEqual(events.count, 2)
             XCTAssertEqual(events.first?.id, 1)
-            XCTAssertEqual(events.last?.id, 3)
+            XCTAssertEqual(events.first?.id, 1)
         }))
     }
 
@@ -45,8 +63,9 @@ final class QueriesTests: XCTestCase {
             let service = try self.makePersistentServiceWithSchedule()
             let events = try service.performReadSync(EventsForIdentifiers(identifiers: [1, 4]))
             XCTAssertEqual(events.count, 2)
-            XCTAssertEqual(events.first?.id, 1)
-            XCTAssertEqual(events.last?.id, 4)
+
+            let identifiers = Set(events.map { event in event.id })
+            XCTAssertEqual(identifiers, [1, 4])
         }))
     }
 
@@ -76,12 +95,17 @@ final class QueriesTests: XCTestCase {
     }
 
     private func makeSchedule() -> Schedule {
+        let url = URL(string: "https://www.fosdem.org")!
+        let attachment = Attachment(type: .paper, url: url, name: "name")
+        let duration = DateComponents(hour: 10, minute: 45)
+        let start = DateComponents(hour: 9, minute: 30)
+        let link = Link(name: "name", url: url)
         let person1 = Person(id: 1, name: "1")
         let person2 = Person(id: 2, name: "2")
-        let event1 = Event(id: 1, room: "", track: "1", title: "title 1", summary: "", subtitle: "", abstract: "", start: .init(), duration: .init(), links: [], people: [person1, person2], attachments: [])
-        let event2 = Event(id: 2, room: "", track: "1", title: "title 2", summary: "", subtitle: "", abstract: "", start: .init(), duration: .init(), links: [], people: [person1], attachments: [])
-        let event3 = Event(id: 3, room: "", track: "2", title: "title 3", summary: "", subtitle: "", abstract: "", start: .init(), duration: .init(), links: [], people: [person2], attachments: [])
-        let event4 = Event(id: 4, room: "", track: "3", title: "title 4", summary: "", subtitle: "", abstract: "", start: .init(), duration: .init(), links: [], people: [], attachments: [])
+        let event1 = Event(id: 1, room: "room", track: "1", title: "title 1", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1, person2], attachments: [attachment])
+        let event2 = Event(id: 2, room: "room", track: "1", title: "title 2", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1], attachments: [attachment])
+        let event3 = Event(id: 3, room: "room", track: "2", title: "title 3", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person2], attachments: [attachment])
+        let event4 = Event(id: 4, room: "room", track: "3", title: "title 4", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [], attachments: [attachment])
         let conference = Conference(title: "", subtitle: "", venue: "", city: "", start: .init(), end: .init())
         let day1 = Day(index: 1, date: .init(), events: [event1, event2])
         let day2 = Day(index: 2, date: .init(), events: [event3, event4])
