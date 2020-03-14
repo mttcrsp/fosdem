@@ -25,7 +25,6 @@ final class ApplicationController: UITabBarController {
         var viewControllers: [UIViewController] = []
         viewControllers.append(makeTracksController())
         viewControllers.append(makePlanController())
-        viewControllers.append(makeMapViewController())
         viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
 
@@ -46,12 +45,6 @@ private extension ApplicationController {
         let tracksController = TracksController(services: services)
         tracksController.title = NSLocalizedString("tracks.title", comment: "")
         return tracksController
-    }
-
-    func makeMapViewController() -> MapViewController {
-        let mapViewController = MapViewController()
-        mapViewController.title = NSLocalizedString("map.title", comment: "")
-        return mapViewController
     }
 
     func makeMoreController() -> MoreController {
