@@ -5,7 +5,7 @@ import XCTest
 
 final class PersistenceServiceTests: XCTestCase {
     func testWrite() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try PersistenceService(path: nil, migrations: [])
             let expectation = self.expectation(description: #function)
             let operation = Write { _ in }
@@ -16,11 +16,11 @@ final class PersistenceServiceTests: XCTestCase {
             }
 
             self.waitForExpectations(timeout: 0.1)
-        }))
+        }())
     }
 
     func testWriteError() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try PersistenceService(path: nil, migrations: [])
             let expectation = self.expectation(description: #function)
             let error = NSError(domain: "org.fosdem.fosdem", code: -1)
@@ -32,7 +32,7 @@ final class PersistenceServiceTests: XCTestCase {
             }
 
             self.waitForExpectations(timeout: 0.1)
-        }))
+        }())
     }
 
     private struct Write: PersistenceServiceWrite {

@@ -5,15 +5,15 @@ import XCTest
 
 final class QueriesTests: XCTestCase {
     func testImport() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let operation = ImportSchedule(schedule: self.makeSchedule())
             let service = try self.makePersistenceService()
             try service.performWriteSync(operation)
-        }))
+        }())
     }
 
     func testAllTracks() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try self.makePersistentServiceWithSchedule()
             let tracks = try service.performReadSync(AllTracks())
 
@@ -23,11 +23,11 @@ final class QueriesTests: XCTestCase {
             let track = tracks.first
             XCTAssertEqual(track?.day, 1)
             XCTAssertEqual(track?.name, "1")
-        }))
+        }())
     }
 
     func testEventsForTrack() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try self.makePersistentServiceWithSchedule()
             let events = try service.performReadSync(EventsForTrack(track: "2"))
             XCTAssertEqual(events.count, 1)
@@ -42,39 +42,39 @@ final class QueriesTests: XCTestCase {
             XCTAssertEqual(event?.subtitle, "subtitle")
             XCTAssertEqual(event?.people, [Person(id: 2, name: "2")])
             XCTAssertEqual(event?.start, DateComponents(hour: 9, minute: 30))
-            XCTAssertEqual(event?.duration, DateComponents(hour: 10, minute: 15))
+            XCTAssertEqual(event?.duration, DateComponents(hour: 10, minute: 45))
             XCTAssertEqual(event?.links, [Link(name: "name", url: URL(string: "https://www.fosdem.org"))])
             XCTAssertEqual(event?.attachments, [Attachment(type: .paper, url: URL(string: "https://www.fosdem.org")!, name: "name")])
-        }))
+        }())
     }
 
     func testEventsForPerson() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try self.makePersistentServiceWithSchedule()
             let events = try service.performReadSync(EventsForPerson(person: 2))
             XCTAssertEqual(events.count, 2)
             XCTAssertEqual(events.first?.id, 1)
             XCTAssertEqual(events.first?.id, 1)
-        }))
+        }())
     }
 
     func testEventsForIdentifiers() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try self.makePersistentServiceWithSchedule()
             let events = try service.performReadSync(EventsForIdentifiers(identifiers: [1, 4]))
             XCTAssertEqual(events.count, 2)
 
             let identifiers = Set(events.map { event in event.id })
             XCTAssertEqual(identifiers, [1, 4])
-        }))
+        }())
     }
 
     func testEventsForSearch() {
-        XCTAssertNoThrow(({
+        XCTAssertNoThrow(try {
             let service = try self.makePersistentServiceWithSchedule()
             let events = try service.performReadSync(EventsForSearch(query: "title 4"))
             XCTAssertEqual(events.count, 1)
-        }))
+        }())
     }
 
     private func makePersistenceService() throws -> PersistenceService {
