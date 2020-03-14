@@ -11,7 +11,7 @@ extension Event: PersistableRecord, FetchableRecord {
     }
 
     enum Columns: String, CaseIterable, ColumnExpression {
-        case id, room, track, start, duration, title, subtitle, abstract, summary, people, attachments, links
+        case id, room, track, start, duration, title, subtitle, abstract, summary, links, people, attachments
     }
 
     init(row: Row) {
@@ -26,9 +26,9 @@ extension Event: PersistableRecord, FetchableRecord {
         let start = row.decode(for: Columns.start.rawValue, default: DateComponents())
         let duration = row.decode(for: Columns.duration.rawValue, default: DateComponents())
 
-        let links = row.decode(for: Columns.links.rawValue, default: [] as [Link])
-        let people = row.decode(for: Columns.people.rawValue, default: [] as [Person])
-        let attachments = row.decode(for: Columns.attachments.rawValue, default: [] as [Attachment])
+        let links: [Link] = row.decode(for: Columns.links.rawValue, default: [])
+        let people: [Person] = row.decode(for: Columns.people.rawValue, default: [])
+        let attachments: [Attachment] = row.decode(for: Columns.attachments.rawValue, default: [])
 
         self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, start: start, duration: duration, links: links, people: people, attachments: attachments)
     }
@@ -45,7 +45,7 @@ extension Event: PersistableRecord, FetchableRecord {
         let encoder = JSONEncoder()
         let startData = try? encoder.encode(start)
         let linksData = try? encoder.encode(links)
-        let peopleData = try? encoder.encode(links)
+        let peopleData = try? encoder.encode(people)
         let durationData = try? encoder.encode(duration)
         let attachmentsData = try? encoder.encode(attachments)
 
@@ -67,10 +67,10 @@ private extension Row {
             return `default`
         }
 
-        guard let decoded = try? JSONDecoder().decode(Value.self, from: data) else {
+        do {
+            return try JSONDecoder().decode(Value.self, from: data)
+        } catch {
             return `default`
         }
-
-        return decoded
     }
 }
