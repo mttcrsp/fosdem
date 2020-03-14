@@ -1,19 +1,25 @@
 import UIKit
 
+private enum TracksFilter: Equatable, Hashable {
+    case all, favorites, day(Int)
+}
+
+private struct TracksSection {
+    let initial: Character, tracks: [Track]
+}
+
 final class TracksController: UINavigationController {
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
 
-    private(set) var favoriteTracks: [Track] = []
-    private(set) var tracksForDay: [[Track]] = []
-    private(set) var tracks: [Track] = []
-
-    private var events: [Event] = []
+    private var sections: [TracksFilter: [TracksSection]] = [:]
     private var filters: [TracksFilter] = []
-    private var selectedFilter: TracksFilter = .all
-    private var selectedTrack: Track?
+    private var events: [Event] = []
+    private var tracks: [Track] = []
 
     private var observation: NSObjectProtocol?
+    private var selectedFilter: TracksFilter = .all
+    private var selectedTrack: Track?
 
     private let services: Services
 
@@ -69,11 +75,9 @@ final class TracksController: UINavigationController {
         observation = favoritesService.addObserverForTracks { [weak self] in
             guard let self = self else { return }
 
-            self.favoriteTracks = []
-            for track in self.tracks where self.favoritesService.contains(track) {
-                self.favoriteTracks.append(track)
-            }
-            self.favoriteTracks.sortByName()
+            self.sections[.favorites] = self.makeSections(from: self.tracks.filter { track in
+                self.favoritesService.tracksIdentifiers.contains(track.name)
+            })
 
             if self.selectedFilter == .favorites {
                 self.tracksViewController?.reloadData()
@@ -86,56 +90,85 @@ final class TracksController: UINavigationController {
     }
 
     private func loadingDidFinish(with tracks: [Track]) {
-        var tracksForDay: [Int: [Track]] = [:]
-        for track in tracks {
-            tracksForDay[track.day, default: []].append(track)
+        self.tracks = tracks
 
-            if favoritesService.contains(track) {
-                favoriteTracks.append(track)
+        var days: Set<Int> = []
+        for track in tracks {
+            days.insert(track.day)
+        }
+
+        filters = makeFilters(withDaysCount: days.count)
+
+        sections = [:]
+        for filter in filters {
+            switch filter {
+            case .all:
+                sections[filter] = makeSections(from: tracks)
+            case let .day(day):
+                sections[filter] = makeSections(from: tracks.filter { track in
+                    track.day == day
+                })
+            case .favorites:
+                sections[filter] = makeSections(from: tracks.filter { track in
+                    favoritesService.tracksIdentifiers.contains(track.name)
+                })
             }
         }
 
-        self.tracks = tracks
-        self.tracks.sortByName()
+        tracksViewController?.reloadData()
+    }
 
-        favoriteTracks.sortByName()
+    private func makeFilters(withDaysCount days: Int) -> [TracksFilter] {
+        var filters: [TracksFilter] = []
+        filters.append(.all)
+        filters.append(contentsOf: (0 ..< days).map { index in .day(index + 1) })
+        filters.append(.favorites)
+        return filters
+    }
 
-        self.tracksForDay = tracksForDay
-            .sorted { lhs, rhs in lhs.key < rhs.key }
-            .map { _, tracks in tracks }
+    private func makeSections(from tracks: [Track]) -> [TracksSection] {
+        var tracksForInitial: [Character: [Track]] = [:]
 
-        for i in self.tracksForDay.indices {
-            self.tracksForDay[i].sortByName()
+        for track in tracks {
+            if let initial = track.name.first {
+                tracksForInitial[initial, default: []].append(track)
+            } else {
+                assertionFailure("Unexpectedly found no name for track '\(track)'")
+            }
         }
 
-        filters = []
-        filters.append(.all)
-        filters.append(contentsOf: (1 ... tracksForDay.count).map { number in .day(number) })
-        filters.append(.favorites)
-
-        tracksViewController?.reloadData()
+        return tracksForInitial
+            .sorted { lhs, rhs in lhs.key < rhs.key }
+            .map { initial, tracks in .init(initial: initial, tracks: tracks) }
     }
 }
 
 extension TracksController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    private var filteredTracks: [Track] {
+    private var selectedSections: [TracksSection] {
+        sections[selectedFilter] ?? []
+    }
+
+    func numberOfSections(in _: TracksViewController) -> Int {
+        selectedSections.count
+    }
+
+    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
         switch selectedFilter {
-        case .all: return tracks
-        case .favorites: return favoriteTracks
-        case let .day(number): return tracksForDay[number - 1]
+        case .favorites: return nil
+        case .all, .day: return selectedSections.map { section in String(section.initial) }
         }
     }
 
-    func numberOfTracks(in _: TracksViewController) -> Int {
-        filteredTracks.count
+    func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
+        selectedSections[section].tracks.count
     }
 
     func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        filteredTracks[indexPath.row]
+        selectedSections[indexPath.section].tracks[indexPath.row]
     }
 
     func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
-        !favoritesService.contains(filteredTracks[indexPath.row])
+        !favoritesService.contains(selectedSections[indexPath.section].tracks[indexPath.row])
     }
 
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
@@ -260,16 +293,6 @@ private extension TracksController {
     func makeEventViewController(for event: Event) -> EventController {
         .init(event: event, services: services)
     }
-}
-
-private extension Array where Element == Track {
-    mutating func sortByName() {
-        sort { lhs, rhs in lhs.name < rhs.name }
-    }
-}
-
-enum TracksFilter: Equatable {
-    case all, favorites, day(Int)
 }
 
 private extension TracksFilter {
