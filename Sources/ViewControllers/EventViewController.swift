@@ -120,17 +120,7 @@ private extension EventViewController.ItemType {
 
 private extension Event {
     var formattedAbstract: String? {
-        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
-            .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue),
-            .documentType: NSAttributedString.DocumentType.html,
-        ]
-
-        guard let abstract = abstract,
-            let data = abstract.data(using: .utf8),
-            let attributedString = try? NSAttributedString(data: data, options: options, documentAttributes: nil) else {
-            return nil
-        }
-
+        guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString(html: html) else { return nil }
         return attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
