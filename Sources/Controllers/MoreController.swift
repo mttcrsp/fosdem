@@ -1,12 +1,11 @@
 import UIKit
 
 enum MoreSection: CaseIterable {
+    case about
+    case other
     #if DEBUG
         case debug
     #endif
-
-    case about
-    case other
 }
 
 enum MoreItem: CaseIterable {
