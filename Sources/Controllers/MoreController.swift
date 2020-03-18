@@ -266,3 +266,18 @@ extension MoreSection {
         }
     }
 }
+
+extension MoreItem {
+    var title: String {
+        switch self {
+        case .years: return NSLocalizedString("years.title", comment: "")
+        case .history: return NSLocalizedString("history.title", comment: "")
+        case .devrooms: return NSLocalizedString("devrooms.title", comment: "")
+        case .transportation: return NSLocalizedString("transportation.title", comment: "")
+        case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
+        #if DEBUG
+            case .import: return NSLocalizedString("import.title", comment: "")
+        #endif
+        }
+    }
+}

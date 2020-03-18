@@ -59,18 +59,3 @@ private extension UITableViewCell {
         accessoryType = .disclosureIndicator
     }
 }
-
-private extension MoreItem {
-    var title: String {
-        switch self {
-        #if DEBUG
-            case .import: return "Import schedule"
-        #endif
-        case .years: return NSLocalizedString("years.title", comment: "")
-        case .history: return NSLocalizedString("history.title", comment: "")
-        case .devrooms: return NSLocalizedString("devrooms.title", comment: "")
-        case .transportation: return NSLocalizedString("transportation.title", comment: "")
-        case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
-        }
-    }
-}
