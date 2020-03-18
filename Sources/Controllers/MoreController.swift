@@ -67,16 +67,31 @@ extension MoreController: MoreViewControllerDelegate {
         print(#function, moreViewController)
     }
 
-    private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
-        print(#function, moreViewController)
-    }
-
     private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
-        moreViewController.show(makeHistoryViewController(), sender: nil)
+        moreviewController(moreViewController, didSelect: .history, with: .history)
     }
 
     private func moreViewControllerDidSelectDevrooms(_ moreViewController: MoreViewController) {
-        moreViewController.show(makeDevroomsViewController(), sender: nil)
+        moreviewController(moreViewController, didSelect: .devrooms, with: .devrooms)
+    }
+
+    private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
+        moreviewController(moreViewController, didSelect: .transportation, with: .transportation)
+    }
+
+    private func moreviewController(_ moreViewController: MoreViewController, didSelect item: MoreItem, with info: Info) {
+        services.infoService.loadAttributedText(for: info) { [weak moreViewController] attributedText in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+
+                if let attributedText = attributedText {
+                    let textViewController = self.makeTextViewController(for: item, with: attributedText)
+                    moreViewController?.show(textViewController, sender: nil)
+                } else {
+                    moreViewController?.present(ErrorController(), animated: true)
+                }
+            }
+        }
     }
 
     #if DEBUG
@@ -187,22 +202,13 @@ private extension MoreController {
         return moreViewController
     }
 
-    func makeHistoryViewController() -> TextViewController {
-        let historyViewController = TextViewController()
-        historyViewController.title = NSLocalizedString("history.title", comment: "")
-        historyViewController.text = NSLocalizedString("history.body", comment: "")
-        historyViewController.extendedLayoutIncludesOpaqueBars = true
-        historyViewController.hidesBottomBarWhenPushed = true
-        return historyViewController
-    }
-
-    func makeDevroomsViewController() -> TextViewController {
-        let devroomsViewController = TextViewController()
-        devroomsViewController.title = NSLocalizedString("devrooms.title", comment: "")
-        devroomsViewController.text = NSLocalizedString("devrooms.body", comment: "")
-        devroomsViewController.extendedLayoutIncludesOpaqueBars = true
-        devroomsViewController.hidesBottomBarWhenPushed = true
-        return devroomsViewController
+    func makeTextViewController(for item: MoreItem, with attributedText: NSAttributedString) -> TextViewController {
+        let textViewController = TextViewController()
+        textViewController.extendedLayoutIncludesOpaqueBars = true
+        textViewController.hidesBottomBarWhenPushed = true
+        textViewController.attributedText = attributedText
+        textViewController.title = item.title
+        return textViewController
     }
 
     func makeAcknowledgementsViewController() -> AcknowledgementsViewController {

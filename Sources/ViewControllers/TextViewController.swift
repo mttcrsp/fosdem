@@ -6,6 +6,11 @@ final class TextViewController: UIViewController {
         set { textView.text = newValue }
     }
 
+    var attributedText: NSAttributedString? {
+        get { textView.attributedText }
+        set { textView.attributedText = newValue }
+    }
+
     private lazy var textView = UITextView()
 
     override func loadView() {
