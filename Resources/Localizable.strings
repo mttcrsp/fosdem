@@ -37,14 +37,12 @@
 
 /// MARK: - History
 "history.title" = "History";
-"history.body" = "In 2000, Raphael Bauduin, a fan of the Linux movement in Belgium, decided to organise a small meeting for developers of Open Source software. He called it 'Open Source Developers’ European Meeting' (OSDEM).\n\nRaphael created a mailing list, a small website and spread the word to people around him. Only a few weeks later, lots of people were waiting for an exciting event in Brussels! Invitations were sent to well-known figures in the community: Rasterman, Fyodor, Jeremy Allison and so on. They all gave a very positive response, and OSDEM was on the road to success.\n\nFor the second year, OSDEM was renamed FOSDEM. And now, many years later, it has grown into the event it is today. We now try to cover a wide spectrum of free and open source software projects, and offer a platform for people to collaborate. Every year, we host more than 5000 developers at the ULB Solbosch campus.\n\nRaphael is no longer the driving force behind FOSDEM. After 7 years of hard work he left the team for new Open Source plans. The FOSDEM flag is now proudly carried by the following people:\n\n• Linda Calders\n• Quint Daenen\n• Gerry Demaret\n• Julien Detroz\n• Pieter De Praetere\n• Michael De Swert\n• Philippe De Swert\n• Egbert De Vries\n• Geert Goossens\n• Jan Gyselinck\n• Richard Hartmann\n• Alasdair Kergon\n• Vasil Kolev\n• Jan-Frederik Martens\n• Marthe Parada Delgado\n• Thomas Perale\n• Stella Rouzi\n• Sebastian Schauenburg\n• Jonas Scheers\n• Kristian Schuhmacher\n• Johan van Selst\n• Wouter Simons\n• Ieva Supjeva\n• Miguel Terol Espino\n• Emanuil Tolev\n• Johan Van de Wauw\n• Mark Van den Borre\n• Peter Van Eynde\n• Wouter Verhelst\n• Koen Vervloesem\n• The many volunteers who help out during the weekend\n• ...";
 
 /// MARK: - Years
 "years.title" = "Previous years";
 
 /// MARK: - DevRooms
 "devrooms.title" = "Developer Rooms";
-"devrooms.body" = "The FOSDEM team feels it is very important for free and open source software developers around the world to be able to meet in “real life”.\n\nTo this end, we have set up developer rooms (devrooms) with network/internet connectivity and projectors where teams can meet and showcase their projects. Devrooms are a place for teams to discuss, hack and publicly present latest directions, lightning talks, news and discussions. We believe developers can benefit a lot from these meetings.";
 
 /// MARK: - Transportation
 "transportation.title" = "Transportation";
