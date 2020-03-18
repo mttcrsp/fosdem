@@ -46,6 +46,9 @@
 
 /// MARK: - Transportation
 "transportation.title" = "Transportation";
+"transportation.section.directions" = "Directions";
+"transportation.item.apple" = "Open in Apple Maps";
+"transportation.item.google" = "Open in Google Maps";
 
 /// MARK: - Acknowledgements
 "acknowledgements.title" = "Acknowledgements";

@@ -76,7 +76,7 @@ extension MoreController: MoreViewControllerDelegate {
     }
 
     private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
-        moreviewController(moreViewController, didSelect: .transportation, with: .transportation)
+        moreViewController.show(makeTransportationViewController(), sender: nil)
     }
 
     private func moreviewController(_ moreViewController: MoreViewController, didSelect item: MoreItem, with info: Info) {
@@ -192,6 +192,21 @@ extension MoreController: UISearchResultsUpdating {
     }
 }
 
+extension MoreController: TransportationViewControllerDelegate {
+    func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item) {
+        switch item {
+        case .appleMaps:
+            UIApplication.shared.open(.ulbAppleMaps) { [weak transportationViewController] _ in
+                transportationViewController?.deselectSelectedRow(animated: true)
+            }
+        case .googleMaps:
+            UIApplication.shared.open(.ulbGoogleMaps) { [weak transportationViewController] _ in
+                transportationViewController?.deselectSelectedRow(animated: true)
+            }
+        }
+    }
+}
+
 private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
@@ -209,6 +224,15 @@ private extension MoreController {
         textViewController.attributedText = attributedText
         textViewController.title = item.title
         return textViewController
+    }
+
+    private func makeTransportationViewController() -> TransportationViewController {
+        let transportationViewController = TransportationViewController(style: .grouped)
+        transportationViewController.title = NSLocalizedString("transportation.title", comment: "")
+        transportationViewController.extendedLayoutIncludesOpaqueBars = true
+        transportationViewController.hidesBottomBarWhenPushed = true
+        transportationViewController.delegate = self
+        return transportationViewController
     }
 
     func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
@@ -285,5 +309,15 @@ extension MoreItem {
             case .import: return NSLocalizedString("import.title", comment: "")
         #endif
         }
+    }
+}
+
+private extension URL {
+    static var ulbAppleMaps: URL {
+        URL(string: "https://maps.apple.com/?address=Avenue%20Franklin%20Roosevelt%2050,%201050%20Brussels,%20Belgium&auid=2450730505287536200&ll=50.812050,4.382236&lsp=9902&q=Universit%C3%A9%20Libre%20de%20Bruxelles&_ext=ChgKBAgEEFcKBAgFEAMKBAgGEBkKBAgKEAESJCkjtQWwbFxJQDFgm0ZDufUQQDkZviUmcHNJQEGgZLl8GBkSQA%3D%3D")!
+    }
+
+    static var ulbGoogleMaps: URL {
+        URL(string: "https://www.google.com/maps/place/Universit%C3%A9+Libre+de+Bruxelles/@50.8132068,4.3800335,17z/data=!3m1!4b1!4m5!3m4!1s0x47c3c4485d19ce43:0xe8eb9253c07c6691!8m2!3d50.8132068!4d4.3822222")!
     }
 }
