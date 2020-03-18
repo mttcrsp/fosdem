@@ -52,3 +52,6 @@
 
 /// MARK: - Acknowledgements
 "acknowledgements.title" = "Acknowledgements";
+
+/// MARK: - Debug
+"import.title" = "Import schedule";
