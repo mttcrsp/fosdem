@@ -1,6 +1,7 @@
 import Foundation
 
 final class Services {
+    let infoService = InfoService()
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
