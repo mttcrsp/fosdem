@@ -2,6 +2,7 @@ import Foundation
 
 enum Info {
     case history, devrooms, transportation
+    case bus, shuttle, train, car, plane, taxi
 }
 
 protocol InfoServiceBundle {
@@ -40,6 +41,12 @@ extension Info {
         case .history: return "history"
         case .devrooms: return "devrooms"
         case .transportation: return "transportation"
+        case .bus: return "bus-tram"
+        case .shuttle: return "shuttle"
+        case .train: return "train"
+        case .car: return "car"
+        case .plane: return "plane"
+        case .taxi: return "taxi"
         }
     }
 }

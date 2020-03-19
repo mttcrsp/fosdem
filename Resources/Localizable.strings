@@ -47,8 +47,15 @@
 /// MARK: - Transportation
 "transportation.title" = "Transportation";
 "transportation.section.directions" = "Directions";
+"transportation.section.by" = "Travelling by";
 "transportation.item.apple" = "Open in Apple Maps";
 "transportation.item.google" = "Open in Google Maps";
+"transportation.item.bus" = "By bus and/or tram";
+"transportation.item.shuttle" = "Free shuttle buses";
+"transportation.item.train" = "By train";
+"transportation.item.car" = "By car";
+"transportation.item.plane" = "By plane";
+"transportation.item.taxi" = "By taxi";
 
 /// MARK: - Acknowledgements
 "acknowledgements.title" = "Acknowledgements";

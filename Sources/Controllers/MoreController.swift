@@ -68,24 +68,26 @@ extension MoreController: MoreViewControllerDelegate {
     }
 
     private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
-        moreviewController(moreViewController, didSelect: .history, with: .history)
+        showInfoViewController(from: moreViewController, withTitle: MoreItem.history.title, for: .history)
     }
 
     private func moreViewControllerDidSelectDevrooms(_ moreViewController: MoreViewController) {
-        moreviewController(moreViewController, didSelect: .devrooms, with: .devrooms)
+        showInfoViewController(from: moreViewController, withTitle: MoreItem.devrooms.title, for: .devrooms)
     }
 
     private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
         moreViewController.show(makeTransportationViewController(), sender: nil)
     }
 
-    private func moreviewController(_ moreViewController: MoreViewController, didSelect item: MoreItem, with info: Info) {
+    private func showInfoViewController(from _: UIViewController, withTitle title: String, for info: Info) {
         services.infoService.loadAttributedText(for: info) { [weak moreViewController] attributedText in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
 
                 if let attributedText = attributedText {
-                    let textViewController = self.makeTextViewController(for: item, with: attributedText)
+                    let textViewController = self.makeTextViewController()
+                    textViewController.attributedText = attributedText
+                    textViewController.title = title
                     moreViewController?.show(textViewController, sender: nil)
                 } else {
                     moreViewController?.present(ErrorController(), animated: true)
@@ -203,6 +205,18 @@ extension MoreController: TransportationViewControllerDelegate {
             UIApplication.shared.open(.ulbGoogleMaps) { [weak transportationViewController] _ in
                 transportationViewController?.deselectSelectedRow(animated: true)
             }
+        case .bus:
+            showInfoViewController(from: transportationViewController, withTitle: item.title, for: .bus)
+        case .shuttle:
+            showInfoViewController(from: transportationViewController, withTitle: item.title, for: .shuttle)
+        case .train:
+            showInfoViewController(from: transportationViewController, withTitle: item.title, for: .train)
+        case .car:
+            showInfoViewController(from: transportationViewController, withTitle: item.title, for: .car)
+        case .plane:
+            showInfoViewController(from: transportationViewController, withTitle: item.title, for: .plane)
+        case .taxi:
+            showInfoViewController(from: transportationViewController, withTitle: item.title, for: .taxi)
         }
     }
 }
@@ -217,12 +231,10 @@ private extension MoreController {
         return moreViewController
     }
 
-    func makeTextViewController(for item: MoreItem, with attributedText: NSAttributedString) -> TextViewController {
+    func makeTextViewController() -> TextViewController {
         let textViewController = TextViewController()
         textViewController.extendedLayoutIncludesOpaqueBars = true
         textViewController.hidesBottomBarWhenPushed = true
-        textViewController.attributedText = attributedText
-        textViewController.title = item.title
         return textViewController
     }
 
