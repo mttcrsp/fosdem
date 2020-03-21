@@ -8,17 +8,15 @@ final class Services {
     let acknowledgementsService = AcknowledgementsService()
 
     init() throws {
+        let path = try FileManager.default.applicationDatabasePath()
+        persistenceService = try PersistenceService(path: path, migrations: .allMigrations)
+    }
+}
+
+extension FileManager {
+    func applicationDatabasePath() throws -> String {
         let applicationSupportURL = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let applicationDatabaseURL = applicationSupportURL.appendingPathComponent("db.sqlite")
-        let path = applicationDatabaseURL.path
-
-        var migrations: [PersistenceServiceMigration] = []
-        migrations.append(CreateTracksTable())
-        migrations.append(CreatePeopleTable())
-        migrations.append(CreateEventsTable())
-        migrations.append(CreateEventsSearchTable())
-        migrations.append(CreateParticipationsTable())
-
-        persistenceService = try PersistenceService(path: path, migrations: migrations)
+        return applicationDatabaseURL.path
     }
 }
