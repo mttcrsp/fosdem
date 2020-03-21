@@ -21,7 +21,7 @@ enum MoreItem: CaseIterable {
 }
 
 final class MoreController: UINavigationController {
-    private weak var eventsViewController: EventsViewController?
+    private weak var resultsViewController: EventsViewController?
     private weak var moreViewController: MoreViewController?
 
     private(set) var acknowledgements: [Acknowledgement] = []
@@ -182,7 +182,7 @@ extension MoreController: UISearchResultsUpdating {
                     break
                 case let .success(events):
                     self?.events = events
-                    self?.eventsViewController?.reloadData()
+                    self?.resultsViewController?.reloadData()
                 }
             }
         }
@@ -261,18 +261,18 @@ private extension MoreController {
     }
 
     func makeSearchController() -> UISearchController {
-        let searchController = UISearchController(searchResultsController: makeEventsViewController())
+        let searchController = UISearchController(searchResultsController: makeResultsViewController())
         searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
         searchController.searchResultsUpdater = self
         return searchController
     }
 
-    func makeEventsViewController() -> EventsViewController {
-        let eventsViewController = EventsViewController(style: .grouped)
-        eventsViewController.dataSource = self
-        eventsViewController.delegate = self
-        self.eventsViewController = eventsViewController
-        return eventsViewController
+    func makeResultsViewController() -> EventsViewController {
+        let resultsViewController = EventsViewController(style: .grouped)
+        resultsViewController.dataSource = self
+        resultsViewController.delegate = self
+        self.resultsViewController = resultsViewController
+        return resultsViewController
     }
 
     func makeEventViewController(for event: Event) -> EventController {
