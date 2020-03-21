@@ -14,7 +14,7 @@ final class YearsServiceTests: XCTestCase {
 
         let expectation = self.expectation(description: #function)
         service.loadYears { years in
-            XCTAssertEqual(years, ["2009", "2010", "2011"])
+            XCTAssertEqual(years, ["2011", "2010", "2009"])
             expectation.fulfill()
         }
         waitForExpectations(timeout: 0.1)
