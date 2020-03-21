@@ -93,6 +93,23 @@ private extension EventController {
             videoViewController.exitsFullScreenWhenPlaybackEnds = true
         }
 
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback)
+            try session.setActive(true)
+
+            let center = NotificationCenter.default
+            center.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { _ in
+                do {
+                    try session.setActive(false)
+                } catch {
+                    assertionFailure(error.localizedDescription)
+                }
+            }
+        } catch {
+            assertionFailure(error.localizedDescription)
+        }
+
         return videoViewController
     }
 }
