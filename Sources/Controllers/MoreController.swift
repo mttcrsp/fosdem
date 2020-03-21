@@ -312,7 +312,7 @@ private extension MoreController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        let eventController = EventController(event: event, services: services)
+        let eventController = EventController(event: event, favoritesService: services.favoritesService)
         eventController.hidesBottomBarWhenPushed = true
         return eventController
     }

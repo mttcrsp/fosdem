@@ -291,7 +291,7 @@ private extension TracksController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        .init(event: event, services: services)
+        .init(event: event, favoritesService: favoritesService)
     }
 }
 

@@ -6,11 +6,11 @@ final class EventController: UIViewController {
     private var observation: NSObjectProtocol?
 
     private let event: Event
-    private let services: Services
+    private let favoritesService: FavoritesService?
 
-    init(event: Event, services: Services) {
+    init(event: Event, favoritesService: FavoritesService? = nil) {
         self.event = event
-        self.services = services
+        self.favoritesService = favoritesService
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -18,12 +18,8 @@ final class EventController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private var favoritesService: FavoritesService {
-        services.favoritesService
-    }
-
     private var isEventFavorite: Bool {
-        favoritesService.contains(event)
+        favoritesService?.contains(event) ?? false
     }
 
     private var favoriteTitle: String {
@@ -44,6 +40,8 @@ final class EventController: UIViewController {
             navigationItem.largeTitleDisplayMode = .never
         }
 
+        guard let favoritesService = favoritesService else { return }
+
         let favoriteAction = #selector(didToggleFavorite)
         let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
         navigationItem.rightBarButtonItem = favoriteButton
@@ -60,9 +58,9 @@ final class EventController: UIViewController {
 
     @objc private func didToggleFavorite() {
         if isEventFavorite {
-            favoritesService.removeEvent(withIdentifier: event.id)
+            favoritesService?.removeEvent(withIdentifier: event.id)
         } else {
-            favoritesService.addEvent(withIdentifier: event.id)
+            favoritesService?.addEvent(withIdentifier: event.id)
         }
     }
 }

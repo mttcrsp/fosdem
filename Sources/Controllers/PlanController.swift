@@ -70,7 +70,7 @@ extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelega
 
 private extension PlanController {
     func makeEventViewController(for event: Event) -> EventController {
-        let eventViewController = EventController(event: event, services: services)
+        let eventViewController = EventController(event: event, favoritesService: favoritesService)
         eventViewController.hidesBottomBarWhenPushed = true
         return eventViewController
     }
