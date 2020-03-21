@@ -11,8 +11,8 @@ final class PersistenceServiceTests: XCTestCase {
             let operation = Write { _ in }
 
             service.performWrite(operation) { error in
-                expectation.fulfill()
                 XCTAssertNil(error)
+                expectation.fulfill()
             }
 
             self.waitForExpectations(timeout: 0.1)
@@ -28,8 +28,8 @@ final class PersistenceServiceTests: XCTestCase {
             let operation = Write { _ in throw error }
 
             service.performWrite(operation) { receivedError in
-                expectation.fulfill()
                 XCTAssertEqual(receivedError as NSError?, error)
+                expectation.fulfill()
             }
 
             self.waitForExpectations(timeout: 0.1)
@@ -43,14 +43,14 @@ final class PersistenceServiceTests: XCTestCase {
             let operation = Read { _ in 99 }
 
             service.performRead(operation) { result in
-                expectation.fulfill()
-
                 switch result {
                 case let .success(value):
                     XCTAssertEqual(value, 99)
                 case let .failure(error):
                     XCTFail(error.localizedDescription)
                 }
+
+                expectation.fulfill()
             }
 
             self.waitForExpectations(timeout: 0.1)
@@ -66,14 +66,14 @@ final class PersistenceServiceTests: XCTestCase {
             let operation = Read { _ in throw error }
 
             service.performRead(operation) { result in
-                expectation.fulfill()
-
                 switch result {
                 case let .success(value):
                     XCTFail("Unexpected operation success with value '\(value)'")
                 case let .failure(receivedError):
                     XCTAssertEqual(receivedError as NSError, error)
                 }
+
+                expectation.fulfill()
             }
 
             self.waitForExpectations(timeout: 0.1)
