@@ -46,6 +46,18 @@ final class QueriesTests: XCTestCase {
             XCTAssertEqual(event?.duration, DateComponents(hour: 10, minute: 45))
             XCTAssertEqual(event?.links, [Link(name: "name", url: URL(string: "https://www.fosdem.org"))])
             XCTAssertEqual(event?.attachments, [Attachment(type: .paper, url: URL(string: "https://www.fosdem.org")!, name: "name")])
+
+            guard let eventDate = event?.date else {
+                XCTAssertNotNil(event?.date)
+                return
+            }
+
+            let calendar = Calendar.autoupdatingCurrent
+            let calendarComponents: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute]
+            let date = Date(timeIntervalSince1970: 30000)
+            let dateComponents1 = calendar.dateComponents(calendarComponents, from: date)
+            let dateComponents2 = calendar.dateComponents(calendarComponents, from: eventDate)
+            XCTAssertEqual(dateComponents1, dateComponents2)
         }())
     }
 
@@ -100,13 +112,14 @@ final class QueriesTests: XCTestCase {
         let attachment = Attachment(type: .paper, url: url, name: "name")
         let duration = DateComponents(hour: 10, minute: 45)
         let start = DateComponents(hour: 9, minute: 30)
+        let date = Date(timeIntervalSince1970: 30000)
         let link = Link(name: "name", url: url)
         let person1 = Person(id: 1, name: "1")
         let person2 = Person(id: 2, name: "2")
-        let event1 = Event(id: 1, room: "room", track: "5", title: "title 1", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1, person2], attachments: [attachment])
-        let event2 = Event(id: 2, room: "room", track: "1", title: "title 2", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person1], attachments: [attachment])
-        let event3 = Event(id: 3, room: "room", track: "2", title: "title 3", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [person2], attachments: [attachment])
-        let event4 = Event(id: 4, room: "room", track: "3", title: "title 4", summary: "summary", subtitle: "subtitle", abstract: "abstract", start: start, duration: duration, links: [link], people: [], attachments: [attachment])
+        let event1 = Event(id: 1, room: "room", track: "5", title: "title 1", summary: "summary", subtitle: "subtitle", abstract: "abstract", date: date, start: start, duration: duration, links: [link], people: [person1, person2], attachments: [attachment])
+        let event2 = Event(id: 2, room: "room", track: "1", title: "title 2", summary: "summary", subtitle: "subtitle", abstract: "abstract", date: date, start: start, duration: duration, links: [link], people: [person1], attachments: [attachment])
+        let event3 = Event(id: 3, room: "room", track: "2", title: "title 3", summary: "summary", subtitle: "subtitle", abstract: "abstract", date: date, start: start, duration: duration, links: [link], people: [person2], attachments: [attachment])
+        let event4 = Event(id: 4, room: "room", track: "3", title: "title 4", summary: "summary", subtitle: "subtitle", abstract: "abstract", date: date, start: start, duration: duration, links: [link], people: [], attachments: [attachment])
         let conference = Conference(title: "", subtitle: "", venue: "", city: "", start: .init(), end: .init())
         let day1 = Day(index: 1, date: .init(), events: [event1, event2])
         let day2 = Day(index: 2, date: .init(), events: [event3, event4])

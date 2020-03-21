@@ -115,7 +115,11 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     }
 
     private func didParseEvent(with attributes: [String: String]) throws {
-        let event = try Event(attributes: attributes, state: eventState)
+        guard let day = stack.first(where: { element in element.name == "day" }) else {
+            throw Error(element: "event", value: "missing container day")
+        }
+
+        let event = try Event(attributes: attributes, state: eventState, dayAttributes: day.attributes)
         dayState.events.append(event)
         eventState = .init()
     }
@@ -238,7 +242,7 @@ private extension Event {
         ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description"]
     }
 
-    init(attributes: [String: String], state: ScheduleXMLParser.EventState) throws {
+    init(attributes: [String: String], state: ScheduleXMLParser.EventState, dayAttributes: [String: String]) throws {
         guard let idRawValue = attributes["id"], let room = attributes["room"], let track = attributes["track"], let title = attributes["title"], let startRawValue = attributes["start"], let durationRawValue = attributes["duration"] else {
             throw Error(element: "event", value: attributes)
         }
@@ -247,22 +251,35 @@ private extension Event {
             throw Error(element: "event id", value: idRawValue)
         }
 
-        let startComponents = startRawValue.components(separatedBy: ":")
-        guard startComponents.count == 2, let startHour = Int(startComponents[0]), let startMinute = Int(startComponents[1]) else {
-            throw Error(element: "event start", value: startRawValue)
-        }
-
         let durationComponents = durationRawValue.components(separatedBy: ":")
         guard durationComponents.count == 2, let durationHour = Int(durationComponents[0]), let durationMinute = Int(durationComponents[1]) else {
             throw Error(element: "event duration", value: durationRawValue)
         }
 
+        let startComponents = startRawValue.components(separatedBy: ":")
+        guard startComponents.count == 2, let startHour = Int(startComponents[0]), let startMinute = Int(startComponents[1]) else {
+            throw Error(element: "event start", value: startRawValue)
+        }
+
+        let start = DateComponents(hour: startHour, minute: startMinute)
+        let duration = DateComponents(hour: durationHour, minute: durationMinute)
+
+        guard let dateRawValue = dayAttributes["date"] else {
+            throw Error(element: "day", value: "missing date")
+        }
+
+        guard let dateWithoutTime = DateFormatter.default.date(from: dateRawValue) else {
+            throw Error(element: "day date", value: dateRawValue)
+        }
+
+        guard let date = Calendar.autoupdatingCurrent.date(byAdding: start, to: dateWithoutTime) else {
+            throw Error(element: "day date time", value: start)
+        }
+
         let summary = attributes["summary"]
         let subtitle = attributes["subtitle"]
         let abstract = attributes["abstract"]
-        let start = DateComponents(hour: startHour, minute: startMinute)
-        let duration = DateComponents(hour: durationHour, minute: durationMinute)
-        self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, start: start, duration: duration, links: state.links, people: state.people, attachments: state.attachments)
+        self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, date: date, start: start, duration: duration, links: state.links, people: state.people, attachments: state.attachments)
     }
 }
 

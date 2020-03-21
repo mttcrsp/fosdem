@@ -14,6 +14,7 @@ struct CreateEventsTable: PersistenceServiceMigration {
             table.column(Event.Columns.subtitle.rawValue)
             table.column(Event.Columns.abstract.rawValue)
 
+            table.column(Event.Columns.date.rawValue, .datetime)
             table.column(Event.Columns.start.rawValue).notNull()
             table.column(Event.Columns.duration.rawValue).notNull()
 

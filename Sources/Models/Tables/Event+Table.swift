@@ -11,11 +11,12 @@ extension Event: PersistableRecord, FetchableRecord {
     }
 
     enum Columns: String, CaseIterable, ColumnExpression {
-        case id, room, track, start, duration, title, subtitle, abstract, summary, links, people, attachments
+        case id, room, track, date, start, duration, title, subtitle, abstract, summary, links, people, attachments
     }
 
     init(row: Row) {
         let id = row[Columns.id] as Int
+        let date = row[Columns.date] as Date
         let room = row[Columns.room] as String
         let track = row[Columns.track] as String
         let title = row[Columns.title] as String
@@ -30,11 +31,12 @@ extension Event: PersistableRecord, FetchableRecord {
         let people: [Person] = row.decode(for: Columns.people.rawValue, default: [])
         let attachments: [Attachment] = row.decode(for: Columns.attachments.rawValue, default: [])
 
-        self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, start: start, duration: duration, links: links, people: people, attachments: attachments)
+        self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, date: date, start: start, duration: duration, links: links, people: people, attachments: attachments)
     }
 
     func encode(to container: inout PersistenceContainer) {
         container[Columns.id.rawValue] = id
+        container[Columns.date.rawValue] = date
         container[Columns.room.rawValue] = room
         container[Columns.track.rawValue] = track
         container[Columns.title.rawValue] = title

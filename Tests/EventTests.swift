@@ -18,6 +18,6 @@ final class EventTests: XCTestCase {
     }
 
     private func makeEvent(withIdentifier id: Int, start: DateComponents) -> Event {
-        .init(id: id, room: "", track: "", title: "", summary: "", subtitle: "", abstract: "", start: start, duration: .init(), links: [], people: [], attachments: [])
+        .init(id: id, room: "", track: "", title: "", summary: "", subtitle: "", abstract: "", date: .init(), start: start, duration: .init(), links: [], people: [], attachments: [])
     }
 }

@@ -10,6 +10,7 @@ struct Event: Codable {
     let subtitle: String?
     let abstract: String?
 
+    let date: Date
     let start: DateComponents
     let duration: DateComponents
 
