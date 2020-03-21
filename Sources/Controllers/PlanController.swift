@@ -28,13 +28,7 @@ final class PlanController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if #available(iOS 11.0, *) {
-            navigationBar.prefersLargeTitles = true
-        }
-
-        let planViewController = makePlanViewController()
-
-        viewControllers = [planViewController]
+        viewControllers = [makePlanViewController()]
 
         reloadFavoriteEvents()
         observation = favoritesService.addObserverForEvents { [weak self] in

@@ -55,13 +55,7 @@ final class TracksController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let tracksViewController = makeTracksViewController()
-
-        if #available(iOS 11.0, *) {
-            navigationBar.prefersLargeTitles = true
-        }
-
-        viewControllers = [tracksViewController]
+        viewControllers = [makeTracksViewController()]
 
         persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
             switch result {

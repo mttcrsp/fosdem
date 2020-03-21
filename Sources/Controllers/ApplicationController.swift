@@ -38,18 +38,51 @@ private extension ApplicationController {
     func makePlanController() -> PlanController {
         let planController = PlanController(services: services)
         planController.title = NSLocalizedString("plan.title", comment: "")
+
+        if #available(iOS 13.0, *) {
+            planController.tabBarItem.image = UIImage(systemName: "calendar")
+        } else {
+            planController.tabBarItem.image = UIImage(named: "calendar")
+        }
+
+        if #available(iOS 11.0, *) {
+            planController.navigationBar.prefersLargeTitles = true
+        }
+
         return planController
     }
 
     func makeTracksController() -> TracksController {
         let tracksController = TracksController(services: services)
         tracksController.title = NSLocalizedString("tracks.title", comment: "")
+
+        if #available(iOS 13.0, *) {
+            tracksController.tabBarItem.image = UIImage(systemName: "list.bullet")
+        } else {
+            tracksController.tabBarItem.image = UIImage(named: "list.bullet")
+        }
+
+        if #available(iOS 11.0, *) {
+            tracksController.navigationBar.prefersLargeTitles = true
+        }
+
         return tracksController
     }
 
     func makeMoreController() -> MoreController {
         let moreController = MoreController(services: services)
         moreController.title = NSLocalizedString("more.title", comment: "")
+
+        if #available(iOS 13.0, *) {
+            moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
+        } else {
+            moreController.tabBarItem.image = UIImage(named: "ellipsis.circle")
+        }
+
+        if #available(iOS 11.0, *) {
+            moreController.navigationBar.prefersLargeTitles = true
+        }
+
         return moreController
     }
 }
