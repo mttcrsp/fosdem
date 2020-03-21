@@ -19,10 +19,32 @@ final class YearsServiceTests: XCTestCase {
         }
         waitForExpectations(timeout: 0.1)
     }
+
+    func testURLForYear() {
+        let url = URL(fileURLWithPath: "/something/2009.sqlite")
+        let bundle = YearsServiceBundleMock(url: url)
+        let service = YearsService(bundle: bundle)
+
+        let expectation = self.expectation(description: #function)
+        service.loadURL(forYear: "2009") { receivedURL in
+            XCTAssertEqual(receivedURL, url)
+            expectation.fulfill()
+        }
+        waitForExpectations(timeout: 0.1)
+    }
 }
 
 private struct YearsServiceBundleMock: YearsServiceBundle {
-    let urls: [URL]
+    let url: URL?, urls: [URL]?
+
+    init(url: URL? = nil, urls: [URL]? = nil) {
+        self.url = url
+        self.urls = urls
+    }
+
+    func url(forResource _: String?, withExtension _: String?) -> URL? {
+        url
+    }
 
     func urls(forResourcesWithExtension _: String?, subdirectory _: String?) -> [URL]? {
         urls
