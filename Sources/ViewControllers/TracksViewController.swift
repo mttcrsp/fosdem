@@ -18,6 +18,8 @@ final class TracksViewController: UITableViewController {
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
 
+    private lazy var tableBackgroundView = TableBackgroundView()
+
     var selectedTrack: Track? {
         if let indexPath = tableView.indexPathForSelectedRow {
             return dataSource?.tracksViewController(self, trackAt: indexPath)
@@ -34,10 +36,13 @@ final class TracksViewController: UITableViewController {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableBackgroundView.text = NSLocalizedString("tracks.empty", comment: "")
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
-        dataSource?.numberOfSections(in: self) ?? 0
+        let count = dataSource?.numberOfSections(in: self) ?? 0
+        tableView.backgroundView = count == 0 ? tableBackgroundView : nil
+        return count
     }
 
     override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {

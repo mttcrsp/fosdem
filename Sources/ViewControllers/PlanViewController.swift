@@ -13,17 +13,22 @@ final class PlanViewController: UITableViewController {
     weak var dataSource: PlanViewControllerDataSource?
     weak var delegate: PlanViewControllerDelegate?
 
+    private lazy var tableBackgroundView = TableBackgroundView()
+
     private var events: [Event] {
         dataSource?.events(in: self) ?? []
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableBackgroundView.text = NSLocalizedString("plan.empty", comment: "")
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
-        events.count
+        let count = events.count
+        tableView.backgroundView = count == 0 ? tableBackgroundView : nil
+        return count
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {

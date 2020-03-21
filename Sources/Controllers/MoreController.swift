@@ -182,6 +182,10 @@ extension MoreController: UISearchResultsUpdating {
                     break
                 case let .success(events):
                     self?.events = events
+
+                    let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
+                    let emptyString = String(format: emptyFormat, query)
+                    self?.resultsViewController?.emptyBackgroundText = emptyString
                     self?.resultsViewController?.reloadData()
                 }
             }

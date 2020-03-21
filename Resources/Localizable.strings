@@ -6,6 +6,7 @@
 
 /// MARK: - Plan
 "plan.title" = "Plan";
+"plan.empty" = "You have no favorite events.\n\nEvents you favorite will appear here to allow you to better plan your FOSDEM.";
 
 /// MARK: - Favorite
 "favorite" = "Favorite";
@@ -25,6 +26,7 @@
 "tracks.filter.all" = "All tracks";
 "tracks.filter.favorites" = "Your Favorites";
 "tracks.filter.cancel" = "Cancel";
+"tracks.empty" = "You have no favorite tracks";
 
 /// MARK: - Map
 "map.title" = "Map";
@@ -32,6 +34,7 @@
 /// MARK: - More
 "more.title" = "More";
 "more.search.prompt" = "Search for events and speakers";
+"more.search.empty" = "No results for \"%@\"";
 "more.section.about" = "About";
 "more.section.other" = "Other";
 

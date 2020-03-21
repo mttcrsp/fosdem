@@ -12,6 +12,13 @@ final class EventsViewController: UITableViewController {
     weak var dataSource: EventsViewControllerDataSource?
     weak var delegate: EventsViewControllerDelegate?
 
+    var emptyBackgroundText: String? {
+        get { emptyBackgroundView.text }
+        set { emptyBackgroundView.text = newValue }
+    }
+
+    private lazy var emptyBackgroundView = TableBackgroundView()
+
     private var events: [Event] {
         dataSource?.events(in: self) ?? []
     }
@@ -26,7 +33,9 @@ final class EventsViewController: UITableViewController {
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
-        events.count
+        let count = events.count
+        tableView.backgroundView = count == 0 ? emptyBackgroundView : nil
+        return count
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
