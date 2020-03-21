@@ -26,6 +26,7 @@ final class MoreController: UINavigationController {
 
     private(set) var acknowledgements: [Acknowledgement] = []
     private(set) var events: [Event] = []
+    private var years: [String] = []
 
     private let services: Services
 
@@ -59,7 +60,14 @@ extension MoreController: MoreViewControllerDelegate {
     }
 
     private func moreViewControllerDidSelectYears(_ moreViewController: MoreViewController) {
-        print(#function, moreViewController)
+        services.yearsService.loadYears { years in
+            DispatchQueue.main.async { [weak self, weak moreViewController] in
+                if let self = self {
+                    self.years = years
+                    moreViewController?.show(self.makeYearsViewController(), sender: nil)
+                }
+            }
+        }
     }
 
     private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
@@ -220,6 +228,20 @@ extension MoreController: TransportationViewControllerDelegate {
     }
 }
 
+extension MoreController: YearsViewControllerDataSource, YearsViewControllerDelegate {
+    func numberOfYears(in _: YearsViewController) -> Int {
+        years.count
+    }
+
+    func yearsViewController(_: YearsViewController, yearAt index: Int) -> String {
+        years[index]
+    }
+
+    func yearsViewController(_ yearsViewController: YearsViewController, didSelect year: String) {
+        print(#function, yearsViewController, year)
+    }
+}
+
 private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
@@ -235,6 +257,16 @@ private extension MoreController {
         textViewController.extendedLayoutIncludesOpaqueBars = true
         textViewController.hidesBottomBarWhenPushed = true
         return textViewController
+    }
+
+    func makeYearsViewController() -> YearsViewController {
+        let yearsViewController = YearsViewController()
+        yearsViewController.title = NSLocalizedString("years.title", comment: "")
+        yearsViewController.extendedLayoutIncludesOpaqueBars = true
+        yearsViewController.hidesBottomBarWhenPushed = true
+        yearsViewController.dataSource = self
+        yearsViewController.delegate = self
+        return yearsViewController
     }
 
     private func makeTransportationViewController() -> TransportationViewController {

@@ -17,7 +17,8 @@ final class YearsService {
         DispatchQueue.global().async { [weak self] in
             if let self = self {
                 let urls = self.bundle.urls(forResourcesWithExtension: "sqlite", subdirectory: nil) ?? []
-                let years = urls.map { url in url.lastPathComponent.replacingOccurrences(of: ".sqlite", with: "") }
+                var years = urls.map { url in url.lastPathComponent.replacingOccurrences(of: ".sqlite", with: "") }
+                years.sort(by: >)
                 completion(years)
             }
         }

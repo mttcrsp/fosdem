@@ -2,6 +2,7 @@ import Foundation
 
 final class Services {
     let infoService = InfoService()
+    let yearsService = YearsService()
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
