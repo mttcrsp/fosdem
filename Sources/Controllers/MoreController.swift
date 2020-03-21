@@ -238,7 +238,43 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
     }
 
     func yearsViewController(_ yearsViewController: YearsViewController, didSelect year: String) {
-        print(#function, yearsViewController, year)
+        services.yearsService.loadURL(forYear: year) { [weak self, weak yearsViewController] url in
+            guard let self = self, let yearsViewController = yearsViewController else { return }
+
+            guard let url = url else {
+                return self.presentYearErrorViewController(from: yearsViewController)
+            }
+
+            do {
+                let persistenceService = try PersistenceService(path: url.path, migrations: .allMigrations)
+                self.showYearViewController(forYear: year, with: persistenceService, from: yearsViewController)
+            } catch {
+                assertionFailure(error.localizedDescription)
+                self.presentYearErrorViewController(from: yearsViewController)
+            }
+        }
+    }
+
+    private func presentYearErrorViewController(from yearsViewController: YearsViewController) {
+        DispatchQueue.main.async { [weak yearsViewController] in
+            yearsViewController?.present(ErrorController(), animated: true)
+        }
+    }
+
+    private func showYearViewController(forYear year: String, with persistenceService: PersistenceService, from yearsViewController: YearsViewController) {
+        DispatchQueue.main.async { [weak self, weak yearsViewController] in
+            guard let self = self else { return }
+
+            let yearViewController = self.makeYearViewController(forYear: year, with: persistenceService)
+            yearsViewController?.show(yearViewController, sender: nil)
+        }
+    }
+}
+
+extension MoreController: YearControllerDelegate {
+    func yearControllerDidError(_: YearController) {
+        popToRootViewController(animated: true)
+        present(ErrorController(), animated: true)
     }
 }
 
@@ -315,6 +351,19 @@ private extension MoreController {
         let eventController = EventController(event: event, favoritesService: services.favoritesService)
         eventController.hidesBottomBarWhenPushed = true
         return eventController
+    }
+
+    func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {
+        let yearController = YearController(year: year, persistenceService: persistenceService)
+        yearController.extendedLayoutIncludesOpaqueBars = true
+        yearController.delegate = self
+        yearController.title = year
+
+        if #available(iOS 11.0, *) {
+            yearController.navigationItem.largeTitleDisplayMode = .never
+        }
+
+        return yearController
     }
 }
 
