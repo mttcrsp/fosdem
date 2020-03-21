@@ -5,11 +5,17 @@ protocol TracksViewControllerDataSource: AnyObject {
     func sectionIndexTitles(for tracksViewController: TracksViewController) -> [String]?
     func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int
     func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
+}
+
+protocol TracksViewControllerFavoritesDataSource: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool
 }
 
 protocol TracksViewControllerDelegate: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track)
+}
+
+protocol TracksViewControllerFavoritesDelegate: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, didFavorite track: Track)
     func tracksViewController(_ tracksViewController: TracksViewController, didUnfavorite track: Track)
 }
@@ -17,6 +23,9 @@ protocol TracksViewControllerDelegate: AnyObject {
 final class TracksViewController: UITableViewController {
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
+
+    weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
+    weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
     private lazy var tableBackgroundView = TableBackgroundView()
 
@@ -80,7 +89,9 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        if dataSource?.tracksViewController(self, canFavoriteTrackAt: indexPath) == true {
+        guard let favoritesDataSource = favoritesDataSource else { return nil }
+
+        if favoritesDataSource.tracksViewController(self, canFavoriteTrackAt: indexPath) {
             return [.favorite { [weak self] indexPath in self?.didFavoriteTrack(at: indexPath) }]
         } else {
             return [.unfavorite { [weak self] indexPath in self?.didUnfavoriteTrack(at: indexPath) }]
@@ -89,13 +100,13 @@ final class TracksViewController: UITableViewController {
 
     private func didFavoriteTrack(at indexPath: IndexPath) {
         if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
-            delegate?.tracksViewController(self, didFavorite: track)
+            favoritesDelegate?.tracksViewController(self, didFavorite: track)
         }
     }
 
     private func didUnfavoriteTrack(at indexPath: IndexPath) {
         if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
-            delegate?.tracksViewController(self, didUnfavorite: track)
+            favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
         }
     }
 }

@@ -163,18 +163,6 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
         selectedSections[indexPath.section].tracks[indexPath.row]
     }
 
-    func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
-        !favoritesService.contains(selectedSections[indexPath.section].tracks[indexPath.row])
-    }
-
-    func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-        favoritesService.addTrack(withIdentifier: track.name)
-    }
-
-    func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-        favoritesService.removeTrack(withIdentifier: track.name)
-    }
-
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
         selectedTrack = track
 
@@ -203,6 +191,20 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
     private func didSelectFilter(_ filter: TracksFilter) {
         selectedFilter = filter
         tracksViewController?.reloadData()
+    }
+}
+
+extension TracksController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
+    func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
+        !favoritesService.contains(selectedSections[indexPath.section].tracks[indexPath.row])
+    }
+
+    func tracksViewController(_: TracksViewController, didFavorite track: Track) {
+        favoritesService.addTrack(withIdentifier: track.name)
+    }
+
+    func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
+        favoritesService.removeTrack(withIdentifier: track.name)
     }
 }
 
@@ -235,6 +237,8 @@ private extension TracksController {
         let tracksViewController = TracksViewController()
         tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
+        tracksViewController.favoritesDataSource = self
+        tracksViewController.favoritesDelegate = self
         tracksViewController.dataSource = self
         tracksViewController.delegate = self
         self.tracksViewController = tracksViewController
