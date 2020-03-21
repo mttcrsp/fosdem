@@ -38,21 +38,3 @@ extension Event: Hashable, Equatable {
         hasher.combine(id)
     }
 }
-
-extension Array where Element == Event {
-    func sortedByStart() -> [Event] {
-        sorted { lhs, rhs in
-            let lhsHour = lhs.start.hour ?? 0
-            let rhsHour = rhs.start.hour ?? 0
-
-            let lhsMinute = lhs.start.minute ?? 0
-            let rhsMinute = rhs.start.minute ?? 0
-
-            if lhsHour == rhsHour {
-                return lhsMinute < rhsMinute
-            } else {
-                return lhsHour < rhsHour
-            }
-        }
-    }
-}

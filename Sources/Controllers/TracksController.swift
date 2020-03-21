@@ -194,7 +194,7 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
                 case .failure:
                     self?.eventsViewController?.present(ErrorController(), animated: true)
                 case let .success(events):
-                    self?.events = events.sortedByStart()
+                    self?.events = events
                     self?.eventsViewController?.reloadData()
                 }
             }

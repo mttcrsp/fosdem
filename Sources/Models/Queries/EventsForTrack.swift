@@ -8,6 +8,7 @@ struct EventsForTrack: PersistenceServiceRead {
         SELECT *
         FROM events
         WHERE track = ?
+        ORDER BY date
         """, arguments: [track])
     }
 }

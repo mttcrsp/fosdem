@@ -50,7 +50,7 @@ final class PlanController: UINavigationController {
             DispatchQueue.main.async { [weak self] in
                 switch result {
                 case let .success(events):
-                    self?.events = events.sortedByStart()
+                    self?.events = events
                     self?.planViewController?.reloadData()
                 case .failure:
                     self?.viewControllers = [ErrorController()]
