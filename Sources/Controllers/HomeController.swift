@@ -8,7 +8,7 @@ private struct TracksSection {
     let initial: Character, tracks: [Track]
 }
 
-final class TracksController: UINavigationController {
+final class HomeController: UINavigationController {
     private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
@@ -140,7 +140,7 @@ final class TracksController: UINavigationController {
     }
 }
 
-extension TracksController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+extension HomeController: TracksViewControllerDataSource, TracksViewControllerDelegate {
     private var selectedSections: [TracksSection] {
         sections[selectedFilter] ?? []
     }
@@ -195,7 +195,7 @@ extension TracksController: TracksViewControllerDataSource, TracksViewController
     }
 }
 
-extension TracksController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
+extension HomeController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
     func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
         !favoritesService.contains(selectedSections[indexPath.section].tracks[indexPath.row])
     }
@@ -209,7 +209,7 @@ extension TracksController: TracksViewControllerFavoritesDataSource, TracksViewC
     }
 }
 
-extension TracksController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension HomeController: EventsViewControllerDataSource, EventsViewControllerDelegate {
     func events(in _: EventsViewController) -> [Event] {
         events
     }
@@ -235,7 +235,7 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
     }
 }
 
-extension TracksController: UISearchResultsUpdating {
+extension HomeController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let query = searchController.searchBar.text, !query.isEmpty else { return }
 
@@ -258,14 +258,14 @@ extension TracksController: UISearchResultsUpdating {
     }
 }
 
-private extension TracksController {
+private extension HomeController {
     func makeTracksViewController() -> TracksViewController {
-        let filtersTitle = NSLocalizedString("tracks.filter.title", comment: "")
+        let filtersTitle = NSLocalizedString("home.filter.title", comment: "")
         let filtersAction = #selector(didTapChangeFilter)
         let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
 
         let tracksViewController = TracksViewController()
-        tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
+        tracksViewController.title = NSLocalizedString("home.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.addSearchViewController(makeSearchController())
         tracksViewController.extendedLayoutIncludesOpaqueBars = true
@@ -291,7 +291,7 @@ private extension TracksController {
             alertController.addAction(action)
         }
 
-        let cancelTitle = NSLocalizedString("tracks.filter.cancel", comment: "")
+        let cancelTitle = NSLocalizedString("home.filter.cancel", comment: "")
         let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
         alertController.addAction(cancelAction)
 
@@ -348,11 +348,11 @@ private extension TracksFilter {
     var title: String {
         switch self {
         case .all:
-            return NSLocalizedString("tracks.filter.all", comment: "")
+            return NSLocalizedString("home.filter.all", comment: "")
         case .favorites:
-            return NSLocalizedString("tracks.filter.favorites", comment: "")
+            return NSLocalizedString("home.filter.favorites", comment: "")
         case let .day(day):
-            return String(format: NSLocalizedString("tracks.filter.day", comment: ""), day)
+            return String(format: NSLocalizedString("home.filter.day", comment: ""), day)
         }
     }
 }

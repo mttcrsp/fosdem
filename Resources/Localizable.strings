@@ -20,13 +20,13 @@
 "event.video" = "Watch now";
 
 /// MARK: - Tracks
-"tracks.title" = "Tracks";
-"tracks.filter.title" = "Filters";
-"tracks.filter.day" = "Day %d";
-"tracks.filter.all" = "All tracks";
-"tracks.filter.favorites" = "Your Favorites";
-"tracks.filter.cancel" = "Cancel";
-"tracks.empty" = "You have no favorite tracks";
+"home.title" = "Search";
+"home.filter.title" = "Filters";
+"home.filter.day" = "Day %d";
+"home.filter.all" = "All tracks";
+"home.filter.favorites" = "Your Favorites";
+"home.filter.cancel" = "Cancel";
+"home.empty" = "You have no favorite tracks";
 
 /// MARK: - Map
 "map.title" = "Map";

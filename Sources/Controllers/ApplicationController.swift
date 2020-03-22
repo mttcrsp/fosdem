@@ -23,7 +23,7 @@ final class ApplicationController: UITabBarController {
         delegate = self
 
         var viewControllers: [UIViewController] = []
-        viewControllers.append(makeTracksController())
+        viewControllers.append(makeHomeController())
         viewControllers.append(makePlanController())
         viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
@@ -52,9 +52,9 @@ private extension ApplicationController {
         return planController
     }
 
-    func makeTracksController() -> TracksController {
-        let tracksController = TracksController(services: services)
-        tracksController.title = NSLocalizedString("tracks.title", comment: "")
+    func makeHomeController() -> HomeController {
+        let tracksController = HomeController(services: services)
+        tracksController.title = NSLocalizedString("home.title", comment: "")
 
         if #available(iOS 13.0, *) {
             tracksController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
