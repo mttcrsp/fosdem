@@ -9,6 +9,7 @@ private struct TracksSection {
 }
 
 final class TracksController: UINavigationController {
+    private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
 
@@ -214,7 +215,13 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        eventsViewController.show(makeEventViewController(for: event), sender: nil)
+        let eventViewController = makeEventViewController(for: event)
+
+        if eventsViewController == resultsViewController {
+            tracksViewController?.show(eventViewController, sender: nil)
+        } else {
+            eventsViewController.show(eventViewController, sender: nil)
+        }
     }
 
     @objc private func didToggleFavorite() {
@@ -228,6 +235,29 @@ extension TracksController: EventsViewControllerDataSource, EventsViewController
     }
 }
 
+extension TracksController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let query = searchController.searchBar.text, !query.isEmpty else { return }
+
+        let operation = EventsForSearch(query: query)
+        services.persistenceService.performRead(operation) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure:
+                    break
+                case let .success(events):
+                    self?.events = events
+
+                    let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
+                    let emptyString = String(format: emptyFormat, query)
+                    self?.resultsViewController?.emptyBackgroundText = emptyString
+                    self?.resultsViewController?.reloadData()
+                }
+            }
+        }
+    }
+}
+
 private extension TracksController {
     func makeTracksViewController() -> TracksViewController {
         let filtersTitle = NSLocalizedString("tracks.filter.title", comment: "")
@@ -237,6 +267,8 @@ private extension TracksController {
         let tracksViewController = TracksViewController()
         tracksViewController.title = NSLocalizedString("tracks.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
+        tracksViewController.addSearchViewController(makeSearchController())
+        tracksViewController.extendedLayoutIncludesOpaqueBars = true
         tracksViewController.favoritesDataSource = self
         tracksViewController.favoritesDelegate = self
         tracksViewController.dataSource = self
@@ -266,6 +298,21 @@ private extension TracksController {
         return alertController
     }
 
+    func makeSearchController() -> UISearchController {
+        let searchController = UISearchController(searchResultsController: makeResultsViewController())
+        searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
+        searchController.searchResultsUpdater = self
+        return searchController
+    }
+
+    func makeResultsViewController() -> EventsViewController {
+        let resultsViewController = EventsViewController(style: .grouped)
+        resultsViewController.dataSource = self
+        resultsViewController.delegate = self
+        self.resultsViewController = resultsViewController
+        return resultsViewController
+    }
+
     func makeEventsViewController(for track: Track) -> EventsViewController {
         let favoriteAction = #selector(didToggleFavorite)
         let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
@@ -291,7 +338,9 @@ private extension TracksController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        .init(event: event, favoritesService: favoritesService)
+        let eventViewController = EventController(event: event, favoritesService: favoritesService)
+        eventViewController.hidesBottomBarWhenPushed = true
+        return eventViewController
     }
 }
 

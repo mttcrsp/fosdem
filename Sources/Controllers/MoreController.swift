@@ -21,11 +21,9 @@ enum MoreItem: CaseIterable {
 }
 
 final class MoreController: UINavigationController {
-    private weak var resultsViewController: EventsViewController?
     private weak var moreViewController: MoreViewController?
 
     private(set) var acknowledgements: [Acknowledgement] = []
-    private(set) var events: [Event] = []
     private var years: [String] = []
 
     private let services: Services
@@ -167,40 +165,6 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
     }
 }
 
-extension MoreController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-    func events(in _: EventsViewController) -> [Event] {
-        events
-    }
-
-    func eventsViewController(_: EventsViewController, didSelect event: Event) {
-        let eventViewController = makeEventViewController(for: event)
-        moreViewController?.show(eventViewController, sender: nil)
-    }
-}
-
-extension MoreController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        guard let query = searchController.searchBar.text, !query.isEmpty else { return }
-
-        let operation = EventsForSearch(query: query)
-        services.persistenceService.performRead(operation) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .failure:
-                    break
-                case let .success(events):
-                    self?.events = events
-
-                    let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
-                    let emptyString = String(format: emptyFormat, query)
-                    self?.resultsViewController?.emptyBackgroundText = emptyString
-                    self?.resultsViewController?.reloadData()
-                }
-            }
-        }
-    }
-}
-
 extension MoreController: TransportationViewControllerDelegate {
     func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item) {
         switch item {
@@ -282,8 +246,6 @@ private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
         moreViewController.title = NSLocalizedString("more.title", comment: "")
-        moreViewController.addSearchViewController(makeSearchController())
-        moreViewController.extendedLayoutIncludesOpaqueBars = true
         moreViewController.delegate = self
         self.moreViewController = moreViewController
         return moreViewController
@@ -331,21 +293,6 @@ private extension MoreController {
         licenseViewController.title = acknowledgement
         licenseViewController.text = license
         return licenseViewController
-    }
-
-    func makeSearchController() -> UISearchController {
-        let searchController = UISearchController(searchResultsController: makeResultsViewController())
-        searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
-        searchController.searchResultsUpdater = self
-        return searchController
-    }
-
-    func makeResultsViewController() -> EventsViewController {
-        let resultsViewController = EventsViewController(style: .grouped)
-        resultsViewController.dataSource = self
-        resultsViewController.delegate = self
-        self.resultsViewController = resultsViewController
-        return resultsViewController
     }
 
     func makeEventViewController(for event: Event) -> EventController {
