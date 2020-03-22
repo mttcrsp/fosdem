@@ -14,7 +14,11 @@ extension UITableViewController {
             navigationItem.searchController = searchController
             navigationItem.hidesSearchBarWhenScrolling = false
         } else {
-            tableView.tableHeaderView = searchController.searchBar
+            addEmbeddedSearchViewController(searchController)
         }
+    }
+
+    func addEmbeddedSearchViewController(_ searchController: UISearchController) {
+        tableView.tableHeaderView = searchController.searchBar
     }
 }

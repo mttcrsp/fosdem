@@ -7,7 +7,10 @@ protocol YearControllerDelegate: AnyObject {
 final class YearController: UIViewController {
     weak var delegate: YearControllerDelegate?
 
+    private weak var resultsViewController: EventsViewController?
     private weak var eventsViewController: EventsViewController?
+    private weak var tracksViewController: TracksViewController?
+    private var searchController: UISearchController?
 
     private var tracks: [Track] = []
     private var events: [Event] = []
@@ -27,6 +30,8 @@ final class YearController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        definesPresentationContext = true
 
         persistenceService.performRead(AllTracksOrderedByName()) { result in
             DispatchQueue.main.async { [weak self] in
@@ -103,21 +108,68 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         let eventViewController = makeEventViewController(for: event)
-        eventsViewController.show(eventViewController, sender: nil)
+
+        if self.eventsViewController == eventsViewController {
+            eventsViewController.show(eventViewController, sender: nil)
+        } else {
+            tracksViewController?.show(eventViewController, sender: nil)
+        }
+    }
+}
+
+extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let query = searchController.searchBar.text, !query.isEmpty else { return }
+
+        let operation = EventsForSearch(query: query)
+        persistenceService.performRead(operation) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure:
+                    break
+                case let .success(events):
+                    self?.events = events
+
+                    let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
+                    let emptyString = String(format: emptyFormat, query)
+                    self?.resultsViewController?.emptyBackgroundText = emptyString
+                    self?.resultsViewController?.reloadData()
+                }
+            }
+        }
     }
 }
 
 private extension YearController {
+    func makeSearchController() -> UISearchController {
+        let searchController = UISearchController(searchResultsController: makeResultsViewController())
+        searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
+        searchController.searchResultsUpdater = self
+        self.searchController = searchController
+        return searchController
+    }
+
+    func makeResultsViewController() -> EventsViewController {
+        let resultsViewController = EventsViewController(style: .grouped)
+        resultsViewController.dataSource = self
+        resultsViewController.delegate = self
+        self.resultsViewController = resultsViewController
+        return resultsViewController
+    }
+
     func makeTracksViewController() -> TracksViewController {
         let tracksViewController = TracksViewController()
+        tracksViewController.addEmbeddedSearchViewController(makeSearchController())
         tracksViewController.dataSource = self
         tracksViewController.delegate = self
         tracksViewController.title = year
+        self.tracksViewController = tracksViewController
         return tracksViewController
     }
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController(style: .grouped)
+        eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.title = track.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self
