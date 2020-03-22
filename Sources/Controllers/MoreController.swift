@@ -283,6 +283,7 @@ private extension MoreController {
         let moreViewController = MoreViewController(style: .grouped)
         moreViewController.title = NSLocalizedString("more.title", comment: "")
         moreViewController.addSearchViewController(makeSearchController())
+        moreViewController.extendedLayoutIncludesOpaqueBars = true
         moreViewController.delegate = self
         self.moreViewController = moreViewController
         return moreViewController
