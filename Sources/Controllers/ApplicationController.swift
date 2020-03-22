@@ -57,9 +57,9 @@ private extension ApplicationController {
         tracksController.title = NSLocalizedString("tracks.title", comment: "")
 
         if #available(iOS 13.0, *) {
-            tracksController.tabBarItem.image = UIImage(systemName: "list.bullet")
+            tracksController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
         } else {
-            tracksController.tabBarItem.image = UIImage(named: "list.bullet")
+            tracksController.tabBarItem.image = UIImage(named: "magnifyingglass")
         }
 
         if #available(iOS 11.0, *) {
