@@ -9,26 +9,35 @@ protocol InfoServiceBundle {
     func url(forResource name: String?, withExtension ext: String?) -> URL?
 }
 
+protocol InfoServiceDataProvider {
+    func data(withContentsOf url: URL) throws -> Data
+}
+
 extension Bundle: InfoServiceBundle {}
 
 final class InfoService {
-    let bundle: InfoServiceBundle
+    private let provider: InfoServiceDataProvider
+    private let bundle: InfoServiceBundle
+    private let queue: DispatchQueue
 
-    init(bundle: InfoServiceBundle = Bundle.main) {
+    init(queue: DispatchQueue = .global(), bundle: InfoServiceBundle = Bundle.main, provider: InfoServiceDataProvider = InfoServiceData()) {
+        self.provider = provider
         self.bundle = bundle
+        self.queue = queue
     }
 
     func loadAttributedText(for info: Info, completion: @escaping (NSAttributedString?) -> Void) {
-        DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-
-            guard let url = self.bundle.url(forResource: info.resource, withExtension: "html") else {
-                assertionFailure("Failed to locate html file for resource '\(info.resource)'")
-                return completion(nil)
-            }
-
+        queue.async { [weak self] in
             do {
-                let attributedText = try NSMutableAttributedString(html: try Data(contentsOf: url))
+                guard let self = self else { return }
+
+                guard let url = self.bundle.url(forResource: info.resource, withExtension: "html") else {
+                    assertionFailure("Failed to locate html file for resource '\(info.resource)'")
+                    return completion(nil)
+                }
+
+                let attributedData = try self.provider.data(withContentsOf: url)
+                let attributedText = try NSMutableAttributedString(html: attributedData)
 
                 let string = attributedText.string
                 let lowerbound = string.startIndex
@@ -96,5 +105,11 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
 
     var containsLinkAttribute: Bool {
         self[.link] != nil
+    }
+}
+
+final class InfoServiceData: InfoServiceDataProvider {
+    func data(withContentsOf url: URL) throws -> Data {
+        try .init(contentsOf: url)
     }
 }
