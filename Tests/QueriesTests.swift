@@ -14,7 +14,7 @@ final class QueriesTests: XCTestCase {
 
     func testAllTracks() {
         XCTAssertNoThrow(try {
-            let service = try self.makePersistentServiceWithSchedule()
+            let service = try self.makePersistentService(with: self.makeSchedule())
             let tracks = try service.performReadSync(AllTracksOrderedByName())
 
             let names1 = tracks.map { track in track.name }
@@ -29,7 +29,7 @@ final class QueriesTests: XCTestCase {
 
     func testEventsForTrack() {
         XCTAssertNoThrow(try {
-            let service = try self.makePersistentServiceWithSchedule()
+            let service = try self.makePersistentService(with: self.makeSchedule())
             let events = try service.performReadSync(EventsForTrack(track: "2"))
             XCTAssertEqual(events.count, 2)
 
@@ -66,7 +66,7 @@ final class QueriesTests: XCTestCase {
 
     func testEventsForPerson() {
         XCTAssertNoThrow(try {
-            let service = try self.makePersistentServiceWithSchedule()
+            let service = try self.makePersistentService(with: self.makeSchedule())
             let events = try service.performReadSync(EventsForPerson(person: 2))
             XCTAssertEqual(events.count, 2)
             XCTAssertEqual(events.first?.id, 1)
@@ -76,7 +76,7 @@ final class QueriesTests: XCTestCase {
 
     func testEventsForIdentifiers() {
         XCTAssertNoThrow(try {
-            let service = try self.makePersistentServiceWithSchedule()
+            let service = try self.makePersistentService(with: self.makeSchedule())
             let events = try service.performReadSync(EventsForIdentifiers(identifiers: [4, 1, 2]))
             XCTAssertEqual(events.count, 3)
 
@@ -87,7 +87,7 @@ final class QueriesTests: XCTestCase {
 
     func testEventsForSearch() {
         XCTAssertNoThrow(try {
-            let service = try self.makePersistentServiceWithSchedule()
+            let service = try self.makePersistentService(with: self.makeSchedule())
             let events = try service.performReadSync(EventsForSearch(query: "title 4"))
             XCTAssertEqual(events.count, 1)
         }())
@@ -97,8 +97,8 @@ final class QueriesTests: XCTestCase {
         try PersistenceService(path: nil, migrations: .allMigrations)
     }
 
-    private func makePersistentServiceWithSchedule() throws -> PersistenceService {
-        let operation = ImportSchedule(schedule: makeSchedule())
+    private func makePersistentService(with schedule: Schedule) throws -> PersistenceService {
+        let operation = ImportSchedule(schedule: schedule)
         let service = try makePersistenceService()
         try service.performWriteSync(operation)
         return service
