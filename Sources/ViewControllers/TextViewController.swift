@@ -20,6 +20,7 @@ final class TextViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         textView.isEditable = false
+        textView.font = .preferredFont(forTextStyle: .body)
     }
 
     override func viewDidLayoutSubviews() {
