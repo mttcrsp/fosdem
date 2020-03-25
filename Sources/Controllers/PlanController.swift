@@ -2,8 +2,10 @@ import UIKit
 
 final class PlanController: UINavigationController {
     private weak var planViewController: EventsViewController?
+    private weak var soonViewController: EventsViewController?
 
     private var observation: NSObjectProtocol?
+    private var eventsStartingSoon: [Event] = []
     private var events: [Event] = []
 
     private let services: Services
@@ -52,15 +54,44 @@ final class PlanController: UINavigationController {
             }
         }
     }
+
+    @objc private func didTapSoon() {
+        let operation = EventsInTheNextHour(now: .init())
+        persistenceService.performRead(operation) { result in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+
+                switch result {
+                case .failure:
+                    self.present(ErrorController(), animated: true)
+                case let .success(events):
+                    self.eventsStartingSoon = events
+                    let soonViewController = self.makeSoonViewController()
+                    let soonNavigationController = UINavigationController(rootViewController: soonViewController)
+                    self.present(soonNavigationController, animated: true)
+                }
+            }
+        }
+    }
+
+    @objc private func didTapDismiss() {
+        soonViewController?.dismiss(animated: true)
+    }
 }
 
 extension PlanController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
-    func events(in _: EventsViewController) -> [Event] {
-        events
+    func events(in eventsViewController: EventsViewController) -> [Event] {
+        if eventsViewController == planViewController {
+            return events
+        } else if eventsViewController == soonViewController {
+            return eventsStartingSoon
+        } else {
+            return []
+        }
     }
 
-    func eventsViewController(_ planViewController: EventsViewController, didSelect event: Event) {
-        planViewController.show(makeEventViewController(for: event), sender: nil)
+    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
+        eventsViewController.show(makeEventViewController(for: event), sender: nil)
     }
 
     func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
@@ -84,9 +115,14 @@ private extension PlanController {
     }
 
     func makePlanViewController() -> EventsViewController {
+        let soonTitle = NSLocalizedString("plan.soon", comment: "")
+        let soonAction = #selector(didTapSoon)
+        let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
+
         let planViewController = EventsViewController(style: .grouped)
         planViewController.emptyBackgroundText = NSLocalizedString("plan.empty", comment: "")
         planViewController.title = NSLocalizedString("plan.title", comment: "")
+        planViewController.navigationItem.rightBarButtonItem = soonButton
         planViewController.favoritesDataSource = self
         planViewController.favoritesDelegate = self
         planViewController.dataSource = self
@@ -98,5 +134,21 @@ private extension PlanController {
         }
 
         return planViewController
+    }
+
+    func makeSoonViewController() -> EventsViewController {
+        let dismissAction = #selector(didTapDismiss)
+        let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
+
+        let soonViewController = EventsViewController(style: .grouped)
+        soonViewController.emptyBackgroundText = NSLocalizedString("soon.empty", comment: "")
+        soonViewController.title = NSLocalizedString("soon.title", comment: "")
+        soonViewController.navigationItem.rightBarButtonItem = dismissButton
+        soonViewController.favoritesDataSource = self
+        soonViewController.favoritesDelegate = self
+        soonViewController.dataSource = self
+        soonViewController.delegate = self
+        self.soonViewController = soonViewController
+        return soonViewController
     }
 }
