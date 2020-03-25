@@ -130,24 +130,26 @@ final class QueriesTests: XCTestCase {
         }())
     }
 
-    func testEventsInTheNextHour() {
+    func testEventsStartingIn30Minutes() {
         XCTAssertNoThrow(try {
             let date1 = Date()
-            let date2 = Date().addingTimeInterval(1600)
-            let date3 = Date().addingTimeInterval(2650)
-            let date4 = Date().addingTimeInterval(1_000_000)
+            let date2 = Date().addingTimeInterval(600)
+            let date3 = Date().addingTimeInterval(1650)
+            let date4 = Date().addingTimeInterval(1801)
+            let date5 = Date().addingTimeInterval(1_000_000)
 
             let event1 = Event.make(id: 1, date: date1)
-            let event2 = Event.make(id: 2, date: date2)
-            let event3 = Event.make(id: 3, date: date3)
+            let event2 = Event.make(id: 2, date: date3)
+            let event3 = Event.make(id: 3, date: date2)
             let event4 = Event.make(id: 4, date: date4)
-            let schedule = Schedule.make(days: [.make(events: [event1, event2, event3, event4])])
+            let event5 = Event.make(id: 5, date: date5)
+            let schedule = Schedule.make(days: [.make(events: [event1, event2, event3, event4, event5])])
 
-            let query = EventsInTheNextHour(now: date1)
+            let query = EventsStartingIn30Minutes(now: date1)
             let service = try self.makePersistentService(with: schedule)
             let events = try service.performReadSync(query)
 
-            XCTAssertEqual(events, [event2, event3])
+            XCTAssertEqual(events, [event3, event2])
         }())
     }
 

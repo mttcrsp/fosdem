@@ -62,7 +62,7 @@ final class PlanController: UINavigationController {
             let now = Date()
         #endif
 
-        let operation = EventsInTheNextHour(now: now)
+        let operation = EventsStartingIn30Minutes(now: now)
         persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
