@@ -7,9 +7,17 @@ final class Services {
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
 
+    #if DEBUG
+        let debugService: DebugService
+    #endif
+
     init() throws {
         let path = try FileManager.default.applicationDatabasePath()
         persistenceService = try PersistenceService(path: path, migrations: .allMigrations)
+
+        #if DEBUG
+            debugService = DebugService(persistenceService: persistenceService)
+        #endif
     }
 }
 
