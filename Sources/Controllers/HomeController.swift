@@ -209,7 +209,7 @@ extension HomeController: TracksViewControllerFavoritesDataSource, TracksViewCon
     }
 }
 
-extension HomeController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension HomeController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
     func events(in _: EventsViewController) -> [Event] {
         events
     }
@@ -222,6 +222,18 @@ extension HomeController: EventsViewControllerDataSource, EventsViewControllerDe
         } else {
             eventsViewController.show(eventViewController, sender: nil)
         }
+    }
+
+    func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
+        !favoritesService.contains(event)
+    }
+
+    func eventsViewController(_: EventsViewController, didFavorite event: Event) {
+        favoritesService.addEvent(withIdentifier: event.id)
+    }
+
+    func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
+        favoritesService.removeEvent(withIdentifier: event.id)
     }
 
     @objc private func didToggleFavorite() {
@@ -307,6 +319,8 @@ private extension HomeController {
 
     func makeResultsViewController() -> EventsViewController {
         let resultsViewController = EventsViewController(style: .grouped)
+        resultsViewController.favoritesDataSource = self
+        resultsViewController.favoritesDelegate = self
         resultsViewController.dataSource = self
         resultsViewController.delegate = self
         self.resultsViewController = resultsViewController
@@ -321,6 +335,8 @@ private extension HomeController {
         eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
         eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.hidesBottomBarWhenPushed = true
+        eventsViewController.favoritesDataSource = self
+        eventsViewController.favoritesDelegate = self
         eventsViewController.title = track.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self

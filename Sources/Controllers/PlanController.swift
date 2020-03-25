@@ -1,7 +1,7 @@
 import UIKit
 
 final class PlanController: UINavigationController {
-    private weak var planViewController: PlanViewController?
+    private weak var planViewController: EventsViewController?
 
     private var observation: NSObjectProtocol?
     private var events: [Event] = []
@@ -54,16 +54,24 @@ final class PlanController: UINavigationController {
     }
 }
 
-extension PlanController: PlanViewControllerDataSource, PlanViewControllerDelegate {
-    func events(in _: PlanViewController) -> [Event] {
+extension PlanController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
+    func events(in _: EventsViewController) -> [Event] {
         events
     }
 
-    func planViewController(_ planViewController: PlanViewController, didSelect event: Event) {
+    func eventsViewController(_ planViewController: EventsViewController, didSelect event: Event) {
         planViewController.show(makeEventViewController(for: event), sender: nil)
     }
 
-    func planViewController(_: PlanViewController, didUnfavorite event: Event) {
+    func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
+        !favoritesService.contains(event)
+    }
+
+    func eventsViewController(_: EventsViewController, didFavorite event: Event) {
+        favoritesService.addEvent(withIdentifier: event.id)
+    }
+
+    func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
         favoritesService.removeEvent(withIdentifier: event.id)
     }
 }
@@ -75,9 +83,12 @@ private extension PlanController {
         return eventViewController
     }
 
-    func makePlanViewController() -> PlanViewController {
-        let planViewController = PlanViewController(style: .grouped)
+    func makePlanViewController() -> EventsViewController {
+        let planViewController = EventsViewController(style: .grouped)
+        planViewController.emptyBackgroundText = NSLocalizedString("plan.empty", comment: "")
         planViewController.title = NSLocalizedString("plan.title", comment: "")
+        planViewController.favoritesDataSource = self
+        planViewController.favoritesDelegate = self
         planViewController.dataSource = self
         planViewController.delegate = self
         self.planViewController = planViewController

@@ -4,13 +4,25 @@ protocol EventsViewControllerDataSource: AnyObject {
     func events(in eventsViewController: EventsViewController) -> [Event]
 }
 
+protocol EventsViewControllerFavoritesDataSource: AnyObject {
+    func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool
+}
+
 protocol EventsViewControllerDelegate: AnyObject {
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event)
+}
+
+protocol EventsViewControllerFavoritesDelegate: AnyObject {
+    func eventsViewController(_ eventsViewController: EventsViewController, didFavorite event: Event)
+    func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event)
 }
 
 final class EventsViewController: UITableViewController {
     weak var dataSource: EventsViewControllerDataSource?
     weak var delegate: EventsViewControllerDelegate?
+
+    weak var favoritesDataSource: EventsViewControllerFavoritesDataSource?
+    weak var favoritesDelegate: EventsViewControllerFavoritesDelegate?
 
     var emptyBackgroundText: String? {
         get { emptyBackgroundView.text }
@@ -49,7 +61,7 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        event(for: section).formattedStart
+        event(for: section).formattedStartAndRoom
     }
 
     override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
@@ -61,8 +73,35 @@ final class EventsViewController: UITableViewController {
         delegate?.eventsViewController(self, didSelect: event(for: indexPath.section))
     }
 
+    override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        guard let favoritesDataSource = favoritesDataSource else { return nil }
+
+        let event = self.event(for: indexPath.section)
+
+        if favoritesDataSource.eventsViewController(self, canFavorite: event) {
+            return [.favorite { [weak self] _ in self?.didFavorite(event) }]
+        } else {
+            return [.unfavorite { [weak self] _ in self?.didUnfavorite(event) }]
+        }
+    }
+
+    private func didFavorite(_ event: Event) {
+        favoritesDelegate?.eventsViewController(self, didFavorite: event)
+    }
+
+    private func didUnfavorite(_ event: Event) {
+        favoritesDelegate?.eventsViewController(self, didUnfavorite: event)
+    }
+
     private func event(for section: Int) -> Event {
         events[section]
+    }
+}
+
+private extension Event {
+    var formattedStartAndRoom: String {
+        guard let formattedStart = formattedStart else { return room }
+        return "\(formattedStart) - \(room)"
     }
 }
 
