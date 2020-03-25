@@ -56,7 +56,13 @@ final class PlanController: UINavigationController {
     }
 
     @objc private func didTapSoon() {
-        let operation = EventsInTheNextHour(now: .init())
+        #if DEBUG
+            let now = services.debugService.now
+        #else
+            let now = Date()
+        #endif
+
+        let operation = EventsInTheNextHour(now: now)
         persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }

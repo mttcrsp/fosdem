@@ -11,6 +11,7 @@ enum MoreSection: CaseIterable {
 enum MoreItem: CaseIterable {
     #if DEBUG
         case `import`
+        case time
     #endif
 
     case years
@@ -47,6 +48,7 @@ extension MoreController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
         #if DEBUG
+            case .time: moreViewControllerDidSelectTime(moreViewController)
             case .import: moreViewControllerDidSelectImport(moreViewController)
         #endif
         case .years: moreViewControllerDidSelectYears(moreViewController)
@@ -113,13 +115,40 @@ extension MoreController: MoreViewControllerDelegate {
             }
         }
     }
+}
 
-    #if DEBUG
+#if DEBUG
+    extension MoreController: UIPopoverPresentationControllerDelegate, TimeViewControllerDelegate {
         private func moreViewControllerDidSelectImport(_: MoreViewController) {
             services.debugService.importSchedule()
         }
-    #endif
-}
+
+        private func moreViewControllerDidSelectTime(_ moreViewController: MoreViewController) {
+            let timeViewController = makeTimeViewController()
+            timeViewController.modalPresentationStyle = .popover
+            timeViewController.popoverPresentationController?.delegate = self
+            timeViewController.popoverPresentationController?.sourceView = moreViewController.tableView.cellForRow(at: .init(row: 0, section: 0))
+            timeViewController.popoverPresentationController?.sourceRect = moreViewController.tableView.cellForRow(at: .init(row: 0, section: 0))?.frame ?? .zero
+            moreViewController.present(timeViewController, animated: true)
+        }
+
+        func adaptivePresentationStyle(for _: UIPresentationController) -> UIModalPresentationStyle {
+            .none
+        }
+
+        func timeViewControllerDidChange(_ timeViewController: TimeViewController) {
+            if let date = timeViewController.date {
+                services.debugService.override(date)
+            }
+        }
+
+        private func makeTimeViewController() -> TimeViewController {
+            let timeViewController = TimeViewController()
+            timeViewController.delegate = self
+            return timeViewController
+        }
+    }
+#endif
 
 extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
     func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
@@ -301,7 +330,7 @@ extension MoreSection {
     var items: [MoreItem] {
         switch self {
         #if DEBUG
-            case .debug: return [.import]
+            case .debug: return [.import, .time]
         #endif
         case .other: return [.years, .acknowledgements]
         case .about: return [.history, .devrooms, .transportation]
@@ -329,6 +358,7 @@ extension MoreItem {
         case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
         #if DEBUG
             case .import: return NSLocalizedString("import.title", comment: "")
+            case .time: return NSLocalizedString("time.title", comment: "")
         #endif
         }
     }

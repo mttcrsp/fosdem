@@ -1,8 +1,13 @@
 #if DEBUG
-
     import Foundation
 
     final class DebugService {
+        var now: Date {
+            date ?? .init()
+        }
+
+        private var date: Date?
+
         private let persistenceService: PersistenceService
 
         init(persistenceService: PersistenceService) {
@@ -30,6 +35,9 @@
                 assert(error == nil)
             }
         }
-    }
 
+        func override(_ date: Date) {
+            self.date = date
+        }
+    }
 #endif

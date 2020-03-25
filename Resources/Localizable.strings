@@ -70,3 +70,4 @@
 
 /// MARK: - Debug
 "import.title" = "Import schedule";
+"time.title" = "Override current time";
