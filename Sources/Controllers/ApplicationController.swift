@@ -73,6 +73,13 @@ private extension ApplicationController {
     func makeMapViewController() -> MapViewController {
         let mapViewController = MapViewController()
         mapViewController.title = NSLocalizedString("map.title", comment: "")
+
+        if #available(iOS 13.0, *) {
+            mapViewController.tabBarItem.image = UIImage(systemName: "map")
+        } else {
+            mapViewController.tabBarItem.image = UIImage(named: "map")
+        }
+
         return mapViewController
     }
 
