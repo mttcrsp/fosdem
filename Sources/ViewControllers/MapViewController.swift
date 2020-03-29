@@ -19,9 +19,9 @@ final class MapViewController: UIViewController {
         super.viewDidLoad()
 
         mapView.delegate = self
-        mapView.region = .university
         mapView.tintColor = .fos_label
         mapView.showsPointsOfInterest = false
+        mapView.setCamera(.university, animated: false)
 
         let overlays = buildings.map { building in building.polygon }
         mapView.addOverlays(overlays)
@@ -78,13 +78,14 @@ extension MapViewController: MKMapViewDelegate {
     }
 }
 
-private extension MKCoordinateRegion {
-    static var university: MKCoordinateRegion {
-        let center = CLLocationCoordinate2D(latitude: 50.813028067326343, longitude: 4.381335908547527)
-        let span = MKCoordinateSpan(latitudeDelta: 0.0066549403022264642, longitudeDelta: 0.0060411691513593269)
-        return .init(center: center, span: span)
+private extension MKMapCamera {
+    static var university: MKMapCamera {
+        let center = CLLocationCoordinate2D(latitude: 50.813246501032737, longitude: 4.381289567335247)
+        return .init(lookingAtCenter: center, fromDistance: 1421.0375826379536, pitch: 0, heading: 334.30179164562668)
     }
+}
 
+private extension MKCoordinateRegion {
     static var universityBoundary: MKCoordinateRegion {
         let center = CLLocationCoordinate2D(latitude: 50.812996597684815, longitude: 4.38132229168761)
         let span = MKCoordinateSpan(latitudeDelta: 0.0050337033797305253, longitudeDelta: 0.0045694524231123523)
