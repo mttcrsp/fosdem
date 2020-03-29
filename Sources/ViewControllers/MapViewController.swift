@@ -66,10 +66,10 @@ private extension MKCoordinateRegion {
 private extension MKPolygon {
     static let buildingK: MKPolygon = {
         var coordinates: [CLLocationCoordinate2D] = []
-        coordinates.append(.init(latitude: 50.814458559625876, longitude: 4.381856876748685))
-        coordinates.append(.init(latitude: 50.81460353376457, longitude: 4.382335633915915))
-        coordinates.append(.init(latitude: 50.81507085881597, longitude: 4.381966559549568))
-        coordinates.append(.init(latitude: 50.814929021679205, longitude: 4.381496602265003))
+        coordinates.append(.init(latitude: 50.81445648728004, longitude: 4.381859249480868))
+        coordinates.append(.init(latitude: 50.81456833802892, longitude: 4.3822159833125625))
+        coordinates.append(.init(latitude: 50.8150089595851, longitude: 4.381883389364191))
+        coordinates.append(.init(latitude: 50.814900499280014, longitude: 4.381518608904713))
         return .init(coordinates: &coordinates, count: coordinates.count)
     }()
 
