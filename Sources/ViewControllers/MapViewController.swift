@@ -17,7 +17,21 @@ final class MapViewController: UIViewController {
         if #available(iOS 13.0, *) {
             mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .university)
         }
+
+        #if DEBUG
+            let tapAction = #selector(didTapMap(_:))
+            let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
+            mapView.addGestureRecognizer(tapRecognizer)
+        #endif
     }
+
+    #if DEBUG
+        @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
+            let location = recognizer.location(in: recognizer.view)
+            let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
+            print(coordinates)
+        }
+    #endif
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
