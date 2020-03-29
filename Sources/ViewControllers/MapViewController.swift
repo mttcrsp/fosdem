@@ -148,6 +148,7 @@ private extension MKPolygon {
         coordinates.append(.init(latitude: 50.813451989298244, longitude: 4.379771370712888))
         coordinates.append(.init(latitude: 50.81345788234205, longitude: 4.379721791993461))
         coordinates.append(.init(latitude: 50.813458192502225, longitude: 4.37969233928888))
+        coordinates.append(.init(latitude: 50.81346488283853, longitude: 4.3795474663380105))
         coordinates.append(.init(latitude: 50.81340174331581, longitude: 4.379464571706933))
         coordinates.append(.init(latitude: 50.81336452403468, longitude: 4.379428246704606))
         coordinates.append(.init(latitude: 50.81333878068125, longitude: 4.379401739270492))
