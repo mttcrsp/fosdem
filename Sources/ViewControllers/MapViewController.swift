@@ -15,7 +15,7 @@ final class MapViewController: UIViewController {
         mapView.showsPointsOfInterest = false
 
         if #available(iOS 13.0, *) {
-            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .university)
+            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .universityBoundary)
         }
 
         #if DEBUG
@@ -53,6 +53,12 @@ private extension MKCoordinateRegion {
     static var university: MKCoordinateRegion {
         let center = CLLocationCoordinate2D(latitude: 50.813028067326343, longitude: 4.381335908547527)
         let span = MKCoordinateSpan(latitudeDelta: 0.0066549403022264642, longitudeDelta: 0.0060411691513593269)
+        return .init(center: center, span: span)
+    }
+
+    static var universityBoundary: MKCoordinateRegion {
+        let center = CLLocationCoordinate2D(latitude: 50.813158460248019, longitude: 4.3812062610641647)
+        let span = MKCoordinateSpan(latitudeDelta: 0.0026859414883091404, longitudeDelta: 0.0027613792630063472)
         return .init(center: center, span: span)
     }
 }
