@@ -20,8 +20,16 @@ final class MapViewController: UIViewController {
         let overlays = buildings.map { building in building.polygon }
         mapView.addOverlays(overlays)
 
+        if #available(iOS 11.0, *) {
+            mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
+        }
+
         if #available(iOS 13.0, *) {
             mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .universityBoundary)
+        }
+
+        for building in buildings {
+            mapView.addAnnotation(building)
         }
 
         #if DEBUG
@@ -47,6 +55,17 @@ extension MapViewController: MKMapViewDelegate {
         renderer.strokeColor = mapView.tintColor
         renderer.lineWidth = 1
         return renderer
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard #available(iOS 11.0, *), let building = annotation as? Building else {
+            return nil
+        }
+
+        let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MKMarkerAnnotationView.reuseIdentifier, for: annotation) as! MKMarkerAnnotationView
+        annotationView.markerTintColor = mapView.tintColor
+        annotationView.glyphText = building.glyph
+        return annotationView
     }
 }
 
