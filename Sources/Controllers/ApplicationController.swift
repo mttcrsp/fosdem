@@ -25,7 +25,7 @@ final class ApplicationController: UITabBarController {
         var viewControllers: [UIViewController] = []
         viewControllers.append(makeHomeController())
         viewControllers.append(makePlanController())
-        viewControllers.append(makeMapViewController())
+        viewControllers.append(makeMapController())
         viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
 
@@ -70,17 +70,17 @@ private extension ApplicationController {
         return tracksController
     }
 
-    func makeMapViewController() -> MapViewController {
-        let mapViewController = MapViewController()
-        mapViewController.title = NSLocalizedString("map.title", comment: "")
+    func makeMapController() -> MapController {
+        let mapController = MapController()
+        mapController.title = NSLocalizedString("map.title", comment: "")
 
         if #available(iOS 13.0, *) {
-            mapViewController.tabBarItem.image = UIImage(systemName: "map")
+            mapController.tabBarItem.image = UIImage(systemName: "map")
         } else {
-            mapViewController.tabBarItem.image = UIImage(named: "map")
+            mapController.tabBarItem.image = UIImage(named: "map")
         }
 
-        return mapViewController
+        return mapController
     }
 
     func makeMoreController() -> MoreController {
