@@ -11,9 +11,14 @@ final class MapViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         mapView.delegate = self
         mapView.region = .university
+        mapView.tintColor = .fos_label
         mapView.showsPointsOfInterest = false
+
+        let overlays = buildings.map { building in building.polygon }
+        mapView.addOverlays(overlays)
 
         if #available(iOS 13.0, *) {
             mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .universityBoundary)
@@ -33,22 +38,13 @@ final class MapViewController: UIViewController {
             print(coordinates)
         }
     #endif
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        mapView.removeOverlays(mapView.overlays)
-
-        let overlays = buildings.map { building in building.polygon }
-        mapView.addOverlays(overlays)
-    }
 }
 
 extension MapViewController: MKMapViewDelegate {
-    func mapView(_: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolygonRenderer(overlay: overlay)
-        renderer.fillColor = view.window?.tintColor.withAlphaComponent(0.3)
-        renderer.strokeColor = view.window?.tintColor
+        renderer.fillColor = mapView.tintColor.withAlphaComponent(0.3)
+        renderer.strokeColor = mapView.tintColor
         renderer.lineWidth = 1
         return renderer
     }
