@@ -1,11 +1,13 @@
 import MapKit
 
 class Building: NSObject, MKAnnotation {
+    let glyph: String
     let title: String?
     let polygon: MKPolygon
     let coordinate: CLLocationCoordinate2D
 
-    init(title: String, coordinate: CLLocationCoordinate2D, polygon: MKPolygon) {
+    init(title: String, glyph: String? = nil, coordinate: CLLocationCoordinate2D, polygon: MKPolygon) {
+        self.glyph = glyph ?? title
         self.title = title
         self.polygon = polygon
         self.coordinate = coordinate
@@ -158,6 +160,6 @@ extension Building {
         coordinates.append(.init(latitude: 50.81311973815207, longitude: 4.379450866128707))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.813257094710195, longitude: 4.379684655168319)
-        return .init(title: "Janson", coordinate: coordinate, polygon: polygon)
+        return .init(title: "Janson", glyph: "J", coordinate: coordinate, polygon: polygon)
     }()
 }
