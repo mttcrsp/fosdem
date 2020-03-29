@@ -52,7 +52,7 @@ final class MapViewController: UIViewController {
         let rect = MKMapRect(origin: origin, size: size)
 
         if let building = buildings.first(where: { building in building.polygon.intersects(rect) }) {
-            delegate?.mapViewController(self, didSelect: building)
+            mapView.selectAnnotation(building, animated: true)
         }
     }
 }
@@ -75,6 +75,12 @@ extension MapViewController: MKMapViewDelegate {
         annotationView.markerTintColor = mapView.tintColor
         annotationView.glyphText = building.glyph
         return annotationView
+    }
+
+    func mapView(_: MKMapView, didSelect view: MKAnnotationView) {
+        if let building = view.annotation as? Building {
+            delegate?.mapViewController(self, didSelect: building)
+        }
     }
 }
 
