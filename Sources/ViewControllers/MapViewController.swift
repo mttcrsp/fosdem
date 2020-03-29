@@ -57,8 +57,8 @@ private extension MKCoordinateRegion {
     }
 
     static var universityBoundary: MKCoordinateRegion {
-        let center = CLLocationCoordinate2D(latitude: 50.813158460248019, longitude: 4.3812062610641647)
-        let span = MKCoordinateSpan(latitudeDelta: 0.0026859414883091404, longitudeDelta: 0.0027613792630063472)
+        let center = CLLocationCoordinate2D(latitude: 50.812996597684815, longitude: 4.38132229168761)
+        let span = MKCoordinateSpan(latitudeDelta: 0.0050337033797305253, longitudeDelta: 0.0045694524231123523)
         return .init(center: center, span: span)
     }
 }
