@@ -3,12 +3,14 @@ import MapKit
 class Building: NSObject, MKAnnotation {
     let glyph: String
     let title: String?
+    let floors: [String]
     let polygon: MKPolygon
     let coordinate: CLLocationCoordinate2D
 
-    init(title: String, glyph: String? = nil, coordinate: CLLocationCoordinate2D, polygon: MKPolygon) {
+    init(title: String, glyph: String? = nil, coordinate: CLLocationCoordinate2D, polygon: MKPolygon, floors: [String]) {
         self.glyph = glyph ?? title
         self.title = title
+        self.floors = floors
         self.polygon = polygon
         self.coordinate = coordinate
     }
@@ -27,7 +29,7 @@ extension Building {
         coordinates.append(.init(latitude: 50.814900499280014, longitude: 4.381518608904713))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81473311542874, longitude: 4.381869697304779)
-        return .init(title: "K", coordinate: coordinate, polygon: polygon)
+        return .init(title: "K", coordinate: coordinate, polygon: polygon, floors: ["k1-1", "k1-2", "k2", "k3", "k4"])
     }()
 
     static let aw: Building = {
@@ -38,7 +40,7 @@ extension Building {
         coordinates.append(.init(latitude: 50.81224834367137, longitude: 4.380419646773959))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.812189418969865, longitude: 4.380766007089079)
-        return .init(title: "AW", coordinate: coordinate, polygon: polygon)
+        return .init(title: "AW", coordinate: coordinate, polygon: polygon, floors: ["aw"])
     }()
 
     static let h: Building = {
@@ -49,7 +51,7 @@ extension Building {
         coordinates.append(.init(latitude: 50.81278981477041, longitude: 4.379380876432748))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81285716248334, longitude: 4.380192014307283)
-        return .init(title: "H", coordinate: coordinate, polygon: polygon)
+        return .init(title: "H", coordinate: coordinate, polygon: polygon, floors: ["h1", "h2"])
     }()
 
     static let u: Building = {
@@ -65,7 +67,7 @@ extension Building {
         coordinates.append(.init(latitude: 50.81200903327877, longitude: 4.383510437885263))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81276564490136, longitude: 4.382310959623368)
-        return .init(title: "U", coordinate: coordinate, polygon: polygon)
+        return .init(title: "U", coordinate: coordinate, polygon: polygon, floors: ["u"])
     }()
 
     static let f1: Building = {
@@ -109,7 +111,7 @@ extension Building {
         coordinates.append(.init(latitude: 50.81364129479584, longitude: 4.382876226130833))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81356218080725, longitude: 4.382498714271662)
-        return .init(title: "F1", coordinate: coordinate, polygon: polygon)
+        return .init(title: "F1", coordinate: coordinate, polygon: polygon, floors: [])
     }()
 
     static let j: Building = {
@@ -160,6 +162,6 @@ extension Building {
         coordinates.append(.init(latitude: 50.81311973815207, longitude: 4.379450866128707))
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.813257094710195, longitude: 4.379684655168319)
-        return .init(title: "Janson", glyph: "J", coordinate: coordinate, polygon: polygon)
+        return .init(title: "Janson", glyph: "J", coordinate: coordinate, polygon: polygon, floors: ["j"])
     }()
 }
