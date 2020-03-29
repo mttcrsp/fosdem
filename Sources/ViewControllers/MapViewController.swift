@@ -1,6 +1,12 @@
 import MapKit
 
+protocol MapViewControllerDelegate: AnyObject {
+    func mapViewController(_ mapViewController: MapViewController, didSelect building: Building)
+}
+
 final class MapViewController: UIViewController {
+    weak var delegate: MapViewControllerDelegate?
+
     private let buildings = Building.allBuildings
 
     private lazy var mapView = MKMapView()
@@ -32,20 +38,23 @@ final class MapViewController: UIViewController {
             mapView.addAnnotation(building)
         }
 
-        #if DEBUG
-            let tapAction = #selector(didTapMap(_:))
-            let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
-            mapView.addGestureRecognizer(tapRecognizer)
-        #endif
+        let tapAction = #selector(didTapMap(_:))
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
+        mapView.addGestureRecognizer(tapRecognizer)
     }
 
-    #if DEBUG
-        @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
-            let location = recognizer.location(in: recognizer.view)
-            let coordinates = mapView.convert(location, toCoordinateFrom: mapView)
-            print(coordinates)
+    @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
+        let location = recognizer.location(in: recognizer.view)
+        let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
+
+        let origin = MKMapPoint(coordinate)
+        let size = MKMapSize(width: .leastNonzeroMagnitude, height: .leastNonzeroMagnitude)
+        let rect = MKMapRect(origin: origin, size: size)
+
+        if let building = buildings.first(where: { building in building.polygon.intersects(rect) }) {
+            delegate?.mapViewController(self, didSelect: building)
         }
-    #endif
+    }
 }
 
 extension MapViewController: MKMapViewDelegate {
