@@ -77,6 +77,10 @@ extension MapController: BlueprintViewControllerDelegate {
     func blueprintViewControllerDidTapDismiss(_: BlueprintsViewController) {
         mapViewController?.deselectSelectedAnnotation()
     }
+
+    func blueprintViewControllerDidTapFullscreen(_: BlueprintsViewController) {
+        mapViewController?.deselectSelectedAnnotation()
+    }
 }
 
 private extension MapController {

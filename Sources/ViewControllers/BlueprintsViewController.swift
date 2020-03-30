@@ -2,6 +2,7 @@ import UIKit
 
 protocol BlueprintViewControllerDelegate: AnyObject {
     func blueprintViewControllerDidTapDismiss(_ blueprintViewController: BlueprintsViewController)
+    func blueprintViewControllerDidTapFullscreen(_ blueprintViewController: BlueprintsViewController)
 }
 
 final class BlueprintsViewController: UIViewController {
@@ -12,6 +13,7 @@ final class BlueprintsViewController: UIViewController {
     }
 
     private lazy var dismissButton = UIButton()
+    private lazy var fullscreenButton = UIButton()
     private lazy var backgroundView = TableBackgroundView()
     private lazy var collectionViewLayout = UICollectionViewFlowLayout()
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
@@ -29,27 +31,54 @@ final class BlueprintsViewController: UIViewController {
         collectionViewLayout.minimumLineSpacing = 0
         collectionViewLayout.scrollDirection = .horizontal
 
+        let dismissImageName = "xmark"
         let dismissImage: UIImage?
         if #available(iOS 13.0, *) {
-            dismissImage = UIImage(systemName: "xmark.circle.fill")
+            dismissImage = UIImage(systemName: dismissImageName)
         } else {
-            dismissImage = UIImage(named: "xmark.circle.fill")
+            dismissImage = UIImage(named: dismissImageName)
+        }
+
+        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
+        let fullscreenImage: UIImage?
+        if #available(iOS 13.0, *) {
+            fullscreenImage = UIImage(systemName: fullscreenImageName)
+        } else {
+            fullscreenImage = UIImage(named: fullscreenImageName)
         }
 
         let dismissAction = #selector(didTapDismiss)
         dismissButton.setImage(dismissImage, for: .normal)
         dismissButton.addTarget(self, action: dismissAction, for: .touchUpInside)
 
+        let fullscreenAction = #selector(didTapFullscreen)
+        fullscreenButton.setImage(fullscreenImage, for: .normal)
+        fullscreenButton.addTarget(self, action: fullscreenAction, for: .touchUpInside)
+
+        for button in [dismissButton, fullscreenButton] {
+            button.layer.borderColor = UIColor.black.cgColor
+            button.layer.borderWidth = 1
+            button.layer.cornerRadius = 4
+            button.contentMode = .center
+        }
+
+        view.addSubview(collectionView)
         view.addSubview(dismissButton)
-        view.insertSubview(collectionView, belowSubview: dismissButton)
+        view.addSubview(fullscreenButton)
         view.preservesSuperviewLayoutMargins = false
         view.layoutMargins = .init(top: 8, left: 8, bottom: 8, right: 8)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        dismissButton.sizeToFit()
-        dismissButton.frame.origin.x = view.bounds.width - dismissButton.bounds.width - view.layoutMargins.right
+        let buttonSize = CGSize(width: 24, height: 24)
+
+        fullscreenButton.frame.size = buttonSize
+        fullscreenButton.frame.origin.x = view.layoutMargins.left
+        fullscreenButton.frame.origin.y = view.layoutMargins.top
+
+        dismissButton.frame.size = buttonSize
+        dismissButton.frame.origin.x = view.bounds.width - buttonSize.width - view.layoutMargins.right
         dismissButton.frame.origin.y = view.layoutMargins.top
 
         collectionView.frame = view.bounds
@@ -63,6 +92,10 @@ final class BlueprintsViewController: UIViewController {
 
     @objc private func didTapDismiss() {
         delegate?.blueprintViewControllerDidTapDismiss(self)
+    }
+
+    @objc private func didTapFullscreen() {
+        delegate?.blueprintViewControllerDidTapFullscreen(self)
     }
 
     private func didChangeBuilding() {
