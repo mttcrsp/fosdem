@@ -1,17 +1,22 @@
 import MapKit
 
+struct Blueprint {
+    let title: String
+    let imageName: String
+}
+
 class Building: NSObject, MKAnnotation {
     let glyph: String
     let title: String?
-    let floors: [String]
     let polygon: MKPolygon
+    let blueprints: [Blueprint]
     let coordinate: CLLocationCoordinate2D
 
-    init(title: String, glyph: String? = nil, coordinate: CLLocationCoordinate2D, polygon: MKPolygon, floors: [String]) {
-        self.glyph = glyph ?? title
+    init(title: String, glyph: String? = nil, coordinate: CLLocationCoordinate2D, polygon: MKPolygon, blueprints: [Blueprint]) {
         self.title = title
-        self.floors = floors
         self.polygon = polygon
+        self.glyph = glyph ?? title
+        self.blueprints = blueprints
         self.coordinate = coordinate
     }
 }
@@ -27,9 +32,17 @@ extension Building {
         coordinates.append(.init(latitude: 50.81456833802892, longitude: 4.3822159833125625))
         coordinates.append(.init(latitude: 50.8150089595851, longitude: 4.381883389364191))
         coordinates.append(.init(latitude: 50.814900499280014, longitude: 4.381518608904713))
+
+        var blueprints: [Blueprint] = []
+        blueprints.append(.init(title: "Building K - Level 1 (1)", imageName: "k1-1"))
+        blueprints.append(.init(title: "Building K - Level 1 (2)", imageName: "k1-2"))
+        blueprints.append(.init(title: "Building K - Level 2", imageName: "k2"))
+        blueprints.append(.init(title: "Building K - Level 3", imageName: "k3"))
+        blueprints.append(.init(title: "Building K - Level 4", imageName: "k4"))
+
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81473311542874, longitude: 4.381869697304779)
-        return .init(title: "K", coordinate: coordinate, polygon: polygon, floors: ["k1-1", "k1-2", "k2", "k3", "k4"])
+        return .init(title: "K", coordinate: coordinate, polygon: polygon, blueprints: blueprints)
     }()
 
     static let aw: Building = {
@@ -38,9 +51,13 @@ extension Building {
         coordinates.append(.init(latitude: 50.81212678134494, longitude: 4.3811021386389655))
         coordinates.append(.init(latitude: 50.81239391138743, longitude: 4.380901178776583))
         coordinates.append(.init(latitude: 50.81224834367137, longitude: 4.380419646773959))
+
+        var blueprints: [Blueprint] = []
+        blueprints.append(.init(title: "Building AW", imageName: "aw"))
+
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.812189418969865, longitude: 4.380766007089079)
-        return .init(title: "AW", coordinate: coordinate, polygon: polygon, floors: ["aw"])
+        return .init(title: "AW", coordinate: coordinate, polygon: polygon, blueprints: blueprints)
     }()
 
     static let h: Building = {
@@ -49,9 +66,14 @@ extension Building {
         coordinates.append(.init(latitude: 50.81294596061059, longitude: 4.381010402798182))
         coordinates.append(.init(latitude: 50.81251222314245, longitude: 4.379590300780109))
         coordinates.append(.init(latitude: 50.81278981477041, longitude: 4.379380876432748))
+
+        var blueprints: [Blueprint] = []
+        blueprints.append(.init(title: "Building H - Level 1", imageName: "h1"))
+        blueprints.append(.init(title: "Building H - Level 2", imageName: "h2"))
+
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81285716248334, longitude: 4.380192014307283)
-        return .init(title: "H", coordinate: coordinate, polygon: polygon, floors: ["h1", "h2"])
+        return .init(title: "H", coordinate: coordinate, polygon: polygon, blueprints: blueprints)
     }()
 
     static let u: Building = {
@@ -65,9 +87,13 @@ extension Building {
         coordinates.append(.init(latitude: 50.81248346551246, longitude: 4.382010231859567))
         coordinates.append(.init(latitude: 50.81172697195379, longitude: 4.382592372685707))
         coordinates.append(.init(latitude: 50.81200903327877, longitude: 4.383510437885263))
+
+        var blueprints: [Blueprint] = []
+        blueprints.append(.init(title: "Building U", imageName: "u"))
+
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81276564490136, longitude: 4.382310959623368)
-        return .init(title: "U", coordinate: coordinate, polygon: polygon, floors: ["u"])
+        return .init(title: "U", coordinate: coordinate, polygon: polygon, blueprints: blueprints)
     }()
 
     static let f1: Building = {
@@ -109,9 +135,10 @@ extension Building {
         coordinates.append(.init(latitude: 50.813313052897286, longitude: 4.382113658843309))
         coordinates.append(.init(latitude: 50.8135662362653, longitude: 4.3829292410001415))
         coordinates.append(.init(latitude: 50.81364129479584, longitude: 4.382876226130833))
+
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.81356218080725, longitude: 4.382498714271662)
-        return .init(title: "F1", coordinate: coordinate, polygon: polygon, floors: [])
+        return .init(title: "F1", coordinate: coordinate, polygon: polygon, blueprints: [])
     }()
 
     static let j: Building = {
@@ -160,8 +187,12 @@ extension Building {
         coordinates.append(.init(latitude: 50.81303661454888, longitude: 4.379547078296184))
         coordinates.append(.init(latitude: 50.81302917063692, longitude: 4.37952597052481))
         coordinates.append(.init(latitude: 50.81311973815207, longitude: 4.379450866128707))
+
+        var blueprints: [Blueprint] = []
+        blueprints.append(.init(title: "Building Janson", imageName: "j"))
+
         let polygon = MKPolygon(coordinates: &coordinates, count: coordinates.count)
         let coordinate = CLLocationCoordinate2D(latitude: 50.813257094710195, longitude: 4.379684655168319)
-        return .init(title: "Janson", glyph: "J", coordinate: coordinate, polygon: polygon, floors: ["j"])
+        return .init(title: "Janson", glyph: "J", coordinate: coordinate, polygon: polygon, blueprints: blueprints)
     }()
 }
