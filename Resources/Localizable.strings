@@ -35,6 +35,8 @@
 
 /// MARK: - Map
 "map.title" = "Map";
+"map.blueprint.title" = "Building %@";
+"map.blueprint.empty" = "No blueprint available";
 
 /// MARK: - More
 "more.title" = "More";
