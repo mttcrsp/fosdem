@@ -15,7 +15,7 @@ final class TableBackgroundView: UIView {
 
         label.numberOfLines = 0
         label.textAlignment = .center
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .preferredFont(forTextStyle: .headline)
         label.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
