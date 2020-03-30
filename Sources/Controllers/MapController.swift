@@ -20,12 +20,17 @@ final class MapController: UIViewController {
 
         guard let blueprintsView = blueprintsNavigationController?.view else { return }
 
-        blueprintsView.frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
-        blueprintsView.frame.size.height = 200
-        blueprintsView.frame.origin.x = view.layoutMargins.left
-        blueprintsView.frame.origin.y = view.bounds.height - blueprintsView.bounds.height - 32
-        blueprintsView.setNeedsLayout()
-        blueprintsView.layoutIfNeeded()
+        if view.bounds.width < view.bounds.height {
+            blueprintsView.frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
+            blueprintsView.frame.size.height = 200
+            blueprintsView.frame.origin.x = view.layoutMargins.left
+            blueprintsView.frame.origin.y = view.bounds.height - blueprintsView.bounds.height - 32
+        } else {
+            blueprintsView.frame.size.width = 300
+            blueprintsView.frame.size.height = view.bounds.height - 48
+            blueprintsView.frame.origin.x = view.layoutMargins.left
+            blueprintsView.frame.origin.y = 16
+        }
     }
 
     @objc private func didTapDismiss() {
