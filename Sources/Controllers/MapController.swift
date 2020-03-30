@@ -3,6 +3,7 @@ import UIKit
 final class MapController: UIViewController {
     private weak var mapViewController: MapViewController?
     private weak var blueprintsViewController: BlueprintsViewController?
+    private weak var blueprintsNavigationController: UINavigationController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,12 +18,22 @@ final class MapController: UIViewController {
         super.viewDidLayoutSubviews()
         mapViewController?.view.frame = view.bounds
 
-        guard let blueprintsView = blueprintsViewController?.view else { return }
+        guard let blueprintsView = blueprintsNavigationController?.view else { return }
 
         blueprintsView.frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
         blueprintsView.frame.size.height = 200
         blueprintsView.frame.origin.x = view.layoutMargins.left
         blueprintsView.frame.origin.y = view.bounds.height - blueprintsView.bounds.height - 32
+        blueprintsView.setNeedsLayout()
+        blueprintsView.layoutIfNeeded()
+    }
+
+    @objc private func didTapDismiss() {
+        mapViewController?.deselectSelectedAnnotation()
+    }
+
+    @objc private func didTapFullscreen() {
+        mapViewController?.deselectSelectedAnnotation()
     }
 }
 
@@ -33,10 +44,13 @@ extension MapController: MapViewControllerDelegate {
             return
         }
 
-        let blueprintViewController = makeBlueprintsViewController(for: building)
-        addChild(blueprintViewController)
+        let blueprintsViewController = makeBlueprintsViewController(for: building)
+        let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
+        self.blueprintsNavigationController = blueprintsNavigationController
 
-        let blueprintsView: UIView = blueprintViewController.view
+        addChild(blueprintsNavigationController)
+
+        let blueprintsView: UIView = blueprintsNavigationController.view
         blueprintsView.backgroundColor = .fos_systemBackground
         blueprintsView.alpha = 0
         blueprintsView.layer.cornerRadius = 8
@@ -49,37 +63,33 @@ extension MapController: MapViewControllerDelegate {
         let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
         animator.addAnimations { [weak self] in
             guard let self = self else { return }
-            self.blueprintsViewController?.view.alpha = 1
+            self.blueprintsNavigationController?.view.alpha = 1
         }
         animator.addCompletion { [weak self] _ in
             guard let self = self else { return }
-            self.blueprintsViewController?.didMove(toParent: self)
+            self.blueprintsNavigationController?.didMove(toParent: self)
         }
         animator.startAnimation()
     }
 
     func mapViewControllerDidDeselectBuilding(_: MapViewController) {
-        blueprintsViewController?.willMove(toParent: nil)
+        blueprintsNavigationController?.willMove(toParent: nil)
 
         let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
         animator.addAnimations { [weak self] in
-            self?.blueprintsViewController?.view.alpha = 0
+            self?.blueprintsNavigationController?.view.alpha = 0
         }
         animator.addCompletion { [weak self] _ in
-            self?.blueprintsViewController?.view.removeFromSuperview()
-            self?.blueprintsViewController?.removeFromParent()
+            self?.blueprintsNavigationController?.view.removeFromSuperview()
+            self?.blueprintsNavigationController?.removeFromParent()
         }
         animator.startAnimation()
     }
 }
 
-extension MapController: BlueprintViewControllerDelegate {
-    func blueprintViewControllerDidTapDismiss(_: BlueprintsViewController) {
-        mapViewController?.deselectSelectedAnnotation()
-    }
-
-    func blueprintViewControllerDidTapFullscreen(_: BlueprintsViewController) {
-        mapViewController?.deselectSelectedAnnotation()
+extension MapController: BlueprintsViewControllerDelegate {
+    func blueprintsViewController(_ blueprintsViewController: BlueprintsViewController, didDisplay blueprint: Blueprint) {
+        blueprintsViewController.title = blueprint.title
     }
 }
 
@@ -92,7 +102,33 @@ private extension MapController {
     }
 
     func makeBlueprintsViewController(for building: Building) -> BlueprintsViewController {
+        let dismissImageName = "xmark"
+        let dismissImage: UIImage?
+        if #available(iOS 13.0, *) {
+            dismissImage = UIImage(systemName: dismissImageName)
+        } else {
+            dismissImage = UIImage(named: dismissImageName)
+        }
+
+        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
+        let fullscreenImage: UIImage?
+        if #available(iOS 13.0, *) {
+            fullscreenImage = UIImage(systemName: fullscreenImageName)
+        } else {
+            fullscreenImage = UIImage(named: fullscreenImageName)
+        }
+
+        let dismissAction = #selector(didTapDismiss)
+        let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
+
+        let fullscreenAction = #selector(didTapFullscreen)
+        let fullscreenButton = UIBarButtonItem(image: fullscreenImage, style: .plain, target: self, action: fullscreenAction)
+
         let blueprintsViewController = BlueprintsViewController()
+        blueprintsViewController.navigationItem.leftBarButtonItem = fullscreenButton
+        blueprintsViewController.navigationItem.rightBarButtonItem = dismissButton
+        blueprintsViewController.extendedLayoutIncludesOpaqueBars = true
+        blueprintsViewController.edgesForExtendedLayout = .bottom
         blueprintsViewController.building = building
         blueprintsViewController.delegate = self
         self.blueprintsViewController = blueprintsViewController
