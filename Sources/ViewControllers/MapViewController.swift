@@ -2,6 +2,7 @@ import MapKit
 
 protocol MapViewControllerDelegate: AnyObject {
     func mapViewController(_ mapViewController: MapViewController, didSelect building: Building)
+    func mapViewControllerDidDeselectBuilding(_ mapViewController: MapViewController)
 }
 
 final class MapViewController: UIViewController {
@@ -10,6 +11,16 @@ final class MapViewController: UIViewController {
     private let buildings = Building.allBuildings
 
     private lazy var mapView = MKMapView()
+
+    private(set) var selectedBuilding: Building? {
+        didSet { selectedBuildingChanged() }
+    }
+
+    func deselectSelectedAnnotation() {
+        for annotation in mapView.selectedAnnotations {
+            mapView.deselectAnnotation(annotation, animated: true)
+        }
+    }
 
     override func loadView() {
         view = mapView
@@ -20,6 +31,8 @@ final class MapViewController: UIViewController {
 
         mapView.delegate = self
         mapView.tintColor = .fos_label
+        mapView.isPitchEnabled = false
+        mapView.showsUserLocation = true
         mapView.showsPointsOfInterest = false
         mapView.setCamera(.university, animated: false)
 
@@ -55,6 +68,18 @@ final class MapViewController: UIViewController {
             mapView.selectAnnotation(building, animated: true)
         }
     }
+
+    private func selectedBuildingChanged() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            if let building = self.selectedBuilding {
+                self.delegate?.mapViewController(self, didSelect: building)
+            } else {
+                self.delegate?.mapViewControllerDidDeselectBuilding(self)
+            }
+        }
+    }
 }
 
 extension MapViewController: MKMapViewDelegate {
@@ -79,7 +104,13 @@ extension MapViewController: MKMapViewDelegate {
 
     func mapView(_: MKMapView, didSelect view: MKAnnotationView) {
         if let building = view.annotation as? Building {
-            delegate?.mapViewController(self, didSelect: building)
+            selectedBuilding = building
+        }
+    }
+
+    func mapView(_: MKMapView, didDeselect view: MKAnnotationView) {
+        if view.annotation is Building {
+            selectedBuilding = nil
         }
     }
 }
