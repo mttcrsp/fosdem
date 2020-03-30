@@ -32,14 +32,6 @@ final class MapController: UIViewController {
             blueprintsView.frame.origin.y = 16
         }
     }
-
-    @objc private func didTapDismiss() {
-        mapViewController?.deselectSelectedAnnotation()
-    }
-
-    @objc private func didTapFullscreen() {
-        mapViewController?.deselectSelectedAnnotation()
-    }
 }
 
 extension MapController: MapViewControllerDelegate {
@@ -93,8 +85,12 @@ extension MapController: MapViewControllerDelegate {
 }
 
 extension MapController: BlueprintsViewControllerDelegate {
-    func blueprintsViewController(_ blueprintsViewController: BlueprintsViewController, didDisplay blueprint: Blueprint) {
-        blueprintsViewController.title = blueprint.title
+    func blueprintsViewControllerDidTapDismiss(_: BlueprintsViewController) {
+        mapViewController?.deselectSelectedAnnotation()
+    }
+
+    func blueprintsViewControllerDidTapFullscreen(_: BlueprintsViewController) {
+        mapViewController?.deselectSelectedAnnotation()
     }
 }
 
@@ -107,31 +103,7 @@ private extension MapController {
     }
 
     func makeBlueprintsViewController(for building: Building) -> BlueprintsViewController {
-        let dismissImageName = "xmark"
-        let dismissImage: UIImage?
-        if #available(iOS 13.0, *) {
-            dismissImage = UIImage(systemName: dismissImageName)
-        } else {
-            dismissImage = UIImage(named: dismissImageName)
-        }
-
-        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
-        let fullscreenImage: UIImage?
-        if #available(iOS 13.0, *) {
-            fullscreenImage = UIImage(systemName: fullscreenImageName)
-        } else {
-            fullscreenImage = UIImage(named: fullscreenImageName)
-        }
-
-        let dismissAction = #selector(didTapDismiss)
-        let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
-
-        let fullscreenAction = #selector(didTapFullscreen)
-        let fullscreenButton = UIBarButtonItem(image: fullscreenImage, style: .plain, target: self, action: fullscreenAction)
-
         let blueprintsViewController = BlueprintsViewController()
-        blueprintsViewController.navigationItem.leftBarButtonItem = fullscreenButton
-        blueprintsViewController.navigationItem.rightBarButtonItem = dismissButton
         blueprintsViewController.extendedLayoutIncludesOpaqueBars = true
         blueprintsViewController.edgesForExtendedLayout = .bottom
         blueprintsViewController.building = building

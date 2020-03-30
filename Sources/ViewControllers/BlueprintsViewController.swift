@@ -1,7 +1,8 @@
 import UIKit
 
 protocol BlueprintsViewControllerDelegate: AnyObject {
-    func blueprintsViewController(_ blueprintsViewController: BlueprintsViewController, didDisplay blueprint: Blueprint)
+    func blueprintsViewControllerDidTapDismiss(_ blueprintViewController: BlueprintsViewController)
+    func blueprintsViewControllerDidTapFullscreen(_ blueprintViewController: BlueprintsViewController)
 }
 
 final class BlueprintsViewController: UIViewController {
@@ -15,8 +16,22 @@ final class BlueprintsViewController: UIViewController {
     private lazy var collectionViewLayout = UICollectionViewFlowLayout()
     private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
 
+    private lazy var dismissButton: UIBarButtonItem = {
+        let dismissImageName = "xmark"
+        let dismissAction = #selector(didTapDismiss)
+        return makeBarButtonItem(forAction: dismissAction, withImageNamed: dismissImageName)
+    }()
+
+    private lazy var fullscreenButton: UIBarButtonItem = {
+        let fullscreenAction = #selector(didTapFullscreen)
+        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
+        return makeBarButtonItem(forAction: fullscreenAction, withImageNamed: fullscreenImageName)
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationItem.rightBarButtonItem = dismissButton
 
         view.addSubview(collectionView)
         view.preservesSuperviewLayoutMargins = false
@@ -42,13 +57,47 @@ final class BlueprintsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         collectionView.flashScrollIndicators()
-        scrollViewDidEndDecelerating(collectionView)
+        didChangeVisibleBlueprint()
     }
 
     private func didChangeBuilding() {
         collectionView.reloadData()
         collectionView.flashScrollIndicators()
-        scrollViewDidEndDecelerating(collectionView)
+        didChangeVisibleBlueprint()
+    }
+
+    private func didChangeVisibleBlueprint() {
+        guard let building = building else { return }
+
+        let centerX = collectionView.bounds.midX
+        let centerY = collectionView.bounds.midY
+        let center = CGPoint(x: centerX, y: centerY)
+
+        if let indexPath = collectionView.indexPathForItem(at: center) {
+            title = building.blueprints[indexPath.item].title
+            navigationItem.leftBarButtonItem = fullscreenButton
+        } else {
+            title = nil
+            navigationItem.leftBarButtonItem = nil
+        }
+    }
+
+    @objc private func didTapDismiss() {
+        delegate?.blueprintsViewControllerDidTapDismiss(self)
+    }
+
+    @objc private func didTapFullscreen() {
+        delegate?.blueprintsViewControllerDidTapFullscreen(self)
+    }
+
+    private func makeBarButtonItem(forAction action: Selector, withImageNamed imageName: String) -> UIBarButtonItem {
+        let image: UIImage?
+        if #available(iOS 13.0, *) {
+            image = UIImage(systemName: imageName)
+        } else {
+            image = UIImage(named: imageName)
+        }
+        return UIBarButtonItem(image: image, style: .plain, target: self, action: action)
     }
 }
 
@@ -76,15 +125,6 @@ extension BlueprintsViewController: UICollectionViewDataSource, UICollectionView
     }
 
     func scrollViewDidEndDecelerating(_: UIScrollView) {
-        guard let building = building else { return }
-
-        let centerX = collectionView.bounds.midX
-        let centerY = collectionView.bounds.midY
-        let center = CGPoint(x: centerX, y: centerY)
-
-        if let indexPath = collectionView.indexPathForItem(at: center) {
-            let blueprint = building.blueprints[indexPath.item]
-            delegate?.blueprintsViewController(self, didDisplay: blueprint)
-        }
+        didChangeVisibleBlueprint()
     }
 }
