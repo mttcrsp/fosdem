@@ -6,7 +6,7 @@ final class ScheduleRequestTests: XCTestCase {
     func testDecode() {
         let year = 2020
 
-        guard let data = ScheduleDataLoader().scheduleData(forYear: year) else {
+        guard let data = BundleDataLoader().data(forResource: "\(year)", withExtension: "xml") else {
             return XCTFail("Unable to load schedule data for '\(year)'")
         }
 
