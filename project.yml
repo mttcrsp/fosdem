@@ -44,12 +44,11 @@ targets:
     deploymentTarget: '10.0'
     sources:
     - Tests
-    - Resources/Schedules
     dependencies:
     - target: Fosdem
     postbuildScripts:
     - script: swiftformat .
     settings:
-      INFOPLIST_FILE: Resources/Info-Tests.plist
+      INFOPLIST_FILE: Tests/Resources/Info.plist
       ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
       TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Fosdem.app/Fosdem"
