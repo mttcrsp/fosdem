@@ -70,6 +70,12 @@
 /// MARK: - Acknowledgements
 "acknowledgements.title" = "Acknowledgements";
 
+/// MARK: - Update
+"update.title" = "Update available";
+"update.message" = "A new version of this app is available. Update now to get access to the latests features, data and bug fixes.";
+"update.dismiss" = "Cancel";
+"update.confirm" = "Update";
+
 /// MARK: - Debug
 "import.title" = "Import schedule";
 "time.title" = "Override current time";

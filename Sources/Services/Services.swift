@@ -3,6 +3,7 @@ import Foundation
 final class Services {
     let infoService = InfoService()
     let yearsService = YearsService()
+    let updateService: UpdateService
     let networkService: NetworkService
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
@@ -20,6 +21,8 @@ final class Services {
         session.configuration.timeoutIntervalForRequest = 30
         session.configuration.timeoutIntervalForResource = 30
         networkService = NetworkService(session: session)
+
+        updateService = UpdateService(networkService: networkService)
 
         #if DEBUG
             debugService = DebugService(persistenceService: persistenceService)

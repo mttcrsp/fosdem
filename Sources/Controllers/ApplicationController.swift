@@ -1,3 +1,4 @@
+import StoreKit
 import UIKit
 
 final class ApplicationController: UITabBarController {
@@ -32,6 +33,9 @@ final class ApplicationController: UITabBarController {
         for (index, viewController) in viewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
             selectedIndex = index
         }
+
+        services.updateService.delegate = self
+        services.updateService.detectUpdates()
     }
 }
 
@@ -99,11 +103,57 @@ private extension ApplicationController {
 
         return moreController
     }
+
+    func makeUpdateViewController(withHandler handler: @escaping () -> Void) -> UIAlertController {
+        let dismissTitle = NSLocalizedString("update.dismiss", comment: "")
+        let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
+
+        let confirmTitle = NSLocalizedString("update.confirm", comment: "")
+        let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { _ in handler() }
+
+        let alertTitle = NSLocalizedString("update.title", comment: "")
+        let alertMessage = NSLocalizedString("update.message", comment: "")
+        let alertController = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
+        alertController.addAction(confirmAction)
+        alertController.addAction(dismissAction)
+        return alertController
+    }
+
+    func makeStoreViewController() -> SKStoreProductViewController {
+        let parameters = [SKStoreProductParameterITunesItemIdentifier: ""]
+        let productViewController = SKStoreProductViewController()
+        productViewController.delegate = self
+        productViewController.loadProduct(withParameters: parameters)
+        return productViewController
+    }
 }
 
 extension ApplicationController: UITabBarControllerDelegate {
     func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
         previouslySelectedViewController = String(describing: type(of: viewController))
+    }
+}
+
+extension ApplicationController: SKStoreProductViewControllerDelegate {
+    func productViewControllerDidFinish(_ viewController: SKStoreProductViewController) {
+        viewController.dismiss(animated: true)
+    }
+}
+
+extension ApplicationController: UpdateServiceDelegate {
+    func updateServiceDidDetectUpdate(_: UpdateService) {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            let updateHandler: () -> Void = { [weak self] in self?.didTapUpdate() }
+            let updateViewController = self.makeUpdateViewController(withHandler: updateHandler)
+            self.present(updateViewController, animated: true)
+        }
+    }
+
+    private func didTapUpdate() {
+        let storeViewController = makeStoreViewController()
+        present(storeViewController, animated: true)
     }
 }
 
