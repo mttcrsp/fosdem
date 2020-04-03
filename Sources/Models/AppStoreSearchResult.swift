@@ -1,9 +1,9 @@
 struct AppStoreSearchResult: Equatable, Decodable {
-    let identifier: Int
+    let bundleIdentifier: String
     let version: String
 
     enum CodingKeys: String, CodingKey {
-        case identifier = "trackId"
+        case bundleIdentifier = "bundleId"
         case version
     }
 }

@@ -10,8 +10,8 @@ final class AppStoreSearchRequestTests: XCTestCase {
                 return
             }
 
-            let result1 = AppStoreSearchResult(identifier: 941_904_933, version: "1.2.2")
-            let result2 = AppStoreSearchResult(identifier: 1_500_192_366, version: "0.1")
+            let result1 = AppStoreSearchResult(bundleIdentifier: "nl.netsense.FOSDEM", version: "1.2.2")
+            let result2 = AppStoreSearchResult(bundleIdentifier: "com.zerokspot.fosdem-to-go", version: "0.1")
             let response = AppStoreSearchResponse(results: [result1, result2])
             let requestURL = URL(string: "https://itunes.apple.com/us/search?term=fosdem&media=software&entity=software")!
             let request = AppStoreSearchRequest()
