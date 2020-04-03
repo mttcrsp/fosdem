@@ -3,6 +3,7 @@ import Foundation
 final class Services {
     let infoService = InfoService()
     let yearsService = YearsService()
+    let networkService: NetworkService
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
@@ -14,6 +15,11 @@ final class Services {
     init() throws {
         let path = try FileManager.default.applicationDatabasePath()
         persistenceService = try PersistenceService(path: path, migrations: .allMigrations)
+
+        let session = URLSession.shared
+        session.configuration.timeoutIntervalForRequest = 30
+        session.configuration.timeoutIntervalForResource = 30
+        networkService = NetworkService(session: session)
 
         #if DEBUG
             debugService = DebugService(persistenceService: persistenceService)
