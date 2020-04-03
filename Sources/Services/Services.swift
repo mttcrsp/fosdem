@@ -5,6 +5,7 @@ final class Services {
     let yearsService = YearsService()
     let updateService: UpdateService
     let networkService: NetworkService
+    let scheduleService: ScheduleService
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
@@ -23,6 +24,7 @@ final class Services {
         networkService = NetworkService(session: session)
 
         updateService = UpdateService(networkService: networkService)
+        scheduleService = ScheduleService(networkService: networkService, persistenceService: persistenceService)
 
         #if DEBUG
             debugService = DebugService(persistenceService: persistenceService)

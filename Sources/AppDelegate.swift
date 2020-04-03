@@ -4,6 +4,10 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
+    private var applicationController: ApplicationController? {
+        window?.rootViewController as? ApplicationController
+    }
+
     func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         #if DEBUG
             guard !isRunningUnitTests else { return false }
@@ -24,6 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = window
 
         return true
+    }
+
+    func applicationDidBecomeActive(_: UIApplication) {
+        applicationController?.applicationDidBecomeActive()
     }
 }
 
