@@ -80,7 +80,7 @@ private extension ApplicationController {
     }
 
     func makeMapController() -> MapController {
-        let mapController = MapController()
+        let mapController = MapController(services: services)
         mapController.title = NSLocalizedString("map.title", comment: "")
 
         if #available(iOS 13.0, *) {

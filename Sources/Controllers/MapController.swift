@@ -5,6 +5,17 @@ final class MapController: UIViewController {
     private weak var blueprintsViewController: BlueprintsViewController?
     private weak var blueprintsNavigationController: UINavigationController?
 
+    private let services: Services
+
+    init(services: Services) {
+        self.services = services
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -12,6 +23,15 @@ final class MapController: UIViewController {
         addChild(mapViewController)
         view.addSubview(mapViewController.view)
         mapViewController.didMove(toParent: self)
+
+        services.buildingsService.loadBuildings { buildings, error in
+            DispatchQueue.main.async { [weak self] in
+                self?.mapViewController?.buildings = buildings
+                if error != nil {
+                    self?.mapViewController?.present(ErrorController(), animated: true)
+                }
+            }
+        }
     }
 
     override func viewDidLayoutSubviews() {

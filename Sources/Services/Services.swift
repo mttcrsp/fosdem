@@ -1,11 +1,13 @@
 import Foundation
 
 final class Services {
-    let infoService = InfoService()
+    let infoService: InfoService
     let yearsService = YearsService()
     let updateService: UpdateService
     let networkService: NetworkService
+    let bundleService = BundleService()
     let scheduleService: ScheduleService
+    let buildingsService: BuildingsService
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
@@ -25,6 +27,9 @@ final class Services {
 
         updateService = UpdateService(networkService: networkService)
         scheduleService = ScheduleService(networkService: networkService, persistenceService: persistenceService)
+
+        infoService = InfoService(bundleService: bundleService)
+        buildingsService = BuildingsService(bundleService: bundleService)
 
         #if DEBUG
             debugService = DebugService(persistenceService: persistenceService)
