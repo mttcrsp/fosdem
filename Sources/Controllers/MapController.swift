@@ -113,6 +113,12 @@ extension MapController: BlueprintsViewControllerDelegate {
             blueprintsViewController.dismiss(animated: true)
         }
     }
+
+    func blueprintsViewControllerDidSelectBlueprint(_ blueprintsViewController: BlueprintsViewController) {
+        if blueprintsViewController == self.blueprintsViewController {
+            blueprintsViewControllerDidTapFullscreen(blueprintsViewController)
+        }
+    }
 }
 
 extension MapController: BlueprintsViewControllerFullscreenDelegate {

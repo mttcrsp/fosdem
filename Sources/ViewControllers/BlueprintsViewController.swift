@@ -1,7 +1,8 @@
 import UIKit
 
 protocol BlueprintsViewControllerDelegate: AnyObject {
-    func blueprintsViewControllerDidTapDismiss(_ blueprintViewController: BlueprintsViewController)
+    func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController)
+    func blueprintsViewControllerDidSelectBlueprint(_ blueprintsViewController: BlueprintsViewController)
 }
 
 protocol BlueprintsViewControllerFullscreenDelegate: AnyObject {
@@ -127,6 +128,10 @@ extension BlueprintsViewController: UICollectionViewDataSource, UICollectionView
         }
 
         return cell
+    }
+
+    func collectionView(_: UICollectionView, didSelectItemAt _: IndexPath) {
+        delegate?.blueprintsViewControllerDidSelectBlueprint(self)
     }
 
     func scrollViewDidEndDecelerating(_: UIScrollView) {
