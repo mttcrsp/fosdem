@@ -123,6 +123,13 @@ extension MapController: BlueprintsViewControllerFullscreenDelegate {
         let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
         blueprintsNavigationController.modalPresentationStyle = .fullScreen
         presentingViewController.present(blueprintsNavigationController, animated: true)
+
+        blueprintsNavigationController.view.alpha = 0
+        blueprintsNavigationController.transitionCoordinator?.animate(alongsideTransition: { [weak blueprintsNavigationController] _ in
+            blueprintsNavigationController?.view.alpha = 1
+        }, completion: { [weak blueprintsNavigationController] _ in
+            blueprintsNavigationController?.view.alpha = 1
+        })
     }
 }
 
