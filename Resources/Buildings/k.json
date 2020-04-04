@@ -1,0 +1,47 @@
+{
+  "blueprints": [
+    {
+      "imageName": "k1-1",
+      "title": "Building K - Level 1 (1)"
+    },
+    {
+      "imageName": "k1-2",
+      "title": "Building K - Level 1 (2)"
+    },
+    {
+      "imageName": "k2",
+      "title": "Building K - Level 2"
+    },
+    {
+      "imageName": "k3",
+      "title": "Building K - Level 3"
+    },
+    {
+      "imageName": "k4",
+      "title": "Building K - Level 4"
+    }
+  ],
+  "coordinate": {
+    "latitude": 50.81473311542874,
+    "longitude": 4.381869697304779
+  },
+  "polygon": [
+    {
+      "latitude": 50.81445648728004,
+      "longitude": 4.381859249480868
+    },
+    {
+      "latitude": 50.81456833802892,
+      "longitude": 4.3822159833125625
+    },
+    {
+      "latitude": 50.8150089595851,
+      "longitude": 4.381883389364191
+    },
+    {
+      "latitude": 50.814900499280014,
+      "longitude": 4.381518608904713
+    }
+  ],
+  "title": "K"
+}

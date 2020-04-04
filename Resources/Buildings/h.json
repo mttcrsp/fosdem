@@ -1,0 +1,35 @@
+{
+  "blueprints": [
+    {
+      "imageName": "h1",
+      "title": "Building H - Level 1"
+    },
+    {
+      "imageName": "h2",
+      "title": "Building H - Level 2"
+    }
+  ],
+  "coordinate": {
+    "latitude": 50.81285716248334,
+    "longitude": 4.380192014307283
+  },
+  "polygon": [
+    {
+      "latitude": 50.813223798056896,
+      "longitude": 4.380801222057073
+    },
+    {
+      "latitude": 50.81294596061059,
+      "longitude": 4.381010402798182
+    },
+    {
+      "latitude": 50.81251222314245,
+      "longitude": 4.379590300780109
+    },
+    {
+      "latitude": 50.81278981477041,
+      "longitude": 4.379380876432748
+    }
+  ],
+  "title": "H"
+}

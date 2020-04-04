@@ -1,0 +1,31 @@
+{
+  "blueprints": [
+    {
+      "imageName": "aw",
+      "title": "Building AW"
+    }
+  ],
+  "coordinate": {
+    "latitude": 50.812189418969865,
+    "longitude": 4.380766007089079
+  },
+  "polygon": [
+    {
+      "latitude": 50.811981418430776,
+      "longitude": 4.380620569316875
+    },
+    {
+      "latitude": 50.81212678134494,
+      "longitude": 4.3811021386389655
+    },
+    {
+      "latitude": 50.81239391138743,
+      "longitude": 4.380901178776583
+    },
+    {
+      "latitude": 50.81224834367137,
+      "longitude": 4.380419646773959
+    }
+  ],
+  "title": "AW"
+}
