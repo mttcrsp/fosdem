@@ -5,15 +5,16 @@ import Foundation
 final class InfoServiceBundleMock: InfoServiceBundle {
     private(set) var name: String?
     private(set) var ext: String?
-    private let url: URL?
 
-    init(url: URL?) {
-        self.url = url
+    private let data: Data
+
+    init(data: Data) {
+        self.data = data
     }
 
-    func url(forResource name: String?, withExtension ext: String?) -> URL? {
+    func data(forResource name: String?, withExtension ext: String?) throws -> Data {
         self.name = name
         self.ext = ext
-        return url
+        return data
     }
 }

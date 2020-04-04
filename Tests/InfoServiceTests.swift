@@ -4,16 +4,13 @@ import XCTest
 
 final class InfoServiceTests: XCTestCase {
     func testLoadAttributedText() {
-        let url = URL(fileURLWithPath: "/url/local/fosdem")
         let htmlString = #"<p>standard <strong>bold</strong> <strong><a href="https://www.fosdem.org">link</a></strong></p>"#
         let htmlData = Data(htmlString.utf8)
 
-        let provider = InfoServiceDataProviderMock(data: htmlData)
-        let bundle = InfoServiceBundleMock(url: url)
-
         let expectation = self.expectation(description: #function)
 
-        let service = InfoService(queue: .main, bundle: bundle, provider: provider)
+        let serviceBundle = InfoServiceBundleMock(data: htmlData)
+        let service = InfoService(queue: .main, bundleService: serviceBundle)
         service.loadAttributedText(for: .bus) { attributedText in
             guard let attributedText = attributedText else {
                 return XCTFail("Unexpectedly returned nil while loading attributed text")
@@ -29,9 +26,8 @@ final class InfoServiceTests: XCTestCase {
                 attributesData.append((attributes, range))
             }
 
-            XCTAssertEqual(provider.url, url)
-            XCTAssertEqual(bundle.ext, "html")
-            XCTAssertEqual(bundle.name, "bus-tram")
+            XCTAssertEqual(serviceBundle.name, "bus-tram")
+            XCTAssertEqual(serviceBundle.ext, "html")
             XCTAssertEqual(attributesData.count, 5)
 
             expectation.fulfill()

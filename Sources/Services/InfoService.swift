@@ -6,23 +6,15 @@ enum Info {
 }
 
 protocol InfoServiceBundle {
-    func url(forResource name: String?, withExtension ext: String?) -> URL?
+    func data(forResource name: String?, withExtension ext: String?) throws -> Data
 }
-
-protocol InfoServiceDataProvider {
-    func data(withContentsOf url: URL) throws -> Data
-}
-
-extension Bundle: InfoServiceBundle {}
 
 final class InfoService {
-    private let provider: InfoServiceDataProvider
-    private let bundle: InfoServiceBundle
     private let queue: DispatchQueue
+    private let bundleService: InfoServiceBundle
 
-    init(queue: DispatchQueue = .global(), bundle: InfoServiceBundle = Bundle.main, provider: InfoServiceDataProvider = InfoServiceData()) {
-        self.provider = provider
-        self.bundle = bundle
+    init(queue: DispatchQueue = .global(), bundleService: InfoServiceBundle) {
+        self.bundleService = bundleService
         self.queue = queue
     }
 
@@ -31,12 +23,7 @@ final class InfoService {
             do {
                 guard let self = self else { return }
 
-                guard let url = self.bundle.url(forResource: info.resource, withExtension: "html") else {
-                    assertionFailure("Failed to locate html file for resource '\(info.resource)'")
-                    return completion(nil)
-                }
-
-                let attributedData = try self.provider.data(withContentsOf: url)
+                let attributedData = try self.bundleService.data(forResource: info.resource, withExtension: "html")
                 let attributedText = try NSMutableAttributedString(html: attributedData)
 
                 let string = attributedText.string
@@ -108,8 +95,4 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
     }
 }
 
-final class InfoServiceData: InfoServiceDataProvider {
-    func data(withContentsOf url: URL) throws -> Data {
-        try .init(contentsOf: url)
-    }
-}
+extension BundleService: InfoServiceBundle {}
