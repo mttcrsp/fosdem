@@ -9,7 +9,7 @@ final class InfoServiceTests: XCTestCase {
 
         let expectation = self.expectation(description: #function)
 
-        let serviceBundle = InfoServiceBundleMock(data: htmlData)
+        let serviceBundle = BundleServiceMock(result: .success(htmlData))
         let service = InfoService(queue: .main, bundleService: serviceBundle)
         service.loadAttributedText(for: .bus) { attributedText in
             guard let attributedText = attributedText else {
