@@ -8,7 +8,9 @@ protocol MapViewControllerDelegate: AnyObject {
 final class MapViewController: UIViewController {
     weak var delegate: MapViewControllerDelegate?
 
-    private let buildings = Building.allBuildings
+    var buildings: [Building] = [] {
+        didSet { buildingsDidChange() }
+    }
 
     private lazy var mapView = MKMapView()
 
@@ -36,19 +38,12 @@ final class MapViewController: UIViewController {
         mapView.showsPointsOfInterest = false
         mapView.setCamera(.university, animated: false)
 
-        let overlays = buildings.map { building in building.polygon }
-        mapView.addOverlays(overlays)
-
         if #available(iOS 11.0, *) {
             mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
         }
 
         if #available(iOS 13.0, *) {
             mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .universityBoundary)
-        }
-
-        for building in buildings {
-            mapView.addAnnotation(building)
         }
 
         let tapAction = #selector(didTapMap(_:))
@@ -66,6 +61,17 @@ final class MapViewController: UIViewController {
 
         if let building = buildings.first(where: { building in building.polygon.intersects(rect) }) {
             mapView.selectAnnotation(building, animated: true)
+        }
+    }
+
+    private func buildingsDidChange() {
+        let overlays = buildings.map { building in building.polygon }
+        mapView.removeOverlays(mapView.overlays)
+        mapView.addOverlays(overlays)
+
+        mapView.removeAnnotations(mapView.annotations)
+        for building in buildings {
+            mapView.addAnnotation(building)
         }
     }
 
