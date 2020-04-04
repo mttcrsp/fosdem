@@ -12,17 +12,8 @@ class Building: NSObject, Decodable, MKAnnotation {
     let blueprints: [Blueprint]
     let coordinate: CLLocationCoordinate2D
 
-    init(title: String, glyph: String? = nil, coordinate: CLLocationCoordinate2D, polygon: MKPolygon, blueprints: [Blueprint]) {
-        self.title = title
-        self.polygon = polygon
-        self.glyph = glyph ?? title
-        self.blueprints = blueprints
-        self.coordinate = coordinate
-    }
-
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
         blueprints = try container.decode([Blueprint].self, forKey: .blueprints)
 
         let title = try container.decode(String.self, forKey: .title)
