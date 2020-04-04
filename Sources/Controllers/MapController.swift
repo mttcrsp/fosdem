@@ -4,6 +4,7 @@ final class MapController: UIViewController {
     private weak var mapViewController: MapViewController?
     private weak var blueprintsViewController: BlueprintsViewController?
     private weak var blueprintsNavigationController: UINavigationController?
+    private weak var fullscreenBlueprintsController: BlueprintsViewController?
 
     private let services: Services
 
@@ -105,12 +106,23 @@ extension MapController: MapViewControllerDelegate {
 }
 
 extension MapController: BlueprintsViewControllerDelegate {
-    func blueprintsViewControllerDidTapDismiss(_: BlueprintsViewController) {
-        mapViewController?.deselectSelectedAnnotation()
+    func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController) {
+        if blueprintsViewController == self.blueprintsViewController {
+            mapViewController?.deselectSelectedAnnotation()
+        } else if blueprintsViewController == fullscreenBlueprintsController {
+            blueprintsViewController.dismiss(animated: true)
+        }
     }
+}
 
-    func blueprintsViewControllerDidTapFullscreen(_: BlueprintsViewController) {
-        mapViewController?.deselectSelectedAnnotation()
+extension MapController: BlueprintsViewControllerFullscreenDelegate {
+    func blueprintsViewControllerDidTapFullscreen(_ presentingViewController: BlueprintsViewController) {
+        guard let building = presentingViewController.building else { return }
+
+        let blueprintsViewController = makeFullscreenBlueprintsViewController(for: building)
+        let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
+        blueprintsNavigationController.modalPresentationStyle = .fullScreen
+        presentingViewController.present(blueprintsNavigationController, animated: true)
     }
 }
 
@@ -126,9 +138,18 @@ private extension MapController {
         let blueprintsViewController = BlueprintsViewController()
         blueprintsViewController.extendedLayoutIncludesOpaqueBars = true
         blueprintsViewController.edgesForExtendedLayout = .bottom
+        blueprintsViewController.fullscreenDelegate = self
         blueprintsViewController.building = building
         blueprintsViewController.delegate = self
         self.blueprintsViewController = blueprintsViewController
+        return blueprintsViewController
+    }
+
+    func makeFullscreenBlueprintsViewController(for building: Building) -> BlueprintsViewController {
+        let blueprintsViewController = BlueprintsViewController()
+        blueprintsViewController.building = building
+        blueprintsViewController.delegate = self
+        fullscreenBlueprintsController = blueprintsViewController
         return blueprintsViewController
     }
 }

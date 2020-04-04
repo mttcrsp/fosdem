@@ -2,10 +2,14 @@ import UIKit
 
 protocol BlueprintsViewControllerDelegate: AnyObject {
     func blueprintsViewControllerDidTapDismiss(_ blueprintViewController: BlueprintsViewController)
+}
+
+protocol BlueprintsViewControllerFullscreenDelegate: AnyObject {
     func blueprintsViewControllerDidTapFullscreen(_ blueprintViewController: BlueprintsViewController)
 }
 
 final class BlueprintsViewController: UIViewController {
+    weak var fullscreenDelegate: BlueprintsViewControllerFullscreenDelegate?
     weak var delegate: BlueprintsViewControllerDelegate?
 
     var building: Building? {
@@ -34,6 +38,7 @@ final class BlueprintsViewController: UIViewController {
         navigationItem.rightBarButtonItem = dismissButton
 
         view.addSubview(collectionView)
+        view.backgroundColor = .fos_systemBackground
         view.preservesSuperviewLayoutMargins = false
         view.layoutMargins = .init(top: 8, left: 8, bottom: 8, right: 8)
 
@@ -75,7 +80,7 @@ final class BlueprintsViewController: UIViewController {
 
         if let indexPath = collectionView.indexPathForItem(at: center) {
             title = building.blueprints[indexPath.item].title
-            navigationItem.leftBarButtonItem = fullscreenButton
+            navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : fullscreenButton
         } else {
             title = nil
             navigationItem.leftBarButtonItem = nil
@@ -87,7 +92,7 @@ final class BlueprintsViewController: UIViewController {
     }
 
     @objc private func didTapFullscreen() {
-        delegate?.blueprintsViewControllerDidTapFullscreen(self)
+        fullscreenDelegate?.blueprintsViewControllerDidTapFullscreen(self)
     }
 
     private func makeBarButtonItem(forAction action: Selector, withImageNamed imageName: String) -> UIBarButtonItem {
