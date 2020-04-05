@@ -63,7 +63,6 @@ final class BlueprintsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         collectionView.flashScrollIndicators()
-        didChangeVisibleBlueprint()
     }
 
     private func didChangeBuilding() {
@@ -81,6 +80,9 @@ final class BlueprintsViewController: UIViewController {
 
         if let indexPath = collectionView.indexPathForItem(at: center) {
             title = building.blueprints[indexPath.item].title
+            navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : fullscreenButton
+        } else if let blueprint = building.blueprints.first {
+            title = blueprint.title
             navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : fullscreenButton
         } else {
             title = nil
