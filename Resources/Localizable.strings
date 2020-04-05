@@ -10,8 +10,8 @@
 "plan.soon" = "Starting soon";
 
 /// MARK: - Soon
-"soon.title" = "In the next hour";
-"soon.empty" = "No events are starting in the next hour";
+"soon.title" = "In the next 30 minutes";
+"soon.empty" = "No events starting in the next 30 minutes";
 
 /// MARK: - Favorite
 "favorite" = "Favorite";
