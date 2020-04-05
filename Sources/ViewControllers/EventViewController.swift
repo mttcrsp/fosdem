@@ -7,65 +7,122 @@ protocol EventViewControllerDelegate: AnyObject {
 final class EventViewController: UITableViewController {
     weak var delegate: EventViewControllerDelegate?
 
-    fileprivate struct Item {
-        let type: ItemType
-        let value: String
-    }
-
-    fileprivate enum ItemType {
-        case title, subtitle, abstract, duration, video
-    }
-
     var event: Event? {
         didSet { didChangeEvent() }
+    }
+
+    fileprivate enum Item: CaseIterable {
+        case title, track, people, room, date, subtitle, abstract, summary
     }
 
     private var items: [Item] = [] {
         didSet { didChangeItems() }
     }
 
+    // TITLE
+    // TRACK
+
+    // PEOPLE   person.fill
+    // ROOM     mappin.circle.fill
+    // DATE     clock.fill
+    // DURATION timer
+
+    // SUBTITLE
+    // ABSTRACT + SUMMARY
+    // LINKS
+    // ATTACHMENTS
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.separatorStyle = .none
+        tableView.allowsSelection = false
+        tableView.tableFooterView = .init()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
-    }
-
-    override func numberOfSections(in _: UITableView) -> Int {
-        items.count
+        tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        1
+        items.count
     }
+
+    var timer: Timer?
+    var isToggled = false
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = self.item(forSection: indexPath.section)
-        let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-        cell.selectionStyle = item.type == .video ? .default : .none
-        cell.textLabel?.text = item.value
-        cell.textLabel?.numberOfLines = 0
-        return cell
-    }
+        guard let event = event else { return UITableViewCell() }
 
-    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let item = self.item(forSection: indexPath.section)
-        if case .video = item.type {
-            delegate?.eventViewControllerDidTapVideo(self)
-        }
-    }
+        switch items[indexPath.row] {
+        case .title:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
+            cell.textLabel?.text = event.title
+            cell.textLabel?.numberOfLines = 0
+            return cell
+        case .track:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TrackTableViewCell.reuseIdentifier, for: indexPath) as! TrackTableViewCell
+            cell.track = event.track
+            return cell
+        case .people:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
+            cell.textLabel?.text = event.formattedPeople
+            cell.textLabel?.numberOfLines = 0
 
-    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        item(forSection: section).type.field
-    }
+            if #available(iOS 13.0, *) {
+                cell.imageView?.image = UIImage(systemName: "person.fill")
+            } else {
+                cell.imageView?.image = UIImage(named: "person.fill")
+            }
 
-    override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
-        if let view = view as? UITableViewHeaderFooterView {
-            view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
+            return cell
+        case .room:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
+            cell.textLabel?.text = event.room
+            cell.textLabel?.numberOfLines = 0
+
+            if #available(iOS 13.0, *) {
+                cell.imageView?.image = UIImage(systemName: "mappin.circle.fill")
+            } else {
+                cell.imageView?.image = UIImage(named: "mappin.circle.fill")
+            }
+
+            return cell
+        case .date:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
+            cell.textLabel?.text = event.formattedStart
+            cell.textLabel?.numberOfLines = 0
+
+            if #available(iOS 13.0, *) {
+                cell.imageView?.image = UIImage(systemName: "clock.fill")
+            } else {
+                cell.imageView?.image = UIImage(named: "clock.fill")
+            }
+
+            return cell
+        case .subtitle:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
+            cell.textLabel?.text = event.subtitle
+            cell.textLabel?.numberOfLines = 0
+            return cell
+        case .abstract:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.text = event.formattedAbstract
+            cell.textLabel?.numberOfLines = 0
+            return cell
+        case .summary:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.text = event.summary
+            cell.textLabel?.numberOfLines = 0
+            return cell
         }
     }
 
     private func didChangeEvent() {
         if let event = event {
-            items = event.makeItems()
+            items = Item.makeItems(for: event)
         } else {
             items = []
         }
@@ -73,48 +130,6 @@ final class EventViewController: UITableViewController {
 
     private func didChangeItems() {
         tableView.reloadData()
-    }
-
-    private func item(forSection section: Int) -> Item {
-        items[section]
-    }
-}
-
-private extension Event {
-    func makeItems() -> [EventViewController.Item] {
-        var items: [EventViewController.Item] = []
-        items.append(.init(type: .title, value: title))
-
-        if let value = subtitle {
-            items.append(.init(type: .subtitle, value: value))
-        }
-
-        if let value = formattedAbstract {
-            items.append(.init(type: .abstract, value: value))
-        }
-
-        if let value = formattedDuration {
-            items.append(.init(type: .duration, value: value))
-        }
-
-        if let _ = video {
-            let value = NSLocalizedString("event.video", comment: "")
-            items.append(.init(type: .video, value: value))
-        }
-
-        return items
-    }
-}
-
-private extension EventViewController.ItemType {
-    var field: String? {
-        switch self {
-        case .title: return NSLocalizedString("event.title", comment: "")
-        case .subtitle: return NSLocalizedString("event.subtitle", comment: "")
-        case .abstract: return NSLocalizedString("event.abstract", comment: "")
-        case .duration: return NSLocalizedString("event.duration", comment: "")
-        case .video: return nil
-        }
     }
 }
 
@@ -127,6 +142,10 @@ private extension Event {
     var formattedDuration: String? {
         DateComponentsFormatter.default.string(from: duration)
     }
+
+    var formattedPeople: String? {
+        people.map { person in person.name }.joined(separator: ", ")
+    }
 }
 
 private extension DateComponentsFormatter {
@@ -135,4 +154,18 @@ private extension DateComponentsFormatter {
         formatter.allowedUnits = [.minute]
         return formatter
     }()
+}
+
+private extension EventViewController.Item {
+    static func makeItems(for event: Event) -> [EventViewController.Item] {
+        allCases.filter { item in
+            switch item {
+            case .title, .track, .room, .date: return true
+            case .people: return !event.people.isEmpty
+            case .summary: return event.summary != nil
+            case .subtitle: return event.subtitle != nil
+            case .abstract: return event.formattedAbstract != nil
+            }
+        }
+    }
 }

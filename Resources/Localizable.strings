@@ -17,13 +17,6 @@
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 
-/// MARK: - Event
-"event.title" = "Title";
-"event.subtitle" = "Subtitle";
-"event.abstract" = "Abstract";
-"event.duration" = "Duration";
-"event.video" = "Watch now";
-
 /// MARK: - Tracks
 "home.title" = "Search";
 "home.filter.title" = "Filters";
