@@ -51,6 +51,17 @@ final class MapViewController: UIViewController {
         mapView.addGestureRecognizer(tapRecognizer)
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            for annotation in mapView.annotations {
+                let annotationView = mapView.view(for: annotation) as? MKMarkerAnnotationView
+                annotationView?.markerTintColor = mapView.tintColor
+            }
+        }
+    }
+
     @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: recognizer.view)
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
