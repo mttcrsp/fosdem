@@ -5,6 +5,9 @@ final class MapController: UIViewController {
     private weak var blueprintsViewController: BlueprintsViewController?
     private weak var blueprintsNavigationController: UINavigationController?
     private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
+    private weak var fullscreenBlueprintsNavigationController: UINavigationController?
+
+    private var transition: FullscreenBlueprintsDismissalTransition?
 
     private let services: Services
 
@@ -127,7 +130,14 @@ extension MapController: BlueprintsViewControllerFullscreenDelegate {
 
         let blueprintsViewController = makeFullscreenBlueprintsViewController(for: building)
         let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
-        blueprintsNavigationController.modalPresentationStyle = .fullScreen
+        blueprintsNavigationController.modalPresentationStyle = .overFullScreen
+        fullscreenBlueprintsNavigationController = blueprintsNavigationController
+
+        let transition = FullscreenBlueprintsDismissalTransition(dismissedViewController: blueprintsNavigationController)
+        blueprintsNavigationController.view.addGestureRecognizer(transition.panRecognizer)
+        blueprintsNavigationController.transitioningDelegate = transition
+        self.transition = transition
+
         presentingViewController.present(blueprintsNavigationController, animated: true)
 
         blueprintsNavigationController.view.alpha = 0
