@@ -42,9 +42,8 @@ final class InfoService {
                     }
                 }
 
-                let descriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
-                let boldFont = UIFont(descriptor: descriptor.withSymbolicTraits(.traitBold) ?? descriptor, size: 0)
-                let bodyFont = UIFont(descriptor: descriptor, size: 0)
+                let boldFont = UIFont.fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
+                let bodyFont = UIFont.fos_preferredFont(forTextStyle: .body)
 
                 attributedText.addAttribute(.font, value: bodyFont, range: range)
                 attributedText.addAttribute(.foregroundColor, value: UIColor.fos_label, range: range)

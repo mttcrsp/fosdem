@@ -66,7 +66,7 @@ final class EventsViewController: UITableViewController {
 
     override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
         guard let view = view as? UITableViewHeaderFooterView else { return }
-        view.textLabel?.font = .preferredFont(forTextStyle: .subheadline)
+        view.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
     }
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
