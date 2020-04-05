@@ -4,7 +4,7 @@ final class MapController: UIViewController {
     private weak var mapViewController: MapViewController?
     private weak var blueprintsViewController: BlueprintsViewController?
     private weak var blueprintsNavigationController: UINavigationController?
-    private weak var fullscreenBlueprintsController: BlueprintsViewController?
+    private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
 
     private let services: Services
 
@@ -109,7 +109,7 @@ extension MapController: BlueprintsViewControllerDelegate {
     func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController) {
         if blueprintsViewController == self.blueprintsViewController {
             mapViewController?.deselectSelectedAnnotation()
-        } else if blueprintsViewController == fullscreenBlueprintsController {
+        } else if blueprintsViewController == fullscreenBlueprintsViewController {
             blueprintsViewController.dismiss(animated: true)
         }
     }
@@ -162,7 +162,7 @@ private extension MapController {
         let blueprintsViewController = BlueprintsViewController()
         blueprintsViewController.building = building
         blueprintsViewController.delegate = self
-        fullscreenBlueprintsController = blueprintsViewController
+        fullscreenBlueprintsViewController = blueprintsViewController
         return blueprintsViewController
     }
 }
