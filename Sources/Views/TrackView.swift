@@ -21,9 +21,10 @@ final class TrackView: UIView {
         addSubview(label)
 
         layer.borderWidth = 1
-        layer.borderColor = UIColor.black.cgColor
+        layer.borderColor = UIColor.fos_label.cgColor
         layer.cornerRadius = 4
 
+        label.font = .fos_preferredFont(forTextStyle: .callout)
         label.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
@@ -32,6 +33,14 @@ final class TrackView: UIView {
             label.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             label.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
         ])
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            layer.borderColor = UIColor.fos_label.cgColor
+        }
     }
 
     private func didChangeTrack() {

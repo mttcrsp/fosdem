@@ -25,7 +25,7 @@ final class TrackTableViewCell: UITableViewCell {
 
         NSLayoutConstraint.activate([
             trackView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            trackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            trackView.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
             trackView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             trackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.layoutMarginsGuide.trailingAnchor),
         ])
