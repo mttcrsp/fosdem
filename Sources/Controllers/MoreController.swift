@@ -14,6 +14,7 @@ enum MoreItem: CaseIterable {
         case time
     #endif
 
+    case code
     case years
     case history
     case devrooms
@@ -51,6 +52,7 @@ extension MoreController: MoreViewControllerDelegate {
             case .time: moreViewControllerDidSelectTime(moreViewController)
             case .import: moreViewControllerDidSelectImport(moreViewController)
         #endif
+        case .code: moreViewControllerDidSelectCode(moreViewController)
         case .years: moreViewControllerDidSelectYears(moreViewController)
         case .history: moreViewControllerDidSelectHistory(moreViewController)
         case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
@@ -66,6 +68,14 @@ extension MoreController: MoreViewControllerDelegate {
                     self.years = years
                     moreViewController?.show(self.makeYearsViewController(), sender: nil)
                 }
+            }
+        }
+    }
+
+    private func moreViewControllerDidSelectCode(_ moreViewController: MoreViewController) {
+        if let url = URL(string: "https://www.github.com/mttcrsp/fosdem") {
+            UIApplication.shared.open(url) { [weak moreViewController] _ in
+                moreViewController?.deselectSelectedRow(animated: true)
             }
         }
     }
@@ -332,7 +342,7 @@ extension MoreSection {
         #if DEBUG
             case .debug: return [.import, .time]
         #endif
-        case .other: return [.years, .acknowledgements]
+        case .other: return [.years, .acknowledgements, .code]
         case .about: return [.history, .devrooms, .transportation]
         }
     }
@@ -351,6 +361,7 @@ extension MoreSection {
 extension MoreItem {
     var title: String {
         switch self {
+        case .code: return NSLocalizedString("code.title", comment: "")
         case .years: return NSLocalizedString("years.title", comment: "")
         case .history: return NSLocalizedString("history.title", comment: "")
         case .devrooms: return NSLocalizedString("devrooms.title", comment: "")

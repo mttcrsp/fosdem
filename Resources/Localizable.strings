@@ -41,6 +41,9 @@
 "more.section.about" = "About";
 "more.section.other" = "Other";
 
+/// MARK: - Code
+"code.title" = "Contribute on Github";
+
 /// MARK: - History
 "history.title" = "History";
 
