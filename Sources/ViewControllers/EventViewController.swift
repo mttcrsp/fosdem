@@ -19,19 +19,6 @@ final class EventViewController: UITableViewController {
         didSet { didChangeItems() }
     }
 
-    // TITLE
-    // TRACK
-
-    // PEOPLE   person.fill
-    // ROOM     mappin.circle.fill
-    // DATE     clock.fill
-    // DURATION timer
-
-    // SUBTITLE
-    // ABSTRACT + SUMMARY
-    // LINKS
-    // ATTACHMENTS
-
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.separatorStyle = .none
@@ -104,6 +91,7 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
             cell.textLabel?.text = event.subtitle
             cell.textLabel?.numberOfLines = 0
+            return cell
         case .video:
             let videoAction = #selector(didTapVideo)
             let videoTitle = NSLocalizedString("event.video", comment: "")
@@ -118,7 +106,7 @@ final class EventViewController: UITableViewController {
             return cell
         case .summary:
             let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-            cell.textLabel?.text = event.summary
+            cell.textLabel?.text = event.formattedSummary
             cell.textLabel?.numberOfLines = 0
             return cell
         }
@@ -144,7 +132,15 @@ final class EventViewController: UITableViewController {
 private extension Event {
     var formattedAbstract: String? {
         guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString(html: html) else { return nil }
-        return attributedString.string.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        var string = attributedString.string
+        string = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        string = string.replacingOccurrences(of: "\n", with: "\n\n")
+        return string
+    }
+
+    var formattedSummary: String? {
+        summary?.replacingOccurrences(of: "\n", with: "\n\n")
     }
 
     var formattedDuration: String? {
@@ -173,7 +169,7 @@ private extension EventViewController.Item {
             case .video: return event.video != nil
             case .summary: return event.summary != nil
             case .subtitle: return event.subtitle != nil
-            case .abstract: return event.formattedAbstract != nil
+            case .abstract: return event.abstract != nil
             }
         }
     }
