@@ -12,7 +12,7 @@ final class EventViewController: UITableViewController {
     }
 
     fileprivate enum Item: CaseIterable {
-        case title, track, people, room, date, subtitle, abstract, summary
+        case title, track, video, people, room, date, subtitle, abstract, summary
     }
 
     private var items: [Item] = [] {
@@ -39,14 +39,12 @@ final class EventViewController: UITableViewController {
         tableView.tableFooterView = .init()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
+        tableView.register(RoundedButtonTableViewCell.self, forCellReuseIdentifier: RoundedButtonTableViewCell.reuseIdentifier)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         items.count
     }
-
-    var timer: Timer?
-    var isToggled = false
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let event = event else { return UITableViewCell() }
@@ -106,6 +104,12 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
             cell.textLabel?.text = event.subtitle
             cell.textLabel?.numberOfLines = 0
+        case .video:
+            let videoAction = #selector(didTapVideo)
+            let videoTitle = NSLocalizedString("event.video", comment: "")
+            let cell = tableView.dequeueReusableCell(withIdentifier: RoundedButtonTableViewCell.reuseIdentifier, for: indexPath) as! RoundedButtonTableViewCell
+            cell.button.addTarget(self, action: videoAction, for: .touchUpInside)
+            cell.button.setTitle(videoTitle, for: .normal)
             return cell
         case .abstract:
             let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
@@ -118,6 +122,10 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.numberOfLines = 0
             return cell
         }
+    }
+
+    @objc private func didTapVideo() {
+        delegate?.eventViewControllerDidTapVideo(self)
     }
 
     private func didChangeEvent() {
@@ -162,6 +170,7 @@ private extension EventViewController.Item {
             switch item {
             case .title, .track, .room, .date: return true
             case .people: return !event.people.isEmpty
+            case .video: return event.video != nil
             case .summary: return event.summary != nil
             case .subtitle: return event.subtitle != nil
             case .abstract: return event.formattedAbstract != nil

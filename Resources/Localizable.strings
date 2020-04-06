@@ -9,6 +9,9 @@
 "plan.empty" = "You have no favorite events\n\nEvents you favorite will appear here to allow you to better plan your FOSDEM";
 "plan.soon" = "Starting soon";
 
+/// MARK: - Event
+"event.video" = "Watch now";
+
 /// MARK: - Soon
 "soon.title" = "In the next 30 minutes";
 "soon.empty" = "No events starting in the next 30 minutes";
