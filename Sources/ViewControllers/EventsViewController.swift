@@ -36,7 +36,9 @@ final class EventsViewController: UITableViewController {
     }
 
     func reloadData() {
-        tableView.reloadData()
+        if isViewLoaded {
+            tableView.reloadData()
+        }
     }
 
     override func viewDidLoad() {

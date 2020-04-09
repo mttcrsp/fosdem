@@ -170,7 +170,9 @@ final class EventViewController: UITableViewController {
     }
 
     private func didChangeItems() {
-        tableView.reloadData()
+        if isViewLoaded {
+            tableView.reloadData()
+        }
     }
 }
 

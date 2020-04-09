@@ -38,7 +38,9 @@ final class TracksViewController: UITableViewController {
     }
 
     func reloadData() {
-        tableView.reloadData()
+        if isViewLoaded {
+            tableView.reloadData()
+        }
     }
 
     override func viewDidLoad() {
