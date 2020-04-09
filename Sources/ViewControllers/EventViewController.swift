@@ -123,6 +123,15 @@ final class EventViewController: UITableViewController {
             let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
             cell.textLabel?.text = attachment.title
+
+            let image: UIImage?
+            if #available(iOS 13.0, *) {
+                image = UIImage(systemName: "arrow.down.circle")
+            } else {
+                image = UIImage(named: "arrow.down.circle")
+            }
+            cell.accessoryView = UIImageView(image: image)
+
             return cell
         }
     }
