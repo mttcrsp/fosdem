@@ -45,7 +45,7 @@ final class TracksViewController: UITableViewController {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
-        tableBackgroundView.text = NSLocalizedString("home.empty", comment: "")
+        tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
     override func numberOfSections(in _: UITableView) -> Int {

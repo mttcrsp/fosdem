@@ -8,7 +8,7 @@ private struct TracksSection {
     let initial: Character, tracks: [Track]
 }
 
-final class HomeController: UINavigationController {
+final class SearchController: UINavigationController {
     private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
@@ -140,7 +140,7 @@ final class HomeController: UINavigationController {
     }
 }
 
-extension HomeController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
     private var selectedSections: [TracksSection] {
         sections[selectedFilter] ?? []
     }
@@ -195,7 +195,7 @@ extension HomeController: TracksViewControllerDataSource, TracksViewControllerDe
     }
 }
 
-extension HomeController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
+extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
     func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
         !favoritesService.contains(selectedSections[indexPath.section].tracks[indexPath.row])
     }
@@ -209,7 +209,7 @@ extension HomeController: TracksViewControllerFavoritesDataSource, TracksViewCon
     }
 }
 
-extension HomeController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
+extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
     func events(in _: EventsViewController) -> [Event] {
         events
     }
@@ -247,7 +247,7 @@ extension HomeController: EventsViewControllerDataSource, EventsViewControllerDe
     }
 }
 
-extension HomeController: UISearchResultsUpdating {
+extension SearchController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let query = searchController.searchBar.text, !query.isEmpty else { return }
 
@@ -270,14 +270,14 @@ extension HomeController: UISearchResultsUpdating {
     }
 }
 
-private extension HomeController {
+private extension SearchController {
     func makeTracksViewController() -> TracksViewController {
-        let filtersTitle = NSLocalizedString("home.filter.title", comment: "")
+        let filtersTitle = NSLocalizedString("search.filter.title", comment: "")
         let filtersAction = #selector(didTapChangeFilter)
         let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
 
         let tracksViewController = TracksViewController()
-        tracksViewController.title = NSLocalizedString("home.title", comment: "")
+        tracksViewController.title = NSLocalizedString("search.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.addSearchViewController(makeSearchController())
         tracksViewController.extendedLayoutIncludesOpaqueBars = true
@@ -303,7 +303,7 @@ private extension HomeController {
             alertController.addAction(action)
         }
 
-        let cancelTitle = NSLocalizedString("home.filter.cancel", comment: "")
+        let cancelTitle = NSLocalizedString("search.filter.cancel", comment: "")
         let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
         alertController.addAction(cancelAction)
 
@@ -364,11 +364,11 @@ private extension TracksFilter {
     var title: String {
         switch self {
         case .all:
-            return NSLocalizedString("home.filter.all", comment: "")
+            return NSLocalizedString("search.filter.all", comment: "")
         case .favorites:
-            return NSLocalizedString("home.filter.favorites", comment: "")
+            return NSLocalizedString("search.filter.favorites", comment: "")
         case let .day(day):
-            return String(format: NSLocalizedString("home.filter.day", comment: ""), day)
+            return String(format: NSLocalizedString("search.filter.day", comment: ""), day)
         }
     }
 }

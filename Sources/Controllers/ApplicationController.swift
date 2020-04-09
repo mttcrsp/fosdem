@@ -24,7 +24,7 @@ final class ApplicationController: UITabBarController {
         delegate = self
 
         var viewControllers: [UIViewController] = []
-        viewControllers.append(makeHomeController())
+        viewControllers.append(makeSearchController())
         viewControllers.append(makePlanController())
         viewControllers.append(makeMapController())
         viewControllers.append(makeMoreController())
@@ -62,21 +62,21 @@ private extension ApplicationController {
         return planController
     }
 
-    func makeHomeController() -> HomeController {
-        let tracksController = HomeController(services: services)
-        tracksController.title = NSLocalizedString("home.title", comment: "")
+    func makeSearchController() -> SearchController {
+        let searchController = SearchController(services: services)
+        searchController.title = NSLocalizedString("search.title", comment: "")
 
         if #available(iOS 13.0, *) {
-            tracksController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
+            searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
         } else {
-            tracksController.tabBarItem.image = UIImage(named: "magnifyingglass")
+            searchController.tabBarItem.image = UIImage(named: "magnifyingglass")
         }
 
         if #available(iOS 11.0, *) {
-            tracksController.navigationBar.prefersLargeTitles = true
+            searchController.navigationBar.prefersLargeTitles = true
         }
 
-        return tracksController
+        return searchController
     }
 
     func makeMapController() -> MapController {

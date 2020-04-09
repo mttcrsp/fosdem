@@ -28,13 +28,13 @@
 "unfavorite" = "Unfavorite";
 
 /// MARK: - Tracks
-"home.title" = "Search";
-"home.filter.title" = "Filters";
-"home.filter.day" = "Day %d";
-"home.filter.all" = "All tracks";
-"home.filter.favorites" = "Your Favorites";
-"home.filter.cancel" = "Cancel";
-"home.empty" = "You have no favorite tracks";
+"search.title" = "Search";
+"search.filter.title" = "Filters";
+"search.filter.day" = "Day %d";
+"search.filter.all" = "All tracks";
+"search.filter.favorites" = "Your Favorites";
+"search.filter.cancel" = "Cancel";
+"search.empty" = "You have no favorite tracks";
 
 /// MARK: - Map
 "map.title" = "Map";
