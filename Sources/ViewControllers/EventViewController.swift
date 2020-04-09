@@ -2,6 +2,7 @@ import UIKit
 
 protocol EventViewControllerDelegate: AnyObject {
     func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
+    func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
 
 final class EventViewController: UITableViewController {
@@ -11,8 +12,18 @@ final class EventViewController: UITableViewController {
         didSet { didChangeEvent() }
     }
 
-    fileprivate enum Item: CaseIterable {
-        case title, track, video, people, room, date, subtitle, abstract, summary
+    fileprivate enum Item {
+        case title
+        case track
+        case video
+        case people
+        case room
+        case date
+        case subtitle
+        case abstract
+        case summary
+        case attachments
+        case attachment(Attachment)
     }
 
     private var items: [Item] = [] {
@@ -22,7 +33,6 @@ final class EventViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.separatorStyle = .none
-        tableView.allowsSelection = false
         tableView.tableFooterView = .init()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
@@ -42,6 +52,8 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
             cell.textLabel?.text = event.title
             cell.textLabel?.numberOfLines = 0
+            cell.imageView?.image = nil
+            cell.selectionStyle = .none
             return cell
         case .track:
             let cell = tableView.dequeueReusableCell(withIdentifier: TrackTableViewCell.reuseIdentifier, for: indexPath) as! TrackTableViewCell
@@ -52,6 +64,7 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.formattedPeople
             cell.textLabel?.numberOfLines = 0
+            cell.selectionStyle = .none
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "person.fill")
@@ -65,6 +78,7 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.room
             cell.textLabel?.numberOfLines = 0
+            cell.selectionStyle = .none
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "mappin.circle.fill")
@@ -78,6 +92,7 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.formattedStart
             cell.textLabel?.numberOfLines = 0
+            cell.selectionStyle = .none
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "clock.fill")
@@ -91,6 +106,8 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
             cell.textLabel?.text = event.subtitle
             cell.textLabel?.numberOfLines = 0
+            cell.imageView?.image = nil
+            cell.selectionStyle = .none
             return cell
         case .video:
             let videoAction = #selector(didTapVideo)
@@ -101,14 +118,42 @@ final class EventViewController: UITableViewController {
             return cell
         case .abstract:
             let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body)
             cell.textLabel?.text = event.formattedAbstract
             cell.textLabel?.numberOfLines = 0
+            cell.imageView?.image = nil
+            cell.selectionStyle = .none
             return cell
         case .summary:
             let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body)
             cell.textLabel?.text = event.formattedSummary
             cell.textLabel?.numberOfLines = 0
+            cell.imageView?.image = nil
+            cell.selectionStyle = .none
             return cell
+        case .attachments:
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.text = NSLocalizedString("event.attachments", comment: "")
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
+            cell.textLabel?.numberOfLines = 0
+            cell.imageView?.image = nil
+            cell.selectionStyle = .none
+            return cell
+        case let .attachment(attachment):
+            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
+            cell.textLabel?.text = attachment.title
+            cell.textLabel?.numberOfLines = 0
+            cell.imageView?.image = nil
+            cell.selectionStyle = .none
+            return cell
+        }
+    }
+
+    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if case let .attachment(attachment) = items[indexPath.row] {
+            delegate?.eventViewController(self, didSelect: attachment)
         }
     }
 
@@ -118,7 +163,7 @@ final class EventViewController: UITableViewController {
 
     private func didChangeEvent() {
         if let event = event {
-            items = Item.makeItems(for: event)
+            items = event.makeItems()
         } else {
             items = []
         }
@@ -160,17 +205,86 @@ private extension DateComponentsFormatter {
     }()
 }
 
-private extension EventViewController.Item {
-    static func makeItems(for event: Event) -> [EventViewController.Item] {
-        allCases.filter { item in
-            switch item {
-            case .title, .track, .room, .date: return true
-            case .people: return !event.people.isEmpty
-            case .video: return event.video != nil
-            case .summary: return event.summary != nil
-            case .subtitle: return event.subtitle != nil
-            case .abstract: return event.abstract != nil
+private extension Event {
+    func makeItems() -> [EventViewController.Item] {
+        var items: [EventViewController.Item] = [.title, .track]
+
+        if video != nil {
+            items.append(.video)
+        }
+
+        if !people.isEmpty {
+            items.append(.people)
+        }
+
+        items.append(contentsOf: [.room, .date])
+
+        if subtitle != nil {
+            items.append(.subtitle)
+        }
+
+        if abstract != nil {
+            items.append(.abstract)
+        }
+
+        if summary != nil {
+            items.append(.summary)
+        }
+
+        let attachments = self.attachments.filter { attachment in
+            attachment.title != nil
+        }
+
+        if !attachments.isEmpty {
+            items.append(.attachments)
+        }
+
+        for attachment in attachments {
+            items.append(.attachment(attachment))
+        }
+
+        return items
+    }
+}
+
+private extension Attachment {
+    var title: String? {
+        switch (name, type.title) {
+        case (nil, nil):
+            return nil
+        case (let value?, nil), (nil, let value?):
+            return value
+        case let (name?, type?):
+            let lowercaseName = name.lowercased()
+            let lowercaseType = type.lowercased()
+            if lowercaseName.contains(lowercaseType) {
+                return name
+            } else {
+                return "\(name) (\(type))"
             }
         }
     }
 }
+
+private extension AttachmentType {
+    var title: String? {
+        switch self {
+        case .slides: return NSLocalizedString("attachment.slides", comment: "")
+        case .audio: return NSLocalizedString("attachment.audio", comment: "")
+        case .paper: return NSLocalizedString("attachment.paper", comment: "")
+        case .video: return NSLocalizedString("attachment.video", comment: "")
+        case .other: return nil
+        }
+    }
+}
+
+// EventViewController.Item.allCases.filter { item in
+//    switch item {
+//    case .title, .track, .room, .date: return true
+//    case .video: return video != nil
+//    case .summary: return summary != nil
+//    case .subtitle: return subtitle != nil
+//    case .abstract: return abstract != nil
+//    case .people: return
+//    }
+// }

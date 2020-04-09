@@ -14,6 +14,8 @@ final class RoundedButtonTableViewCell: UITableViewCell {
     }
 
     private func commonInit() {
+        selectionStyle = .none
+
         contentView.addSubview(button)
 
         button.translatesAutoresizingMaskIntoConstraints = false

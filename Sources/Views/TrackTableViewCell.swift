@@ -19,6 +19,8 @@ final class TrackTableViewCell: UITableViewCell {
     }
 
     private func commonInit() {
+        selectionStyle = .none
+
         contentView.addSubview(trackView)
 
         trackView.translatesAutoresizingMaskIntoConstraints = false

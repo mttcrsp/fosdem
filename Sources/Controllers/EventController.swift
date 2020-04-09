@@ -1,4 +1,5 @@
 import AVKit
+import SafariServices
 
 final class EventController: UIViewController {
     private weak var eventViewController: EventViewController?
@@ -68,7 +69,14 @@ final class EventController: UIViewController {
 extension EventController: EventViewControllerDelegate {
     func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
         guard let video = event.video, let url = video.url else { return }
-        eventViewController.present(makeVideoViewController(for: url), animated: true)
+
+        let videoViewController = makeVideoViewController(for: url)
+        eventViewController.present(videoViewController, animated: true)
+    }
+
+    func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
+        let attachmentViewController = makeAttachmentViewController(for: attachment)
+        eventViewController.present(attachmentViewController, animated: true)
     }
 }
 
@@ -109,5 +117,9 @@ private extension EventController {
         }
 
         return videoViewController
+    }
+
+    private func makeAttachmentViewController(for attachment: Attachment) -> SFSafariViewController {
+        .init(url: attachment.url)
     }
 }

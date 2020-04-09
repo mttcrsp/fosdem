@@ -11,6 +11,13 @@
 
 /// MARK: - Event
 "event.video" = "Watch now";
+"event.attachments" = "Attachments";
+
+/// MARK: - Attachment
+"attachment.slides" = "Slides";
+"attachment.audio" = "Audio";
+"attachment.paper" = "Paper";
+"attachment.video" = "Video";
 
 /// MARK: - Soon
 "soon.title" = "In the next 30 minutes";
