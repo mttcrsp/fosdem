@@ -34,7 +34,7 @@ final class EventViewController: UITableViewController {
         super.viewDidLoad()
         tableView.separatorStyle = .none
         tableView.tableFooterView = .init()
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
         tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
         tableView.register(RoundedButtonTableViewCell.self, forCellReuseIdentifier: RoundedButtonTableViewCell.reuseIdentifier)
     }
@@ -48,23 +48,18 @@ final class EventViewController: UITableViewController {
 
         switch items[indexPath.row] {
         case .title:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
             cell.textLabel?.text = event.title
-            cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = nil
-            cell.selectionStyle = .none
             return cell
         case .track:
             let cell = tableView.dequeueReusableCell(withIdentifier: TrackTableViewCell.reuseIdentifier, for: indexPath) as! TrackTableViewCell
             cell.track = event.track
             return cell
         case .people:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.formattedPeople
-            cell.textLabel?.numberOfLines = 0
-            cell.selectionStyle = .none
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "person.fill")
@@ -74,11 +69,9 @@ final class EventViewController: UITableViewController {
 
             return cell
         case .room:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.room
-            cell.textLabel?.numberOfLines = 0
-            cell.selectionStyle = .none
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "mappin.circle.fill")
@@ -88,11 +81,9 @@ final class EventViewController: UITableViewController {
 
             return cell
         case .date:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.formattedStart
-            cell.textLabel?.numberOfLines = 0
-            cell.selectionStyle = .none
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "clock.fill")
@@ -102,12 +93,9 @@ final class EventViewController: UITableViewController {
 
             return cell
         case .subtitle:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
             cell.textLabel?.text = event.subtitle
-            cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = nil
-            cell.selectionStyle = .none
             return cell
         case .video:
             let videoAction = #selector(didTapVideo)
@@ -117,36 +105,24 @@ final class EventViewController: UITableViewController {
             cell.button.setTitle(videoTitle, for: .normal)
             return cell
         case .abstract:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body)
             cell.textLabel?.text = event.formattedAbstract
-            cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = nil
-            cell.selectionStyle = .none
             return cell
         case .summary:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body)
             cell.textLabel?.text = event.formattedSummary
-            cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = nil
-            cell.selectionStyle = .none
             return cell
         case .attachments:
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.text = NSLocalizedString("event.attachments", comment: "")
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .headline)
-            cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = nil
-            cell.selectionStyle = .none
             return cell
         case let .attachment(attachment):
-            let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
             cell.textLabel?.text = attachment.title
-            cell.textLabel?.numberOfLines = 0
-            cell.imageView?.image = nil
-            cell.selectionStyle = .none
             return cell
         }
     }
@@ -172,6 +148,26 @@ final class EventViewController: UITableViewController {
     private func didChangeItems() {
         if isViewLoaded {
             tableView.reloadData()
+        }
+    }
+
+    private final class TableViewCell: UITableViewCell {
+        override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+            super.init(style: style, reuseIdentifier: reuseIdentifier)
+            selectionStyle = .none
+            textLabel?.numberOfLines = 0
+        }
+
+        required init?(coder _: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func prepareForReuse() {
+            super.prepareForReuse()
+            imageView?.image = nil
+            textLabel?.font = nil
+            textLabel?.text = nil
+            accessoryView = nil
         }
     }
 }
