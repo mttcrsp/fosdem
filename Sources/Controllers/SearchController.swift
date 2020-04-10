@@ -249,7 +249,12 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 
 extension SearchController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        guard let query = searchController.searchBar.text, !query.isEmpty else { return }
+        guard let query = searchController.searchBar.text, query.count >= 3 else {
+            resultsViewController?.emptyBackgroundText = nil
+            resultsViewController?.view.isHidden = true
+            events = []
+            return
+        }
 
         let operation = EventsForSearch(query: query)
         services.persistenceService.performRead(operation) { [weak self] result in
@@ -263,6 +268,7 @@ extension SearchController: UISearchResultsUpdating {
                     let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
                     let emptyString = String(format: emptyFormat, query)
                     self?.resultsViewController?.emptyBackgroundText = emptyString
+                    self?.resultsViewController?.view.isHidden = false
                     self?.resultsViewController?.reloadData()
                 }
             }
