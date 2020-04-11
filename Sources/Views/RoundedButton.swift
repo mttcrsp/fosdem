@@ -23,7 +23,7 @@ final class RoundedButton: UIButton {
         setBackgroundImage(makeNormalImage(), for: .normal)
         setBackgroundImage(makeHighlightedImage(), for: .highlighted)
 
-        contentEdgeInsets = .init(top: 12, left: 12, bottom: 12, right: 12)
+        contentEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         titleLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
     }
 

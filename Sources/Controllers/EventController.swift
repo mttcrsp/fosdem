@@ -120,6 +120,6 @@ private extension EventController {
     }
 
     private func makeAttachmentViewController(for attachment: Attachment) -> SFSafariViewController {
-        .init(url: attachment.url)
+        SFSafariViewController(url: attachment.url)
     }
 }

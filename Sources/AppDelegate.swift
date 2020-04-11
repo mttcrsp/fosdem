@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let rootViewController: UIViewController
         do {
-            rootViewController = ApplicationController(services: try .init())
+            rootViewController = ApplicationController(services: try Services())
         } catch {
             rootViewController = ErrorController()
         }

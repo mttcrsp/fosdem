@@ -134,11 +134,14 @@ extension MoreController: MoreViewControllerDelegate {
         }
 
         private func moreViewControllerDidSelectTime(_ moreViewController: MoreViewController) {
+            let sourceIndexPath = IndexPath(row: 0, section: 0)
+            let sourceCell = moreViewController.tableView.cellForRow(at: sourceIndexPath)
+
             let timeViewController = makeTimeViewController()
             timeViewController.modalPresentationStyle = .popover
             timeViewController.popoverPresentationController?.delegate = self
-            timeViewController.popoverPresentationController?.sourceView = moreViewController.tableView.cellForRow(at: .init(row: 0, section: 0))
-            timeViewController.popoverPresentationController?.sourceRect = moreViewController.tableView.cellForRow(at: .init(row: 0, section: 0))?.frame ?? .zero
+            timeViewController.popoverPresentationController?.sourceView = sourceCell
+            timeViewController.popoverPresentationController?.sourceRect = sourceCell?.frame ?? .zero
             moreViewController.present(timeViewController, animated: true)
         }
 

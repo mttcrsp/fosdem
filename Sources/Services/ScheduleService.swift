@@ -68,7 +68,7 @@ final class ScheduleService {
 
                 assert(error == nil)
                 self?.isUpdating = false
-                self?.latestUpdate = .init()
+                self?.latestUpdate = Date()
             }
         }
     }

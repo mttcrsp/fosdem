@@ -121,7 +121,7 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
 
         let event = try Event(attributes: attributes, state: eventState, dayAttributes: day.attributes)
         dayState.events.append(event)
-        eventState = .init()
+        eventState = EventState()
     }
 
     private func didParseRoom(with attributes: [String: String]) throws {
@@ -133,7 +133,7 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     private func didParseDay(with attributes: [String: String]) throws {
         let day = try Day(attributes: attributes, state: dayState)
         scheduleState.days.append(day)
-        dayState = .init()
+        dayState = DayState()
     }
 
     private func didParseConference(with attributes: [String: String]) throws {

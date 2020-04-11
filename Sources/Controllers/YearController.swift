@@ -178,6 +178,6 @@ private extension YearController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        .init(event: event)
+        EventController(event: event)
     }
 }

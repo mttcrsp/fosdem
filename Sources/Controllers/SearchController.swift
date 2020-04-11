@@ -136,7 +136,7 @@ final class SearchController: UINavigationController {
 
         return tracksForInitial
             .sorted { lhs, rhs in lhs.key < rhs.key }
-            .map { initial, tracks in .init(initial: initial, tracks: tracks) }
+            .map { initial, tracks in TracksSection(initial: initial, tracks: tracks) }
     }
 }
 

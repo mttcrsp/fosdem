@@ -16,7 +16,7 @@ final class EventTableViewCell: UITableViewCell {
 
         accessoryType = .disclosureIndicator
 
-        selectedBackgroundView = .init()
+        selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = selectedBackgroundColor
         selectedBackgroundView?.layer.mask = CAShapeLayer()
 
@@ -57,7 +57,7 @@ final class EventTableViewCell: UITableViewCell {
 
     private var contentInsets: UIEdgeInsets {
         let inset = makeScaledValue(for: 16)
-        return .init(top: inset, left: inset, bottom: inset, right: inset)
+        return UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
     }
 
     private var selectedBackgroundInsets: UIEdgeInsets {

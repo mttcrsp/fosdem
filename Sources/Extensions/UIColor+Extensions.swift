@@ -21,7 +21,7 @@ extension UIColor {
         if #available(iOS 13.0, *) {
             return .secondaryLabel
         } else {
-            return .init(red: 60 / 255, green: 60 / 255, blue: 67 / 255, alpha: 60 / 255)
+            return UIColor(red: 60 / 255, green: 60 / 255, blue: 67 / 255, alpha: 60 / 255)
         }
     }
 }
@@ -32,6 +32,6 @@ extension UIColor {
         getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
 
         brightness = max(0, min(1, brightness * factor))
-        return .init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
+        return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
     }
 }

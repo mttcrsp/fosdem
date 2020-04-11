@@ -57,7 +57,7 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        .init()
+        UIView()
     }
 
     override func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {

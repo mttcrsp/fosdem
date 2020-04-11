@@ -55,7 +55,7 @@ final class EventsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: EventTableViewCell.reuseIdentifier, for: indexPath) as! EventTableViewCell
-        cell.layoutMargins = .init(top: 16, left: 16, bottom: 16, right: 16)
+        cell.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         cell.configure(with: event(at: indexPath))
         return cell
     }
@@ -86,12 +86,5 @@ final class EventsViewController: UITableViewController {
 
     private func event(at indexPath: IndexPath) -> Event {
         events[indexPath.row]
-    }
-}
-
-private extension Event {
-    var formattedStartAndRoom: String {
-        guard let formattedStart = formattedStart else { return room }
-        return "\(formattedStart) - \(room)"
     }
 }

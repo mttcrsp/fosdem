@@ -3,7 +3,7 @@
 
     final class DebugService {
         var now: Date {
-            date ?? .init()
+            date ?? Date()
         }
 
         private var date: Date?

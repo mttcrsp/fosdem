@@ -33,7 +33,7 @@ extension Bundle: BundleServiceBundle {}
 
 final class BundleServiceData: BundleServiceDataProvider {
     func data(withContentsOf url: URL) throws -> Data {
-        try .init(contentsOf: url)
+        try Data(contentsOf: url)
     }
 }
 
