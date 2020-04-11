@@ -324,7 +324,7 @@ private extension SearchController {
     }
 
     func makeResultsViewController() -> EventsViewController {
-        let resultsViewController = EventsViewController(style: .grouped)
+        let resultsViewController = EventsViewController()
         resultsViewController.favoritesDataSource = self
         resultsViewController.favoritesDelegate = self
         resultsViewController.dataSource = self
@@ -337,7 +337,7 @@ private extension SearchController {
         let favoriteAction = #selector(didToggleFavorite)
         let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
 
-        let eventsViewController = EventsViewController(style: .grouped)
+        let eventsViewController = EventsViewController()
         eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
         eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.hidesBottomBarWhenPushed = true
