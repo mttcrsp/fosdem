@@ -76,6 +76,7 @@ final class EventTableViewCell: UITableViewCell {
     func configure(with event: Event) {
         titleLabel.text = event.title
         metadataLabel.text = event.formattedStartAndRoom
+        accessibilityLabel = event.accessibilityLabel
     }
 
     override func layoutSubviews() {
@@ -116,5 +117,21 @@ private extension Event {
     var formattedStartAndRoom: String {
         guard let formattedStart = formattedStart else { return room }
         return "\(formattedStart) - \(room)"
+    }
+
+    var accessibilityLabel: String {
+        var items: [String] = [title]
+
+        if let formattedStart = formattedStart {
+            let startFormat = NSLocalizedString("event.start.accessibility.hint", comment: "")
+            let startHint = String(format: startFormat, formattedStart)
+            items.append(startHint)
+        }
+
+        let roomFormat = NSLocalizedString("event.room.accessibility.hint", comment: "")
+        let roomHint = String(format: roomFormat, room)
+        items.append(roomHint)
+
+        return items.joined(separator: ". ")
     }
 }

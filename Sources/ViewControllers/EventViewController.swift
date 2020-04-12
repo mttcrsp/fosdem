@@ -58,6 +58,7 @@ final class EventViewController: UITableViewController {
             return cell
         case .people:
             let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
+            cell.accessibilityLabel = accessibilityLabel
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
             cell.textLabel?.text = event.formattedPeople
 
@@ -65,6 +66,12 @@ final class EventViewController: UITableViewController {
                 cell.imageView?.image = UIImage(systemName: "person.fill")
             } else {
                 cell.imageView?.image = UIImage(named: "person.fill")
+            }
+
+            if let people = event.formattedPeople {
+                let accessibilityFormat = NSLocalizedString("event.people", comment: "")
+                let accessibilityLabel = String(format: accessibilityFormat, people)
+                cell.accessibilityLabel = accessibilityLabel
             }
 
             return cell
@@ -79,6 +86,10 @@ final class EventViewController: UITableViewController {
                 cell.imageView?.image = UIImage(named: "mappin.circle.fill")
             }
 
+            let accessibilityFormat = NSLocalizedString("event.room", comment: "")
+            let accessibilityLabel = String(format: accessibilityFormat, event.room)
+            cell.accessibilityLabel = accessibilityLabel
+
             return cell
         case .date:
             let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
@@ -91,6 +102,12 @@ final class EventViewController: UITableViewController {
                 cell.imageView?.image = UIImage(named: "clock.fill")
             }
 
+            if let start = event.formattedStart {
+                let accessibilityFormat = NSLocalizedString("event.start", comment: "")
+                let accessibilityLabel = String(format: accessibilityFormat, start)
+                cell.accessibilityLabel = accessibilityLabel
+            }
+
             return cell
         case .subtitle:
             let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
@@ -101,6 +118,7 @@ final class EventViewController: UITableViewController {
             let videoAction = #selector(didTapVideo)
             let videoTitle = NSLocalizedString("event.video", comment: "")
             let cell = tableView.dequeueReusableCell(withIdentifier: RoundedButtonTableViewCell.reuseIdentifier, for: indexPath) as! RoundedButtonTableViewCell
+            cell.button.accessibilityLabel = NSLocalizedString("event.video.accessibility", comment: "")
             cell.button.addTarget(self, action: videoAction, for: .touchUpInside)
             cell.button.setTitle(videoTitle, for: .normal)
             return cell
@@ -123,6 +141,7 @@ final class EventViewController: UITableViewController {
             let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
             cell.textLabel?.text = attachment.title
+            cell.accessibilityTraits = .link
 
             let image: UIImage?
             if #available(iOS 13.0, *) {

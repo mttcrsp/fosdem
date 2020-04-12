@@ -11,7 +11,13 @@
 
 /// MARK: - Event
 "event.video" = "Watch now";
+"event.video.accessibility" = "Play recording";
 "event.attachments" = "Attachments";
+"event.people" = "Speakers: %@";
+"event.room" = "Room: %@";
+"event.room.accessibility.hint" = "In room %@";
+"event.start" = "Starts at %@";
+"event.start.accessibility.hint" = "At %@";
 
 /// MARK: - Attachment
 "attachment.slides" = "Slides";
