@@ -70,15 +70,13 @@ private extension ApplicationController {
     func makePlanController() -> PlanController {
         let planController = PlanController(services: services)
         planController.title = NSLocalizedString("plan.title", comment: "")
+        planController.extendedLayoutIncludesOpaqueBars = true
+        planController.preferredDisplayMode = .allVisible
 
         if #available(iOS 13.0, *) {
             planController.tabBarItem.image = UIImage(systemName: "calendar")
         } else {
             planController.tabBarItem.image = UIImage(named: "calendar")
-        }
-
-        if #available(iOS 11.0, *) {
-            planController.navigationBar.prefersLargeTitles = true
         }
 
         return planController

@@ -1,6 +1,6 @@
 import UIKit
 
-final class PlanController: UINavigationController {
+final class PlanController: UISplitViewController {
     private weak var planViewController: EventsViewController?
     private weak var soonViewController: EventsViewController?
 
@@ -30,7 +30,14 @@ final class PlanController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        viewControllers = [makePlanViewController()]
+        let planViewController = makePlanViewController()
+        let planNavigationController = UINavigationController(rootViewController: planViewController)
+
+        if #available(iOS 11.0, *) {
+            planNavigationController.navigationBar.prefersLargeTitles = true
+        }
+
+        viewControllers = [planNavigationController]
 
         reloadFavoriteEvents()
         observation = favoritesService.addObserverForEvents { [weak self] in
@@ -97,7 +104,13 @@ extension PlanController: EventsViewControllerDataSource, EventsViewControllerDe
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        eventsViewController.show(makeEventViewController(for: event), sender: nil)
+        let eventViewController = makeEventViewController(for: event)
+
+        if eventsViewController == soonViewController {
+            eventsViewController.show(eventViewController, sender: nil)
+        } else if eventsViewController == planViewController {
+            eventsViewController.showDetailViewController(eventViewController, sender: nil)
+        }
     }
 
     func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
@@ -115,9 +128,7 @@ extension PlanController: EventsViewControllerDataSource, EventsViewControllerDe
 
 private extension PlanController {
     func makeEventViewController(for event: Event) -> EventController {
-        let eventViewController = EventController(event: event, favoritesService: favoritesService)
-        eventViewController.hidesBottomBarWhenPushed = true
-        return eventViewController
+        EventController(event: event, favoritesService: favoritesService)
     }
 
     func makePlanViewController() -> EventsViewController {
@@ -129,6 +140,7 @@ private extension PlanController {
         planViewController.emptyBackgroundText = NSLocalizedString("plan.empty", comment: "")
         planViewController.title = NSLocalizedString("plan.title", comment: "")
         planViewController.navigationItem.rightBarButtonItem = soonButton
+        planViewController.extendedLayoutIncludesOpaqueBars = true
         planViewController.favoritesDataSource = self
         planViewController.favoritesDelegate = self
         planViewController.dataSource = self
