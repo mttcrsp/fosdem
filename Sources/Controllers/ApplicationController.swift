@@ -18,6 +18,20 @@ final class ApplicationController: UITabBarController {
         set { UserDefaults.standard.selectedViewController = newValue }
     }
 
+    override var canBecomeFirstResponder: Bool {
+        true
+    }
+
+    override var keyCommands: [UIKeyCommand]? {
+        let prevModifierFlags: UIKeyModifierFlags = [.alternate, .shift]
+        let nextModifierFlags: UIKeyModifierFlags = [.alternate]
+        let prevAction = #selector(didSelectPrevTab(_:))
+        let nextAction = #selector(didSelectNextTab(_:))
+        let prevCommand = UIKeyCommand(input: "\t", modifierFlags: prevModifierFlags, action: prevAction)
+        let nextCommand = UIKeyCommand(input: "\t", modifierFlags: nextModifierFlags, action: nextAction)
+        return [prevCommand, nextCommand]
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -41,6 +55,14 @@ final class ApplicationController: UITabBarController {
 
     func applicationDidBecomeActive() {
         services.scheduleService.startUpdating()
+    }
+
+    @objc private func didSelectPrevTab(_: Any) {
+        selectedIndex = ((selectedIndex - 1) + children.count) % children.count
+    }
+
+    @objc private func didSelectNextTab(_: Any) {
+        selectedIndex = ((selectedIndex + 1) + children.count) % children.count
     }
 }
 
