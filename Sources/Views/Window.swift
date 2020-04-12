@@ -3,7 +3,6 @@ import UIKit
 final class Window: UIWindow {
     func configure() {
         tintColor = .fos_label
-        backgroundColor = .fos_systemBackground
     }
 
     func configureAppearanceProxies() {

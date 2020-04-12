@@ -87,15 +87,13 @@ private extension ApplicationController {
     func makeSearchController() -> SearchController {
         let searchController = SearchController(services: services)
         searchController.title = NSLocalizedString("search.title", comment: "")
+        searchController.extendedLayoutIncludesOpaqueBars = true
+        searchController.preferredDisplayMode = .allVisible
 
         if #available(iOS 13.0, *) {
             searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
         } else {
             searchController.tabBarItem.image = UIImage(named: "magnifyingglass")
-        }
-
-        if #available(iOS 11.0, *) {
-            searchController.navigationBar.prefersLargeTitles = true
         }
 
         return searchController

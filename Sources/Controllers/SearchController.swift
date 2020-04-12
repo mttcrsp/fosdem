@@ -8,7 +8,7 @@ private struct TracksSection {
     let initial: Character, tracks: [Track]
 }
 
-final class SearchController: UINavigationController {
+final class SearchController: UISplitViewController {
     private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
@@ -56,7 +56,14 @@ final class SearchController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        viewControllers = [makeTracksViewController()]
+        let tracksViewController = makeTracksViewController()
+        let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
+
+        if #available(iOS 11.0, *) {
+            tracksNavigationController.navigationBar.prefersLargeTitles = true
+        }
+
+        viewControllers = [tracksNavigationController]
 
         persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
             switch result {
@@ -168,7 +175,8 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
         selectedTrack = track
 
         let eventsViewController = makeEventsViewController(for: track)
-        tracksViewController.show(eventsViewController, sender: nil)
+        let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
+        tracksViewController.showDetailViewController(eventsNavigationController, sender: nil)
 
         events = []
         persistenceService.performRead(EventsForTrack(track: track.name)) { result in
@@ -340,7 +348,6 @@ private extension SearchController {
         let eventsViewController = EventsViewController()
         eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
         eventsViewController.extendedLayoutIncludesOpaqueBars = true
-        eventsViewController.hidesBottomBarWhenPushed = true
         eventsViewController.favoritesDataSource = self
         eventsViewController.favoritesDelegate = self
         eventsViewController.title = track.name
@@ -361,7 +368,7 @@ private extension SearchController {
 
     func makeEventViewController(for event: Event) -> EventController {
         let eventViewController = EventController(event: event, favoritesService: favoritesService)
-        eventViewController.hidesBottomBarWhenPushed = true
+        eventViewController.extendedLayoutIncludesOpaqueBars = true
         return eventViewController
     }
 }
