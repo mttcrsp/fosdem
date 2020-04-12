@@ -113,15 +113,13 @@ private extension ApplicationController {
     func makeMoreController() -> MoreController {
         let moreController = MoreController(services: services)
         moreController.title = NSLocalizedString("more.title", comment: "")
+        moreController.extendedLayoutIncludesOpaqueBars = true
+        moreController.preferredDisplayMode = .allVisible
 
         if #available(iOS 13.0, *) {
             moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
         } else {
             moreController.tabBarItem.image = UIImage(named: "ellipsis.circle")
-        }
-
-        if #available(iOS 11.0, *) {
-            moreController.navigationBar.prefersLargeTitles = true
         }
 
         return moreController

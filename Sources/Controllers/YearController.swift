@@ -106,13 +106,13 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
         events
     }
 
-    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
+    func eventsViewController(_ presentingViewController: EventsViewController, didSelect event: Event) {
         let eventViewController = makeEventViewController(for: event)
 
-        if self.eventsViewController == eventsViewController {
-            eventsViewController.show(eventViewController, sender: nil)
-        } else {
-            tracksViewController?.show(eventViewController, sender: nil)
+        if presentingViewController == eventsViewController {
+            presentingViewController.showDetailViewController(eventViewController, sender: nil)
+        } else if presentingViewController == resultsViewController {
+            tracksViewController?.showDetailViewController(eventViewController, sender: nil)
         }
     }
 }
