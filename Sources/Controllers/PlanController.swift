@@ -27,6 +27,10 @@ final class PlanController: UISplitViewController {
         services.persistenceService
     }
 
+    private var isDisplayingEmptyDetail: Bool {
+        traitCollection.horizontalSizeClass == .regular && viewControllers.count == 1
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -67,7 +71,7 @@ final class PlanController: UISplitViewController {
         self.events = events
 
         planViewController?.reloadData()
-        if viewControllers.count == 1, let event = events.first {
+        if isDisplayingEmptyDetail, let event = events.first {
             planViewController?.select(event)
 
             let eventViewController = makeEventViewController(for: event)
