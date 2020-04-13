@@ -1,5 +1,7 @@
 import UIKit
 
+private typealias Year = String
+
 protocol YearsViewControllerDataSource: AnyObject {
     func numberOfYears(in yearsViewController: YearsViewController) -> Int
     func yearsViewController(_ yearsViewController: YearsViewController, yearAt index: Int) -> String
@@ -25,8 +27,9 @@ final class YearsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-        cell.textLabel?.text = year(at: indexPath)
-        cell.accessoryType = .disclosureIndicator
+        if let year = year(at: indexPath) {
+            cell.configure(with: year)
+        }
         return cell
     }
 
@@ -36,7 +39,21 @@ final class YearsViewController: UITableViewController {
         }
     }
 
-    private func year(at indexPath: IndexPath) -> String? {
+    private func year(at indexPath: IndexPath) -> Year? {
         dataSource?.yearsViewController(self, yearAt: indexPath.row)
+    }
+}
+
+private extension UITableViewCell {
+    func configure(with year: Year) {
+        accessoryType = .disclosureIndicator
+
+        let format = NSLocalizedString("years.year", comment: "")
+        let string = String(format: format, year)
+        textLabel?.text = string
+
+        if #available(iOS 13.0, *), let number = Int(year) {
+            imageView?.image = UIImage(systemName: "\(number % 2000).circle.fill")
+        }
     }
 }

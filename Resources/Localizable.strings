@@ -61,6 +61,7 @@
 
 /// MARK: - Years
 "years.title" = "Previous years";
+"years.year" = "FOSDEM %@";
 
 /// MARK: - DevRooms
 "devrooms.title" = "Developer Rooms";
