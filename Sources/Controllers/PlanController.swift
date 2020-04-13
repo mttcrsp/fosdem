@@ -149,7 +149,7 @@ private extension PlanController {
         let soonAction = #selector(didTapSoon)
         let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
 
-        let planViewController = EventsViewController()
+        let planViewController = EventsViewController(style: .grouped)
         planViewController.emptyBackgroundText = NSLocalizedString("plan.empty", comment: "")
         planViewController.title = NSLocalizedString("plan.title", comment: "")
         planViewController.navigationItem.rightBarButtonItem = soonButton
@@ -171,7 +171,7 @@ private extension PlanController {
         let dismissAction = #selector(didTapDismiss)
         let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
 
-        let soonViewController = EventsViewController()
+        let soonViewController = EventsViewController(style: .grouped)
         soonViewController.emptyBackgroundText = NSLocalizedString("soon.empty", comment: "")
         soonViewController.title = NSLocalizedString("soon.title", comment: "")
         soonViewController.navigationItem.rightBarButtonItem = dismissButton
