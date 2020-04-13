@@ -40,19 +40,22 @@ final class MapController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+
+        guard let mapView = mapViewController?.view else { return }
+
         mapViewController?.view.frame = view.bounds
 
         guard let blueprintsView = blueprintsNavigationController?.view else { return }
 
         if view.bounds.width < view.bounds.height {
-            blueprintsView.frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
+            blueprintsView.frame.size.width = mapView.bounds.width - mapView.layoutMargins.left - mapView.layoutMargins.right
             blueprintsView.frame.size.height = 200
-            blueprintsView.frame.origin.x = view.layoutMargins.left
-            blueprintsView.frame.origin.y = view.bounds.height - blueprintsView.bounds.height - 32
+            blueprintsView.frame.origin.x = mapView.layoutMargins.left
+            blueprintsView.frame.origin.y = mapView.bounds.height - mapView.layoutMargins.bottom - blueprintsView.bounds.height - 32
         } else {
             blueprintsView.frame.size.width = 300
-            blueprintsView.frame.size.height = view.bounds.height - 48
-            blueprintsView.frame.origin.x = view.layoutMargins.left
+            blueprintsView.frame.size.height = mapView.bounds.height - mapView.layoutMargins.bottom - 48
+            blueprintsView.frame.origin.x = mapView.layoutMargins.left
             blueprintsView.frame.origin.y = 16
         }
     }

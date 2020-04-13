@@ -20,9 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             rootViewController = ErrorController()
         }
 
-        let window = Window()
-        window.configure()
-        window.configureAppearanceProxies()
+        let window = UIWindow()
+        window.tintColor = .fos_label
         window.rootViewController = rootViewController
         window.makeKeyAndVisible()
         self.window = window
