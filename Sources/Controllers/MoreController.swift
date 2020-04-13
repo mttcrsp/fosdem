@@ -130,7 +130,9 @@ extension MoreController: MoreViewControllerDelegate {
 
                 if let acknowledgements = acknowledgements {
                     self.acknowledgements = acknowledgements
-                    moreViewController.show(self.makeAcknowledgementsViewController(), sender: nil)
+
+                    let acknowledgementsViewController = self.makeAcknowledgementsViewController()
+                    moreViewController.show(acknowledgementsViewController, sender: nil)
                 } else {
                     moreViewController.present(ErrorController(), animated: true)
                 }
@@ -187,7 +189,8 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
 
                 if let license = license {
                     let licenseViewController = self.makeLicenseViewController(for: acknowledgement, withLicense: license)
-                    acknowledgementsViewController.show(licenseViewController, sender: nil)
+                    let licenseNavigationController = UINavigationController(rootViewController: licenseViewController)
+                    acknowledgementsViewController.showDetailViewController(licenseNavigationController, sender: nil)
                 } else {
                     let errorViewController = ErrorController()
                     acknowledgementsViewController.present(errorViewController, animated: true)
