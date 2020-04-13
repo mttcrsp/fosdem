@@ -12,6 +12,7 @@ final class SearchController: UISplitViewController {
     private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
+    private weak var searchController: UISearchController?
 
     private var sections: [TracksFilter: [TracksSection]] = [:]
     private var filters: [TracksFilter] = []
@@ -224,13 +225,25 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
         events
     }
 
-    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        let eventViewController = makeEventViewController(for: event)
+    func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
+        switch viewController {
+        case eventsViewController: trackViewController(viewController, didSelect: event)
+        case resultsViewController: resultsViewController(viewController, didSelect: event)
+        default: break
+        }
+    }
 
-        if eventsViewController == resultsViewController {
-            tracksViewController?.show(eventViewController, sender: nil)
-        } else {
-            eventsViewController.show(eventViewController, sender: nil)
+    private func trackViewController(_ trackViewController: EventsViewController, didSelect event: Event) {
+        let eventViewController = makeEventViewController(for: event)
+        trackViewController.show(eventViewController, sender: nil)
+    }
+
+    private func resultsViewController(_: EventsViewController, didSelect event: Event) {
+        let eventViewController = makeEventViewController(for: event)
+        tracksViewController?.showDetailViewController(eventViewController, sender: nil)
+
+        if traitCollection.horizontalSizeClass == .regular {
+            searchController?.searchBar.endEditing(true)
         }
     }
 
@@ -330,6 +343,7 @@ private extension SearchController {
         let searchController = UISearchController(searchResultsController: makeResultsViewController())
         searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
         searchController.searchResultsUpdater = self
+        self.searchController = searchController
         return searchController
     }
 
