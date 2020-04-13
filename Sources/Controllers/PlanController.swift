@@ -52,13 +52,26 @@ final class PlanController: UISplitViewController {
         persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
-                case let .success(events):
-                    self?.events = events
-                    self?.planViewController?.reloadData()
-                case .failure:
-                    self?.viewControllers = [ErrorController()]
+                case let .failure(error): self?.loadingDidFail(with: error)
+                case let .success(events): self?.loadingDidSucceed(with: events)
                 }
             }
+        }
+    }
+
+    private func loadingDidFail(with _: Error) {
+        viewControllers = [ErrorController()]
+    }
+
+    private func loadingDidSucceed(with events: [Event]) {
+        self.events = events
+
+        guard let planViewController = planViewController else { return }
+
+        planViewController.reloadData()
+        if let event = events.first, traitCollection.horizontalSizeClass == .regular {
+            planViewController.select(event)
+            eventsViewController(planViewController, didSelect: event)
         }
     }
 

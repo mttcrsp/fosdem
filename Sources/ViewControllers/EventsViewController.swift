@@ -41,6 +41,13 @@ final class EventsViewController: UITableViewController {
         }
     }
 
+    func select(_ event: Event) {
+        if let row = events.firstIndex(of: event) {
+            let indexPath = IndexPath(row: row, section: 0)
+            tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.separatorStyle = .none
