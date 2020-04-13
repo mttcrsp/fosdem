@@ -106,6 +106,10 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
         events
     }
 
+    func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
+        event.formattedPeople
+    }
+
     func eventsViewController(_ presentingViewController: EventsViewController, didSelect event: Event) {
         let eventViewController = makeEventViewController(for: event)
 

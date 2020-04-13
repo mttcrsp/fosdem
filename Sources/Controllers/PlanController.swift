@@ -111,13 +111,23 @@ final class PlanController: UISplitViewController {
 
 extension PlanController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
     func events(in eventsViewController: EventsViewController) -> [Event] {
-        if eventsViewController == planViewController {
-            return events
-        } else if eventsViewController == soonViewController {
-            return eventsStartingSoon
-        } else {
-            return []
+        switch eventsViewController {
+        case planViewController: return events
+        case soonViewController: return eventsStartingSoon
+        default: return []
         }
+    }
+
+    func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
+        let items: [String?]
+
+        switch eventsViewController {
+        case planViewController: items = [event.formattedStart, event.room, event.track]
+        case soonViewController: items = [event.formattedStart, event.room]
+        default: return nil
+        }
+
+        return items.compactMap { $0 }.joined(separator: " - ")
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {

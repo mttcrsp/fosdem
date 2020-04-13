@@ -223,6 +223,14 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
         events
     }
 
+    func eventsViewController(_ viewController: EventsViewController, captionFor event: Event) -> String? {
+        switch viewController {
+        case eventsViewController: return event.formattedStart
+        case resultsViewController: return event.track
+        default: return nil
+        }
+    }
+
     func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
         switch viewController {
         case eventsViewController: trackViewController(viewController, didSelect: event)

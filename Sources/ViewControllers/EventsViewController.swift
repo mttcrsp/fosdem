@@ -2,6 +2,7 @@ import UIKit
 
 protocol EventsViewControllerDataSource: AnyObject {
     func events(in eventsViewController: EventsViewController) -> [Event]
+    func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
 }
 
 protocol EventsViewControllerFavoritesDataSource: AnyObject {
@@ -70,12 +71,13 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        event(for: section).formattedStart
+        dataSource?.eventsViewController(self, captionFor: event(for: section))
     }
 
     override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
         guard let view = view as? UITableViewHeaderFooterView else { return }
         view.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
+        view.textLabel?.text = view.textLabel?.text?.capitalized
     }
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
