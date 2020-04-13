@@ -281,24 +281,18 @@ private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
         moreViewController.title = NSLocalizedString("more.title", comment: "")
-        moreViewController.extendedLayoutIncludesOpaqueBars = true
         moreViewController.delegate = self
         self.moreViewController = moreViewController
         return moreViewController
     }
 
     func makeTextViewController() -> TextViewController {
-        let textViewController = TextViewController()
-        textViewController.extendedLayoutIncludesOpaqueBars = true
-        textViewController.hidesBottomBarWhenPushed = true
-        return textViewController
+        TextViewController()
     }
 
     func makeYearsViewController() -> YearsViewController {
         let yearsViewController = YearsViewController()
         yearsViewController.title = NSLocalizedString("years.title", comment: "")
-        yearsViewController.extendedLayoutIncludesOpaqueBars = true
-        yearsViewController.hidesBottomBarWhenPushed = true
         yearsViewController.dataSource = self
         yearsViewController.delegate = self
         return yearsViewController
@@ -307,8 +301,6 @@ private extension MoreController {
     private func makeTransportationViewController() -> TransportationViewController {
         let transportationViewController = TransportationViewController(style: .grouped)
         transportationViewController.title = NSLocalizedString("transportation.title", comment: "")
-        transportationViewController.extendedLayoutIncludesOpaqueBars = true
-        transportationViewController.hidesBottomBarWhenPushed = true
         transportationViewController.delegate = self
         return transportationViewController
     }
@@ -316,8 +308,6 @@ private extension MoreController {
     func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
         let acknowledgementsViewController = AcknowledgementsViewController(style: .grouped)
         acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
-        acknowledgementsViewController.extendedLayoutIncludesOpaqueBars = true
-        acknowledgementsViewController.hidesBottomBarWhenPushed = true
         acknowledgementsViewController.dataSource = self
         acknowledgementsViewController.delegate = self
         return acknowledgementsViewController
@@ -325,7 +315,6 @@ private extension MoreController {
 
     func makeLicenseViewController(for acknowledgement: Acknowledgement, withLicense license: String) -> TextViewController {
         let licenseViewController = TextViewController()
-        licenseViewController.extendedLayoutIncludesOpaqueBars = true
         licenseViewController.title = acknowledgement
         licenseViewController.text = license
         return licenseViewController
@@ -333,7 +322,6 @@ private extension MoreController {
 
     func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {
         let yearController = YearController(year: year, persistenceService: persistenceService)
-        yearController.extendedLayoutIncludesOpaqueBars = true
         yearController.delegate = self
         yearController.title = year
 

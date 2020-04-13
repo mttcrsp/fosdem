@@ -157,7 +157,6 @@ private extension PlanController {
         planViewController.emptyBackgroundText = NSLocalizedString("plan.empty", comment: "")
         planViewController.title = NSLocalizedString("plan.title", comment: "")
         planViewController.navigationItem.rightBarButtonItem = soonButton
-        planViewController.extendedLayoutIncludesOpaqueBars = true
         planViewController.favoritesDataSource = self
         planViewController.favoritesDelegate = self
         planViewController.dataSource = self

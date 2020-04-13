@@ -307,7 +307,6 @@ private extension SearchController {
         tracksViewController.title = NSLocalizedString("search.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.addSearchViewController(makeSearchController())
-        tracksViewController.extendedLayoutIncludesOpaqueBars = true
         tracksViewController.favoritesDataSource = self
         tracksViewController.favoritesDelegate = self
         tracksViewController.dataSource = self
@@ -361,7 +360,6 @@ private extension SearchController {
 
         let eventsViewController = EventsViewController(style: .grouped)
         eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
-        eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.favoritesDataSource = self
         eventsViewController.favoritesDelegate = self
         eventsViewController.title = track.name
@@ -381,9 +379,7 @@ private extension SearchController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        let eventViewController = EventController(event: event, favoritesService: favoritesService)
-        eventViewController.extendedLayoutIncludesOpaqueBars = true
-        return eventViewController
+        EventController(event: event, favoritesService: favoritesService)
     }
 }
 

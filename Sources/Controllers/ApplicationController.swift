@@ -70,7 +70,6 @@ private extension ApplicationController {
     func makePlanController() -> PlanController {
         let planController = PlanController(services: services)
         planController.title = NSLocalizedString("plan.title", comment: "")
-        planController.extendedLayoutIncludesOpaqueBars = true
         planController.preferredDisplayMode = .allVisible
 
         if #available(iOS 13.0, *) {
@@ -85,7 +84,6 @@ private extension ApplicationController {
     func makeSearchController() -> SearchController {
         let searchController = SearchController(services: services)
         searchController.title = NSLocalizedString("search.title", comment: "")
-        searchController.extendedLayoutIncludesOpaqueBars = true
         searchController.preferredDisplayMode = .allVisible
 
         if #available(iOS 13.0, *) {
@@ -113,7 +111,6 @@ private extension ApplicationController {
     func makeMoreController() -> MoreController {
         let moreController = MoreController(services: services)
         moreController.title = NSLocalizedString("more.title", comment: "")
-        moreController.extendedLayoutIncludesOpaqueBars = true
         moreController.preferredDisplayMode = .allVisible
 
         if #available(iOS 13.0, *) {

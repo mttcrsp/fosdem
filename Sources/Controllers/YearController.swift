@@ -169,7 +169,6 @@ private extension YearController {
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController(style: .grouped)
-        eventsViewController.extendedLayoutIncludesOpaqueBars = true
         eventsViewController.title = track.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self

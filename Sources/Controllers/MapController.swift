@@ -162,7 +162,6 @@ private extension MapController {
 
     func makeBlueprintsViewController(for building: Building) -> BlueprintsViewController {
         let blueprintsViewController = BlueprintsViewController()
-        blueprintsViewController.extendedLayoutIncludesOpaqueBars = true
         blueprintsViewController.edgesForExtendedLayout = .bottom
         blueprintsViewController.fullscreenDelegate = self
         blueprintsViewController.building = building
