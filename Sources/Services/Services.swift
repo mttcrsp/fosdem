@@ -17,7 +17,10 @@ final class Services {
     #endif
 
     init() throws {
-        let path = try FileManager.default.applicationDatabasePath()
+        let preloadService = try PreloadService()
+        try preloadService.preloadDatabaseIfNeeded()
+
+        let path = preloadService.databasePath
         persistenceService = try PersistenceService(path: path, migrations: .allMigrations)
 
         let session = URLSession.shared
@@ -30,13 +33,5 @@ final class Services {
 
         infoService = InfoService(bundleService: bundleService)
         buildingsService = BuildingsService(bundleService: bundleService)
-    }
-}
-
-extension FileManager {
-    func applicationDatabasePath() throws -> String {
-        let applicationSupportURL = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        let applicationDatabaseURL = applicationSupportURL.appendingPathComponent("db.sqlite")
-        return applicationDatabaseURL.path
     }
 }
