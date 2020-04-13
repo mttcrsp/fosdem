@@ -50,6 +50,10 @@ final class MoreController: UISplitViewController {
         }
 
         viewControllers = [moreNavigationController]
+
+        if traitCollection.horizontalSizeClass == .regular, let section = MoreSection.allCases.first, let item = section.items.first, let info = item.info {
+            showInfoViewController(withTitle: item.title, for: info)
+        }
     }
 }
 
@@ -378,6 +382,18 @@ extension MoreItem {
         #if DEBUG
             case .import: return NSLocalizedString("import.title", comment: "")
             case .time: return NSLocalizedString("time.title", comment: "")
+        #endif
+        }
+    }
+
+    var info: Info? {
+        switch self {
+        case .history: return .history
+        case .devrooms: return .devrooms
+        case .transportation: return .transportation
+        case .code, .years, .acknowledgements: return nil
+        #if DEBUG
+            case .import, .time: return nil
         #endif
         }
     }
