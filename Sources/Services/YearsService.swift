@@ -44,6 +44,6 @@ final class YearsService {
 
 private extension String {
     static var databaseExtension: String {
-        "sqlite"
+        "year"
     }
 }
