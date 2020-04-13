@@ -16,6 +16,7 @@
 "event.people" = "Speakers: %@";
 "event.room" = "Room: %@";
 "event.weekday" = "on %@";
+"event.track" = "Track: %@";
 
 /// MARK: - Attachment
 "attachment.slides" = "Slides";

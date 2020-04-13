@@ -2,8 +2,7 @@ import UIKit
 
 final class TrackTableViewCell: UITableViewCell {
     var track: String? {
-        get { trackView.track }
-        set { trackView.track = newValue }
+        didSet { didChangeTrack() }
     }
 
     private lazy var trackView = TrackView()
@@ -31,5 +30,17 @@ final class TrackTableViewCell: UITableViewCell {
             trackView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             trackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.layoutMarginsGuide.trailingAnchor),
         ])
+    }
+
+    private func didChangeTrack() {
+        if let track = track {
+            let format = NSLocalizedString("event.track", comment: "")
+            let string = String(format: format, track)
+            trackView.track = track
+            accessibilityLabel = string
+        } else {
+            trackView.track = nil
+            accessibilityLabel = nil
+        }
     }
 }
