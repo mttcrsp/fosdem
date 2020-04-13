@@ -15,9 +15,7 @@
 "event.attachments" = "Attachments";
 "event.people" = "Speakers: %@";
 "event.room" = "Room: %@";
-"event.room.accessibility.hint" = "In room %@";
-"event.start" = "Starts at %@";
-"event.start.accessibility.hint" = "At %@";
+"event.weekday" = "on %@";
 
 /// MARK: - Attachment
 "attachment.slides" = "Slides";

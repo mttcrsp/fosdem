@@ -94,18 +94,12 @@ final class EventViewController: UITableViewController {
         case .date:
             let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier, for: indexPath)
             cell.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
-            cell.textLabel?.text = event.formattedStart
+            cell.textLabel?.text = event.formattedDate
 
             if #available(iOS 13.0, *) {
                 cell.imageView?.image = UIImage(systemName: "clock.fill")
             } else {
                 cell.imageView?.image = UIImage(named: "clock.fill")
-            }
-
-            if let start = event.formattedStart {
-                let accessibilityFormat = NSLocalizedString("event.start", comment: "")
-                let accessibilityLabel = String(format: accessibilityFormat, start)
-                cell.accessibilityLabel = accessibilityLabel
             }
 
             return cell
@@ -198,37 +192,6 @@ final class EventViewController: UITableViewController {
             accessoryView = nil
         }
     }
-}
-
-private extension Event {
-    var formattedAbstract: String? {
-        guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString(html: html) else { return nil }
-
-        var string = attributedString.string
-        string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        string = string.replacingOccurrences(of: "\n", with: "\n\n")
-        return string
-    }
-
-    var formattedSummary: String? {
-        summary?.replacingOccurrences(of: "\n", with: "\n\n")
-    }
-
-    var formattedDuration: String? {
-        DateComponentsFormatter.default.string(from: duration)
-    }
-
-    var formattedPeople: String? {
-        people.map { person in person.name }.joined(separator: ", ")
-    }
-}
-
-private extension DateComponentsFormatter {
-    static let `default`: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.minute]
-        return formatter
-    }()
 }
 
 private extension Event {

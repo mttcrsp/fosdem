@@ -70,7 +70,7 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        event(for: section).formattedStartAndRoom
+        event(for: section).formattedStart
     }
 
     override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
@@ -104,13 +104,6 @@ final class EventsViewController: UITableViewController {
 
     private func event(for section: Int) -> Event {
         events[section]
-    }
-}
-
-private extension Event {
-    var formattedStartAndRoom: String {
-        guard let formattedStart = formattedStart else { return room }
-        return "\(formattedStart) - \(room)"
     }
 }
 
