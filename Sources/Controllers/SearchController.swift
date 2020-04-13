@@ -173,8 +173,6 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-        guard track != selectedTrack else { return }
-
         selectedTrack = track
 
         let eventsViewController = makeEventsViewController(for: track)
