@@ -89,5 +89,4 @@
 "update.confirm" = "Update";
 
 /// MARK: - Debug
-"import.title" = "Import schedule";
 "time.title" = "Override current time";

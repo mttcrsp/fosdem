@@ -13,7 +13,7 @@ final class Services {
     let acknowledgementsService = AcknowledgementsService()
 
     #if DEBUG
-        let debugService: DebugService
+        let debugService = DebugService()
     #endif
 
     init() throws {
@@ -30,10 +30,6 @@ final class Services {
 
         infoService = InfoService(bundleService: bundleService)
         buildingsService = BuildingsService(bundleService: bundleService)
-
-        #if DEBUG
-            debugService = DebugService(persistenceService: persistenceService)
-        #endif
     }
 }
 

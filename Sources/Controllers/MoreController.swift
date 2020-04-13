@@ -10,7 +10,6 @@ enum MoreSection: CaseIterable {
 
 enum MoreItem: CaseIterable {
     #if DEBUG
-        case `import`
         case time
     #endif
 
@@ -62,7 +61,6 @@ extension MoreController: MoreViewControllerDelegate {
         switch item {
         #if DEBUG
             case .time: moreViewControllerDidSelectTime(moreViewController)
-            case .import: moreViewControllerDidSelectImport(moreViewController)
         #endif
         case .code: moreViewControllerDidSelectCode(moreViewController)
         case .years: moreViewControllerDidSelectYears(moreViewController)
@@ -143,10 +141,6 @@ extension MoreController: MoreViewControllerDelegate {
 
 #if DEBUG
     extension MoreController: UIPopoverPresentationControllerDelegate, TimeViewControllerDelegate {
-        private func moreViewControllerDidSelectImport(_: MoreViewController) {
-            services.debugService.importSchedule()
-        }
-
         private func moreViewControllerDidSelectTime(_ moreViewController: MoreViewController) {
             let sourceIndexPath = IndexPath(row: 0, section: 0)
             let sourceCell = moreViewController.tableView.cellForRow(at: sourceIndexPath)
@@ -352,7 +346,7 @@ extension MoreSection {
     var items: [MoreItem] {
         switch self {
         #if DEBUG
-            case .debug: return [.import, .time]
+            case .debug: return [.time]
         #endif
         case .other: return [.years, .acknowledgements, .code]
         case .about: return [.history, .devrooms, .transportation]
@@ -380,7 +374,6 @@ extension MoreItem {
         case .transportation: return NSLocalizedString("transportation.title", comment: "")
         case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
         #if DEBUG
-            case .import: return NSLocalizedString("import.title", comment: "")
             case .time: return NSLocalizedString("time.title", comment: "")
         #endif
         }
@@ -393,7 +386,7 @@ extension MoreItem {
         case .transportation: return .transportation
         case .code, .years, .acknowledgements: return nil
         #if DEBUG
-            case .import, .time: return nil
+            case .time: return nil
         #endif
         }
     }
