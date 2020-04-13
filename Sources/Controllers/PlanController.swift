@@ -66,12 +66,12 @@ final class PlanController: UISplitViewController {
     private func loadingDidSucceed(with events: [Event]) {
         self.events = events
 
-        guard let planViewController = planViewController else { return }
+        planViewController?.reloadData()
+        if viewControllers.count == 1, let event = events.first {
+            planViewController?.select(event)
 
-        planViewController.reloadData()
-        if let event = events.first, traitCollection.horizontalSizeClass == .regular {
-            planViewController.select(event)
-            eventsViewController(planViewController, didSelect: event)
+            let eventViewController = makeEventViewController(for: event)
+            showDetailViewController(eventViewController, sender: nil)
         }
     }
 
