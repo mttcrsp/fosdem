@@ -27,10 +27,6 @@ final class PlanController: UISplitViewController {
         services.persistenceService
     }
 
-    private var isDisplayingEmptyDetail: Bool {
-        traitCollection.horizontalSizeClass == .regular && viewControllers.count == 1
-    }
-
     private var now: Date {
         #if DEBUG
             return services.debugService.now
@@ -89,6 +85,11 @@ final class PlanController: UISplitViewController {
         self.events = events
 
         planViewController?.reloadData()
+
+        let isSingleChild = viewControllers.count == 1
+        let isRegularSize = traitCollection.horizontalSizeClass == .regular
+        let isDisplayingEmptyDetail = isSingleChild && isRegularSize
+
         if isDisplayingEmptyDetail, let event = events.first {
             planViewController?.select(event)
 
