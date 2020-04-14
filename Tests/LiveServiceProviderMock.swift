@@ -2,7 +2,7 @@
 import Fosdem
 import Foundation
 
-final class TimerServiceProviderMock: TimerServiceProvider {
+final class LiveServiceProviderMock: LiveServiceProvider {
     private(set) var block: ((Timer) -> Void)?
     private(set) var interval: TimeInterval?
     private(set) var repeats: Bool?

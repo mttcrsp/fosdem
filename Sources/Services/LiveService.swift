@@ -1,17 +1,17 @@
 import Foundation
 
-protocol TimerServiceProvider {
+protocol LiveServiceProvider {
     func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer
 }
 
-final class TimerService {
+final class LiveService {
     private var timer: Timer?
 
     private let notificationCenter = NotificationCenter()
-    private let timerProvider: TimerServiceProvider
+    private let timerProvider: LiveServiceProvider
     private let timeInterval: TimeInterval
 
-    init(timeInterval: TimeInterval = 10, timerProvider: TimerServiceProvider = LiveServiceTimerProvider()) {
+    init(timeInterval: TimeInterval = 10, timerProvider: LiveServiceProvider = LiveServiceTimerProvider()) {
         self.timerProvider = timerProvider
         self.timeInterval = timeInterval
     }
@@ -40,7 +40,7 @@ final class TimerService {
     }
 }
 
-private final class LiveServiceTimerProvider: TimerServiceProvider {
+private final class LiveServiceTimerProvider: LiveServiceProvider {
     func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
         .scheduledTimer(withTimeInterval: interval, repeats: repeats, block: block)
     }

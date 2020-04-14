@@ -54,12 +54,12 @@ final class ApplicationController: UITabBarController {
     }
 
     func applicationDidBecomeActive() {
-        services.timerService.startMonitoring()
+        services.liveService.startMonitoring()
         services.scheduleService.startUpdating()
     }
 
     func applicationWillResignActive() {
-        services.timerService.stopMonitoring()
+        services.liveService.stopMonitoring()
     }
 
     @objc private func didSelectPrevTab(_: Any) {
