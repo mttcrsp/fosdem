@@ -5,9 +5,9 @@ import XCTest
 final class YearsServiceTests: XCTestCase {
     func testYears() {
         var urls: [URL] = []
-        urls.append(.init(fileURLWithPath: "/something/2009.sqlite"))
-        urls.append(.init(fileURLWithPath: "/something/2010.sqlite"))
-        urls.append(.init(fileURLWithPath: "/something/2011.sqlite"))
+        urls.append(.init(fileURLWithPath: "/something/2009.year"))
+        urls.append(.init(fileURLWithPath: "/something/2010.year"))
+        urls.append(.init(fileURLWithPath: "/something/2011.year"))
 
         let bundle = YearsServiceBundleMock(urls: urls)
         let service = YearsService(bundle: bundle)
