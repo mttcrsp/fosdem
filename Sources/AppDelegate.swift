@@ -32,6 +32,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_: UIApplication) {
         applicationController?.applicationDidBecomeActive()
     }
+
+    func applicationWillResignActive(_: UIApplication) {
+        applicationController?.applicationWillResignActive()
+    }
 }
 
 #if DEBUG

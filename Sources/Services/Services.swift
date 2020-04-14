@@ -2,6 +2,7 @@ import Foundation
 
 final class Services {
     let infoService: InfoService
+    let timerService = TimerService()
     let yearsService = YearsService()
     let updateService: UpdateService
     let networkService: NetworkService
