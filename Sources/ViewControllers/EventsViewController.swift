@@ -5,6 +5,10 @@ protocol EventsViewControllerDataSource: AnyObject {
     func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
 }
 
+protocol EventsViewControllerLiveDataSource: AnyObject {
+    func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool
+}
+
 protocol EventsViewControllerFavoritesDataSource: AnyObject {
     func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool
 }
@@ -25,6 +29,8 @@ final class EventsViewController: UITableViewController {
     weak var favoritesDataSource: EventsViewControllerFavoritesDataSource?
     weak var favoritesDelegate: EventsViewControllerFavoritesDelegate?
 
+    weak var liveDataSource: EventsViewControllerLiveDataSource?
+
     var emptyBackgroundText: String? {
         get { emptyBackgroundView.text }
         set { emptyBackgroundView.text = newValue }
@@ -40,6 +46,26 @@ final class EventsViewController: UITableViewController {
         if isViewLoaded {
             tableView.reloadData()
         }
+    }
+
+    func reloadLiveStatus() {
+        guard isViewLoaded else { return }
+
+        var indexPaths: [IndexPath] = []
+
+        for indexPath in tableView.indexPathsForVisibleRows ?? [] {
+            if let cell = tableView.cellForRow(at: indexPath) {
+                let event = self.event(for: indexPath.section)
+                let oldStatus = cell.showsLiveIndicator
+                let newStatus = shouldShowLiveIndicator(for: event)
+
+                if oldStatus != newStatus {
+                    indexPaths.append(indexPath)
+                }
+            }
+        }
+
+        tableView.reloadRows(at: indexPaths, with: .fade)
     }
 
     func select(_ event: Event) {
@@ -65,8 +91,10 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let event = self.event(for: indexPath.section)
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-        cell.configure(with: event(for: indexPath.section))
+        cell.showsLiveIndicator = shouldShowLiveIndicator(for: event)
+        cell.configure(with: event)
         return cell
     }
 
@@ -107,6 +135,10 @@ final class EventsViewController: UITableViewController {
     private func event(for section: Int) -> Event {
         events[section]
     }
+
+    private func shouldShowLiveIndicator(for event: Event) -> Bool {
+        liveDataSource?.eventsViewController(self, shouldShowLiveIndicatorFor: event) ?? false
+    }
 }
 
 private extension UITableViewCell {
@@ -115,4 +147,21 @@ private extension UITableViewCell {
         textLabel?.numberOfLines = 0
         accessoryType = .disclosureIndicator
     }
+
+    var showsLiveIndicator: Bool {
+        get { imageView?.image == .liveIndicator }
+        set { imageView?.image = newValue ? .liveIndicator : nil }
+    }
+}
+
+private extension UIImage {
+    static let liveIndicator: UIImage = {
+        let size = CGSize(width: 12, height: 12)
+        let rect = CGRect(origin: .zero, size: size)
+        let render = UIGraphicsImageRenderer(bounds: rect)
+        return render.image { context in
+            context.cgContext.setFillColor(UIColor.systemRed.cgColor)
+            UIBezierPath(ovalIn: rect).fill()
+        }
+    }()
 }

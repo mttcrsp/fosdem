@@ -23,6 +23,13 @@ extension Event {
     var video: Link? {
         links.first { link in link.url?.pathExtension == "mp4" }
     }
+
+    func isLive(at timestamp: Date) -> Bool {
+        let calendar = Calendar.autoupdatingCurrent
+        let lowerbound = date
+        let upperbound = calendar.date(byAdding: duration, to: date) ?? .distantPast
+        return lowerbound < timestamp && timestamp < upperbound
+    }
 }
 
 extension Event {

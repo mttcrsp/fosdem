@@ -4,7 +4,7 @@ final class PlanController: UISplitViewController {
     private weak var planViewController: EventsViewController?
     private weak var soonViewController: EventsViewController?
 
-    private var observation: NSObjectProtocol?
+    private var observations: [NSObjectProtocol] = []
     private var eventsStartingSoon: [Event] = []
     private var events: [Event] = []
 
@@ -31,6 +31,14 @@ final class PlanController: UISplitViewController {
         traitCollection.horizontalSizeClass == .regular && viewControllers.count == 1
     }
 
+    private var now: Date {
+        #if DEBUG
+            return services.debugService.now
+        #else
+            return Date()
+        #endif
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -44,9 +52,19 @@ final class PlanController: UISplitViewController {
         viewControllers = [planNavigationController]
 
         reloadFavoriteEvents()
-        observation = favoritesService.addObserverForEvents { [weak self] in
+        let observation1 = favoritesService.addObserverForEvents { [weak self] in
             self?.reloadFavoriteEvents()
         }
+
+        let observation2 = services.liveService.addObserver { [weak self] in
+            self?.reloadLiveStatus()
+        }
+
+        observations = [observation1, observation2]
+    }
+
+    private func reloadLiveStatus() {
+        planViewController?.reloadLiveStatus()
     }
 
     private func reloadFavoriteEvents() {
@@ -80,12 +98,6 @@ final class PlanController: UISplitViewController {
     }
 
     @objc private func didTapSoon() {
-        #if DEBUG
-            let now = services.debugService.now
-        #else
-            let now = Date()
-        #endif
-
         let operation = EventsStartingIn30Minutes(now: now)
         persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
@@ -109,7 +121,7 @@ final class PlanController: UISplitViewController {
     }
 }
 
-extension PlanController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
+extension PlanController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerLiveDataSource {
     func events(in eventsViewController: EventsViewController) -> [Event] {
         switch eventsViewController {
         case planViewController: return events
@@ -133,11 +145,15 @@ extension PlanController: EventsViewControllerDataSource, EventsViewControllerDe
     func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
         let eventViewController = makeEventViewController(for: event)
 
-        if eventsViewController == soonViewController {
-            eventsViewController.show(eventViewController, sender: nil)
-        } else if eventsViewController == planViewController {
-            eventsViewController.showDetailViewController(eventViewController, sender: nil)
+        switch eventsViewController {
+        case planViewController: eventsViewController.showDetailViewController(eventViewController, sender: nil)
+        case soonViewController: eventsViewController.show(eventViewController, sender: nil)
+        default: break
         }
+    }
+
+    func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
+        eventsViewController == planViewController && event.isLive(at: now)
     }
 
     func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
@@ -169,6 +185,7 @@ private extension PlanController {
         planViewController.navigationItem.rightBarButtonItem = soonButton
         planViewController.favoritesDataSource = self
         planViewController.favoritesDelegate = self
+        planViewController.liveDataSource = self
         planViewController.dataSource = self
         planViewController.delegate = self
         self.planViewController = planViewController
