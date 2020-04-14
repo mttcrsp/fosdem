@@ -121,32 +121,22 @@ extension MoreController: MoreViewControllerDelegate {
 }
 
 #if DEBUG
-    extension MoreController: UIPopoverPresentationControllerDelegate, TimeViewControllerDelegate {
+    extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
         private func moreViewControllerDidSelectTime(_ moreViewController: MoreViewController) {
-            let sourceIndexPath = IndexPath(row: 0, section: 0)
-            let sourceCell = moreViewController.tableView.cellForRow(at: sourceIndexPath)
-
-            let timeViewController = makeTimeViewController()
-            timeViewController.modalPresentationStyle = .popover
-            timeViewController.popoverPresentationController?.delegate = self
-            timeViewController.popoverPresentationController?.sourceView = sourceCell
-            timeViewController.popoverPresentationController?.sourceRect = sourceCell?.frame ?? .zero
-            moreViewController.present(timeViewController, animated: true)
+            let date = services.debugService.now
+            let dateViewController = makeDateViewController(for: date)
+            moreViewController.present(dateViewController, animated: true)
         }
 
-        func adaptivePresentationStyle(for _: UIPresentationController) -> UIModalPresentationStyle {
-            .none
+        func dateViewControllerDidChange(_ dateViewController: DateViewController) {
+            let date = dateViewController.date
+            services.debugService.override(date)
         }
 
-        func timeViewControllerDidChange(_ timeViewController: TimeViewController) {
-            if let date = timeViewController.date {
-                services.debugService.override(date)
-            }
-        }
-
-        private func makeTimeViewController() -> TimeViewController {
-            let timeViewController = TimeViewController()
+        private func makeDateViewController(for date: Date) -> DateViewController {
+            let timeViewController = DateViewController()
             timeViewController.delegate = self
+            timeViewController.date = date
             return timeViewController
         }
     }
