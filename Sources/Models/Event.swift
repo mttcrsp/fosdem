@@ -30,6 +30,12 @@ extension Event {
         let upperbound = calendar.date(byAdding: duration, to: date) ?? .distantPast
         return lowerbound < timestamp && timestamp < upperbound
     }
+
+    func isSameWeekday(as event: Event) -> Bool {
+        let lhs = Calendar.autoupdatingCurrent.component(.weekday, from: date)
+        let rhs = Calendar.autoupdatingCurrent.component(.weekday, from: event.date)
+        return lhs == rhs
+    }
 }
 
 extension Event {
@@ -39,6 +45,19 @@ extension Event {
 
     var formattedWeekday: String? {
         DateFormatter.weekday.string(from: date)
+    }
+
+    var formattedStartWithWeekday: String? {
+        switch (formattedStart, formattedWeekday) {
+        case (nil, _):
+            return nil
+        case let (start?, nil):
+            return start
+        case let (start?, weekday?):
+            let format = NSLocalizedString("search.event.start", comment: "")
+            let string = String(format: format, start, weekday)
+            return string
+        }
     }
 
     var formattedAbstract: String? {

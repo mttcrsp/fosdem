@@ -15,6 +15,7 @@ final class SearchController: UISplitViewController {
     private weak var searchController: UISearchController?
 
     private var sections: [TracksFilter: [TracksSection]] = [:]
+    private var captions: [Event: String] = [:]
     private var filters: [TracksFilter] = []
     private var events: [Event] = []
     private var tracks: [Track] = []
@@ -187,6 +188,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
                     self?.eventsViewController?.present(ErrorController(), animated: true)
                 case let .success(events):
                     self?.events = events
+                    self?.captions = events.captions
                     self?.eventsViewController?.reloadData()
                 }
             }
@@ -225,7 +227,7 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 
     func eventsViewController(_ viewController: EventsViewController, captionFor event: Event) -> String? {
         switch viewController {
-        case eventsViewController: return event.formattedStart
+        case eventsViewController: return captions[event]
         case resultsViewController: return event.track
         default: return nil
         }
@@ -401,5 +403,29 @@ private extension TracksFilter {
         case let .day(day):
             return String(format: NSLocalizedString("search.filter.day", comment: ""), day)
         }
+    }
+}
+
+private extension Array where Element == Event {
+    var captions: [Event: String] {
+        var result: [Event: String] = [:]
+
+        if let event = first, let caption = event.formattedStartWithWeekday {
+            result[event] = caption
+        }
+
+        for (lhs, rhs) in zip(self, dropFirst()) {
+            if lhs.isSameWeekday(as: rhs) {
+                if let caption = rhs.formattedStart {
+                    result[rhs] = caption
+                }
+            } else {
+                if let caption = rhs.formattedStartWithWeekday {
+                    result[rhs] = caption
+                }
+            }
+        }
+
+        return result
     }
 }
