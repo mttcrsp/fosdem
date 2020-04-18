@@ -78,12 +78,19 @@ final class EventsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
         let count = events.count
         tableView.backgroundView = count == 0 ? emptyBackgroundView : nil
         return count
+    }
+
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
+        view.text = dataSource?.eventsViewController(self, captionFor: event(for: section))
+        return view
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
@@ -96,16 +103,6 @@ final class EventsViewController: UITableViewController {
         cell.showsLiveIndicator = shouldShowLiveIndicator(for: event)
         cell.configure(with: event)
         return cell
-    }
-
-    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        dataSource?.eventsViewController(self, captionFor: event(for: section))
-    }
-
-    override func tableView(_: UITableView, willDisplayHeaderView view: UIView, forSection _: Int) {
-        guard let view = view as? UITableViewHeaderFooterView else { return }
-        view.textLabel?.font = .fos_preferredFont(forTextStyle: .subheadline)
-        view.textLabel?.text = view.textLabel?.text?.capitalized
     }
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -145,6 +142,7 @@ private extension UITableViewCell {
     func configure(with event: Event) {
         textLabel?.text = event.title
         textLabel?.numberOfLines = 0
+        textLabel?.font = .fos_preferredFont(forTextStyle: .body)
         accessoryType = .disclosureIndicator
     }
 
