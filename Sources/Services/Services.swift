@@ -11,7 +11,6 @@ final class Services {
     let buildingsService: BuildingsService
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
-    let acknowledgementsService = AcknowledgementsService()
 
     #if DEBUG
         let debugService = DebugService()

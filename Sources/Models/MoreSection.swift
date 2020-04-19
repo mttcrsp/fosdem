@@ -14,7 +14,7 @@ extension MoreSection {
         #if DEBUG
             case .debug: return [.time]
         #endif
-        case .other: return [.years, .acknowledgements, .code]
+        case .other: return [.years, .code]
         case .about: return [.history, .devrooms, .transportation]
         }
     }

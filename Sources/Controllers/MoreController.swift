@@ -3,7 +3,6 @@ import UIKit
 final class MoreController: UISplitViewController {
     private weak var moreViewController: MoreViewController?
 
-    private(set) var acknowledgements: [Acknowledgement] = []
     private var years: [String] = []
 
     private let services: Services
@@ -46,7 +45,6 @@ extension MoreController: MoreViewControllerDelegate {
         case .history: moreViewControllerDidSelectHistory(moreViewController)
         case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
         case .transportation: moreViewControllerDidSelectTransportation(moreViewController)
-        case .acknowledgements: moreViewControllerDidSelectAcknowledgements(moreViewController)
         }
     }
 
@@ -99,25 +97,6 @@ extension MoreController: MoreViewControllerDelegate {
             }
         }
     }
-
-    private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
-        DispatchQueue.global().async { [weak self, weak moreViewController] in
-            let acknowledgements = self?.services.acknowledgementsService.loadAcknowledgements()
-
-            DispatchQueue.main.async {
-                guard let self = self, let moreViewController = moreViewController else { return }
-
-                if let acknowledgements = acknowledgements {
-                    self.acknowledgements = acknowledgements
-
-                    let acknowledgementsViewController = self.makeAcknowledgementsViewController()
-                    moreViewController.show(acknowledgementsViewController, sender: nil)
-                } else {
-                    moreViewController.present(ErrorController(), animated: true)
-                }
-            }
-        }
-    }
 }
 
 #if DEBUG
@@ -141,33 +120,6 @@ extension MoreController: MoreViewControllerDelegate {
         }
     }
 #endif
-
-extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
-    func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
-        DispatchQueue.global().async { [weak self, weak acknowledgementsViewController] in
-            guard let self = self else { return }
-
-            let acknowledgementsService = self.services.acknowledgementsService
-            var license = acknowledgementsService.loadLicense(for: acknowledgement)
-            if let licence = license {
-                license = acknowledgementsService.makeFormattedLicense(fromLicense: licence)
-            }
-
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self, let acknowledgementsViewController = acknowledgementsViewController else { return }
-
-                if let license = license {
-                    let licenseViewController = self.makeLicenseViewController(for: acknowledgement, withLicense: license)
-                    let licenseNavigationController = UINavigationController(rootViewController: licenseViewController)
-                    acknowledgementsViewController.showDetailViewController(licenseNavigationController, sender: nil)
-                } else {
-                    let errorViewController = ErrorController()
-                    acknowledgementsViewController.present(errorViewController, animated: true)
-                }
-            }
-        }
-    }
-}
 
 extension MoreController: TransportationViewControllerDelegate {
     func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item) {
@@ -272,21 +224,6 @@ private extension MoreController {
         transportationViewController.title = NSLocalizedString("transportation.title", comment: "")
         transportationViewController.delegate = self
         return transportationViewController
-    }
-
-    func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
-        let acknowledgementsViewController = AcknowledgementsViewController(style: .grouped)
-        acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
-        acknowledgementsViewController.dataSource = self
-        acknowledgementsViewController.delegate = self
-        return acknowledgementsViewController
-    }
-
-    func makeLicenseViewController(for acknowledgement: Acknowledgement, withLicense license: String) -> TextViewController {
-        let licenseViewController = TextViewController()
-        licenseViewController.title = acknowledgement
-        licenseViewController.text = license
-        return licenseViewController
     }
 
     func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {

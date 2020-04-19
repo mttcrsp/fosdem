@@ -1,5 +1,0 @@
-name: GRDB.swift, nameSpecified: , owner: groue, version: 4.9.0
-
-add-version-numbers: false
-
-LicensePlist Version: 2.12.0

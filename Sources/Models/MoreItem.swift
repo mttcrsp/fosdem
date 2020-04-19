@@ -10,7 +10,6 @@ enum MoreItem: CaseIterable {
     case history
     case devrooms
     case transportation
-    case acknowledgements
 }
 
 extension MoreItem {
@@ -21,7 +20,6 @@ extension MoreItem {
         case .history: return NSLocalizedString("history.title", comment: "")
         case .devrooms: return NSLocalizedString("devrooms.title", comment: "")
         case .transportation: return NSLocalizedString("transportation.title", comment: "")
-        case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
         #if DEBUG
             case .time: return NSLocalizedString("time.title", comment: "")
         #endif
@@ -33,7 +31,7 @@ extension MoreItem {
         case .history: return .history
         case .devrooms: return .devrooms
         case .transportation: return .transportation
-        case .code, .years, .acknowledgements: return nil
+        case .code, .years: return nil
         #if DEBUG
             case .time: return nil
         #endif

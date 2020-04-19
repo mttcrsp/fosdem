@@ -80,9 +80,6 @@
 "transportation.item.plane" = "By plane";
 "transportation.item.taxi" = "By taxi";
 
-/// MARK: - Acknowledgements
-"acknowledgements.title" = "Acknowledgements";
-
 /// MARK: - Update
 "update.title" = "Update available";
 "update.message" = "A new version of this app is available. Update now to get access to the latests features, data and bug fixes.";
