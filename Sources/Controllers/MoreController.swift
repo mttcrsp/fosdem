@@ -3,6 +3,7 @@ import UIKit
 final class MoreController: UISplitViewController {
     private weak var moreViewController: MoreViewController?
 
+    private(set) var acknowledgements: [Acknowledgement] = []
     private var years: [String] = []
 
     private let services: Services
@@ -45,6 +46,18 @@ extension MoreController: MoreViewControllerDelegate {
         case .history: moreViewControllerDidSelectHistory(moreViewController)
         case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
         case .transportation: moreViewControllerDidSelectTransportation(moreViewController)
+        case .acknowledgements: moreViewControllerDidSelectAcknowledgements(moreViewController)
+        }
+    }
+
+    private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
+        do {
+            acknowledgements = try services.acknowledgementsService.loadAcknowledgements()
+            let acknowledgementsViewController = makeAcknowledgementsViewController()
+            let acknowledgementsNavigationController = UINavigationController(rootViewController: acknowledgementsViewController)
+            moreViewController.showDetailViewController(acknowledgementsNavigationController, sender: nil)
+        } catch {
+            moreViewController.show(ErrorController(), sender: nil)
         }
     }
 
@@ -198,6 +211,14 @@ extension MoreController: YearControllerDelegate {
     }
 }
 
+extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
+    func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
+        UIApplication.shared.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
+            acknowledgementsViewController?.deselectSelectedRow(animated: true)
+        }
+    }
+}
+
 private extension MoreController {
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
@@ -236,6 +257,14 @@ private extension MoreController {
         }
 
         return yearController
+    }
+
+    func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
+        let acknowledgementsViewController = AcknowledgementsViewController(style: .grouped)
+        acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
+        acknowledgementsViewController.dataSource = self
+        acknowledgementsViewController.delegate = self
+        return acknowledgementsViewController
     }
 }
 
