@@ -1,0 +1,14 @@
+[
+  {
+    "name": "GRDB.swift",
+    "url": "https://github.com/groue/GRDB.swift"
+  },
+  {
+    "name": "SwiftFormat",
+    "url": "https://github.com/nicklockwood/SwiftFormat"
+  },
+  {
+    "name": "XcodeGen",
+    "url": "https://github.com/yonaskolb/XcodeGen"
+  }
+]
