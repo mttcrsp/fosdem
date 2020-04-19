@@ -266,14 +266,3 @@ private extension AttachmentType {
         }
     }
 }
-
-// EventViewController.Item.allCases.filter { item in
-//    switch item {
-//    case .title, .track, .room, .date: return true
-//    case .video: return video != nil
-//    case .summary: return summary != nil
-//    case .subtitle: return subtitle != nil
-//    case .abstract: return abstract != nil
-//    case .people: return
-//    }
-// }
