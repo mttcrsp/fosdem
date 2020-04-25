@@ -48,7 +48,7 @@ final class TracksViewController: UITableViewController {
         tableView.separatorStyle = .none
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = .fos_systemGroupedBackground
-        tableView.register(TracksTableViewCell.self, forCellReuseIdentifier: TracksTableViewCell.reuseIdentifier)
+        tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
         tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
@@ -79,7 +79,7 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TracksTableViewCell.reuseIdentifier, for: indexPath) as! TracksTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: TrackTableViewCell.reuseIdentifier, for: indexPath) as! TrackTableViewCell
 
         if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
             cell.position = position(for: indexPath)
@@ -117,7 +117,7 @@ final class TracksViewController: UITableViewController {
         }
     }
 
-    private func position(for indexPath: IndexPath) -> TracksTableViewCellContentView.Position {
+    private func position(for indexPath: IndexPath) -> TrackTableViewCellContentView.Position {
         let lastSection = tableView.numberOfSections - 1
         let lastRow = tableView.numberOfRows(inSection: lastSection) - 1
 

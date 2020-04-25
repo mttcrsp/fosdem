@@ -35,7 +35,7 @@ final class EventViewController: UITableViewController {
         tableView.separatorStyle = .none
         tableView.tableFooterView = UIView()
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
-        tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
+        tableView.register(TrackDetailTableViewCell.self, forCellReuseIdentifier: TrackDetailTableViewCell.reuseIdentifier)
         tableView.register(RoundedButtonTableViewCell.self, forCellReuseIdentifier: RoundedButtonTableViewCell.reuseIdentifier)
     }
 
@@ -53,7 +53,7 @@ final class EventViewController: UITableViewController {
             cell.textLabel?.text = event.title
             return cell
         case .track:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TrackTableViewCell.reuseIdentifier, for: indexPath) as! TrackTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: TrackDetailTableViewCell.reuseIdentifier, for: indexPath) as! TrackDetailTableViewCell
             cell.track = event.track
             return cell
         case .people:

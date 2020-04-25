@@ -1,6 +1,6 @@
 import UIKit
 
-final class TracksTableViewCellContentView: UIView {
+final class TrackTableViewCellContentView: UIView {
     enum Position { case top, mid, bottom }
 
     var position: Position = .mid {
@@ -108,7 +108,7 @@ final class TracksTableViewCellContentView: UIView {
     }
 }
 
-private extension TracksTableViewCellContentView.Position {
+private extension TrackTableViewCellContentView.Position {
     var showsSeparatorView: Bool {
         switch self {
         case .bottom: return false

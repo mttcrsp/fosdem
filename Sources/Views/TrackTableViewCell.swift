@@ -1,46 +1,66 @@
 import UIKit
 
 final class TrackTableViewCell: UITableViewCell {
-    var track: String? {
-        didSet { didChangeTrack() }
+    var position: TrackTableViewCellContentView.Position {
+        get { trackView.position }
+        set { trackView.position = newValue; didChangePosition() }
     }
 
-    private lazy var trackView = TrackView()
+    private let trackView = TrackTableViewCellContentView()
+    private lazy var topConstraint = trackView.topAnchor.constraint(equalTo: contentView.topAnchor)
+    private lazy var bottomConstraint = trackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        commonInit()
-    }
 
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
-    }
-
-    private func commonInit() {
-        selectionStyle = .none
-
+        backgroundColor = .clear
+        selectedBackgroundView = UIView()
         contentView.addSubview(trackView)
-
         trackView.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            trackView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            trackView.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
-            trackView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            trackView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.layoutMarginsGuide.trailingAnchor),
+            topConstraint, bottomConstraint,
+            trackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            trackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
         ])
     }
 
-    private func didChangeTrack() {
-        if let track = track {
-            let format = NSLocalizedString("event.track", comment: "")
-            let string = String(format: format, track)
-            trackView.track = track
-            accessibilityLabel = string
-        } else {
-            trackView.track = nil
-            accessibilityLabel = nil
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+        trackView.setHighlighted(highlighted, animated: animated)
+    }
+
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+        trackView.setSelected(selected, animated: animated)
+    }
+
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(with track: Track) {
+        trackView.configure(with: track)
+    }
+
+    private func didChangePosition() {
+        topConstraint.constant = position.topConstraintConstant
+        bottomConstraint.constant = position.bottomConstraintConstant
+    }
+}
+
+private extension TrackTableViewCellContentView.Position {
+    var topConstraintConstant: CGFloat {
+        switch self {
+        case .top: return 16
+        case .mid, .bottom: return 0
+        }
+    }
+
+    var bottomConstraintConstant: CGFloat {
+        switch self {
+        case .bottom: return -16
+        case .top, .mid: return 0
         }
     }
 }
