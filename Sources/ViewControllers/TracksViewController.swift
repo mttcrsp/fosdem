@@ -45,8 +45,10 @@ final class TracksViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.separatorStyle = .none
         tableView.tableFooterView = UIView()
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableView.backgroundColor = .fos_systemGroupedBackground
+        tableView.register(TracksTableViewCell.self, forCellReuseIdentifier: TracksTableViewCell.reuseIdentifier)
         tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
@@ -77,10 +79,13 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: TracksTableViewCell.reuseIdentifier, for: indexPath) as! TracksTableViewCell
+
         if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
+            cell.position = position(for: indexPath)
             cell.configure(with: track)
         }
+
         return cell
     }
 
@@ -111,11 +116,17 @@ final class TracksViewController: UITableViewController {
             favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
         }
     }
-}
 
-private extension UITableViewCell {
-    func configure(with track: Track) {
-        textLabel?.text = track.name
-        accessoryType = .disclosureIndicator
+    private func position(for indexPath: IndexPath) -> TracksTableViewCellContentView.Position {
+        let lastSection = tableView.numberOfSections - 1
+        let lastRow = tableView.numberOfRows(inSection: lastSection) - 1
+
+        if indexPath.section == 0, indexPath.row == 0 {
+            return .top
+        } else if indexPath.section == lastSection, indexPath.row == lastRow {
+            return .bottom
+        } else {
+            return .mid
+        }
     }
 }
