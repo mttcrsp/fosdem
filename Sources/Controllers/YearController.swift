@@ -59,20 +59,12 @@ final class YearController: UIViewController {
 }
 
 extension YearController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    func numberOfSections(in _: TracksViewController) -> Int {
-        1
+    func tracks(in _: TracksViewController) -> [Track] {
+        tracks
     }
 
-    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
-        nil
-    }
-
-    func tracksViewController(_: TracksViewController, numberOfTracksIn _: Int) -> Int {
-        tracks.count
-    }
-
-    func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        tracks[indexPath.row]
+    func favoriteTracks(in _: TracksViewController) -> [Track] {
+        []
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
