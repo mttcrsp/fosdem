@@ -27,7 +27,6 @@ final class TracksViewController: UITableViewController {
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
-    private lazy var tableBackgroundView = TableBackgroundView()
 
     var selectedTrack: Track? {
         if let indexPath = tableView.indexPathForSelectedRow {
@@ -49,12 +48,10 @@ final class TracksViewController: UITableViewController {
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = .fos_systemGroupedBackground
         tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
-        tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
         let count = dataSource?.numberOfSections(in: self) ?? 0
-        tableView.backgroundView = count == 0 ? tableBackgroundView : nil
         return count
     }
 

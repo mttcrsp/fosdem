@@ -39,7 +39,6 @@
 "search.filter.all" = "All tracks";
 "search.filter.favorites" = "Your Favorites";
 "search.filter.cancel" = "Cancel";
-"search.empty" = "You have no favorite tracks";
 "search.event.start" = "%@ on %@";
 
 /// MARK: - Map
