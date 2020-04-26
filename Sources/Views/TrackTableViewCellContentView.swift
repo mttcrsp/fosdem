@@ -1,10 +1,12 @@
 import UIKit
 
 final class TrackTableViewCellContentView: UIView {
-    enum Position { case top, mid, bottom }
+    var roundsTopCorners = false {
+        didSet { didChangeRoundsTopCorners() }
+    }
 
-    var position: Position = .mid {
-        didSet { didChangePosition() }
+    var roundsBottomCorners = false {
+        didSet { didChangeRoundsBottomCorners() }
     }
 
     private let nameLabel = UILabel()
@@ -67,6 +69,22 @@ final class TrackTableViewCellContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private var roundedCorners: UIRectCorner {
+        var corners: UIRectCorner = []
+
+        if roundsTopCorners {
+            corners.formUnion(.topLeft)
+            corners.formUnion(.topRight)
+        }
+
+        if roundsBottomCorners {
+            corners.formUnion(.bottomLeft)
+            corners.formUnion(.bottomRight)
+        }
+
+        return corners
+    }
+
     func configure(with track: Track) {
         nameLabel.text = track.name
     }
@@ -81,6 +99,18 @@ final class TrackTableViewCellContentView: UIView {
         }
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let cornerRadii = CGSize(width: 10, height: 10)
+        let path = UIBezierPath(roundedRect: containerView.bounds, byRoundingCorners: roundedCorners, cornerRadii: cornerRadii)
+        maskLayer.path = path.cgPath
+        maskLayer.frame = containerView.bounds
+        containerView.layer.mask = maskLayer
+
+        selectedContainerView.frame = containerView.bounds
+    }
+
     override func updateConstraints() {
         super.updateConstraints()
 
@@ -91,36 +121,12 @@ final class TrackTableViewCellContentView: UIView {
         }
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        let cornerRadii = CGSize(width: 10, height: 10)
-        let path = UIBezierPath(roundedRect: containerView.bounds, byRoundingCorners: position.corners, cornerRadii: cornerRadii)
-        maskLayer.path = path.cgPath
-        maskLayer.frame = containerView.bounds
-        containerView.layer.mask = maskLayer
-
-        selectedContainerView.frame = containerView.bounds
+    private func didChangeRoundsTopCorners() {
+        setNeedsLayout()
     }
 
-    private func didChangePosition() {
-        separatorView.isHidden = !position.showsSeparatorView
-    }
-}
-
-private extension TrackTableViewCellContentView.Position {
-    var showsSeparatorView: Bool {
-        switch self {
-        case .bottom: return false
-        case .top, .mid: return true
-        }
-    }
-
-    var corners: UIRectCorner {
-        switch self {
-        case .mid: return []
-        case .top: return [.topLeft, .topRight]
-        case .bottom: return [.bottomLeft, .bottomRight]
-        }
+    private func didChangeRoundsBottomCorners() {
+        separatorView.isHidden = roundsBottomCorners
+        setNeedsLayout()
     }
 }

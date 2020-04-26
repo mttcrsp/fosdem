@@ -1,9 +1,14 @@
 import UIKit
 
 final class TrackTableViewCell: UITableViewCell {
-    var position: TrackTableViewCellContentView.Position {
-        get { trackView.position }
-        set { trackView.position = newValue; didChangePosition() }
+    var roundsTopCorners: Bool {
+        get { trackView.roundsTopCorners }
+        set { trackView.roundsTopCorners = newValue; didChangeRoundsTopCorners() }
+    }
+
+    var roundsBottomCorners: Bool {
+        get { trackView.roundsBottomCorners }
+        set { trackView.roundsBottomCorners = newValue; didChangeRoundsBottomCorners() }
     }
 
     private let trackView = TrackTableViewCellContentView()
@@ -43,24 +48,11 @@ final class TrackTableViewCell: UITableViewCell {
         trackView.configure(with: track)
     }
 
-    private func didChangePosition() {
-        topConstraint.constant = position.topConstraintConstant
-        bottomConstraint.constant = position.bottomConstraintConstant
-    }
-}
-
-private extension TrackTableViewCellContentView.Position {
-    var topConstraintConstant: CGFloat {
-        switch self {
-        case .top: return 16
-        case .mid, .bottom: return 0
-        }
+    private func didChangeRoundsTopCorners() {
+        topConstraint.constant = roundsTopCorners ? 12 : 0
     }
 
-    var bottomConstraintConstant: CGFloat {
-        switch self {
-        case .bottom: return -16
-        case .top, .mid: return 0
-        }
+    private func didChangeRoundsBottomCorners() {
+        bottomConstraint.constant = roundsBottomCorners ? -12 : 0
     }
 }
