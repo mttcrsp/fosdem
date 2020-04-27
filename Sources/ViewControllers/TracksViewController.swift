@@ -8,7 +8,7 @@ protocol TracksViewControllerDataSource: AnyObject {
 }
 
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
-    func tracksViewController(_ tracksViewController: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool
+    func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool
 }
 
 protocol TracksViewControllerDelegate: AnyObject {
@@ -41,6 +41,10 @@ final class TracksViewController: UITableViewController {
         if isViewLoaded {
             tableView.reloadData()
         }
+    }
+
+    func reloadFavoritesData() {
+        reloadData()
     }
 
     override func viewDidLoad() {
@@ -91,25 +95,23 @@ final class TracksViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard let favoritesDataSource = favoritesDataSource else { return nil }
+        guard let dataSource = dataSource, let favoritesDataSource = favoritesDataSource else { return nil }
 
-        if favoritesDataSource.tracksViewController(self, canFavoriteTrackAt: indexPath) {
-            return [.favorite { [weak self] indexPath in self?.didFavoriteTrack(at: indexPath) }]
+        let track = dataSource.tracksViewController(self, trackAt: indexPath)
+
+        if favoritesDataSource.tracksViewController(self, canFavorite: track) {
+            return [.favorite { [weak self] _ in self?.didFavoriteTrack(track) }]
         } else {
-            return [.unfavorite { [weak self] indexPath in self?.didUnfavoriteTrack(at: indexPath) }]
+            return [.unfavorite { [weak self] _ in self?.didUnfavoriteTrack(track) }]
         }
     }
 
-    private func didFavoriteTrack(at indexPath: IndexPath) {
-        if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
-            favoritesDelegate?.tracksViewController(self, didFavorite: track)
-        }
+    private func didFavoriteTrack(_ track: Track) {
+        favoritesDelegate?.tracksViewController(self, didFavorite: track)
     }
 
-    private func didUnfavoriteTrack(at indexPath: IndexPath) {
-        if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
-            favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
-        }
+    private func didUnfavoriteTrack(_ track: Track) {
+        favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
     }
 }
 

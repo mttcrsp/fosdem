@@ -1,28 +1,17 @@
 import UIKit
 
-private enum TracksFilter: Equatable, Hashable {
-    case all, favorites, day(Int)
-}
-
-private struct TracksSection {
-    let initial: Character, tracks: [Track]
-}
-
 final class SearchController: UISplitViewController {
     private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
     private weak var searchController: UISearchController?
 
-    private var sections: [TracksFilter: [TracksSection]] = [:]
     private var captions: [Event: String] = [:]
-    private var filters: [TracksFilter] = []
     private var events: [Event] = []
-    private var tracks: [Track] = []
 
-    private var observation: NSObjectProtocol?
     private var selectedFilter: TracksFilter = .all
     private var selectedTrack: Track?
+    private var observation: NSObjectProtocol?
 
     private let services: Services
 
@@ -33,6 +22,10 @@ final class SearchController: UISplitViewController {
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private var tracksService: TracksService {
+        services.tracksService
     }
 
     private var favoritesService: FavoritesService {
@@ -58,6 +51,9 @@ final class SearchController: UISplitViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        tracksService.delegate = self
+        tracksService.loadTracks()
+
         let tracksViewController = makeTracksViewController()
         let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
 
@@ -66,111 +62,51 @@ final class SearchController: UISplitViewController {
         }
 
         viewControllers = [tracksNavigationController]
+    }
+}
 
-        persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
-            switch result {
-            case let .failure(error): self?.loadingDidFail(with: error)
-            case let .success(tracks): self?.loadingDidFinish(with: tracks)
-            }
-        }
-
-        observation = favoritesService.addObserverForTracks { [weak self] in
-            guard let self = self else { return }
-
-            self.sections[.favorites] = self.makeSections(from: self.tracks.filter { track in
-                self.favoritesService.tracksIdentifiers.contains(track.name)
-            })
-
-            if self.selectedFilter == .favorites {
-                self.tracksViewController?.reloadData()
-            }
-        }
+extension SearchController: TracksServiceDelegate {
+    func tracksServiceDidUpdate(_: TracksService) {
+        tracksViewController?.reloadData()
     }
 
-    private func loadingDidFail(with _: Error) {
-        DispatchQueue.main.async { [weak self] in
-            self?.viewControllers = [ErrorController()]
-        }
-    }
-
-    private func loadingDidFinish(with tracks: [Track]) {
-        self.tracks = tracks
-
-        var days: Set<Int> = []
-        for track in tracks {
-            days.insert(track.day)
-        }
-
-        filters = makeFilters(withDaysCount: days.count)
-
-        sections = [:]
-        for filter in filters {
-            switch filter {
-            case .all:
-                sections[filter] = makeSections(from: tracks)
-            case let .day(day):
-                sections[filter] = makeSections(from: tracks.filter { track in
-                    track.day == day
-                })
-            case .favorites:
-                sections[filter] = makeSections(from: tracks.filter { track in
-                    favoritesService.tracksIdentifiers.contains(track.name)
-                })
-            }
-        }
-
-        DispatchQueue.main.async { [weak self] in
-            self?.tracksViewController?.reloadData()
-        }
-    }
-
-    private func makeFilters(withDaysCount days: Int) -> [TracksFilter] {
-        var filters: [TracksFilter] = []
-        filters.append(.all)
-        filters.append(contentsOf: (0 ..< days).map { index in .day(index + 1) })
-        filters.append(.favorites)
-        return filters
-    }
-
-    private func makeSections(from tracks: [Track]) -> [TracksSection] {
-        var tracksForInitial: [Character: [Track]] = [:]
-
-        for track in tracks {
-            if let initial = track.name.first {
-                tracksForInitial[initial, default: []].append(track)
-            } else {
-                assertionFailure("Unexpectedly found no name for track '\(track)'")
-            }
-        }
-
-        return tracksForInitial
-            .sorted { lhs, rhs in lhs.key < rhs.key }
-            .map { initial, tracks in TracksSection(initial: initial, tracks: tracks) }
+    func tracksServiceDidUpdateFavorites(_: TracksService) {
+        tracksViewController?.reloadFavoritesData()
     }
 }
 
 extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    private var selectedSections: [TracksSection] {
-        sections[selectedFilter] ?? []
+    private var hasFavoriteTracks: Bool {
+        !tracksService.favoriteTracks.isEmpty
     }
 
-    func numberOfSections(in _: TracksViewController) -> Int {
-        selectedSections.count
-    }
-
-    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
-        switch selectedFilter {
-        case .favorites: return nil
-        case .all, .day: return selectedSections.map { section in String(section.initial) }
+    private func tracksViewController(_: TracksViewController, tracksFor section: Int) -> [Track] {
+        switch (section, hasFavoriteTracks) {
+        case (0, true):
+            return tracksService.favoriteTracks
+        case (0, false), (1, true):
+            return tracksService.filteredTracks[selectedFilter] ?? []
+        default:
+            return []
         }
     }
 
-    func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
-        selectedSections[section].tracks.count
+    func numberOfSections(in _: TracksViewController) -> Int {
+        hasFavoriteTracks ? 2 : 1
     }
 
-    func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        selectedSections[indexPath.section].tracks[indexPath.row]
+    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
+        nil
+    }
+
+    func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
+        let tracks = self.tracksViewController(tracksViewController, tracksFor: section)
+        return tracks.count
+    }
+
+    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+        let tracks = self.tracksViewController(tracksViewController, tracksFor: indexPath.section)
+        return tracks[indexPath.row]
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -196,7 +132,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
 
     @objc private func didTapChangeFilter() {
-        let filtersViewController = makeFiltersViewController(with: filters, selectedFilter: selectedFilter)
+        let filtersViewController = makeFiltersViewController(with: tracksService.filters, selectedFilter: selectedFilter)
         tracksViewController?.present(filtersViewController, animated: true)
     }
 
@@ -207,8 +143,8 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 }
 
 extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
-    func tracksViewController(_: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool {
-        !favoritesService.contains(selectedSections[indexPath.section].tracks[indexPath.row])
+    func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
+        !favoritesService.contains(track)
     }
 
     func tracksViewController(_: TracksViewController, didFavorite track: Track) {
@@ -313,7 +249,14 @@ private extension SearchController {
         let filtersAction = #selector(didTapChangeFilter)
         let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
 
-        let tracksViewController = TracksViewController()
+        let style: UITableView.Style
+        if #available(iOS 13.0, *) {
+            style = .insetGrouped
+        } else {
+            style = .grouped
+        }
+
+        let tracksViewController = TracksViewController(style: style)
         tracksViewController.title = NSLocalizedString("search.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.addSearchViewController(makeSearchController())
@@ -390,19 +333,6 @@ private extension SearchController {
 
     func makeEventViewController(for event: Event) -> EventController {
         EventController(event: event, favoritesService: favoritesService)
-    }
-}
-
-private extension TracksFilter {
-    var title: String {
-        switch self {
-        case .all:
-            return NSLocalizedString("search.filter.all", comment: "")
-        case .favorites:
-            return NSLocalizedString("search.filter.favorites", comment: "")
-        case let .day(day):
-            return String(format: NSLocalizedString("search.filter.day", comment: ""), day)
-        }
     }
 }
 
