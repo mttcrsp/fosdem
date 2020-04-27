@@ -19,26 +19,11 @@ protocol TracksViewControllerFavoritesDelegate: AnyObject {
 }
 
 final class TracksViewController: UITableViewController {
-    struct Section {
-        var title: String?
-        var items: [Item]
-    }
-
-    struct Item {
-        var track: Track
-        var roundsTopCorners = false
-        var roundsBottomCorners = false
-    }
-
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
 
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
-
-    private var sectionForSectionIndexTitle: [String: Int] = [:]
-    private var sectionIndexTitles: [String] = []
-    private var sections: [Section] = []
 
     var selectedTrack: Track? {
         if let indexPath = tableView.indexPathForSelectedRow {
@@ -48,11 +33,15 @@ final class TracksViewController: UITableViewController {
         }
     }
 
-    func reloadData() {
+    func reloadTracks() {
         if isViewLoaded {
             tableView.reloadData()
             reloadDataStructures()
         }
+    }
+
+    func reloadFavoriteTracks() {
+        reloadTracks()
     }
 
     override func viewDidLoad() {
@@ -127,90 +116,5 @@ final class TracksViewController: UITableViewController {
 
     private func track(at indexPath: IndexPath) -> Track {
         item(at: indexPath).track
-    }
-
-    private func reloadDataStructures() {
-        sections = makeSections()
-
-        let indices = makeSectionIndexTitles(from: sections)
-        sectionIndexTitles = indices.sectionIndexTitles
-        sectionForSectionIndexTitle = indices.sectionForSectionIndexTitle
-    }
-
-    private func makeSectionIndexTitles(from sections: [Section]) -> (sectionIndexTitles: [String], sectionForSectionIndexTitle: [String: Int]) {
-        var sectionForSectionIndexTitle: [String: Int] = [:]
-        var sectionIndexTitles: [String] = []
-
-        for (index, section) in sections.enumerated() {
-            if let title = section.title {
-                sectionIndexTitles.append(title)
-                sectionForSectionIndexTitle[title] = index
-            }
-        }
-
-        return (sectionIndexTitles, sectionForSectionIndexTitle)
-    }
-
-    private func makeSections() -> [Section] {
-        guard let dataSource = dataSource else { return [] }
-
-        var sections: [Section] = []
-
-        let favoriteTracks = dataSource.favoriteTracks(in: self)
-        if let section = makeFavoritesSection(with: favoriteTracks) {
-            sections.append(section)
-        }
-
-        let standardTracks = dataSource.tracks(in: self)
-        let standardSections = makeStandardSections(with: standardTracks)
-        sections.append(contentsOf: standardSections)
-
-        return sections
-    }
-
-    private func makeFavoritesSection(with tracks: [Track]) -> Section? {
-        guard !tracks.isEmpty else {
-            return nil
-        }
-
-        var items: [Item] = []
-        for track in tracks {
-            items.append(Item(track: track))
-        }
-
-        items[0].roundsTopCorners = true
-        items[tracks.count - 1].roundsBottomCorners = true
-        return Section(title: nil, items: items)
-    }
-
-    private func makeStandardSections(with tracks: [Track]) -> [Section] {
-        guard !tracks.isEmpty else {
-            return []
-        }
-
-        var tracksForInitial: [Character: [Track]] = [:]
-        for track in tracks {
-            if let initial = track.name.first {
-                tracksForInitial[initial, default: []].append(track)
-            }
-        }
-
-        let sortedTracksForInitial = tracksForInitial.sorted(by: { lhs, rhs in lhs.key < rhs.key })
-
-        var sections: [Section] = []
-        for (initial, tracks) in sortedTracksForInitial {
-            var section = Section(title: String(initial), items: [])
-            for track in tracks {
-                section.items.append(Item(track: track))
-            }
-            sections.append(section)
-        }
-
-        if !sections.isEmpty {
-            sections[0].items[0].roundsTopCorners = true
-            sections[sections.count - 1].items[sections[sections.count - 1].items.count - 1].roundsBottomCorners = true
-        }
-
-        return sections
     }
 }

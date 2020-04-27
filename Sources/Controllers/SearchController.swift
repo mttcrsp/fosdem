@@ -1,13 +1,5 @@
 import UIKit
 
-private enum TracksFilter: Equatable, Hashable {
-    case all, favorites, day(Int)
-}
-
-private struct TracksSection {
-    let initial: Character, tracks: [Track]
-}
-
 final class SearchController: UISplitViewController {
     private weak var resultsViewController: EventsViewController?
     private weak var tracksViewController: TracksViewController?
@@ -15,9 +7,6 @@ final class SearchController: UISplitViewController {
     private weak var searchController: UISearchController?
 
     private var captions: [Event: String] = [:]
-    private var filters: [TracksFilter] = []
-    private var favoriteTracks: [Track] = []
-    private var tracks: [Track] = []
     private var events: [Event] = []
 
     private var observation: NSObjectProtocol?
@@ -33,6 +22,10 @@ final class SearchController: UISplitViewController {
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private var tracksService: TracksService {
+        services.tracksService
     }
 
     private var favoritesService: FavoritesService {
@@ -58,6 +51,8 @@ final class SearchController: UISplitViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        tracksService.delegate = self
+
         let tracksViewController = makeTracksViewController()
         let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
 
@@ -66,70 +61,16 @@ final class SearchController: UISplitViewController {
         }
 
         viewControllers = [tracksNavigationController]
-
-        persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
-            switch result {
-            case let .failure(error): self?.loadingDidFail(with: error)
-            case let .success(tracks): self?.loadingDidFinish(with: tracks)
-            }
-        }
-
-        observation = favoritesService.addObserverForTracks { [weak self] in
-            guard let self = self else { return }
-
-            self.favoriteTracks = []
-            for track in self.tracks where self.favoritesService.contains(track) {
-                self.favoriteTracks.append(track)
-            }
-
-            if self.selectedFilter == .favorites {
-                self.tracksViewController?.reloadData()
-            }
-        }
-    }
-
-    private func loadingDidFail(with _: Error) {
-        DispatchQueue.main.async { [weak self] in
-            self?.viewControllers = [ErrorController()]
-        }
-    }
-
-    private func loadingDidFinish(with tracks: [Track]) {
-        self.tracks = tracks
-
-        favoriteTracks = []
-        for track in tracks where favoritesService.contains(track) {
-            favoriteTracks.append(track)
-        }
-
-        var days: Set<Int> = []
-        for track in tracks {
-            days.insert(track.day)
-        }
-
-        filters = makeFilters(withDaysCount: days.count)
-
-        DispatchQueue.main.async { [weak self] in
-            self?.tracksViewController?.reloadData()
-        }
-    }
-
-    private func makeFilters(withDaysCount days: Int) -> [TracksFilter] {
-        var filters: [TracksFilter] = []
-        filters.append(.all)
-        filters.append(contentsOf: (0 ..< days).map { index in .day(index + 1) })
-        filters.append(.favorites)
-        return filters
     }
 }
 
 extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
     func tracks(in _: TracksViewController) -> [Track] {
-        tracks
+        tracksService.filteredTracks[selectedFilter] ?? []
     }
 
     func favoriteTracks(in _: TracksViewController) -> [Track] {
-        favoriteTracks
+        tracksService.favoriteTracks
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -155,6 +96,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
 
     @objc private func didTapChangeFilter() {
+        let filters = tracksService.filters
         let filtersViewController = makeFiltersViewController(with: filters, selectedFilter: selectedFilter)
         tracksViewController?.present(filtersViewController, animated: true)
     }
@@ -266,6 +208,16 @@ extension SearchController: UISearchResultsUpdating {
     }
 }
 
+extension SearchController: TracksServiceDelegate {
+    func tracksServiceDidUpdate(_: TracksService) {
+        tracksViewController?.reloadData()
+    }
+
+    func tracksServiceDidUpdateFavorites(_: TracksService) {
+        tracksViewController?.reloadData()
+    }
+}
+
 private extension SearchController {
     func makeTracksViewController() -> TracksViewController {
         let filtersTitle = NSLocalizedString("search.filter.title", comment: "")
@@ -349,19 +301,6 @@ private extension SearchController {
 
     func makeEventViewController(for event: Event) -> EventController {
         EventController(event: event, favoritesService: favoritesService)
-    }
-}
-
-private extension TracksFilter {
-    var title: String {
-        switch self {
-        case .all:
-            return NSLocalizedString("search.filter.all", comment: "")
-        case .favorites:
-            return NSLocalizedString("search.filter.favorites", comment: "")
-        case let .day(day):
-            return String(format: NSLocalizedString("search.filter.day", comment: ""), day)
-        }
     }
 }
 
