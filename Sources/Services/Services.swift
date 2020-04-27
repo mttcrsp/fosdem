@@ -3,9 +3,8 @@ import Foundation
 final class Services {
     let infoService: InfoService
     let liveService = LiveService()
-    let tracksService: TracksService
-    let updateService: UpdateService
     let yearsService = YearsService()
+    let updateService: UpdateService
     let networkService: NetworkService
     let bundleService = BundleService()
     let scheduleService: ScheduleService
@@ -31,7 +30,6 @@ final class Services {
         networkService = NetworkService(session: session)
 
         updateService = UpdateService(networkService: networkService)
-        tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
         scheduleService = ScheduleService(networkService: networkService, persistenceService: persistenceService)
 
         infoService = InfoService(bundleService: bundleService)

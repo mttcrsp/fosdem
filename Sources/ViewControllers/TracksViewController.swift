@@ -1,12 +1,14 @@
 import UIKit
 
 protocol TracksViewControllerDataSource: AnyObject {
-    func tracks(in tracksViewController: TracksViewController) -> [Track]
-    func favoriteTracks(in tracksViewController: TracksViewController) -> [Track]
+    func numberOfSections(in tracksViewController: TracksViewController) -> Int
+    func sectionIndexTitles(for tracksViewController: TracksViewController) -> [String]?
+    func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int
+    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
 }
 
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
-    func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool
+    func tracksViewController(_ tracksViewController: TracksViewController, canFavoriteTrackAt indexPath: IndexPath) -> Bool
 }
 
 protocol TracksViewControllerDelegate: AnyObject {
@@ -25,36 +27,33 @@ final class TracksViewController: UITableViewController {
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
+    private lazy var tableBackgroundView = TableBackgroundView()
+
     var selectedTrack: Track? {
         if let indexPath = tableView.indexPathForSelectedRow {
-            return track(at: indexPath)
+            return dataSource?.tracksViewController(self, trackAt: indexPath)
         } else {
             return nil
         }
     }
 
-    func reloadTracks() {
+    func reloadData() {
         if isViewLoaded {
             tableView.reloadData()
-            reloadDataStructures()
         }
-    }
-
-    func reloadFavoriteTracks() {
-        reloadTracks()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.separatorStyle = .none
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = .fos_systemGroupedBackground
-        tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
-        reloadDataStructures()
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
-        sections.count
+        let count = dataSource?.numberOfSections(in: self) ?? 0
+        tableView.backgroundView = count == 0 ? tableBackgroundView : nil
+        return count
     }
 
     override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
@@ -66,55 +65,57 @@ final class TracksViewController: UITableViewController {
     }
 
     override func sectionIndexTitles(for _: UITableView) -> [String]? {
-        sectionIndexTitles
+        dataSource?.sectionIndexTitles(for: self)
     }
 
-    override func tableView(_: UITableView, sectionForSectionIndexTitle title: String, at _: Int) -> Int {
-        sectionForSectionIndexTitle[title] ?? 0
+    override func tableView(_: UITableView, sectionForSectionIndexTitle _: String, at index: Int) -> Int {
+        index
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        sections[section].items.count
+        dataSource?.tracksViewController(self, numberOfTracksIn: section) ?? 0
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let item = self.item(at: indexPath)
-        let cell = tableView.dequeueReusableCell(withIdentifier: TrackTableViewCell.reuseIdentifier, for: indexPath) as! TrackTableViewCell
-        cell.configure(with: item.track)
-        cell.roundsTopCorners = item.roundsTopCorners
-        cell.roundsBottomCorners = item.roundsBottomCorners
+        let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+        if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
+            cell.configure(with: track)
+        }
         return cell
     }
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.tracksViewController(self, didSelect: track(at: indexPath))
+        if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
+            delegate?.tracksViewController(self, didSelect: track)
+        }
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard let favoritesDataSource = favoritesDataSource else { return nil }
 
-        let track = self.track(at: indexPath)
-
-        if favoritesDataSource.tracksViewController(self, canFavorite: track) {
-            return [.favorite { [weak self] _ in self?.didFavoriteTrack(track) }]
+        if favoritesDataSource.tracksViewController(self, canFavoriteTrackAt: indexPath) {
+            return [.favorite { [weak self] indexPath in self?.didFavoriteTrack(at: indexPath) }]
         } else {
-            return [.unfavorite { [weak self] _ in self?.didUnfavoriteTrack(track) }]
+            return [.unfavorite { [weak self] indexPath in self?.didUnfavoriteTrack(at: indexPath) }]
         }
     }
 
-    private func didFavoriteTrack(_ track: Track) {
-        favoritesDelegate?.tracksViewController(self, didFavorite: track)
+    private func didFavoriteTrack(at indexPath: IndexPath) {
+        if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
+            favoritesDelegate?.tracksViewController(self, didFavorite: track)
+        }
     }
 
-    private func didUnfavoriteTrack(_ track: Track) {
-        favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
+    private func didUnfavoriteTrack(at indexPath: IndexPath) {
+        if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
+            favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
+        }
     }
+}
 
-    private func item(at indexPath: IndexPath) -> Item {
-        sections[indexPath.section].items[indexPath.row]
-    }
-
-    private func track(at indexPath: IndexPath) -> Track {
-        item(at: indexPath).track
+private extension UITableViewCell {
+    func configure(with track: Track) {
+        textLabel?.text = track.name
+        accessoryType = .disclosureIndicator
     }
 }
