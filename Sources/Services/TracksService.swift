@@ -9,7 +9,7 @@ enum TracksFilter: Equatable, Hashable {
 }
 
 struct TracksSection: Equatable, Hashable {
-    let title: String
+    let title: String?
     let tracks: [Track]
 }
 

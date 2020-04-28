@@ -74,20 +74,8 @@ extension SearchController: TracksServiceDelegate {
 }
 
 extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    func numberOfSections(in _: TracksViewController) -> Int {
-        tracksSections.count
-    }
-
-    func tracksViewController(_: TracksViewController, titleForHeaderInSection section: Int) -> String? {
-        tracksSections[section].title
-    }
-
-    func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
-        tracksSections[section].tracks.count
-    }
-
-    func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        tracksSections[indexPath.section].tracks[indexPath.row]
+    func sections(in _: TracksViewController) -> [TracksSection] {
+        tracksSections
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
