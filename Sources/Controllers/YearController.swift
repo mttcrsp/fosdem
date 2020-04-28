@@ -63,7 +63,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
         1
     }
 
-    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
+    func tracksViewController(_: TracksViewController, titleForHeaderInSection _: Int) -> String? {
         nil
     }
 

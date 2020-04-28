@@ -6,6 +6,7 @@ final class SearchController: UISplitViewController {
     private weak var eventsViewController: EventsViewController?
     private weak var searchController: UISearchController?
 
+    private var tracksSections: [TracksSection] = []
     private var captions: [Event: String] = [:]
     private var events: [Event] = []
 
@@ -67,46 +68,26 @@ final class SearchController: UISplitViewController {
 
 extension SearchController: TracksServiceDelegate {
     func tracksServiceDidUpdate(_: TracksService) {
+        tracksSections = tracksService.makeSections(for: selectedFilter)
         tracksViewController?.reloadData()
-    }
-
-    func tracksServiceDidUpdateFavorites(_: TracksService) {
-        tracksViewController?.reloadFavoritesData()
     }
 }
 
 extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    private var hasFavoriteTracks: Bool {
-        !tracksService.favoriteTracks.isEmpty
-    }
-
-    private func tracksViewController(_: TracksViewController, tracksFor section: Int) -> [Track] {
-        switch (section, hasFavoriteTracks) {
-        case (0, true):
-            return tracksService.favoriteTracks
-        case (0, false), (1, true):
-            return tracksService.filteredTracks[selectedFilter] ?? []
-        default:
-            return []
-        }
-    }
-
     func numberOfSections(in _: TracksViewController) -> Int {
-        hasFavoriteTracks ? 2 : 1
+        tracksSections.count
     }
 
-    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
-        nil
+    func tracksViewController(_: TracksViewController, titleForHeaderInSection section: Int) -> String? {
+        tracksSections[section].title
     }
 
-    func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
-        let tracks = self.tracksViewController(tracksViewController, tracksFor: section)
-        return tracks.count
+    func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
+        tracksSections[section].tracks.count
     }
 
-    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        let tracks = self.tracksViewController(tracksViewController, tracksFor: indexPath.section)
-        return tracks[indexPath.row]
+    func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+        tracksSections[indexPath.section].tracks[indexPath.row]
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -138,6 +119,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 
     private func didSelectFilter(_ filter: TracksFilter) {
         selectedFilter = filter
+        tracksSections = tracksService.makeSections(for: selectedFilter)
         tracksViewController?.reloadData()
     }
 }

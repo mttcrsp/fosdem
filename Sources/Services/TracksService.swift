@@ -2,11 +2,15 @@ import Foundation
 
 protocol TracksServiceDelegate: AnyObject {
     func tracksServiceDidUpdate(_ tracksService: TracksService)
-    func tracksServiceDidUpdateFavorites(_ tracksService: TracksService)
 }
 
 enum TracksFilter: Equatable, Hashable {
     case all, day(Int)
+}
+
+struct TracksSection: Equatable, Hashable {
+    let title: String
+    let tracks: [Track]
 }
 
 final class TracksService {
@@ -35,6 +39,20 @@ final class TracksService {
             if case let .success(tracks) = result {
                 self?.didFinishLoading(with: tracks)
             }
+        }
+    }
+
+    func makeSections(for filter: TracksFilter) -> [TracksSection] {
+        let sectionTitle = filter.title
+        let sectionTracks = filteredTracks[filter] ?? []
+        let section = TracksSection(title: sectionTitle, tracks: sectionTracks)
+
+        if favoriteTracks.isEmpty {
+            return [section]
+        } else {
+            let favoritesTitle = NSLocalizedString("search.filter.favorites", comment: "")
+            let favoritesSection = TracksSection(title: favoritesTitle, tracks: favoriteTracks)
+            return [favoritesSection, section]
         }
     }
 
@@ -68,7 +86,7 @@ final class TracksService {
             favoriteTracks.append(track)
         }
 
-        delegate?.tracksServiceDidUpdateFavorites(self)
+        delegate?.tracksServiceDidUpdate(self)
     }
 }
 
