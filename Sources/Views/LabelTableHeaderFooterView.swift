@@ -6,6 +6,16 @@ final class LabelTableHeaderFooterView: UITableViewHeaderFooterView {
         set { label.text = newValue }
     }
 
+    var textColor: UIColor? {
+        get { label.textColor }
+        set { label.textColor = newValue }
+    }
+
+    var font: UIFont? {
+        get { label.font }
+        set { label.font = newValue }
+    }
+
     private let label = UILabel()
 
     override init(reuseIdentifier: String?) {

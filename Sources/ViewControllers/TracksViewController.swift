@@ -47,6 +47,7 @@ final class TracksViewController: UITableViewController {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
         tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
@@ -56,8 +57,12 @@ final class TracksViewController: UITableViewController {
         return count
     }
 
-    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        dataSource?.tracksViewController(self, titleForSectionAt: section)
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
+        view.text = dataSource?.tracksViewController(self, titleForSectionAt: section)
+        view.font = .fos_preferredFont(forTextStyle: .headline)
+        view.textColor = .fos_label
+        return view
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
