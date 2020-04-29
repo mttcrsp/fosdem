@@ -2,7 +2,6 @@ import Foundation
 
 protocol TracksServiceDelegate: AnyObject {
     func tracksServiceDidUpdate(_ tracksService: TracksService)
-    func tracksServiceDidUpdateFavorites(_ tracksService: TracksService)
 }
 
 enum TracksFilter: Equatable, Hashable {
@@ -12,11 +11,18 @@ enum TracksFilter: Equatable, Hashable {
 final class TracksService {
     weak var delegate: TracksServiceDelegate?
 
-    private(set) var tracks: [Track] = []
-    private(set) var filters: [TracksFilter] = []
-    private(set) var favoriteTracks: [Track] = []
-    private(set) var filteredTracks: [TracksFilter: [Track]] = [:]
+    var tracks: [Track] {
+        filteredTracks[.all] ?? []
+    }
+
+    var favoriteTracks: [Track] {
+        filteredFavoriteTracks[.all] ?? []
+    }
+
     private var observation: NSObjectProtocol?
+    private(set) var filters: [TracksFilter] = []
+    private(set) var filteredTracks: [TracksFilter: [Track]] = [:]
+    private(set) var filteredFavoriteTracks: [TracksFilter: [Track]] = [:]
 
     private let favoritesService: FavoritesService
     private let persistenceService: PersistenceService
@@ -39,36 +45,38 @@ final class TracksService {
     }
 
     private func didFinishLoading(with tracks: [Track]) {
-        self.tracks = tracks
-
-        favoriteTracks = []
-        filteredTracks = [:]
-
         var filters: Set<TracksFilter> = [.all]
+        var filteredTracks: [TracksFilter: [Track]] = [:]
+        var filteredFavoriteTracks: [TracksFilter: [Track]] = [:]
+
         for track in tracks {
             let filter = TracksFilter.day(track.day)
             filters.insert(filter)
-
             filteredTracks[.all, default: []].append(track)
             filteredTracks[filter, default: []].append(track)
 
             if favoritesService.contains(track) {
-                favoriteTracks.append(track)
+                filteredFavoriteTracks[.all, default: []].append(track)
+                filteredFavoriteTracks[filter, default: []].append(track)
             }
         }
 
         self.filters = filters.sorted()
+        self.filteredTracks = filteredTracks
+        self.filteredFavoriteTracks = filteredFavoriteTracks
 
         delegate?.tracksServiceDidUpdate(self)
     }
 
     private func didChangeFavorites() {
-        favoriteTracks = []
+        filteredFavoriteTracks = [:]
         for track in tracks where favoritesService.contains(track) {
-            favoriteTracks.append(track)
+            let filter = TracksFilter.day(track.day)
+            filteredFavoriteTracks[.all, default: []].append(track)
+            filteredFavoriteTracks[filter, default: []].append(track)
         }
 
-        delegate?.tracksServiceDidUpdateFavorites(self)
+        delegate?.tracksServiceDidUpdate(self)
     }
 }
 

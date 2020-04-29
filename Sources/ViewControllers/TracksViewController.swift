@@ -2,7 +2,7 @@ import UIKit
 
 protocol TracksViewControllerDataSource: AnyObject {
     func numberOfSections(in tracksViewController: TracksViewController) -> Int
-    func sectionIndexTitles(for tracksViewController: TracksViewController) -> [String]?
+    func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String?
     func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int
     func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
 }
@@ -43,10 +43,6 @@ final class TracksViewController: UITableViewController {
         }
     }
 
-    func reloadFavoritesData() {
-        reloadData()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
@@ -60,20 +56,8 @@ final class TracksViewController: UITableViewController {
         return count
     }
 
-    override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        UIView()
-    }
-
-    override func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        0
-    }
-
-    override func sectionIndexTitles(for _: UITableView) -> [String]? {
-        dataSource?.sectionIndexTitles(for: self)
-    }
-
-    override func tableView(_: UITableView, sectionForSectionIndexTitle _: String, at index: Int) -> Int {
-        index
+    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        dataSource?.tracksViewController(self, titleForSectionAt: section)
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -69,44 +69,51 @@ extension SearchController: TracksServiceDelegate {
     func tracksServiceDidUpdate(_: TracksService) {
         tracksViewController?.reloadData()
     }
-
-    func tracksServiceDidUpdateFavorites(_: TracksService) {
-        tracksViewController?.reloadFavoritesData()
-    }
 }
 
 extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-    private var hasFavoriteTracks: Bool {
-        !tracksService.favoriteTracks.isEmpty
+    private var filteredTracks: [Track] {
+        tracksService.filteredTracks[selectedFilter] ?? []
     }
 
-    private func tracksViewController(_: TracksViewController, tracksFor section: Int) -> [Track] {
-        switch (section, hasFavoriteTracks) {
-        case (0, true):
-            return tracksService.favoriteTracks
-        case (0, false), (1, true):
-            return tracksService.filteredTracks[selectedFilter] ?? []
-        default:
-            return []
-        }
+    private var filteredFavoriteTracks: [Track] {
+        tracksService.filteredFavoriteTracks[selectedFilter] ?? []
+    }
+
+    private var hasFavoriteTracks: Bool {
+        !filteredFavoriteTracks.isEmpty
+    }
+
+    private func isFavoriteSection(_ section: Int) -> Bool {
+        section == 0 && hasFavoriteTracks
     }
 
     func numberOfSections(in _: TracksViewController) -> Int {
         hasFavoriteTracks ? 2 : 1
     }
 
-    func sectionIndexTitles(for _: TracksViewController) -> [String]? {
-        nil
+    func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
+        if isFavoriteSection(section) {
+            return NSLocalizedString("search.filter.favorites", comment: "")
+        } else {
+            return selectedFilter.title
+        }
     }
 
-    func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
-        let tracks = self.tracksViewController(tracksViewController, tracksFor: section)
-        return tracks.count
+    func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
+        if isFavoriteSection(section) {
+            return filteredFavoriteTracks.count
+        } else {
+            return filteredTracks.count
+        }
     }
 
-    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        let tracks = self.tracksViewController(tracksViewController, tracksFor: indexPath.section)
-        return tracks[indexPath.row]
+    func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+        if isFavoriteSection(indexPath.section) {
+            return filteredFavoriteTracks[indexPath.row]
+        } else {
+            return filteredTracks[indexPath.row]
+        }
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
