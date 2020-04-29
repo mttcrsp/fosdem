@@ -1,7 +1,10 @@
 import UIKit
 
 protocol TracksViewControllerDataSource: AnyObject {
-    func sections(in tracksViewController: TracksViewController) -> [TracksSection]
+    func numberOfSections(in tracksViewController: TracksViewController) -> Int
+    func sectionIndexTitles(for tracksViewController: TracksViewController) -> [String]?
+    func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int
+    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
 }
 
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
@@ -24,7 +27,7 @@ final class TracksViewController: UITableViewController {
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
-    private var sections: [TracksSection] = []
+    private lazy var tableBackgroundView = TableBackgroundView()
 
     var selectedTrack: Track? {
         if let indexPath = tableView.indexPathForSelectedRow {
@@ -48,18 +51,33 @@ final class TracksViewController: UITableViewController {
         super.viewDidLoad()
         tableView.tableFooterView = UIView()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+        tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
-        dataSource?.sections(in: self).count ?? 0
+        let count = dataSource?.numberOfSections(in: self) ?? 0
+        tableView.backgroundView = count == 0 ? tableBackgroundView : nil
+        return count
     }
 
-    override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-        dataSource?.tracksViewController(self, sectionAt: section).title
+    override func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        UIView()
+    }
+
+    override func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
+        0
+    }
+
+    override func sectionIndexTitles(for _: UITableView) -> [String]? {
+        dataSource?.sectionIndexTitles(for: self)
+    }
+
+    override func tableView(_: UITableView, sectionForSectionIndexTitle _: String, at index: Int) -> Int {
+        index
     }
 
     override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        dataSource?.tracksViewController(self, sectionAt: section).tracks.count ?? 0
+        dataSource?.tracksViewController(self, numberOfTracksIn: section) ?? 0
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -94,16 +112,6 @@ final class TracksViewController: UITableViewController {
 
     private func didUnfavoriteTrack(_ track: Track) {
         favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
-    }
-}
-
-private extension TracksViewControllerDataSource {
-    func tracksViewController(_ tracksViewController: TracksViewController, sectionAt index: Int) -> TracksSection {
-        sections(in: tracksViewController)[index]
-    }
-
-    func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-        sections(in: tracksViewController)[indexPath.section].tracks[indexPath.row]
     }
 }
 
