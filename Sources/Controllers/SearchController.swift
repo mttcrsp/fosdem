@@ -153,6 +153,26 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
 }
 
+extension SearchController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
+    func sectionIndexTitles(in _: TracksViewController) -> [String] {
+        if let sectionIndexTitles = tracksService.filteredIndexTitles[selectedFilter] {
+            return sectionIndexTitles.keys.sorted()
+        } else {
+            return []
+        }
+    }
+
+    func tracksViewController(_ tracksViewController: TracksViewController, didSelect section: Int) {
+        let titles = sectionIndexTitles(in: tracksViewController)
+        let title = titles[section]
+
+        if let index = tracksService.filteredIndexTitles[selectedFilter]?[title] {
+            let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
+            tracksViewController.scrollToRow(at: indexPath, at: .top, animated: false)
+        }
+    }
+}
+
 extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
     func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
         !favoritesService.contains(track)
@@ -273,6 +293,8 @@ private extension SearchController {
         tracksViewController.addSearchViewController(makeSearchController())
         tracksViewController.favoritesDataSource = self
         tracksViewController.favoritesDelegate = self
+        tracksViewController.indexDataSource = self
+        tracksViewController.indexDelegate = self
         tracksViewController.dataSource = self
         tracksViewController.delegate = self
         self.tracksViewController = tracksViewController

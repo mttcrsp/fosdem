@@ -23,6 +23,7 @@ final class TracksService {
     private(set) var filters: [TracksFilter] = []
     private(set) var filteredTracks: [TracksFilter: [Track]] = [:]
     private(set) var filteredFavoriteTracks: [TracksFilter: [Track]] = [:]
+    private(set) var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 
     private let favoritesService: FavoritesService
     private let persistenceService: PersistenceService
@@ -48,8 +49,9 @@ final class TracksService {
         var filters: Set<TracksFilter> = [.all]
         var filteredTracks: [TracksFilter: [Track]] = [:]
         var filteredFavoriteTracks: [TracksFilter: [Track]] = [:]
+        var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 
-        for track in tracks {
+        for (offset, track) in tracks.enumerated() {
             let filter = TracksFilter.day(track.day)
             filters.insert(filter)
             filteredTracks[.all, default: []].append(track)
@@ -59,13 +61,22 @@ final class TracksService {
                 filteredFavoriteTracks[.all, default: []].append(track)
                 filteredFavoriteTracks[filter, default: []].append(track)
             }
+
+            if let initial = track.name.first, filteredIndexTitles[.all, default: [:]][String(initial)] == nil {
+                filteredIndexTitles[.all, default: [:]][String(initial)] = offset
+                filteredIndexTitles[filter, default: [:]][String(initial)] = offset
+            }
         }
 
-        self.filters = filters.sorted()
-        self.filteredTracks = filteredTracks
-        self.filteredFavoriteTracks = filteredFavoriteTracks
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
 
-        delegate?.tracksServiceDidUpdate(self)
+            self.filters = filters.sorted()
+            self.filteredTracks = filteredTracks
+            self.filteredIndexTitles = filteredIndexTitles
+            self.filteredFavoriteTracks = filteredFavoriteTracks
+            self.delegate?.tracksServiceDidUpdate(self)
+        }
     }
 
     private func didChangeFavorites() {

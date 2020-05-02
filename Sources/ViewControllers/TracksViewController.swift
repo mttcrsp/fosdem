@@ -7,12 +7,20 @@ protocol TracksViewControllerDataSource: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
 }
 
+protocol TracksViewControllerIndexDataSource: AnyObject {
+    func sectionIndexTitles(in tracksViewController: TracksViewController) -> [String]
+}
+
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool
 }
 
 protocol TracksViewControllerDelegate: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track)
+}
+
+protocol TracksViewControllerIndexDelegate: AnyObject {
+    func tracksViewController(_ tracksViewController: TracksViewController, didSelect section: Int)
 }
 
 protocol TracksViewControllerFavoritesDelegate: AnyObject {
@@ -24,10 +32,13 @@ final class TracksViewController: UITableViewController {
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
 
+    weak var indexDataSource: TracksViewControllerIndexDataSource?
+    weak var indexDelegate: TracksViewControllerIndexDelegate?
+
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
-    private lazy var tableBackgroundView = TableBackgroundView()
+    private lazy var backgroundView = TracksBackgroundView()
 
     var selectedTrack: Track? {
         if let indexPath = tableView.indexPathForSelectedRow {
@@ -40,21 +51,29 @@ final class TracksViewController: UITableViewController {
     func reloadData() {
         if isViewLoaded {
             tableView.reloadData()
+            backgroundView.sectionTitles = indexDataSource?.sectionIndexTitles(in: self) ?? []
         }
+    }
+
+    func scrollToRow(at indexPath: IndexPath, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {
+        tableView.scrollToRow(at: indexPath, at: scrollPosition, animated: animated)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        backgroundView.delegate = self
+        backgroundView.sectionTitles = indexDataSource?.sectionIndexTitles(in: self) ?? []
+
         tableView.tableFooterView = UIView()
+        tableView.backgroundView = backgroundView
+        tableView.showsVerticalScrollIndicator = indexDataSource == nil
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
-        tableBackgroundView.text = NSLocalizedString("search.empty", comment: "")
     }
 
     override func numberOfSections(in _: UITableView) -> Int {
-        let count = dataSource?.numberOfSections(in: self) ?? 0
-        tableView.backgroundView = count == 0 ? tableBackgroundView : nil
-        return count
+        dataSource?.numberOfSections(in: self) ?? 0
     }
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -101,6 +120,12 @@ final class TracksViewController: UITableViewController {
 
     private func didUnfavoriteTrack(_ track: Track) {
         favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
+    }
+}
+
+extension TracksViewController: TracksBackgroundViewDelegate {
+    func backgroundView(_: TracksBackgroundView, didSelect section: Int) {
+        indexDelegate?.tracksViewController(self, didSelect: section)
     }
 }
 

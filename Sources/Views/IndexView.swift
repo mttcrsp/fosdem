@@ -38,9 +38,11 @@ final class IndexView: UIControl {
         accessibilityLabel = NSLocalizedString("ui.sectionindex", comment: "")
 
         NSLayoutConstraint.activate([
-            textView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            textView.centerYAnchor.constraint(equalTo: layoutMarginsGuide.centerYAnchor),
             textView.leadingAnchor.constraint(equalTo: leadingAnchor),
             textView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            textView.topAnchor.constraint(greaterThanOrEqualTo: topAnchor),
+            textView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
         ])
     }
 
