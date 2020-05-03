@@ -49,18 +49,8 @@ final class MapViewController: UIViewController {
 
         mapView.frame = view.bounds
 
-        guard let blueprintsView = blueprintsViewController?.view else { return }
-
-        if view.bounds.width < view.bounds.height {
-            blueprintsView.frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
-            blueprintsView.frame.size.height = 200
-            blueprintsView.frame.origin.x = view.layoutMargins.left
-            blueprintsView.frame.origin.y = view.bounds.height - view.layoutMargins.bottom - blueprintsView.bounds.height - 32
-        } else {
-            blueprintsView.frame.size.width = 300
-            blueprintsView.frame.size.height = view.bounds.height - view.layoutMargins.bottom - 48
-            blueprintsView.frame.origin.x = view.layoutMargins.left
-            blueprintsView.frame.origin.y = 16
+        if let blueprintsView = blueprintsViewController?.view {
+            blueprintsView.frame = blueprintsFrame
         }
     }
 
@@ -120,6 +110,26 @@ final class MapViewController: UIViewController {
             self?.blueprintsViewController?.removeFromParent()
         }
         animator.startAnimation()
+    }
+
+    private var prefersVerticalBlueprintsLayout: Bool {
+        view.bounds.width < view.bounds.height
+    }
+
+    private var blueprintsFrame: CGRect {
+        var frame = CGRect()
+        if prefersVerticalBlueprintsLayout {
+            frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
+            frame.size.height = 200
+            frame.origin.x = view.layoutMargins.left
+            frame.origin.y = view.bounds.height - view.layoutMargins.bottom - frame.height - 32
+        } else {
+            frame.size.width = 300
+            frame.size.height = view.bounds.height - view.layoutMargins.bottom - 48
+            frame.origin.x = view.layoutMargins.left
+            frame.origin.y = 16
+        }
+        return frame
     }
 
     @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
