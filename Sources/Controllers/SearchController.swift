@@ -63,6 +63,9 @@ final class SearchController: UISplitViewController {
         }
 
         viewControllers = [tracksNavigationController]
+        if traitCollection.horizontalSizeClass == .regular {
+            viewControllers.append(WelcomeViewController())
+        }
     }
 }
 
