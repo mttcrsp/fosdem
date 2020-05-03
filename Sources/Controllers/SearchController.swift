@@ -5,6 +5,7 @@ final class SearchController: UISplitViewController {
     private weak var tracksViewController: TracksViewController?
     private weak var eventsViewController: EventsViewController?
     private weak var searchController: UISearchController?
+    private weak var filtersButton: UIBarButtonItem?
 
     private var captions: [Event: String] = [:]
     private var events: [Event] = []
@@ -279,6 +280,7 @@ private extension SearchController {
         let filtersTitle = NSLocalizedString("search.filter.title", comment: "")
         let filtersAction = #selector(didTapChangeFilter)
         let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
+        self.filtersButton = filtersButton
 
         let style: UITableView.Style
         if #available(iOS 13.0, *) {
@@ -308,6 +310,7 @@ private extension SearchController {
 
     func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        alertController.popoverPresentationController?.barButtonItem = filtersButton
 
         for filter in filters where filter != selectedFilter {
             let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in self?.didSelectFilter(filter) }
