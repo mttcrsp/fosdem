@@ -12,25 +12,18 @@ final class MapViewController: UIViewController {
         didSet { buildingsDidChange() }
     }
 
-    private lazy var mapView = MKMapView()
-
     private(set) var selectedBuilding: Building? {
         didSet { selectedBuildingChanged() }
     }
 
-    func deselectSelectedAnnotation() {
-        for annotation in mapView.selectedAnnotations {
-            mapView.deselectAnnotation(annotation, animated: true)
-        }
-    }
+    private lazy var mapView = MKMapView()
 
-    override func loadView() {
-        view = mapView
-    }
+    private weak var blueprintsViewController: UIViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.addSubview(mapView)
         mapView.delegate = self
         mapView.tintColor = .fos_label
         mapView.isPitchEnabled = false
@@ -51,6 +44,26 @@ final class MapViewController: UIViewController {
         mapView.addGestureRecognizer(tapRecognizer)
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        mapView.frame = view.bounds
+
+        guard let blueprintsView = blueprintsViewController?.view else { return }
+
+        if view.bounds.width < view.bounds.height {
+            blueprintsView.frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
+            blueprintsView.frame.size.height = 200
+            blueprintsView.frame.origin.x = view.layoutMargins.left
+            blueprintsView.frame.origin.y = view.bounds.height - view.layoutMargins.bottom - blueprintsView.bounds.height - 32
+        } else {
+            blueprintsView.frame.size.width = 300
+            blueprintsView.frame.size.height = view.bounds.height - view.layoutMargins.bottom - 48
+            blueprintsView.frame.origin.x = view.layoutMargins.left
+            blueprintsView.frame.origin.y = 16
+        }
+    }
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
@@ -60,6 +73,53 @@ final class MapViewController: UIViewController {
                 annotationView?.markerTintColor = mapView.tintColor
             }
         }
+    }
+
+    func deselectSelectedAnnotation() {
+        for annotation in mapView.selectedAnnotations {
+            mapView.deselectAnnotation(annotation, animated: true)
+        }
+    }
+
+    func addBlueprintsViewController(_ blueprintsViewController: UIViewController) {
+        self.blueprintsViewController = blueprintsViewController
+
+        addChild(blueprintsViewController)
+
+        let blueprintsView: UIView = blueprintsViewController.view
+        blueprintsView.backgroundColor = .fos_systemBackground
+        blueprintsView.alpha = 0
+        blueprintsView.layer.cornerRadius = 8
+        blueprintsView.layer.shadowRadius = 8
+        blueprintsView.layer.shadowOpacity = 0.2
+        blueprintsView.layer.shadowOffset = .zero
+        blueprintsView.layer.shadowColor = UIColor.black.cgColor
+        view.addSubview(blueprintsView)
+
+        let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
+        animator.addAnimations { [weak self] in
+            guard let self = self else { return }
+            self.blueprintsViewController?.view.alpha = 1
+        }
+        animator.addCompletion { [weak self] _ in
+            guard let self = self else { return }
+            self.blueprintsViewController?.didMove(toParent: self)
+        }
+        animator.startAnimation()
+    }
+
+    func removeBlueprinsViewController() {
+        blueprintsViewController?.willMove(toParent: nil)
+
+        let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
+        animator.addAnimations { [weak self] in
+            self?.blueprintsViewController?.view.alpha = 0
+        }
+        animator.addCompletion { [weak self] _ in
+            self?.blueprintsViewController?.view.removeFromSuperview()
+            self?.blueprintsViewController?.removeFromParent()
+        }
+        animator.startAnimation()
     }
 
     @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
