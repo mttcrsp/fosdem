@@ -161,11 +161,29 @@ final class MapViewController: UIViewController {
             guard let self = self else { return }
 
             if let building = self.selectedBuilding {
-                self.delegate?.mapViewController(self, didSelect: building)
+                self.didSelectBuilding(building)
             } else {
-                self.delegate?.mapViewControllerDidDeselectBuilding(self)
+                self.didDeselectBuilding()
             }
         }
+    }
+
+    private func didDeselectBuilding() {
+        delegate?.mapViewControllerDidDeselectBuilding(self)
+    }
+
+    private func didSelectBuilding(_ building: Building) {
+        delegate?.mapViewController(self, didSelect: building)
+
+        var center = mapView.convert(building.coordinate, toPointTo: mapView)
+        if prefersVerticalBlueprintsLayout {
+            center.y += blueprintsFrame.height / 2
+        } else {
+            center.x -= blueprintsFrame.width / 2
+        }
+
+        let centerCoordinates = mapView.convert(center, toCoordinateFrom: mapView)
+        mapView.setCenter(centerCoordinates, animated: true)
     }
 }
 
