@@ -32,6 +32,7 @@ final class EventViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.contentInset.bottom = 16
         tableView.separatorStyle = .none
         tableView.tableFooterView = UIView()
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
