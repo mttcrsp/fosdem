@@ -118,7 +118,12 @@ final class MapViewController: UIViewController {
 
     private var blueprintsFrame: CGRect {
         var frame = CGRect()
-        if prefersVerticalBlueprintsLayout {
+
+        if traitCollection.horizontalSizeClass == .regular {
+            frame.size = CGSize(width: 320, height: 320)
+            frame.origin.x = view.layoutMargins.left
+            frame.origin.y = 16
+        } else if prefersVerticalBlueprintsLayout {
             frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
             frame.size.height = 200
             frame.origin.x = view.layoutMargins.left
