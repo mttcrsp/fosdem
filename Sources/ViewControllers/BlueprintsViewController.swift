@@ -13,7 +13,7 @@ final class BlueprintsViewController: UIPageViewController {
     weak var blueprintsDelegate: BlueprintsViewControllerDelegate?
 
     weak var fullscreenDelegate: BlueprintsViewControllerFullscreenDelegate? {
-        didSet { didChangeFullscreenDelegate() }
+        didSet { didChangeFullscreenSupport() }
     }
 
     convenience init() {
@@ -45,10 +45,15 @@ final class BlueprintsViewController: UIPageViewController {
     private func didChangeBuilding() {
         setViewControllers([makeInitialViewController()], direction: .forward, animated: false)
         didChangeChildViewController()
+        didChangeFullscreenSupport()
     }
 
-    private func didChangeFullscreenDelegate() {
-        navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : makeFullscreenButton()
+    private func didChangeFullscreenSupport() {
+        if fullscreenDelegate == nil || blueprints.isEmpty {
+            navigationItem.leftBarButtonItem = nil
+        } else {
+            navigationItem.leftBarButtonItem = makeFullscreenButton()
+        }
     }
 
     @objc private func didTapDismiss() {
