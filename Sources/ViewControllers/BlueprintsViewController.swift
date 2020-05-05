@@ -9,93 +9,76 @@ protocol BlueprintsViewControllerFullscreenDelegate: AnyObject {
     func blueprintsViewControllerDidTapFullscreen(_ blueprintViewController: BlueprintsViewController)
 }
 
-final class BlueprintsViewController: UIViewController {
-    weak var fullscreenDelegate: BlueprintsViewControllerFullscreenDelegate?
-    weak var delegate: BlueprintsViewControllerDelegate?
+final class BlueprintsViewController: UIPageViewController {
+    weak var blueprintsDelegate: BlueprintsViewControllerDelegate?
+
+    weak var fullscreenDelegate: BlueprintsViewControllerFullscreenDelegate? {
+        didSet { didChangeFullscreenDelegate() }
+    }
+
+    convenience init() {
+        self.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [.interPageSpacing: 20])
+    }
 
     var building: Building? {
         didSet { didChangeBuilding() }
     }
 
-    private lazy var backgroundView = TableBackgroundView()
-    private lazy var collectionViewLayout = UICollectionViewFlowLayout()
-    private lazy var collectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewLayout)
-
-    private lazy var dismissButton: UIBarButtonItem = {
-        let dismissImageName = "xmark"
-        let dismissAction = #selector(didTapDismiss)
-        return makeBarButtonItem(forAction: dismissAction, withImageNamed: dismissImageName)
-    }()
-
-    private lazy var fullscreenButton: UIBarButtonItem = {
-        let fullscreenAction = #selector(didTapFullscreen)
-        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
-        return makeBarButtonItem(forAction: fullscreenAction, withImageNamed: fullscreenImageName)
-    }()
+    private var blueprints: [Blueprint] {
+        building?.blueprints ?? []
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.rightBarButtonItem = dismissButton
+        delegate = self
+        dataSource = self
 
-        view.addSubview(collectionView)
+        navigationItem.rightBarButtonItem = makeDismissButton()
+
+        let tapAction = #selector(didTapFullscreen)
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
+        view.addGestureRecognizer(tapRecognizer)
         view.backgroundColor = .fos_systemBackground
-        view.preservesSuperviewLayoutMargins = false
-        view.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
-
-        collectionView.delegate = self
-        collectionView.dataSource = self
-        collectionView.isPagingEnabled = true
-        collectionView.backgroundColor = .clear
-        collectionView.backgroundView = backgroundView
-        collectionView.register(BlueprintCollectionViewCell.self, forCellWithReuseIdentifier: BlueprintCollectionViewCell.reuseIdentifier)
-
-        collectionViewLayout.minimumLineSpacing = 0
-        collectionViewLayout.scrollDirection = .horizontal
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        collectionView.frame = view.bounds
-        collectionViewLayout.itemSize = view.bounds.size
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        collectionView.flashScrollIndicators()
     }
 
     private func didChangeBuilding() {
-        collectionView.reloadData()
-        collectionView.flashScrollIndicators()
-        didChangeVisibleBlueprint()
+        setViewControllers([makeInitialViewController()], direction: .forward, animated: false)
+        didChangeChildViewController()
     }
 
-    private func didChangeVisibleBlueprint() {
-        guard let building = building else { return }
-
-        let centerX = collectionView.bounds.midX
-        let centerY = collectionView.bounds.midY
-        let center = CGPoint(x: centerX, y: centerY)
-
-        if let indexPath = collectionView.indexPathForItem(at: center) {
-            title = building.blueprints[indexPath.item].title
-            navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : fullscreenButton
-        } else if let blueprint = building.blueprints.first {
-            title = blueprint.title
-            navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : fullscreenButton
-        } else {
-            title = nil
-            navigationItem.leftBarButtonItem = nil
-        }
+    private func didChangeFullscreenDelegate() {
+        navigationItem.leftBarButtonItem = fullscreenDelegate == nil ? nil : makeFullscreenButton()
     }
 
     @objc private func didTapDismiss() {
-        delegate?.blueprintsViewControllerDidTapDismiss(self)
+        blueprintsDelegate?.blueprintsViewControllerDidTapDismiss(self)
     }
 
     @objc private func didTapFullscreen() {
-        fullscreenDelegate?.blueprintsViewControllerDidTapFullscreen(self)
+        if !blueprints.isEmpty {
+            fullscreenDelegate?.blueprintsViewControllerDidTapFullscreen(self)
+        }
+    }
+
+    private func makeInitialViewController() -> UIViewController {
+        if blueprints.isEmpty {
+            return makeEmptyViewController()
+        } else {
+            return makeBlueprintViewController(at: 0)
+        }
+    }
+
+    private func makeDismissButton() -> UIBarButtonItem {
+        let dismissImageName = "xmark"
+        let dismissAction = #selector(didTapDismiss)
+        return makeBarButtonItem(forAction: dismissAction, withImageNamed: dismissImageName)
+    }
+
+    private func makeFullscreenButton() -> UIBarButtonItem {
+        let fullscreenAction = #selector(didTapFullscreen)
+        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
+        return makeBarButtonItem(forAction: fullscreenAction, withImageNamed: fullscreenImageName)
     }
 
     private func makeBarButtonItem(forAction action: Selector, withImageNamed imageName: String) -> UIBarButtonItem {
@@ -109,34 +92,68 @@ final class BlueprintsViewController: UIViewController {
     }
 }
 
-extension BlueprintsViewController: UICollectionViewDataSource, UICollectionViewDelegate {
-    func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
-        let count = building?.blueprints.count ?? 0
+extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+    func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        guard let index = viewController.fos_index else { return nil }
 
-        if count == 0 {
-            backgroundView.text = NSLocalizedString("map.blueprint.empty", comment: "")
+        let indexBefore = index - 1
+        if blueprints.indices.contains(indexBefore) {
+            return makeBlueprintViewController(at: indexBefore)
         } else {
-            backgroundView.text = nil
+            return nil
         }
-
-        return count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: BlueprintCollectionViewCell.reuseIdentifier, for: indexPath) as! BlueprintCollectionViewCell
+    func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        guard let index = viewController.fos_index else { return nil }
 
-        if let blueprint = building?.blueprints[indexPath.row] {
-            cell.configure(with: blueprint)
+        let indexAfter = index + 1
+        if blueprints.indices.contains(indexAfter) {
+            return makeBlueprintViewController(at: indexAfter)
+        } else {
+            return nil
         }
-
-        return cell
     }
 
-    func collectionView(_: UICollectionView, didSelectItemAt _: IndexPath) {
-        delegate?.blueprintsViewControllerDidSelectBlueprint(self)
+    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted _: Bool) {
+        didChangeChildViewController()
     }
 
-    func scrollViewDidEndDecelerating(_: UIScrollView) {
-        didChangeVisibleBlueprint()
+    private func didChangeChildViewController() {
+        if let blueprintViewController = viewControllers?.first as? BlueprintViewController, let blueprint = blueprintViewController.blueprint {
+            title = blueprint.title
+        } else {
+            title = nil
+        }
+    }
+
+    private func makeBlueprintViewController(at index: Int) -> BlueprintViewController {
+        let blueprintViewController: BlueprintViewController = fullscreenDelegate == nil
+            ? FullscreenBlueprintViewController()
+            : EmbeddedBlueprintViewController()
+        blueprintViewController.blueprint = blueprints[index]
+        blueprintViewController.fos_index = index
+        return blueprintViewController
+    }
+
+    private func makeEmptyViewController() -> BlueprintsEmptyViewController {
+        BlueprintsEmptyViewController()
+    }
+}
+
+private protocol BlueprintViewController: UIViewController {
+    var blueprint: Blueprint? { get set }
+}
+
+extension EmbeddedBlueprintViewController: BlueprintViewController {}
+
+extension FullscreenBlueprintViewController: BlueprintViewController {}
+
+private extension UIViewController {
+    private static var indexKey = 0
+
+    var fos_index: Int? {
+        get { objc_getAssociatedObject(self, &UIViewController.indexKey) as? Int }
+        set { objc_setAssociatedObject(self, &UIViewController.indexKey, newValue as Int?, .OBJC_ASSOCIATION_COPY_NONATOMIC) }
     }
 }

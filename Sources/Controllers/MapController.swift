@@ -108,10 +108,9 @@ private extension MapController {
 
     func makeBlueprintsViewController(for building: Building) -> BlueprintsViewController {
         let blueprintsViewController = BlueprintsViewController()
-        blueprintsViewController.edgesForExtendedLayout = .bottom
         blueprintsViewController.fullscreenDelegate = self
+        blueprintsViewController.blueprintsDelegate = self
         blueprintsViewController.building = building
-        blueprintsViewController.delegate = self
         self.blueprintsViewController = blueprintsViewController
         return blueprintsViewController
     }
@@ -119,7 +118,7 @@ private extension MapController {
     func makeFullscreenBlueprintsViewController(for building: Building) -> BlueprintsViewController {
         let blueprintsViewController = BlueprintsViewController()
         blueprintsViewController.building = building
-        blueprintsViewController.delegate = self
+        blueprintsViewController.blueprintsDelegate = self
         fullscreenBlueprintsViewController = blueprintsViewController
         return blueprintsViewController
     }
