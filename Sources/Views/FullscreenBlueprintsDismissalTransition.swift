@@ -50,7 +50,6 @@ final class FullscreenBlueprintsDismissalTransition: UIPercentDrivenInteractiveT
             let translation = recognizer.translation(in: nil)
             let translationPercentComplete = translation.y / dismissedViewController.view.bounds.height
             update(max(0, min(1, translationPercentComplete)))
-            print(percentComplete)
         case .ended:
             let velocity = recognizer.velocity(in: nil)
             let initialVelocity = velocity.y
