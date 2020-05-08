@@ -72,6 +72,11 @@ final class TracksViewController: UITableViewController {
         tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        backgroundView.isHidden = traitCollection.userInterfaceIdiom == .pad || view.bounds.width > view.bounds.height
+    }
+
     override func numberOfSections(in _: UITableView) -> Int {
         dataSource?.numberOfSections(in: self) ?? 0
     }
