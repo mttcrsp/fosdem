@@ -49,7 +49,7 @@ final class EventsViewController: UITableViewController {
     }
 
     func reloadLiveStatus() {
-        guard isViewLoaded else { return }
+        guard viewIfLoaded?.window != nil else { return }
 
         var indexPaths: [IndexPath] = []
 
