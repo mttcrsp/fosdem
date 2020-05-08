@@ -26,11 +26,24 @@ final class EmbeddedBlueprintViewController: UIViewController {
         imageView.frame = frame
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            imageView.image = imageView.image?.inverted
+        }
+    }
+
     private func didChangeBlueprint() {
-        if let blueprint = blueprint {
-            imageView.image = UIImage(named: blueprint.imageName)
-        } else {
+        guard let blueprint = blueprint, let image = UIImage(named: blueprint.imageName) else {
             imageView.image = nil
+            return
+        }
+
+        if #available(iOS 12.0, *), traitCollection.userInterfaceStyle == .dark {
+            imageView.image = image.inverted
+        } else {
+            imageView.image = image
         }
     }
 }
