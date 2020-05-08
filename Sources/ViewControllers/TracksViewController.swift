@@ -136,6 +136,7 @@ extension TracksViewController: TracksBackgroundViewDelegate {
 
 private extension UITableViewCell {
     func configure(with track: Track) {
+        textLabel?.numberOfLines = 0
         textLabel?.text = track.name
         accessoryType = .disclosureIndicator
     }
