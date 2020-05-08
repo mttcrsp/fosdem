@@ -28,6 +28,7 @@ final class MapController: UIViewController {
         view.addSubview(mapViewController.view)
         mapViewController.didMove(toParent: self)
 
+        services.locationService.delegate = self
         services.buildingsService.loadBuildings { buildings, error in
             DispatchQueue.main.async { [weak self] in
                 self?.mapViewController?.buildings = buildings
@@ -54,6 +55,10 @@ extension MapController: MapViewControllerDelegate {
 
     func mapViewControllerDidDeselectBuilding(_: MapViewController) {
         mapViewController?.removeBlueprinsViewController()
+    }
+
+    func mapViewControllerDidTapLocation(_: MapViewController) {
+        services.locationService.requestAuthorization()
     }
 }
 
@@ -98,10 +103,21 @@ extension MapController: BlueprintsViewControllerFullscreenDelegate {
     }
 }
 
+extension MapController: LocationServiceDelegate {
+    func locationServiceDidChangeStatus(_: LocationService) {
+        mapViewController?.showsLocationButton = canRequestLocation
+    }
+
+    private var canRequestLocation: Bool {
+        services.locationService.canRequestLocation
+    }
+}
+
 private extension MapController {
     func makeMapViewController() -> MapViewController {
         let mapViewController = MapViewController()
         mapViewController.delegate = self
+        mapViewController.showsLocationButton = canRequestLocation
         self.mapViewController = mapViewController
         return mapViewController
     }

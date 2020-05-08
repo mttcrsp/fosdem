@@ -3,6 +3,7 @@ import MapKit
 protocol MapViewControllerDelegate: AnyObject {
     func mapViewController(_ mapViewController: MapViewController, didSelect building: Building)
     func mapViewControllerDidDeselectBuilding(_ mapViewController: MapViewController)
+    func mapViewControllerDidTapLocation(_ mapViewController: MapViewController)
 }
 
 final class MapViewController: UIViewController {
@@ -12,11 +13,17 @@ final class MapViewController: UIViewController {
         didSet { buildingsDidChange() }
     }
 
+    var showsLocationButton: Bool {
+        get { !locationButton.isHidden }
+        set { locationButton.isHidden = !newValue }
+    }
+
     private(set) var selectedBuilding: Building? {
         didSet { selectedBuildingChanged() }
     }
 
     private lazy var mapView = MKMapView()
+    private lazy var locationButton = RoundedButton()
 
     private weak var blueprintsViewController: UIViewController?
 
@@ -42,12 +49,22 @@ final class MapViewController: UIViewController {
         let tapAction = #selector(didTapMap(_:))
         let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
         mapView.addGestureRecognizer(tapRecognizer)
+
+        let locationAction = #selector(didTapLocation)
+        let locationTitle = NSLocalizedString("map.location", comment: "")
+        locationButton.setTitle(locationTitle, for: .normal)
+        locationButton.addTarget(self, action: locationAction, for: .touchUpInside)
+        view.addSubview(locationButton)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         mapView.frame = view.bounds
+
+        locationButton.sizeToFit()
+        locationButton.center.x = view.bounds.midX
+        locationButton.frame.origin.y = view.layoutMargins.top
 
         if let blueprintsView = blueprintsViewController?.view {
             blueprintsView.frame = blueprintsFrame
@@ -137,6 +154,10 @@ final class MapViewController: UIViewController {
         return frame
     }
 
+    @objc private func didTapLocation() {
+        delegate?.mapViewControllerDidTapLocation(self)
+    }
+
     @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
         let location = recognizer.location(in: recognizer.view)
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
@@ -203,6 +224,7 @@ extension MapViewController: MKMapViewDelegate {
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         guard #available(iOS 11.0, *), let building = annotation as? Building else {
+            print(">>> attemping to display user location")
             return nil
         }
 

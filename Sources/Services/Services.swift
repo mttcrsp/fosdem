@@ -10,6 +10,7 @@ final class Services {
     let bundleService = BundleService()
     let scheduleService: ScheduleService
     let buildingsService: BuildingsService
+    let locationService = LocationService()
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
