@@ -4,6 +4,10 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
+    private var pendingNetworkRequests = 0 {
+        didSet { didChangePendingNetworkRequests() }
+    }
+
     private var applicationController: ApplicationController? {
         window?.rootViewController as? ApplicationController
     }
@@ -15,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let rootViewController: UIViewController
         do {
-            rootViewController = ApplicationController(services: try Services())
+            rootViewController = ApplicationController(services: try makeServices())
         } catch {
             rootViewController = ErrorController()
         }
@@ -35,6 +39,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillResignActive(_: UIApplication) {
         applicationController?.applicationWillResignActive()
+    }
+
+    private func didChangePendingNetworkRequests() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = pendingNetworkRequests > 0
+    }
+
+    private func makeServices() throws -> Services {
+        let services = try Services()
+        services.networkService.delegate = self
+        return services
+    }
+}
+
+extension AppDelegate: NetworkServiceDelegate {
+    func networkServiceDidBeginRequest(_: NetworkService) {
+        OperationQueue.main.addOperation { [weak self] in
+            self?.pendingNetworkRequests += 1
+        }
+    }
+
+    func networkServiceDidEndRequest(_: NetworkService) {
+        OperationQueue.main.addOperation { [weak self] in
+            self?.pendingNetworkRequests -= 1
+        }
     }
 }
 
