@@ -10,5 +10,9 @@
   {
     "name": "XcodeGen",
     "url": "https://github.com/yonaskolb/XcodeGen"
+  },
+  {
+    "name": "Periphery",
+    "url": "https://github.com/peripheryapp/periphery"
   }
 ]
