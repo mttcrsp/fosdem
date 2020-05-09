@@ -1,3 +1,4 @@
+import CoreLocation
 @testable
 import Fosdem
 import XCTest
@@ -11,38 +12,19 @@ final class LocationServiceTests: XCTestCase {
         XCTAssertFalse(service.canRequestLocation)
     }
 
-    func testRequestDenied() {
-        let statuses: [CLAuthorizationStatus] = [.restricted, .denied]
+    func testRequestAuthorization() {
+        let statuses: [CLAuthorizationStatus] = [.restricted, .denied, .authorizedWhenInUse, .authorizedAlways]
 
         for status in statuses {
             let delegate = Delegate()
             let manager = LocationServiceManagerMock()
-            manager.delegate = self
             manager.didRequestWhenInUseAuthorization = { manager in
                 manager.authorizationStatus = status
+                manager.delegate?.locationManager?(CLLocationManager(), didChangeAuthorization: status)
             }
 
             let service = LocationService(manager: manager)
-            XCTAssertTrue(service.canRequestLocation)
-
-            service.requestAuthorization()
-            XCTAssertTrue(delegate.didChangeStatus)
-            XCTAssertFalse(service.canRequestLocation)
-        }
-    }
-
-    func testRequestAuthorized() {
-        let statuses: [CLAuthorizationStatus] = [.authorizedWhenInUse, .authorizedAlways]
-
-        for status in statuses {
-            let delegate = Delegate()
-            let manager = LocationServiceManagerMock()
-            manager.delegate = self
-            manager.didRequestWhenInUseAuthorization = { manager in
-                manager.authorizationStatus = status
-            }
-
-            let service = LocationService(manager: manager)
+            service.delegate = delegate
             XCTAssertTrue(service.canRequestLocation)
 
             service.requestAuthorization()
