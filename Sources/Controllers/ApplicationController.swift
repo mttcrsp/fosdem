@@ -1,4 +1,3 @@
-import StoreKit
 import UIKit
 
 final class ApplicationController: UITabBarController {
@@ -141,25 +140,11 @@ private extension ApplicationController {
         alertController.addAction(dismissAction)
         return alertController
     }
-
-    func makeStoreViewController() -> SKStoreProductViewController {
-        let parameters = [SKStoreProductParameterITunesItemIdentifier: ""]
-        let productViewController = SKStoreProductViewController()
-        productViewController.delegate = self
-        productViewController.loadProduct(withParameters: parameters)
-        return productViewController
-    }
 }
 
 extension ApplicationController: UITabBarControllerDelegate {
     func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
         previouslySelectedViewController = String(describing: type(of: viewController))
-    }
-}
-
-extension ApplicationController: SKStoreProductViewControllerDelegate {
-    func productViewControllerDidFinish(_ viewController: SKStoreProductViewController) {
-        viewController.dismiss(animated: true)
     }
 }
 
@@ -175,8 +160,9 @@ extension ApplicationController: UpdateServiceDelegate {
     }
 
     private func didTapUpdate() {
-        let storeViewController = makeStoreViewController()
-        present(storeViewController, animated: true)
+        if let url = URL(string: "https://itunes.apple.com/it/app/id1477376905") {
+            UIApplication.shared.open(url)
+        }
     }
 }
 
