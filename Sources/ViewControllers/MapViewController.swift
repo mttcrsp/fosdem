@@ -23,6 +23,7 @@ final class MapViewController: UIViewController {
     }
 
     private lazy var mapView = MKMapView()
+    private lazy var resetButton = RoundedButton()
     private lazy var locationButton = RoundedButton()
 
     private weak var blueprintsViewController: UIViewController?
@@ -44,6 +45,14 @@ final class MapViewController: UIViewController {
 
         if #available(iOS 13.0, *) {
             mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .universityBoundary)
+        } else {
+            let resetAction = #selector(didTapReset)
+            let resetImage = UIImage(named: "arrow.counterclockwise")
+            resetButton.contentEdgeInsets = .zero
+            resetButton.imageView?.contentMode = .center
+            resetButton.setImage(resetImage, for: .normal)
+            resetButton.addTarget(self, action: resetAction, for: .touchUpInside)
+            view.addSubview(resetButton)
         }
 
         let tapAction = #selector(didTapMap(_:))
@@ -61,6 +70,10 @@ final class MapViewController: UIViewController {
         super.viewDidLayoutSubviews()
 
         mapView.frame = view.bounds
+
+        resetButton.bounds.size = CGSize(width: 40, height: 40)
+        resetButton.frame.origin.x = 5
+        resetButton.frame.origin.y = view.layoutMargins.top + 5
 
         locationButton.sizeToFit()
         locationButton.center.x = view.bounds.midX
@@ -152,6 +165,10 @@ final class MapViewController: UIViewController {
             frame.origin.y = 16
         }
         return frame
+    }
+
+    @objc private func didTapReset() {
+        mapView.setCamera(.university, animated: true)
     }
 
     @objc private func didTapLocation() {
