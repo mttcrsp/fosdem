@@ -75,25 +75,6 @@ final class QueriesTests: XCTestCase {
         }())
     }
 
-    func testEventsForPerson() {
-        XCTAssertNoThrow(try {
-            let person1 = Person(id: 1, name: "1")
-            let person2 = Person(id: 2, name: "2")
-            let person3 = Person(id: 3, name: "3")
-            let event1 = Event.make(id: 1, people: [person1])
-            let event2 = Event.make(id: 2, people: [person2, person3])
-            let event3 = Event.make(id: 3, people: [person1, person3])
-            let event4 = Event.make(id: 4, people: [person1, person2])
-            let schedule = Schedule.make(days: [.make(events: [event1, event2, event3, event4])])
-
-            let query = EventsForPerson(person: 3)
-            let service = try self.makePersistentService(with: schedule)
-            let events = try service.performReadSync(query)
-
-            XCTAssertEqual(events, [event2, event3])
-        }())
-    }
-
     func testEventsForIdentifiers() {
         XCTAssertNoThrow(try {
             let event1 = Event.make(id: 1)

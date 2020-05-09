@@ -12,11 +12,6 @@ final class TracksBackgroundView: UIView {
         set { indexView.titles = newValue }
     }
 
-    var sectionIndexWidth: CGFloat {
-        layoutIfNeeded()
-        return indexView.bounds.width
-    }
-
     private var indexView = IndexView()
 
     override init(frame: CGRect) {

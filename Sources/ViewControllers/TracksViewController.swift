@@ -40,14 +40,6 @@ final class TracksViewController: UITableViewController {
 
     private lazy var backgroundView = TracksBackgroundView()
 
-    var selectedTrack: Track? {
-        if let indexPath = tableView.indexPathForSelectedRow {
-            return dataSource?.tracksViewController(self, trackAt: indexPath)
-        } else {
-            return nil
-        }
-    }
-
     func reloadData() {
         if isViewLoaded {
             tableView.reloadData()

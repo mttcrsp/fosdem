@@ -95,10 +95,6 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
         self.validationError = validationError
     }
 
-    private var entityNames: Set<String> {
-        [Schedule.name, Conference.name, Day.name, Room.name, Event.name, Person.name, Attachment.name, Link.name]
-    }
-
     private func didParseLink(with attributes: [String: String]) throws {
         let link = try Link(attributes: attributes)
         eventState.links.append(link)
