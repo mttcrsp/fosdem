@@ -5,7 +5,7 @@ protocol EventViewControllerDelegate: AnyObject {
     func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
 
-final class EventViewController: UITableViewController {
+final class EventViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     weak var delegate: EventViewControllerDelegate?
 
     var event: Event? {
@@ -30,21 +30,39 @@ final class EventViewController: UITableViewController {
         didSet { didChangeItems() }
     }
 
+    private lazy var tableView = UITableView()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.contentInset.bottom = 16
+
+        view.addSubview(tableView)
+        view.backgroundColor = .fos_systemBackground
+
+        tableView.delegate = self
+        tableView.dataSource = self
         tableView.separatorStyle = .none
+        tableView.contentInset.bottom = 16
         tableView.tableFooterView = UIView()
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
         tableView.register(TrackTableViewCell.self, forCellReuseIdentifier: TrackTableViewCell.reuseIdentifier)
         tableView.register(RoundedButtonTableViewCell.self, forCellReuseIdentifier: RoundedButtonTableViewCell.reuseIdentifier)
     }
 
-    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        let maximumTableViewWidth: CGFloat = 500
+        tableView.showsVerticalScrollIndicator = view.bounds.width < maximumTableViewWidth
+        tableView.frame.size.width = min(view.bounds.width, maximumTableViewWidth)
+        tableView.frame.size.height = view.bounds.height
+        tableView.center.x = view.bounds.midX
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         items.count
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let event = event else { return UITableViewCell() }
 
         switch items[indexPath.row] {
@@ -150,7 +168,7 @@ final class EventViewController: UITableViewController {
         }
     }
 
-    override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         if case let .attachment(attachment) = items[indexPath.row] {
             delegate?.eventViewController(self, didSelect: attachment)
         }
