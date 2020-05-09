@@ -17,3 +17,13 @@ extension UIImage {
         }
     }
 }
+
+extension UIImage {
+    static func fos_systemImage(withName name: String) -> UIImage? {
+        if #available(iOS 13.0, *) {
+            return UIImage(systemName: name)
+        } else {
+            return UIImage(named: name)
+        }
+    }
+}
