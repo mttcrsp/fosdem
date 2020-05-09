@@ -2,7 +2,7 @@ import UIKit
 
 final class MapController: UIViewController {
     private weak var mapViewController: MapViewController?
-    private weak var blueprintsViewController: BlueprintsViewController?
+    private weak var embeddedBlueprintsViewController: BlueprintsViewController?
     private weak var blueprintsNavigationController: UINavigationController?
     private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
     private weak var fullscreenBlueprintsNavigationController: UINavigationController?
@@ -42,12 +42,12 @@ final class MapController: UIViewController {
 
 extension MapController: MapViewControllerDelegate {
     func mapViewController(_: MapViewController, didSelect building: Building) {
-        if let blueprintViewController = blueprintsViewController {
-            blueprintViewController.building = building
+        if let blueprintsViewController = embeddedBlueprintsViewController {
+            blueprintsViewController.building = building
             return
         }
 
-        let blueprintsViewController = makeBlueprintsViewController(for: building)
+        let blueprintsViewController = makeEmbeddedBlueprintsViewController(for: building)
         let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
         self.blueprintsNavigationController = blueprintsNavigationController
         mapViewController?.addBlueprintsViewController(blueprintsNavigationController)
@@ -64,25 +64,17 @@ extension MapController: MapViewControllerDelegate {
 
 extension MapController: BlueprintsViewControllerDelegate {
     func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController) {
-        if blueprintsViewController == self.blueprintsViewController {
+        if blueprintsViewController == embeddedBlueprintsViewController {
             mapViewController?.deselectSelectedAnnotation()
         } else if blueprintsViewController == fullscreenBlueprintsViewController {
             blueprintsViewController.dismiss(animated: true)
         }
     }
 
-    func blueprintsViewControllerDidSelectBlueprint(_ blueprintsViewController: BlueprintsViewController) {
-        if blueprintsViewController == self.blueprintsViewController {
-            blueprintsViewControllerDidTapFullscreen(blueprintsViewController)
-        }
-    }
-}
-
-extension MapController: BlueprintsViewControllerFullscreenDelegate {
-    func blueprintsViewControllerDidTapFullscreen(_ presentingViewController: BlueprintsViewController) {
+    func blueprintsViewController(_ presentingViewController: BlueprintsViewController, didSelect blueprint: Blueprint) {
         guard let building = presentingViewController.building else { return }
 
-        let blueprintsViewController = makeFullscreenBlueprintsViewController(for: building)
+        let blueprintsViewController = makeFullscreeBlueprintsViewController(for: building, showing: blueprint)
         let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
         blueprintsNavigationController.modalPresentationStyle = .overFullScreen
         fullscreenBlueprintsNavigationController = blueprintsNavigationController
@@ -122,19 +114,19 @@ private extension MapController {
         return mapViewController
     }
 
-    func makeBlueprintsViewController(for building: Building) -> BlueprintsViewController {
-        let blueprintsViewController = BlueprintsViewController()
-        blueprintsViewController.fullscreenDelegate = self
-        blueprintsViewController.blueprintsDelegate = self
+    func makeEmbeddedBlueprintsViewController(for building: Building) -> BlueprintsViewController {
+        let blueprintsViewController = BlueprintsViewController(style: .embedded)
         blueprintsViewController.building = building
-        self.blueprintsViewController = blueprintsViewController
+        blueprintsViewController.blueprintsDelegate = self
+        embeddedBlueprintsViewController = blueprintsViewController
         return blueprintsViewController
     }
 
-    func makeFullscreenBlueprintsViewController(for building: Building) -> BlueprintsViewController {
-        let blueprintsViewController = BlueprintsViewController()
+    func makeFullscreeBlueprintsViewController(for building: Building, showing blueprint: Blueprint) -> BlueprintsViewController {
+        let blueprintsViewController = BlueprintsViewController(style: .fullscreen)
         blueprintsViewController.building = building
         blueprintsViewController.blueprintsDelegate = self
+        blueprintsViewController.setVisibleBlueprint(blueprint, animated: false)
         fullscreenBlueprintsViewController = blueprintsViewController
         return blueprintsViewController
     }

@@ -2,30 +2,50 @@ import UIKit
 
 protocol BlueprintsViewControllerDelegate: AnyObject {
     func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController)
-    func blueprintsViewControllerDidSelectBlueprint(_ blueprintsViewController: BlueprintsViewController)
-}
-
-protocol BlueprintsViewControllerFullscreenDelegate: AnyObject {
-    func blueprintsViewControllerDidTapFullscreen(_ blueprintViewController: BlueprintsViewController)
+    func blueprintsViewController(_ blueprintsViewController: BlueprintsViewController, didSelect blueprint: Blueprint)
 }
 
 final class BlueprintsViewController: UIPageViewController {
+    enum Style {
+        case embedded, fullscreen
+    }
+
     weak var blueprintsDelegate: BlueprintsViewControllerDelegate?
-
-    weak var fullscreenDelegate: BlueprintsViewControllerFullscreenDelegate? {
-        didSet { didChangeFullscreenSupport() }
-    }
-
-    convenience init() {
-        self.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [.interPageSpacing: 20])
-    }
 
     var building: Building? {
         didSet { didChangeBuilding() }
     }
 
+    private lazy var fullscreenButton: UIBarButtonItem = {
+        let fullscreenAction = #selector(didTapFullscreen)
+        let fullscreenImage = makeImage(withName: "arrow.up.left.and.arrow.down.right")
+        let fullscreenButton = UIBarButtonItem(image: fullscreenImage, style: .plain, target: self, action: fullscreenAction)
+        return fullscreenButton
+    }()
+
+    private lazy var fullscreenRecognizer: UITapGestureRecognizer = {
+        let fullscreenAction = #selector(didTapFullscreen)
+        let fullscreenRecognizer = UITapGestureRecognizer(target: self, action: fullscreenAction)
+        return fullscreenRecognizer
+    }()
+
+    let style: Style
+
+    init(style: Style) {
+        self.style = style
+        super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [.interPageSpacing: 20])
+    }
+
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     private var blueprints: [Blueprint] {
         building?.blueprints ?? []
+    }
+
+    private var supportsFullscreenPresentation: Bool {
+        style == .embedded && !blueprints.isEmpty
     }
 
     override func viewDidLoad() {
@@ -34,26 +54,34 @@ final class BlueprintsViewController: UIPageViewController {
         delegate = self
         dataSource = self
 
-        navigationItem.rightBarButtonItem = makeDismissButton()
-
-        let tapAction = #selector(didTapFullscreen)
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
-        view.addGestureRecognizer(tapRecognizer)
         view.backgroundColor = .fos_systemBackground
+        view.addGestureRecognizer(fullscreenRecognizer)
+
+        let dismissAction = #selector(didTapDismiss)
+        let dismissImage = makeImage(withName: "xmark")
+        let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
+        navigationItem.rightBarButtonItem = dismissButton
     }
 
-    private func didChangeBuilding() {
-        setViewControllers([makeInitialViewController()], direction: .forward, animated: false)
-        didChangeChildViewController()
-        didChangeFullscreenSupport()
-    }
-
-    private func didChangeFullscreenSupport() {
-        if fullscreenDelegate == nil || blueprints.isEmpty {
-            navigationItem.leftBarButtonItem = nil
+    var visibleBlueprint: Blueprint? {
+        if let blueprintViewController = viewControllers?.first as? BlueprintViewController {
+            return blueprintViewController.blueprint
         } else {
-            navigationItem.leftBarButtonItem = makeFullscreenButton()
+            return nil
         }
+    }
+
+    func setVisibleBlueprint(_ blueprint: Blueprint?, animated: Bool) {
+        let viewController: UIViewController
+        if let blueprint = blueprint, let index = blueprints.firstIndex(of: blueprint) {
+            viewController = makeBlueprintViewController(at: index)
+        } else {
+            assert(blueprint == nil, "Attempting to select blueprint '\(blueprint as Any)' that does not belong to the currently displayed building '\(building as Any)'.")
+            viewController = makeEmptyViewController()
+        }
+
+        setViewControllers([viewController], direction: .forward, animated: animated)
+        didChangeVisibleBlueprint()
     }
 
     @objc private func didTapDismiss() {
@@ -61,39 +89,42 @@ final class BlueprintsViewController: UIPageViewController {
     }
 
     @objc private func didTapFullscreen() {
-        if !blueprints.isEmpty {
-            fullscreenDelegate?.blueprintsViewControllerDidTapFullscreen(self)
+        if let blueprint = visibleBlueprint {
+            blueprintsDelegate?.blueprintsViewController(self, didSelect: blueprint)
         }
     }
 
-    private func makeInitialViewController() -> UIViewController {
-        if blueprints.isEmpty {
-            return makeEmptyViewController()
+    private func didChangeBuilding() {
+        setVisibleBlueprint(blueprints.first, animated: false)
+        fullscreenRecognizer.isEnabled = supportsFullscreenPresentation
+        navigationItem.leftBarButtonItem = supportsFullscreenPresentation ? fullscreenButton : nil
+    }
+
+    private func didChangeVisibleBlueprint() {
+        if let blueprintViewController = viewControllers?.first as? BlueprintViewController, let blueprint = blueprintViewController.blueprint {
+            title = blueprint.title
         } else {
-            return makeBlueprintViewController(at: 0)
+            title = nil
         }
     }
 
-    private func makeDismissButton() -> UIBarButtonItem {
-        let dismissImageName = "xmark"
-        let dismissAction = #selector(didTapDismiss)
-        return makeBarButtonItem(forAction: dismissAction, withImageNamed: dismissImageName)
-    }
-
-    private func makeFullscreenButton() -> UIBarButtonItem {
-        let fullscreenAction = #selector(didTapFullscreen)
-        let fullscreenImageName = "arrow.up.left.and.arrow.down.right"
-        return makeBarButtonItem(forAction: fullscreenAction, withImageNamed: fullscreenImageName)
-    }
-
-    private func makeBarButtonItem(forAction action: Selector, withImageNamed imageName: String) -> UIBarButtonItem {
-        let image: UIImage?
+    private func makeImage(withName name: String) -> UIImage? {
         if #available(iOS 13.0, *) {
-            image = UIImage(systemName: imageName)
+            return UIImage(systemName: name)
         } else {
-            image = UIImage(named: imageName)
+            return UIImage(named: name)
         }
-        return UIBarButtonItem(image: image, style: .plain, target: self, action: action)
+    }
+
+    private func makeEmptyViewController() -> BlueprintsEmptyViewController {
+        BlueprintsEmptyViewController()
+    }
+
+    private func makeBlueprintViewController(at index: Int) -> BlueprintViewController {
+        let blueprintViewController = style.blueprintViewControllerClass.init()
+        blueprintViewController.blueprint = blueprints[index]
+        blueprintViewController.fos_index = index
+        return blueprintViewController
     }
 }
 
@@ -121,28 +152,7 @@ extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewCo
     }
 
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted _: Bool) {
-        didChangeChildViewController()
-    }
-
-    private func didChangeChildViewController() {
-        if let blueprintViewController = viewControllers?.first as? BlueprintViewController, let blueprint = blueprintViewController.blueprint {
-            title = blueprint.title
-        } else {
-            title = nil
-        }
-    }
-
-    private func makeBlueprintViewController(at index: Int) -> BlueprintViewController {
-        let blueprintViewController: BlueprintViewController = fullscreenDelegate == nil
-            ? FullscreenBlueprintViewController()
-            : EmbeddedBlueprintViewController()
-        blueprintViewController.blueprint = blueprints[index]
-        blueprintViewController.fos_index = index
-        return blueprintViewController
-    }
-
-    private func makeEmptyViewController() -> BlueprintsEmptyViewController {
-        BlueprintsEmptyViewController()
+        didChangeVisibleBlueprint()
     }
 }
 
@@ -153,6 +163,15 @@ private protocol BlueprintViewController: UIViewController {
 extension EmbeddedBlueprintViewController: BlueprintViewController {}
 
 extension FullscreenBlueprintViewController: BlueprintViewController {}
+
+private extension BlueprintsViewController.Style {
+    var blueprintViewControllerClass: BlueprintViewController.Type {
+        switch self {
+        case .embedded: return EmbeddedBlueprintViewController.self
+        case .fullscreen: return FullscreenBlueprintViewController.self
+        }
+    }
+}
 
 private extension UIViewController {
     private static var indexKey = 0

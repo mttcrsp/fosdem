@@ -1,6 +1,6 @@
 import MapKit
 
-struct Blueprint: Decodable {
+struct Blueprint: Equatable, Decodable {
     let title: String
     let imageName: String
 }
