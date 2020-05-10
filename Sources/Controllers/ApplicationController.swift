@@ -73,56 +73,32 @@ final class ApplicationController: UITabBarController {
 private extension ApplicationController {
     func makePlanController() -> PlanController {
         let planController = PlanController(services: services)
+        planController.tabBarItem.image = .fos_systemImage(withName: "calendar")
         planController.title = NSLocalizedString("plan.title", comment: "")
         planController.preferredDisplayMode = .allVisible
-
-        if #available(iOS 13.0, *) {
-            planController.tabBarItem.image = UIImage(systemName: "calendar")
-        } else {
-            planController.tabBarItem.image = UIImage(named: "calendar")
-        }
-
         return planController
     }
 
     func makeSearchController() -> SearchController {
         let searchController = SearchController(services: services)
+        searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
         searchController.title = NSLocalizedString("search.title", comment: "")
         searchController.preferredDisplayMode = .allVisible
-
-        if #available(iOS 13.0, *) {
-            searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
-        } else {
-            searchController.tabBarItem.image = UIImage(named: "magnifyingglass")
-        }
-
         return searchController
     }
 
     func makeMapController() -> MapController {
         let mapController = MapController(services: services)
+        mapController.tabBarItem.image = .fos_systemImage(withName: "map")
         mapController.title = NSLocalizedString("map.title", comment: "")
-
-        if #available(iOS 13.0, *) {
-            mapController.tabBarItem.image = UIImage(systemName: "map")
-        } else {
-            mapController.tabBarItem.image = UIImage(named: "map")
-        }
-
         return mapController
     }
 
     func makeMoreController() -> MoreController {
         let moreController = MoreController(services: services)
+        moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
         moreController.title = NSLocalizedString("more.title", comment: "")
         moreController.preferredDisplayMode = .allVisible
-
-        if #available(iOS 13.0, *) {
-            moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
-        } else {
-            moreController.tabBarItem.image = UIImage(named: "ellipsis.circle")
-        }
-
         return moreController
     }
 

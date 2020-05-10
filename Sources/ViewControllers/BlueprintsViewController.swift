@@ -18,7 +18,7 @@ final class BlueprintsViewController: UIPageViewController {
 
     private lazy var fullscreenButton: UIBarButtonItem = {
         let fullscreenAction = #selector(didTapFullscreen)
-        let fullscreenImage = makeImage(withName: "arrow.up.left.and.arrow.down.right")
+        let fullscreenImage = UIImage.fos_systemImage(withName: "arrow.up.left.and.arrow.down.right")
         let fullscreenButton = UIBarButtonItem(image: fullscreenImage, style: .plain, target: self, action: fullscreenAction)
         return fullscreenButton
     }()
@@ -58,7 +58,7 @@ final class BlueprintsViewController: UIPageViewController {
         view.addGestureRecognizer(fullscreenRecognizer)
 
         let dismissAction = #selector(didTapDismiss)
-        let dismissImage = makeImage(withName: "xmark")
+        let dismissImage = UIImage.fos_systemImage(withName: "xmark")
         let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
         navigationItem.rightBarButtonItem = dismissButton
     }
@@ -105,14 +105,6 @@ final class BlueprintsViewController: UIPageViewController {
             title = blueprint.title
         } else {
             title = nil
-        }
-    }
-
-    private func makeImage(withName name: String) -> UIImage? {
-        if #available(iOS 13.0, *) {
-            return UIImage(systemName: name)
-        } else {
-            return UIImage(named: name)
         }
     }
 
