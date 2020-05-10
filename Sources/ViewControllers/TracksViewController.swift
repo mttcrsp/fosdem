@@ -38,12 +38,9 @@ final class TracksViewController: UITableViewController {
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
-    private lazy var backgroundView = TracksBackgroundView()
-
     func reloadData() {
         if isViewLoaded {
             tableView.reloadData()
-            backgroundView.sectionTitles = indexDataSource?.sectionIndexTitles(in: self) ?? []
         }
     }
 
@@ -54,23 +51,32 @@ final class TracksViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        backgroundView.delegate = self
-        backgroundView.sectionTitles = indexDataSource?.sectionIndexTitles(in: self) ?? []
-
         tableView.tableFooterView = UIView()
-        tableView.backgroundView = backgroundView
         tableView.showsVerticalScrollIndicator = indexDataSource == nil
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        backgroundView.isHidden = traitCollection.userInterfaceIdiom == .pad || view.bounds.width > view.bounds.height
-    }
-
     override func numberOfSections(in _: UITableView) -> Int {
         dataSource?.numberOfSections(in: self) ?? 0
+    }
+
+    override func sectionIndexTitles(for _: UITableView) -> [String]? {
+        indexDataSource?.sectionIndexTitles(in: self)
+    }
+
+    override func tableView(_: UITableView, sectionForSectionIndexTitle _: String, at section: Int) -> Int {
+        // HACK: UITableView only supports using section index titles pointing
+        // to the first element of a given section. Still I want to point to
+        // arbitrary elements within a given section. For this reason Here I am
+        // always returning the first section only to perform manual correction
+        // of the current visible index path on the next run loop cycle.
+        OperationQueue.main.addOperation { [weak self] in
+            if let self = self {
+                self.indexDelegate?.tracksViewController(self, didSelect: section)
+            }
+        }
+        return 0
     }
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -117,12 +123,6 @@ final class TracksViewController: UITableViewController {
 
     private func didUnfavoriteTrack(_ track: Track) {
         favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
-    }
-}
-
-extension TracksViewController: TracksBackgroundViewDelegate {
-    func backgroundView(_: TracksBackgroundView, didSelect section: Int) {
-        indexDelegate?.tracksViewController(self, didSelect: section)
     }
 }
 
