@@ -32,6 +32,8 @@ final class EventView: UIStackView {
 
         guard let event = event else { return }
 
+        var constraints: [NSLayoutConstraint] = []
+
         let titleLabel = UILabel()
         titleLabel.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
         titleLabel.text = event.title
@@ -50,6 +52,8 @@ final class EventView: UIStackView {
             videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
             videoButton.setTitle(videoTitle, for: .normal)
             addArrangedSubview(videoButton)
+
+            constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
         }
 
         if !event.people.isEmpty {
@@ -114,7 +118,11 @@ final class EventView: UIStackView {
             attachmentView.attachment = attachment
             attachmentView.addTarget(self, action: attachmentAction, for: .touchUpInside)
             addArrangedSubview(attachmentView)
+
+            constraints.append(attachmentView.widthAnchor.constraint(equalTo: widthAnchor))
         }
+
+        NSLayoutConstraint.activate(constraints)
     }
 
     @objc private func didTapVideo() {
