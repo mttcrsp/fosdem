@@ -38,6 +38,8 @@ final class TracksViewController: UITableViewController {
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
 
+    private lazy var feedbackGenerator = UISelectionFeedbackGenerator()
+
     func reloadData() {
         if isViewLoaded {
             tableView.reloadData()
@@ -67,15 +69,31 @@ final class TracksViewController: UITableViewController {
 
     override func tableView(_: UITableView, sectionForSectionIndexTitle _: String, at section: Int) -> Int {
         // HACK: UITableView only supports using section index titles pointing
-        // to the first element of a given section. Still I want to point to
-        // arbitrary elements within a given section. For this reason Here I am
-        // always returning the first section only to perform manual correction
-        // of the current visible index path on the next run loop cycle.
-        OperationQueue.main.addOperation { [weak self] in
-            if let self = self {
-                self.indexDelegate?.tracksViewController(self, didSelect: section)
+        // to the first element of a given section. However here I want the
+        // indices to point to arbitrary index paths. In order to achieve this
+        // here I am always returning the first section as the target section
+        // for handling by UITableView and preventing content offset updates by
+        // replacing -[UIScrollView setContentOffset:] with an empty
+        // implementation. Clients of TracksViewController delegate API will
+        // then be able to apply their custom logic to select a given index
+        // path. The only thing that this implementation is missing when
+        // compared with the original table view one is handling of prevention
+        // of unnecessary haptic feedback responses when no movement should be
+        // performed.
+        let originalMethod = class_getInstanceMethod(UIScrollView.self, #selector(setter: UIScrollView.contentOffset))
+        let swizzledMethod = class_getInstanceMethod(UIScrollView.self, #selector(setter: UIScrollView.fos_contentOffset))
+        if let method1 = originalMethod, let method2 = swizzledMethod {
+            method_exchangeImplementations(method1, method2)
+            OperationQueue.main.addOperation { [weak self] in
+                method_exchangeImplementations(method1, method2)
+
+                if let self = self {
+                    self.feedbackGenerator.selectionChanged()
+                    self.indexDelegate?.tracksViewController(self, didSelect: section)
+                }
             }
         }
+
         return 0
     }
 
@@ -131,5 +149,12 @@ private extension UITableViewCell {
         textLabel?.numberOfLines = 0
         textLabel?.text = track.name
         accessoryType = .disclosureIndicator
+    }
+}
+
+@objc private extension UIScrollView {
+    var fos_contentOffset: CGPoint {
+        get { .zero }
+        set {}
     }
 }
