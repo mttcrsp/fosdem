@@ -15,7 +15,7 @@ final class EventView: UIStackView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        spacing = 16
+        spacing = 24
         axis = .vertical
         alignment = .leading
     }
@@ -40,9 +40,17 @@ final class EventView: UIStackView {
         titleLabel.numberOfLines = 0
         addArrangedSubview(titleLabel)
 
+        if #available(iOS 11.0, *) {
+            setCustomSpacing(18, after: titleLabel)
+        }
+
         let trackView = TrackView()
         trackView.track = event.track
         addArrangedSubview(trackView)
+
+        if #available(iOS 11.0, *) {
+            setCustomSpacing(20, after: trackView)
+        }
 
         if event.video != nil {
             let videoTitle = NSLocalizedString("event.video", comment: "")
@@ -54,6 +62,10 @@ final class EventView: UIStackView {
             addArrangedSubview(videoButton)
 
             constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
+
+            if #available(iOS 11.0, *) {
+                setCustomSpacing(28, after: videoButton)
+            }
         }
 
         if !event.people.isEmpty {
@@ -76,6 +88,10 @@ final class EventView: UIStackView {
         dateView.image = .fos_systemImage(withName: "clock.fill")
         dateView.text = event.formattedDate
         addArrangedSubview(dateView)
+
+        if #available(iOS 11.0, *) {
+            setCustomSpacing(28, after: dateView)
+        }
 
         if let subtitle = event.subtitle {
             let subtitleLabel = UILabel()
@@ -109,6 +125,10 @@ final class EventView: UIStackView {
             attachmentsLabel.font = .fos_preferredFont(forTextStyle: .headline)
             attachmentsLabel.numberOfLines = 0
             addArrangedSubview(attachmentsLabel)
+
+            if #available(iOS 11.0, *) {
+                setCustomSpacing(22, after: attachmentsLabel)
+            }
         }
 
         for attachment in attachments {
@@ -133,5 +153,11 @@ final class EventView: UIStackView {
         if let attachment = attachmentView.attachment {
             delegate?.eventView(self, didSelect: attachment)
         }
+    }
+
+    private func makeVerticalSpacingView(ofHeight height: CGFloat) -> UIView {
+        let view = UIView()
+        view.heightAnchor.constraint(equalToConstant: height).isActive = true
+        return view
     }
 }

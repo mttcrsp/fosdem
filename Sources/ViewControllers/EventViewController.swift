@@ -22,8 +22,8 @@ final class EventViewController: UIViewController {
         view.addSubview(scrollView)
 
         scrollView.addSubview(eventView)
-        scrollView.contentInset.top = 16
-        scrollView.contentInset.bottom = 16
+        scrollView.contentInset.top = 20
+        scrollView.contentInset.bottom = 32
         scrollView.alwaysBounceVertical = true
         scrollView.preservesSuperviewLayoutMargins = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
