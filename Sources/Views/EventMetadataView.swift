@@ -26,9 +26,12 @@ final class EventMetadataView: UIView {
         }
 
         NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 24),
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
+
             imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             imageView.centerYAnchor.constraint(equalTo: label.centerYAnchor),
-            imageView.trailingAnchor.constraint(equalTo: label.leadingAnchor, constant: -10),
+            imageView.trailingAnchor.constraint(equalTo: label.leadingAnchor, constant: -16),
 
             label.topAnchor.constraint(equalTo: topAnchor),
             label.bottomAnchor.constraint(equalTo: bottomAnchor),
