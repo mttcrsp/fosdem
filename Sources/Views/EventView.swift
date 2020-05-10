@@ -14,8 +14,10 @@ final class EventView: UIStackView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        spacing = 16
         axis = .vertical
-        spacing = 10
+        alignment = .leading
     }
 
     required init(coder _: NSCoder) {
@@ -36,11 +38,9 @@ final class EventView: UIStackView {
         titleLabel.numberOfLines = 0
         addArrangedSubview(titleLabel)
 
-        let trackLabel = UILabel()
-        trackLabel.font = .fos_preferredFont(forTextStyle: .title3, withSymbolicTraits: .traitBold)
-        trackLabel.text = event.track
-        trackLabel.numberOfLines = 0
-        addArrangedSubview(trackLabel)
+        let trackView = TrackView()
+        trackView.track = event.track
+        addArrangedSubview(trackView)
 
         if event.video != nil {
             let videoTitle = NSLocalizedString("event.video", comment: "")
