@@ -64,7 +64,15 @@ final class TracksService {
 
             if let initial = track.name.first, filteredIndexTitles[.all, default: [:]][String(initial)] == nil {
                 filteredIndexTitles[.all, default: [:]][String(initial)] = offset
-                filteredIndexTitles[filter, default: [:]][String(initial)] = offset
+            }
+        }
+
+        for filter in filters.subtracting([.all]) {
+            let tracks = filteredTracks[filter] ?? []
+            for (offset, track) in tracks.enumerated() {
+                if let initial = track.name.first, filteredIndexTitles[filter, default: [:]][String(initial)] == nil {
+                    filteredIndexTitles[filter, default: [:]][String(initial)] = offset
+                }
             }
         }
 
