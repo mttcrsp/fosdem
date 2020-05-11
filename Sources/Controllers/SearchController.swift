@@ -125,22 +125,23 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
 
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-        selectedTrack = track
-
-        let eventsViewController = makeEventsViewController(for: track)
-        let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
-        tracksViewController.showDetailViewController(eventsNavigationController, sender: nil)
-
-        events = []
-        persistenceService.performRead(EventsForTrack(track: track.name)) { result in
+        persistenceService.performRead(EventsForTrack(track: track.name)) { [weak tracksViewController] result in
             DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+
                 switch result {
                 case .failure:
-                    self?.eventsViewController?.present(ErrorController(), animated: true)
+                    let errorViewController = UIAlertController.makeErrorController()
+                    tracksViewController?.present(errorViewController, animated: true)
+                    tracksViewController?.deselectSelectedRow(animated: true)
                 case let .success(events):
-                    self?.events = events
-                    self?.captions = events.captions
-                    self?.eventsViewController?.reloadData()
+                    self.events = events
+                    self.selectedTrack = track
+                    self.captions = events.captions
+
+                    let eventsViewController = self.makeEventsViewController(for: track)
+                    let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
+                    tracksViewController?.showDetailViewController(eventsNavigationController, sender: nil)
                 }
             }
         }
