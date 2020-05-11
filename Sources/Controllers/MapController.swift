@@ -1,6 +1,12 @@
 import UIKit
 
+protocol MapControllerDelegate: AnyObject {
+    func mapController(_ mapController: MapController, didError error: Error)
+}
+
 final class MapController: UIViewController {
+    weak var delegate: MapControllerDelegate?
+
     private weak var mapViewController: MapViewController?
     private weak var embeddedBlueprintsViewController: BlueprintsViewController?
     private weak var blueprintsNavigationController: UINavigationController?
@@ -31,9 +37,12 @@ final class MapController: UIViewController {
         services.locationService.delegate = self
         services.buildingsService.loadBuildings { buildings, error in
             DispatchQueue.main.async { [weak self] in
-                self?.mapViewController?.buildings = buildings
-                if error != nil {
-                    self?.mapViewController?.present(ErrorController(), animated: true)
+                guard let self = self else { return }
+
+                if let error = error {
+                    self.delegate?.mapController(self, didError: error)
+                } else {
+                    self.mapViewController?.buildings = buildings
                 }
             }
         }
