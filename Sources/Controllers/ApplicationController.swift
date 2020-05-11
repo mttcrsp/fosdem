@@ -76,6 +76,7 @@ private extension ApplicationController {
         planController.tabBarItem.image = .fos_systemImage(withName: "calendar")
         planController.title = NSLocalizedString("plan.title", comment: "")
         planController.preferredDisplayMode = .allVisible
+        planController.planDelegate = self
         return planController
     }
 
@@ -91,6 +92,7 @@ private extension ApplicationController {
         let mapController = MapController(services: services)
         mapController.tabBarItem.image = .fos_systemImage(withName: "map")
         mapController.title = NSLocalizedString("map.title", comment: "")
+        mapController.delegate = self
         return mapController
     }
 
@@ -121,6 +123,24 @@ private extension ApplicationController {
 extension ApplicationController: UITabBarControllerDelegate {
     func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
         previouslySelectedViewController = String(describing: type(of: viewController))
+    }
+}
+
+extension ApplicationController: PlanControllerDelegate {
+    func planController(_ planController: PlanController, didError _: Error) {
+        let errorViewController = ErrorViewController()
+        planController.addChild(errorViewController)
+        planController.view.addSubview(errorViewController.view)
+        errorViewController.didMove(toParent: planController)
+    }
+}
+
+extension ApplicationController: MapControllerDelegate {
+    func mapController(_ mapController: MapController, didError _: Error) {
+        let errorViewController = ErrorViewController()
+        mapController.addChild(errorViewController)
+        mapController.view.addSubview(errorViewController.view)
+        errorViewController.didMove(toParent: mapController)
     }
 }
 
