@@ -57,7 +57,8 @@ extension MoreController: MoreViewControllerDelegate {
             let acknowledgementsNavigationController = UINavigationController(rootViewController: acknowledgementsViewController)
             moreViewController.showDetailViewController(acknowledgementsNavigationController, sender: nil)
         } catch {
-            moreViewController.show(ErrorController(), sender: nil)
+            let errorViewController = makeErrorViewController()
+            moreViewController.present(errorViewController, animated: true)
         }
     }
 
@@ -105,7 +106,8 @@ extension MoreController: MoreViewControllerDelegate {
                     let textNavigationController = UINavigationController(rootViewController: textViewController)
                     moreViewController?.showDetailViewController(textNavigationController, sender: nil)
                 } else {
-                    moreViewController?.present(ErrorController(), animated: true)
+                    let errorViewController = self.makeErrorViewController()
+                    moreViewController?.present(errorViewController, animated: true)
                 }
             }
         }
@@ -189,8 +191,11 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
     }
 
     private func presentYearErrorViewController(from yearsViewController: YearsViewController) {
-        DispatchQueue.main.async { [weak yearsViewController] in
-            yearsViewController?.present(ErrorController(), animated: true)
+        DispatchQueue.main.async { [weak self, weak yearsViewController] in
+            guard let self = self else { return }
+
+            let errorViewController = self.makeErrorViewController()
+            yearsViewController?.present(errorViewController, animated: true)
         }
     }
 
@@ -205,9 +210,12 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
 }
 
 extension MoreController: YearControllerDelegate {
-    func yearControllerDidError(_: YearController) {
-//        popToRootViewController(animated: true)
-        present(ErrorController(), animated: true)
+    func yearControllerDidError(_ yearController: YearController) {
+        let navigationController = yearController.navigationController
+        navigationController?.popViewController(animated: true)
+
+        let errorViewController = makeErrorViewController()
+        present(errorViewController, animated: true)
     }
 }
 
@@ -265,6 +273,10 @@ private extension MoreController {
         acknowledgementsViewController.dataSource = self
         acknowledgementsViewController.delegate = self
         return acknowledgementsViewController
+    }
+
+    private func makeErrorViewController() -> UIAlertController {
+        UIAlertController.makeErrorController()
     }
 }
 
