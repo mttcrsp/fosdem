@@ -43,8 +43,7 @@ final class YearController: UIViewController {
         }
     }
 
-    private func tracksLoadingDidError(with error: Error) {
-        assertionFailure(error.localizedDescription)
+    private func tracksLoadingDidError(with _: Error) {
         delegate?.yearControllerDidError(self)
     }
 
