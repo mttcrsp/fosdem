@@ -71,21 +71,25 @@ final class ApplicationController: UITabBarController {
 }
 
 private extension ApplicationController {
-    func makePlanController() -> PlanController {
-        let planController = PlanController(services: services)
-        planController.tabBarItem.image = .fos_systemImage(withName: "calendar")
-        planController.title = NSLocalizedString("plan.title", comment: "")
-        planController.preferredDisplayMode = .allVisible
-        planController.planDelegate = self
-        return planController
-    }
-
     func makeSearchController() -> SearchController {
         let searchController = SearchController(services: services)
         searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
         searchController.title = NSLocalizedString("search.title", comment: "")
         searchController.preferredDisplayMode = .allVisible
+        searchController.preferredPrimaryColumnWidthFraction = 0.4
+        searchController.maximumPrimaryColumnWidth = 375
         return searchController
+    }
+
+    func makePlanController() -> PlanController {
+        let planController = PlanController(services: services)
+        planController.tabBarItem.image = .fos_systemImage(withName: "calendar")
+        planController.title = NSLocalizedString("plan.title", comment: "")
+        planController.preferredDisplayMode = .allVisible
+        planController.preferredPrimaryColumnWidthFraction = 0.4
+        planController.maximumPrimaryColumnWidth = 375
+        planController.planDelegate = self
+        return planController
     }
 
     func makeMapController() -> MapController {
@@ -101,6 +105,8 @@ private extension ApplicationController {
         moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
         moreController.title = NSLocalizedString("more.title", comment: "")
         moreController.preferredDisplayMode = .allVisible
+        moreController.preferredPrimaryColumnWidthFraction = 0.4
+        moreController.maximumPrimaryColumnWidth = 375
         return moreController
     }
 
