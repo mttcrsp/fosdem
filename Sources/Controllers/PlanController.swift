@@ -1,6 +1,12 @@
 import UIKit
 
+protocol PlanControllerDelegate: AnyObject {
+    func planController(_ planController: PlanController, didError error: Error)
+}
+
 final class PlanController: UISplitViewController {
+    weak var planDelegate: PlanControllerDelegate?
+
     private weak var planViewController: EventsViewController?
     private weak var soonViewController: EventsViewController?
 
@@ -77,8 +83,8 @@ final class PlanController: UISplitViewController {
         }
     }
 
-    private func loadingDidFail(with _: Error) {
-        viewControllers = [ErrorController()]
+    private func loadingDidFail(with error: Error) {
+        planDelegate?.planController(self, didError: error)
     }
 
     private func loadingDidSucceed(with events: [Event]) {
@@ -106,7 +112,8 @@ final class PlanController: UISplitViewController {
 
                 switch result {
                 case .failure:
-                    self.present(ErrorController(), animated: true)
+                    let errorViewController = UIAlertController.makeErrorController()
+                    self.present(errorViewController, animated: true)
                 case let .success(events):
                     self.eventsStartingSoon = events
                     let soonViewController = self.makeSoonViewController()
