@@ -136,7 +136,7 @@ extension ApplicationController: UpdateServiceDelegate {
     }
 
     private func didTapUpdate() {
-        if let url = URL(string: "https://itunes.apple.com/it/app/id1477376905") {
+        if let url = URL.fosdemAppStore {
             UIApplication.shared.open(url)
         }
     }
