@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         do {
             rootViewController = ApplicationController(services: try makeServices())
         } catch {
-            rootViewController = ErrorController()
+            rootViewController = makeErrorViewController()
         }
 
         let window = UIWindow()
@@ -49,6 +49,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let services = try Services()
         services.networkService.delegate = self
         return services
+    }
+
+    func makeErrorViewController() -> ErrorViewController {
+        let errorViewController = ErrorViewController()
+        errorViewController.showsAppStoreButton = true
+        return errorViewController
     }
 }
 
