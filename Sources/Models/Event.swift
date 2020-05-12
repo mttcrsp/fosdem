@@ -61,7 +61,7 @@ extension Event {
     }
 
     var formattedAbstract: String? {
-        guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString(html: html) else { return nil }
+        guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }
 
         var string = attributedString.string
         string = string.trimmingCharacters(in: .whitespacesAndNewlines)

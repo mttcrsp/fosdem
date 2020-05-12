@@ -24,7 +24,7 @@ final class InfoService {
                 guard let self = self else { return }
 
                 let attributedData = try self.bundleService.data(forResource: info.resource, withExtension: "html")
-                let attributedText = try NSMutableAttributedString(html: attributedData)
+                let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
 
                 let string = attributedText.string
                 let lowerbound = string.startIndex
