@@ -18,7 +18,7 @@ final class WelcomeViewController: UIViewController {
         let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.fos_label]
         let titleString = NSLocalizedString("welcome.title", comment: "")
 
-        let messageFont: UIFont = .fos_preferredFont(forTextStyle: .title3)
+        let messageFont: UIFont = .fos_preferredFont(forTextStyle: .title3, withSymbolicTraits: .traitItalic)
         let messageAttributes: [NSAttributedString.Key: Any] = [.font: messageFont, .foregroundColor: UIColor.fos_label]
         let messageString = NSLocalizedString("welcome.message", comment: "")
 
