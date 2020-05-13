@@ -143,7 +143,7 @@ extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewCo
         }
     }
 
-    func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted _: Bool) {
+    func pageViewController(_: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted _: Bool) {
         didChangeVisibleBlueprint()
     }
 }
