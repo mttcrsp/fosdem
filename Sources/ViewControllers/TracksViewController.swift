@@ -2,13 +2,13 @@ import UIKit
 
 protocol TracksViewControllerDataSource: AnyObject {
     func numberOfSections(in tracksViewController: TracksViewController) -> Int
-    func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String?
     func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int
     func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
 }
 
 protocol TracksViewControllerIndexDataSource: AnyObject {
     func sectionIndexTitles(in tracksViewController: TracksViewController) -> [String]
+    func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String?
 }
 
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
@@ -55,6 +55,7 @@ class TracksViewController: UITableViewController {
 
         tableView.tableFooterView = UIView()
         tableView.showsVerticalScrollIndicator = indexDataSource == nil
+        tableView.sectionHeaderHeight = indexDataSource == nil ? 0 : UITableView.automaticDimension
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
         tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
     }
@@ -99,7 +100,7 @@ class TracksViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
-        view.text = dataSource?.tracksViewController(self, titleForSectionAt: section)
+        view.text = indexDataSource?.tracksViewController(self, titleForSectionAt: section)
         view.font = .fos_preferredFont(forTextStyle: .headline)
         view.textColor = .fos_label
         return view
