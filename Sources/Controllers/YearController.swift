@@ -4,8 +4,8 @@ protocol YearControllerDelegate: AnyObject {
     func yearControllerDidError(_ yearController: YearController)
 }
 
-final class YearController: UIViewController {
-    weak var delegate: YearControllerDelegate?
+final class YearController: TracksViewController {
+    weak var yearDelegate: YearControllerDelegate?
 
     private weak var resultsViewController: EventsViewController?
     private weak var eventsViewController: EventsViewController?
@@ -31,7 +31,9 @@ final class YearController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        definesPresentationContext = true
+        delegate = self
+        dataSource = self
+        addSearchViewController(makeSearchController())
 
         persistenceService.performRead(AllTracksOrderedByName()) { result in
             DispatchQueue.main.async { [weak self] in
@@ -44,16 +46,12 @@ final class YearController: UIViewController {
     }
 
     private func tracksLoadingDidError(with _: Error) {
-        delegate?.yearControllerDidError(self)
+        yearDelegate?.yearControllerDidError(self)
     }
 
     private func tracksLoadingDidFinish(with tracks: [Track]) {
         self.tracks = tracks
-
-        let tracksViewController = makeTracksViewController()
-        addChild(tracksViewController)
-        view.addSubview(tracksViewController.view)
-        tracksViewController.didMove(toParent: self)
+        reloadData()
     }
 }
 
@@ -91,7 +89,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
 
     private func eventsLoadingDidError(with error: Error) {
         assertionFailure(error.localizedDescription)
-        delegate?.yearControllerDidError(self)
+        yearDelegate?.yearControllerDidError(self)
     }
 
     private func eventsLoadingDidFinish(with events: [Event]) {
@@ -133,9 +131,11 @@ extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
                 case let .success(events):
                     self?.events = events
 
-                    let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
-                    let emptyString = String(format: emptyFormat, query)
-                    self?.resultsViewController?.emptyBackgroundMessage = emptyString
+                    let emptyTitle = NSLocalizedString("search.empty.title", comment: "")
+                    let emptyMessageFormat = NSLocalizedString("search.empty.message", comment: "")
+                    let emptyMessage = String(format: emptyMessageFormat, query)
+                    self?.resultsViewController?.emptyBackgroundMessage = emptyMessage
+                    self?.resultsViewController?.emptyBackgroundTitle = emptyTitle
                     self?.resultsViewController?.reloadData()
                 }
             }

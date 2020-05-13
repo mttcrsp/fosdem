@@ -257,7 +257,7 @@ private extension MoreController {
 
     func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {
         let yearController = YearController(year: year, persistenceService: persistenceService)
-        yearController.delegate = self
+        yearController.yearDelegate = self
         yearController.title = year
 
         if #available(iOS 11.0, *) {

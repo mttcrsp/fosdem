@@ -28,7 +28,7 @@ protocol TracksViewControllerFavoritesDelegate: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, didUnfavorite track: Track)
 }
 
-final class TracksViewController: UITableViewController {
+class TracksViewController: UITableViewController {
     weak var dataSource: TracksViewControllerDataSource?
     weak var delegate: TracksViewControllerDelegate?
 
