@@ -286,14 +286,7 @@ private extension SearchController {
         let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
         self.filtersButton = filtersButton
 
-        let style: UITableView.Style
-        if #available(iOS 13.0, *) {
-            style = .insetGrouped
-        } else {
-            style = .grouped
-        }
-
-        let tracksViewController = TracksViewController(style: style)
+        let tracksViewController = TracksViewController(style: .fos_insetGrouped)
         tracksViewController.title = NSLocalizedString("search.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.addSearchViewController(makeSearchController())
