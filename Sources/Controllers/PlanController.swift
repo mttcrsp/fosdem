@@ -188,7 +188,8 @@ private extension PlanController {
         let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
 
         let planViewController = EventsViewController(style: .grouped)
-        planViewController.emptyBackgroundText = NSLocalizedString("plan.empty", comment: "")
+        planViewController.emptyBackgroundMessage = NSLocalizedString("plan.empty.message", comment: "")
+        planViewController.emptyBackgroundTitle = NSLocalizedString("plan.empty.title", comment: "")
         planViewController.title = NSLocalizedString("plan.title", comment: "")
         planViewController.navigationItem.rightBarButtonItem = soonButton
         planViewController.favoritesDataSource = self
@@ -210,7 +211,8 @@ private extension PlanController {
         let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
 
         let soonViewController = EventsViewController(style: .grouped)
-        soonViewController.emptyBackgroundText = NSLocalizedString("soon.empty", comment: "")
+        soonViewController.emptyBackgroundMessage = NSLocalizedString("soon.empty.message", comment: "")
+        soonViewController.emptyBackgroundTitle = NSLocalizedString("soon.empty.title", comment: "")
         soonViewController.title = NSLocalizedString("soon.title", comment: "")
         soonViewController.navigationItem.rightBarButtonItem = dismissButton
         soonViewController.favoritesDataSource = self

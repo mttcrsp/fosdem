@@ -1,27 +1,41 @@
 import UIKit
 
 final class TableBackgroundView: UIView {
-    var text: String? {
-        get { label.text }
-        set { label.text = newValue }
+    var title: String? {
+        get { titleLabel.text }
+        set { titleLabel.text = newValue }
     }
 
-    private let label = UILabel()
+    var message: String? {
+        get { messageLabel.text }
+        set { messageLabel.text = newValue }
+    }
+
+    private let titleLabel = UILabel()
+    private let messageLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        addSubview(label)
+        for label in [titleLabel, messageLabel] {
+            label.numberOfLines = 0
+            label.textColor = .fos_label
+            label.textAlignment = .center
+        }
 
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.font = .fos_preferredFont(forTextStyle: .headline)
-        label.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.font = .fos_preferredFont(forTextStyle: .title2, withSymbolicTraits: .traitBold)
+        messageLabel.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitItalic)
+
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, messageLabel])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            label.centerYAnchor.constraint(equalTo: readableContentGuide.centerYAnchor),
-            label.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),
+            stackView.centerYAnchor.constraint(equalTo: readableContentGuide.centerYAnchor),
+            stackView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),
         ])
     }
 

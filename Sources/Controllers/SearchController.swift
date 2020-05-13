@@ -253,7 +253,7 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 extension SearchController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let query = searchController.searchBar.text, query.count >= 3 else {
-            resultsViewController?.emptyBackgroundText = nil
+            resultsViewController?.emptyBackgroundMessage = nil
             resultsViewController?.view.isHidden = true
             events = []
             return
@@ -268,9 +268,11 @@ extension SearchController: UISearchResultsUpdating {
                 case let .success(events):
                     self?.events = events
 
-                    let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
-                    let emptyString = String(format: emptyFormat, query)
-                    self?.resultsViewController?.emptyBackgroundText = emptyString
+                    let emptyTitle = NSLocalizedString("search.empty.title", comment: "")
+                    let emptyMessageFormat = NSLocalizedString("search.empty.message", comment: "")
+                    let emptyMessage = String(format: emptyMessageFormat, query)
+                    self?.resultsViewController?.emptyBackgroundMessage = emptyMessage
+                    self?.resultsViewController?.emptyBackgroundTitle = emptyTitle
                     self?.resultsViewController?.view.isHidden = false
                     self?.resultsViewController?.reloadData()
                 }

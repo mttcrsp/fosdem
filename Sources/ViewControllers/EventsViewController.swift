@@ -31,9 +31,14 @@ final class EventsViewController: UITableViewController {
 
     weak var liveDataSource: EventsViewControllerLiveDataSource?
 
-    var emptyBackgroundText: String? {
-        get { emptyBackgroundView.text }
-        set { emptyBackgroundView.text = newValue }
+    var emptyBackgroundTitle: String? {
+        get { emptyBackgroundView.title }
+        set { emptyBackgroundView.title = newValue }
+    }
+
+    var emptyBackgroundMessage: String? {
+        get { emptyBackgroundView.message }
+        set { emptyBackgroundView.message = newValue }
     }
 
     private lazy var emptyBackgroundView = TableBackgroundView()

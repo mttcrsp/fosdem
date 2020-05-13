@@ -4,8 +4,9 @@
 
 /// MARK: - Plan
 "plan.title" = "Plan";
-"plan.empty" = "You have no favorite events\n\nEvents you favorite will appear here to allow you to better plan your FOSDEM";
 "plan.soon" = "Starting soon";
+"plan.empty.title" = "No favorite events";
+"plan.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
 
 /// MARK: - Event
 "event.video" = "Watch now";
@@ -24,21 +25,24 @@
 
 /// MARK: - Soon
 "soon.title" = "In the next 30 minutes";
-"soon.empty" = "No events starting in the next 30 minutes";
+"soon.empty.title" = "No events";
+"soon.empty.message" = "No events are starting in the next 30 minutes";
 
 /// MARK: - Favorite
 "favorite" = "Favorite";
 "unfavorite" = "Unfavorite";
 
-/// MARK: - Tracks
+/// MARK: - Search
 "search.title" = "Search";
 "search.filter.title" = "Filters";
 "search.filter.day" = "Day %d";
 "search.filter.all" = "All tracks";
 "search.filter.favorites" = "Your Favorites";
 "search.filter.cancel" = "Cancel";
-"search.empty" = "You have no favorite tracks";
 "search.event.start" = "%@ on %@";
+"search.empty.title" = "No results";
+"search.empty.message" = "Nothing found for \"%@\"";
+
 
 /// MARK: - Map
 "map.title" = "Map";
@@ -49,7 +53,6 @@
 /// MARK: - More
 "more.title" = "More";
 "more.search.prompt" = "Search for events and speakers";
-"more.search.empty" = "No results for \"%@\"";
 "more.section.about" = "About";
 "more.section.other" = "Other";
 

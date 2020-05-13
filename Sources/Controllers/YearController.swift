@@ -135,7 +135,7 @@ extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
 
                     let emptyFormat = NSLocalizedString("more.search.empty", comment: "")
                     let emptyString = String(format: emptyFormat, query)
-                    self?.resultsViewController?.emptyBackgroundText = emptyString
+                    self?.resultsViewController?.emptyBackgroundMessage = emptyString
                     self?.resultsViewController?.reloadData()
                 }
             }
