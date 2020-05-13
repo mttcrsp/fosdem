@@ -6,12 +6,12 @@ final class PreloadServiceFileMock: PreloadServiceFile {
     private(set) var oldPath: String?
     private(set) var newPath: String?
 
-    private let moveItemResult: Result<Void, Error>
+    private let copyItemResult: Result<Void, Error>
     private let urlResult: Result<URL, Error>
     private let fileExists: Bool
 
-    init(fileExists: Bool, moveItemResult: Result<Void, Error>, urlResult: Result<URL, Error>) {
-        self.moveItemResult = moveItemResult
+    init(fileExists: Bool, copyItemResult: Result<Void, Error>, urlResult: Result<URL, Error>) {
+        self.copyItemResult = copyItemResult
         self.fileExists = fileExists
         self.urlResult = urlResult
     }
@@ -20,11 +20,11 @@ final class PreloadServiceFileMock: PreloadServiceFile {
         fileExists
     }
 
-    func moveItem(atPath oldPath: String, toPath newPath: String) throws {
+    func copyItem(atPath oldPath: String, toPath newPath: String) throws {
         self.oldPath = oldPath
         self.newPath = newPath
 
-        switch moveItemResult {
+        switch copyItemResult {
         case .success: break
         case let .failure(error): throw error
         }

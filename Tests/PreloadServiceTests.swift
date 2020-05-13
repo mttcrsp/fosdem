@@ -8,7 +8,7 @@ final class PreloadServiceTests: XCTestCase {
             let bundlePath: String? = nil
             let bundle = PreloadServiceBundleMock(path: bundlePath)
             let fileManagerURL = URL(fileURLWithPath: "/documents")
-            let fileManager = PreloadServiceFileMock(fileExists: false, moveItemResult: .success(()), urlResult: .success(fileManagerURL))
+            let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), urlResult: .success(fileManagerURL))
 
             _ = try PreloadService(bundle: bundle, fileManager: fileManager)
             XCTFail("Unexpectedly succeeded in initialising from bundle service")
@@ -24,7 +24,7 @@ final class PreloadServiceTests: XCTestCase {
 
         do {
             let bundle = PreloadServiceBundleMock(path: "/bundle")
-            let fileManager = PreloadServiceFileMock(fileExists: false, moveItemResult: .success(()), urlResult: .failure(fileManagerError))
+            let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), urlResult: .failure(fileManagerError))
 
             _ = try PreloadService(bundle: bundle, fileManager: fileManager)
             XCTFail("Unexpectedly succeeded in initialising from bundle service")
@@ -38,7 +38,7 @@ final class PreloadServiceTests: XCTestCase {
     func testDatabasePath() {
         XCTAssertNoThrow(try {
             let fileManagerURL = URL(fileURLWithPath: "/documents")
-            let fileManager = PreloadServiceFileMock(fileExists: false, moveItemResult: .success(()), urlResult: .success(fileManagerURL))
+            let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), urlResult: .success(fileManagerURL))
             let bundle = PreloadServiceBundleMock(path: "/bundle")
 
             let service = try PreloadService(bundle: bundle, fileManager: fileManager)
@@ -49,7 +49,7 @@ final class PreloadServiceTests: XCTestCase {
     func testPreloadDatabaseIfNeeded() {
         XCTAssertNoThrow(try {
             let fileManagerURL = URL(fileURLWithPath: "/documents")
-            let fileManager = PreloadServiceFileMock(fileExists: false, moveItemResult: .success(()), urlResult: .success(fileManagerURL))
+            let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), urlResult: .success(fileManagerURL))
             let bundle = PreloadServiceBundleMock(path: "/bundle")
             let service = try PreloadService(bundle: bundle, fileManager: fileManager)
 
@@ -62,7 +62,7 @@ final class PreloadServiceTests: XCTestCase {
     func testPreloadDatabaseIfNeededFileExists() {
         XCTAssertNoThrow(try {
             let fileManagerURL = URL(fileURLWithPath: "/documents")
-            let fileManager = PreloadServiceFileMock(fileExists: true, moveItemResult: .success(()), urlResult: .success(fileManagerURL))
+            let fileManager = PreloadServiceFileMock(fileExists: true, copyItemResult: .success(()), urlResult: .success(fileManagerURL))
             let bundle = PreloadServiceBundleMock(path: "/bundle")
             let service = try PreloadService(bundle: bundle, fileManager: fileManager)
 
@@ -77,7 +77,7 @@ final class PreloadServiceTests: XCTestCase {
 
         do {
             let fileManagerURL = URL(fileURLWithPath: "/documents")
-            let fileManager = PreloadServiceFileMock(fileExists: false, moveItemResult: .failure(fileManagerError), urlResult: .success(fileManagerURL))
+            let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .failure(fileManagerError), urlResult: .success(fileManagerURL))
             let bundle = PreloadServiceBundleMock(path: "/bundle")
             let service = try PreloadService(bundle: bundle, fileManager: fileManager)
 

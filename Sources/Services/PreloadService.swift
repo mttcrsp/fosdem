@@ -2,7 +2,7 @@ import Foundation
 
 protocol PreloadServiceFile {
     func fileExists(atPath path: String) -> Bool
-    func moveItem(atPath srcPath: String, toPath dstPath: String) throws
+    func copyItem(atPath srcPath: String, toPath dstPath: String) throws
     func url(for directory: FileManager.SearchPathDirectory, in domain: FileManager.SearchPathDomainMask, appropriateFor url: URL?, create shouldCreate: Bool) throws -> URL
 }
 
@@ -42,7 +42,7 @@ final class PreloadService {
 
     func preloadDatabaseIfNeeded() throws {
         if !fileManager.fileExists(atPath: newPath) {
-            try fileManager.moveItem(atPath: oldPath, toPath: newPath)
+            try fileManager.copyItem(atPath: oldPath, toPath: newPath)
         }
     }
 }
