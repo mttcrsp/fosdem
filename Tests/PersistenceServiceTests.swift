@@ -81,7 +81,7 @@ final class PersistenceServiceTests: XCTestCase {
     }
 
     private func makeError() -> NSError {
-        .init(domain: "org.fosdem.fosdem", code: -1)
+        .init(domain: "com.mttcrsp.fosdem", code: -1)
     }
 
     private struct Write: PersistenceServiceWrite {

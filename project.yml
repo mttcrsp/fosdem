@@ -5,7 +5,7 @@ packages:
     version: 4.9.0
 options:
   createIntermediateGroups: true
-  bundleIdPrefix: com.mttcrsp.Fosdem
+  bundleIdPrefix: com.mttcrsp.fosdem
 settings:
   SWIFT_TREAT_WARNINGS_AS_ERRORS: 'YES'
   SWIFT_VERSION: '5.1'
@@ -35,7 +35,7 @@ targets:
         DEVELOPMENT_TEAM: 3CM92FF2C5
         INFOPLIST_FILE: Resources/Info.plist
         MARKETING_VERSION: 1.0.0
-        PRODUCT_BUNDLE_IDENTIFIER: com.mttcrsp.Fosdem
+        PRODUCT_BUNDLE_IDENTIFIER: com.mttcrsp.fosdem
         PRODUCT_NAME: "$(TARGET_NAME)"
         TARGETED_DEVICE_FAMILY: "1,2"
         VERSIONING_SYSTEM: apple-generic

@@ -43,6 +43,6 @@ extension BundleService.Error {
     }
 
     static var errorDomain: String {
-        "org.fosdem.fosdem.\(String(describing: BundleService.self))"
+        "com.mttcrsp.fosdem.\(String(describing: BundleService.self))"
     }
 }

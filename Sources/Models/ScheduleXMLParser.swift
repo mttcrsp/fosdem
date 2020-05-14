@@ -166,7 +166,7 @@ extension ScheduleXMLParser.Error: Swift.Error, CustomNSError {
     }
 
     static var errorDomain: String {
-        "org.fosdem.fosdem.\(String(describing: ScheduleXMLParser.self))"
+        "com.mttcrsp.fosdem.\(String(describing: ScheduleXMLParser.self))"
     }
 }
 

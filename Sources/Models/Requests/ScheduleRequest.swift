@@ -25,6 +25,6 @@ struct ScheduleRequest: NetworkRequest {
             throw parseError
         }
 
-        throw NSError(domain: "org.fosdem.ScheduleRequest", code: 1)
+        throw NSError(domain: "com.mttcrsp.ScheduleRequest", code: 1)
     }
 }

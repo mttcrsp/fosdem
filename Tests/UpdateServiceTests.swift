@@ -4,7 +4,7 @@ import XCTest
 
 final class UpdateServiceTests: XCTestCase {
     func testDetectUpdates() {
-        let bundleIdentifier = "org.fosdem.fosdem"
+        let bundleIdentifier = "com.mttcrsp.fosdem"
         let bundle = UpdateServiceBundleMock(bundleIdentifier: bundleIdentifier, bundleShortVersion: "1.0.0")
 
         let result1 = AppStoreSearchResult(bundleIdentifier: "invalid identifier", version: "invalid version")
@@ -21,7 +21,7 @@ final class UpdateServiceTests: XCTestCase {
     }
 
     func testDetectUpdatesNoUpdate() {
-        let bundleIdentifier = "org.fosdem.fosdem"
+        let bundleIdentifier = "com.mttcrsp.fosdem"
         let bundle = UpdateServiceBundleMock(bundleIdentifier: bundleIdentifier, bundleShortVersion: "1.0.0")
 
         let result1 = AppStoreSearchResult(bundleIdentifier: bundleIdentifier, version: "1.0.0")
@@ -38,10 +38,10 @@ final class UpdateServiceTests: XCTestCase {
     }
 
     func testDetectUpdatesNetworkError() {
-        let bundleIdentifier = "org.fosdem.fosdem"
+        let bundleIdentifier = "com.mttcrsp.fosdem"
         let bundle = UpdateServiceBundleMock(bundleIdentifier: bundleIdentifier, bundleShortVersion: "1.0.0")
 
-        let networkServiceError = NSError(domain: "org.fosdem.fosdem", code: 1)
+        let networkServiceError = NSError(domain: "com.mttcrsp.fosdem", code: 1)
         let networkService = UpdateServiceNetworkMock(result: .failure(networkServiceError))
 
         let delegate = Delegate()
