@@ -9,7 +9,6 @@ final class YearController: TracksViewController {
 
     private weak var resultsViewController: EventsViewController?
     private weak var eventsViewController: EventsViewController?
-    private weak var tracksViewController: TracksViewController?
     private var searchController: UISearchController?
 
     private var tracks: [Track] = []
@@ -113,7 +112,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
         if presentingViewController == eventsViewController {
             presentingViewController.showDetailViewController(eventViewController, sender: nil)
         } else if presentingViewController == resultsViewController {
-            tracksViewController?.showDetailViewController(eventViewController, sender: nil)
+            showDetailViewController(eventViewController, sender: nil)
         }
     }
 }
@@ -158,16 +157,6 @@ private extension YearController {
         resultsViewController.delegate = self
         self.resultsViewController = resultsViewController
         return resultsViewController
-    }
-
-    func makeTracksViewController() -> TracksViewController {
-        let tracksViewController = TracksViewController()
-        tracksViewController.addEmbeddedSearchViewController(makeSearchController())
-        tracksViewController.dataSource = self
-        tracksViewController.delegate = self
-        tracksViewController.title = year
-        self.tracksViewController = tracksViewController
-        return tracksViewController
     }
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
