@@ -45,6 +45,7 @@ private extension UITableViewCell {
     func configure(with item: MoreItem) {
         textLabel?.text = item.title
         textLabel?.numberOfLines = 0
+        imageView?.image = item.icon
         accessoryType = .disclosureIndicator
     }
 }

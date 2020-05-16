@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 enum MoreItem: CaseIterable {
     #if DEBUG
@@ -24,6 +24,20 @@ extension MoreItem {
         case .acknowledgements: return NSLocalizedString("acknowledgements.title", comment: "")
         #if DEBUG
             case .time: return NSLocalizedString("time.title", comment: "")
+        #endif
+        }
+    }
+
+    var icon: UIImage? {
+        switch self {
+        case .code: return UIImage(named: "contribute")
+        case .years: return UIImage(named: "years")
+        case .history: return UIImage(named: "history")
+        case .devrooms: return UIImage(named: "devrooms")
+        case .transportation: return UIImage(named: "transportation")
+        case .acknowledgements: return UIImage(named: "acknowledgements")
+        #if DEBUG
+            case .time: return nil
         #endif
         }
     }
