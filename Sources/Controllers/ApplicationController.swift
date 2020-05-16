@@ -38,7 +38,7 @@ final class ApplicationController: UITabBarController {
 
         var viewControllers: [UIViewController] = []
         viewControllers.append(makeSearchController())
-        viewControllers.append(makePlanController())
+        viewControllers.append(makeAgendaController())
         viewControllers.append(makeMapController())
         viewControllers.append(makeMoreController())
         setViewControllers(viewControllers, animated: false)
@@ -81,15 +81,15 @@ private extension ApplicationController {
         return searchController
     }
 
-    func makePlanController() -> PlanController {
-        let planController = PlanController(services: services)
-        planController.tabBarItem.image = .fos_systemImage(withName: "calendar")
-        planController.title = NSLocalizedString("plan.title", comment: "")
-        planController.preferredDisplayMode = .allVisible
-        planController.preferredPrimaryColumnWidthFraction = 0.4
-        planController.maximumPrimaryColumnWidth = 375
-        planController.planDelegate = self
-        return planController
+    func makeAgendaController() -> AgendaController {
+        let agendaController = AgendaController(services: services)
+        agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
+        agendaController.title = NSLocalizedString("agenda.title", comment: "")
+        agendaController.preferredDisplayMode = .allVisible
+        agendaController.preferredPrimaryColumnWidthFraction = 0.4
+        agendaController.maximumPrimaryColumnWidth = 375
+        agendaController.agendaDelegate = self
+        return agendaController
     }
 
     func makeMapController() -> MapController {
@@ -132,12 +132,12 @@ extension ApplicationController: UITabBarControllerDelegate {
     }
 }
 
-extension ApplicationController: PlanControllerDelegate {
-    func planController(_ planController: PlanController, didError _: Error) {
+extension ApplicationController: AgendaControllerDelegate {
+    func agendaController(_ agendaController: AgendaController, didError _: Error) {
         let errorViewController = ErrorViewController()
-        planController.addChild(errorViewController)
-        planController.view.addSubview(errorViewController.view)
-        errorViewController.didMove(toParent: planController)
+        agendaController.addChild(errorViewController)
+        agendaController.view.addSubview(errorViewController.view)
+        errorViewController.didMove(toParent: agendaController)
     }
 }
 

@@ -1,13 +1,13 @@
 import UIKit
 
-protocol PlanControllerDelegate: AnyObject {
-    func planController(_ planController: PlanController, didError error: Error)
+protocol AgendaControllerDelegate: AnyObject {
+    func agendaController(_ agendaController: AgendaController, didError error: Error)
 }
 
-final class PlanController: UISplitViewController {
-    weak var planDelegate: PlanControllerDelegate?
+final class AgendaController: UISplitViewController {
+    weak var agendaDelegate: AgendaControllerDelegate?
 
-    private weak var planViewController: EventsViewController?
+    private weak var agendaViewController: EventsViewController?
     private weak var soonViewController: EventsViewController?
 
     private var observations: [NSObjectProtocol] = []
@@ -44,14 +44,14 @@ final class PlanController: UISplitViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let planViewController = makePlanViewController()
-        let planNavigationController = UINavigationController(rootViewController: planViewController)
+        let agendaViewController = makeAgendaViewController()
+        let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
 
         if #available(iOS 11.0, *) {
-            planNavigationController.navigationBar.prefersLargeTitles = true
+            agendaNavigationController.navigationBar.prefersLargeTitles = true
         }
 
-        viewControllers = [planNavigationController]
+        viewControllers = [agendaNavigationController]
 
         reloadFavoriteEvents()
         let observation1 = favoritesService.addObserverForEvents { [weak self] in
@@ -66,7 +66,7 @@ final class PlanController: UISplitViewController {
     }
 
     private func reloadLiveStatus() {
-        planViewController?.reloadLiveStatus()
+        agendaViewController?.reloadLiveStatus()
     }
 
     private func reloadFavoriteEvents() {
@@ -84,20 +84,20 @@ final class PlanController: UISplitViewController {
     }
 
     private func loadingDidFail(with error: Error) {
-        planDelegate?.planController(self, didError: error)
+        agendaDelegate?.agendaController(self, didError: error)
     }
 
     private func loadingDidSucceed(with events: [Event]) {
         self.events = events
 
-        planViewController?.reloadData()
+        agendaViewController?.reloadData()
 
         let isSingleChild = viewControllers.count == 1
         let isRegularSize = traitCollection.horizontalSizeClass == .regular
         let isDisplayingEmptyDetail = isSingleChild && isRegularSize
 
         if isDisplayingEmptyDetail, let event = events.first {
-            planViewController?.select(event)
+            agendaViewController?.select(event)
 
             let eventViewController = makeEventViewController(for: event)
             showDetailViewController(eventViewController, sender: nil)
@@ -129,10 +129,10 @@ final class PlanController: UISplitViewController {
     }
 }
 
-extension PlanController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerLiveDataSource {
+extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerLiveDataSource {
     func events(in eventsViewController: EventsViewController) -> [Event] {
         switch eventsViewController {
-        case planViewController: return events
+        case agendaViewController: return events
         case soonViewController: return eventsStartingSoon
         default: return []
         }
@@ -142,7 +142,7 @@ extension PlanController: EventsViewControllerDataSource, EventsViewControllerDe
         let items: [String?]
 
         switch eventsViewController {
-        case planViewController: items = [event.formattedStart, event.room, event.track]
+        case agendaViewController: items = [event.formattedStart, event.room, event.track]
         case soonViewController: items = [event.formattedStart, event.room]
         default: return nil
         }
@@ -154,14 +154,14 @@ extension PlanController: EventsViewControllerDataSource, EventsViewControllerDe
         let eventViewController = makeEventViewController(for: event)
 
         switch eventsViewController {
-        case planViewController: eventsViewController.showDetailViewController(eventViewController, sender: nil)
+        case agendaViewController: eventsViewController.showDetailViewController(eventViewController, sender: nil)
         case soonViewController: eventsViewController.show(eventViewController, sender: nil)
         default: break
         }
     }
 
     func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-        eventsViewController == planViewController && event.isLive(at: now)
+        eventsViewController == agendaViewController && event.isLive(at: now)
     }
 
     func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
@@ -177,33 +177,33 @@ extension PlanController: EventsViewControllerDataSource, EventsViewControllerDe
     }
 }
 
-private extension PlanController {
+private extension AgendaController {
     func makeEventViewController(for event: Event) -> EventController {
         EventController(event: event, favoritesService: favoritesService)
     }
 
-    func makePlanViewController() -> EventsViewController {
-        let soonTitle = NSLocalizedString("plan.soon", comment: "")
+    func makeAgendaViewController() -> EventsViewController {
+        let soonTitle = NSLocalizedString("agenda.soon", comment: "")
         let soonAction = #selector(didTapSoon)
         let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
 
-        let planViewController = EventsViewController(style: .grouped)
-        planViewController.emptyBackgroundMessage = NSLocalizedString("plan.empty.message", comment: "")
-        planViewController.emptyBackgroundTitle = NSLocalizedString("plan.empty.title", comment: "")
-        planViewController.title = NSLocalizedString("plan.title", comment: "")
-        planViewController.navigationItem.rightBarButtonItem = soonButton
-        planViewController.favoritesDataSource = self
-        planViewController.favoritesDelegate = self
-        planViewController.liveDataSource = self
-        planViewController.dataSource = self
-        planViewController.delegate = self
-        self.planViewController = planViewController
+        let agendaViewController = EventsViewController(style: .grouped)
+        agendaViewController.emptyBackgroundMessage = NSLocalizedString("agenda.empty.message", comment: "")
+        agendaViewController.emptyBackgroundTitle = NSLocalizedString("agenda.empty.title", comment: "")
+        agendaViewController.title = NSLocalizedString("agenda.title", comment: "")
+        agendaViewController.navigationItem.rightBarButtonItem = soonButton
+        agendaViewController.favoritesDataSource = self
+        agendaViewController.favoritesDelegate = self
+        agendaViewController.liveDataSource = self
+        agendaViewController.dataSource = self
+        agendaViewController.delegate = self
+        self.agendaViewController = agendaViewController
 
         if #available(iOS 11.0, *) {
-            planViewController.navigationItem.largeTitleDisplayMode = .always
+            agendaViewController.navigationItem.largeTitleDisplayMode = .always
         }
 
-        return planViewController
+        return agendaViewController
     }
 
     func makeSoonViewController() -> EventsViewController {

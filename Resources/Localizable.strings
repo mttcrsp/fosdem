@@ -2,11 +2,11 @@
 "welcome.title" = "FOSDEM 2020";
 "welcome.message" = "FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels.";
 
-/// MARK: - Plan
-"plan.title" = "Plan";
-"plan.soon" = "Starting soon";
-"plan.empty.title" = "No favorite events";
-"plan.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
+/// MARK: - Agenda
+"agenda.title" = "Agenda";
+"agenda.soon" = "Starting soon";
+"agenda.empty.title" = "No favorite events";
+"agenda.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
 
 /// MARK: - Event
 "event.video" = "Watch now";
