@@ -218,7 +218,9 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
         trackViewController.show(eventViewController, sender: nil)
     }
 
-    private func resultsViewController(_: EventsViewController, didSelect event: Event) {
+    private func resultsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
+        eventsViewController.deselectSelectedRow(animated: true)
+
         let eventViewController = makeEventViewController(for: event)
         tracksViewController?.showDetailViewController(eventViewController, sender: nil)
 
