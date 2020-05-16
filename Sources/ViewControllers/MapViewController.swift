@@ -10,7 +10,7 @@ final class MapViewController: UIViewController {
     weak var delegate: MapViewControllerDelegate?
 
     var buildings: [Building] = [] {
-        didSet { buildingsDidChange() }
+        didSet { didChangeBuildings() }
     }
 
     var showsLocationButton: Bool {
@@ -19,7 +19,7 @@ final class MapViewController: UIViewController {
     }
 
     private(set) var selectedBuilding: Building? {
-        didSet { selectedBuildingChanged() }
+        didSet { didChangeSelectedBuilding() }
     }
 
     private lazy var mapView = MKMapView()
@@ -158,7 +158,7 @@ final class MapViewController: UIViewController {
         }
         return MKCoordinateRegion(boundingMapRect)
     }
-    
+
     private var prefersVerticalBlueprintsLayout: Bool {
         view.bounds.width < view.bounds.height
     }
@@ -211,7 +211,7 @@ final class MapViewController: UIViewController {
         }
     }
 
-    private func buildingsDidChange() {
+    private func didChangeBuildings() {
         let overlays = buildings.map { building in building.polygon }
         mapView.removeOverlays(mapView.overlays)
         mapView.addOverlays(overlays)
@@ -228,7 +228,7 @@ final class MapViewController: UIViewController {
         }
     }
 
-    private func selectedBuildingChanged() {
+    private func didChangeSelectedBuilding() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
