@@ -159,6 +159,10 @@ final class MapViewController: UIViewController {
         return MKCoordinateRegion(boundingMapRect)
     }
 
+    private var canSelectBuilding: Bool {
+        !UIAccessibility.isVoiceOverRunning
+    }
+
     private var prefersVerticalBlueprintsLayout: Bool {
         view.bounds.width < view.bounds.height
     }
@@ -199,6 +203,8 @@ final class MapViewController: UIViewController {
     }
 
     @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
+        guard canSelectBuilding else { return }
+
         let location = recognizer.location(in: recognizer.view)
         let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
 
@@ -247,6 +253,8 @@ final class MapViewController: UIViewController {
     }
 
     private func didSelectBuilding(_ building: Building) {
+        guard canSelectBuilding else { return }
+
         delegate?.mapViewController(self, didSelect: building)
 
         var center = mapView.convert(building.coordinate, toPointTo: mapView)
@@ -271,13 +279,14 @@ extension MapViewController: MKMapViewDelegate {
     }
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard #available(iOS 11.0, *), let building = annotation as? Building else {
-            print(">>> attemping to display user location")
-            return nil
-        }
+        guard #available(iOS 11.0, *), let building = annotation as? Building else { return nil }
+
+        let format = NSLocalizedString("map.building", comment: "")
+        let string = String(format: format, building.title ?? "")
 
         let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MKMarkerAnnotationView.reuseIdentifier, for: annotation) as! MKMarkerAnnotationView
         annotationView.markerTintColor = mapView.tintColor
+        annotationView.accessibilityLabel = string
         annotationView.glyphText = building.glyph
         return annotationView
     }

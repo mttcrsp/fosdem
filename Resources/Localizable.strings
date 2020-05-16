@@ -46,6 +46,7 @@
 
 /// MARK: - Map
 "map.title" = "Map";
+"map.building" = "Building %@";
 "map.location" = "Display my location";
 "map.blueprint.title" = "Building %@";
 "map.blueprint.empty" = "No blueprint available";
