@@ -28,6 +28,12 @@ final class RoundedButton: UIButton {
         titleLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
     }
 
+    override func tintColorDidChange() {
+        super.tintColorDidChange()
+        setBackgroundImage(makeNormalImage(), for: .normal)
+        setBackgroundImage(makeHighlightedImage(), for: .highlighted)
+    }
+
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
@@ -39,14 +45,14 @@ final class RoundedButton: UIButton {
 
     private func makeNormalImage() -> UIImage? {
         renderer.image { context in
-            context.cgContext.setFillColor(UIColor.fos_label.cgColor)
+            context.cgContext.setFillColor(tintColor.cgColor)
             context.cgContext.fill(rect)
         }
     }
 
     private func makeHighlightedImage() -> UIImage? {
         renderer.image { context in
-            context.cgContext.setFillColor(UIColor.fos_label.withAlphaComponent(0.8).cgColor)
+            context.cgContext.setFillColor(tintColor.withAlphaComponent(0.8).cgColor)
             context.cgContext.fill(rect)
         }
     }

@@ -33,7 +33,6 @@ final class MapViewController: UIViewController {
 
         view.addSubview(mapView)
         mapView.delegate = self
-        mapView.tintColor = .fos_label
         mapView.isPitchEnabled = false
         mapView.showsUserLocation = true
         mapView.showsPointsOfInterest = false
@@ -82,6 +81,11 @@ final class MapViewController: UIViewController {
         if let blueprintsView = blueprintsViewController?.view {
             blueprintsView.frame = blueprintsFrame
         }
+    }
+
+    override func didMove(toParent parent: UIViewController?) {
+        super.didMove(toParent: parent)
+        mapView.tintColor = parent?.view?.window?.tintColor
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
