@@ -1,4 +1,4 @@
-name: Fosdem
+name: FOSDEM
 packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift
@@ -10,7 +10,7 @@ settings:
   SWIFT_TREAT_WARNINGS_AS_ERRORS: 'YES'
   SWIFT_VERSION: '5.1'
 targets:
-  Fosdem:
+  FOSDEM:
     type: application
     platform: iOS
     deploymentTarget: '10.0'
@@ -47,10 +47,10 @@ targets:
     - Tests
     - Resources/Buildings
     dependencies:
-    - target: Fosdem
+    - target: FOSDEM
     postbuildScripts:
     - script: swiftformat .
     settings:
       INFOPLIST_FILE: Tests/Resources/Info.plist
       ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
-      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Fosdem.app/Fosdem"
+      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FOSDEM.app/FOSDEM"
