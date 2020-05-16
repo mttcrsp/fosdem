@@ -70,16 +70,20 @@ final class MapViewController: UIViewController {
 
         mapView.frame = view.bounds
 
-        resetButton.bounds.size = CGSize(width: 40, height: 40)
-        resetButton.frame.origin.x = 5
-        resetButton.frame.origin.y = view.layoutMargins.top + 5
+        if let blueprintsView = blueprintsViewController?.view {
+            blueprintsView.frame = blueprintsFrame
+        }
 
         locationButton.sizeToFit()
         locationButton.center.x = view.bounds.midX
-        locationButton.frame.origin.y = view.layoutMargins.top
+        locationButton.frame.origin.y = view.layoutMargins.top + 5
 
-        if let blueprintsView = blueprintsViewController?.view {
-            blueprintsView.frame = blueprintsFrame
+        resetButton.bounds.size = CGSize(width: 40, height: 40)
+        resetButton.frame.origin.y = locationButton.frame.minY
+        if #available(iOS 11.0, *) {
+            resetButton.frame.origin.x = view.safeAreaInsets.left + 5
+        } else {
+            resetButton.frame.origin.x = 5
         }
     }
 
@@ -122,8 +126,8 @@ final class MapViewController: UIViewController {
 
         let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
         animator.addAnimations { [weak self] in
-            guard let self = self else { return }
-            self.blueprintsViewController?.view.alpha = 1
+            self?.blueprintsViewController?.view.alpha = 1
+            self?.setControlButtonsAlpha(to: 0)
         }
         animator.addCompletion { [weak self] _ in
             guard let self = self else { return }
@@ -138,6 +142,7 @@ final class MapViewController: UIViewController {
         let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
         animator.addAnimations { [weak self] in
             self?.blueprintsViewController?.view.alpha = 0
+            self?.setControlButtonsAlpha(to: 1)
         }
         animator.addCompletion { [weak self] _ in
             self?.blueprintsViewController?.view.removeFromSuperview()
@@ -169,6 +174,12 @@ final class MapViewController: UIViewController {
             frame.origin.y = 16
         }
         return frame
+    }
+
+    private func setControlButtonsAlpha(to alpha: CGFloat) {
+        for button in [resetButton, locationButton] {
+            button.alpha = alpha
+        }
     }
 
     @objc private func didTapReset() {
