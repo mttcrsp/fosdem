@@ -24,7 +24,7 @@ targets:
           randomExecutionOrder: true
     dependencies:
     - package: GRDB
-    prebuildScripts:
+    postbuildScripts:
     - script: swiftformat .
     settings:
       base:
