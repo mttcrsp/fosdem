@@ -241,7 +241,7 @@ private extension MoreController {
     }
 
     func makeYearsViewController() -> YearsViewController {
-        let yearsViewController = YearsViewController()
+        let yearsViewController = YearsViewController(style: .grouped)
         yearsViewController.title = NSLocalizedString("years.title", comment: "")
         yearsViewController.dataSource = self
         yearsViewController.delegate = self

@@ -15,6 +15,7 @@ final class TextViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         textView.isEditable = false
+        textView.backgroundColor = .groupTableViewBackground
         textView.font = .fos_preferredFont(forTextStyle: .body)
     }
 
