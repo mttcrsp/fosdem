@@ -36,14 +36,14 @@ final class MapViewController: UIViewController {
         mapView.isPitchEnabled = false
         mapView.showsUserLocation = true
         mapView.showsPointsOfInterest = false
-        mapView.setCamera(.university, animated: false)
 
         if #available(iOS 11.0, *) {
             mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
         }
 
         if #available(iOS 13.0, *) {
-            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: .universityBoundary)
+            // Camera boundary can be used to prevent the user to navigating too
+            // far away from the content of the map. No need to a reset button.
         } else {
             let resetAction = #selector(didTapReset)
             let resetImage = UIImage(named: "arrow.counterclockwise")
@@ -151,6 +151,14 @@ final class MapViewController: UIViewController {
         animator.startAnimation()
     }
 
+    private var preferredCoordinateRegion: MKCoordinateRegion {
+        var boundingMapRect: MKMapRect = .null
+        for building in buildings {
+            boundingMapRect = boundingMapRect.union(building.polygon.boundingMapRect)
+        }
+        return MKCoordinateRegion(boundingMapRect)
+    }
+    
     private var prefersVerticalBlueprintsLayout: Bool {
         view.bounds.width < view.bounds.height
     }
@@ -183,7 +191,7 @@ final class MapViewController: UIViewController {
     }
 
     @objc private func didTapReset() {
-        mapView.setCamera(.university, animated: true)
+        mapView.setRegion(preferredCoordinateRegion, animated: true)
     }
 
     @objc private func didTapLocation() {
@@ -211,6 +219,12 @@ final class MapViewController: UIViewController {
         mapView.removeAnnotations(mapView.annotations)
         for building in buildings {
             mapView.addAnnotation(building)
+        }
+
+        let coordinateRegion = preferredCoordinateRegion
+        mapView.setRegion(coordinateRegion, animated: false)
+        if #available(iOS 13.0, *) {
+            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: coordinateRegion)
         }
     }
 
@@ -276,20 +290,5 @@ extension MapViewController: MKMapViewDelegate {
         if view.annotation is Building {
             selectedBuilding = nil
         }
-    }
-}
-
-private extension MKMapCamera {
-    static var university: MKMapCamera {
-        let center = CLLocationCoordinate2D(latitude: 50.813246501032737, longitude: 4.381289567335247)
-        return MKMapCamera(lookingAtCenter: center, fromDistance: 1421.0375826379536, pitch: 0, heading: 334.30179164562668)
-    }
-}
-
-private extension MKCoordinateRegion {
-    static var universityBoundary: MKCoordinateRegion {
-        let center = CLLocationCoordinate2D(latitude: 50.812996597684815, longitude: 4.38132229168761)
-        let span = MKCoordinateSpan(latitudeDelta: 0.0050337033797305253, longitudeDelta: 0.0045694524231123523)
-        return MKCoordinateRegion(center: center, span: span)
     }
 }
