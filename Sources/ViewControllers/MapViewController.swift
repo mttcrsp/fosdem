@@ -223,6 +223,8 @@ final class MapViewController: UIViewController {
 
         let coordinateRegion = preferredCoordinateRegion
         mapView.setRegion(coordinateRegion, animated: false)
+        mapView.camera.heading = 334.30179164562668
+
         if #available(iOS 13.0, *) {
             mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: coordinateRegion)
         }
