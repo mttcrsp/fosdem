@@ -72,6 +72,13 @@ final class EventView: UIStackView {
             let peopleView = EventMetadataView()
             peopleView.image = .fos_systemImage(withName: "person.fill")
             peopleView.text = event.formattedPeople
+
+            if let people = event.formattedPeople {
+                let accessibilityFormat = NSLocalizedString("event.people", comment: "")
+                let accessibilityLabel = String(format: accessibilityFormat, people)
+                peopleView.accessibilityLabel = accessibilityLabel
+            }
+
             addArrangedSubview(peopleView)
         }
 
