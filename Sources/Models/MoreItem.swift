@@ -17,7 +17,7 @@ extension MoreItem {
     var title: String {
         switch self {
         case .code: return NSLocalizedString("code.title", comment: "")
-        case .years: return NSLocalizedString("years.title", comment: "")
+        case .years: return NSLocalizedString("years.item", comment: "")
         case .history: return NSLocalizedString("history.title", comment: "")
         case .devrooms: return NSLocalizedString("devrooms.title", comment: "")
         case .transportation: return NSLocalizedString("transportation.title", comment: "")

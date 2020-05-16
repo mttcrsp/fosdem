@@ -53,6 +53,7 @@
 /// MARK: - More
 "more.title" = "More";
 "more.search.prompt" = "Search for events and speakers";
+"more.section.years" = "Previous years";
 "more.section.about" = "About";
 "more.section.other" = "Other";
 
@@ -66,6 +67,7 @@
 "history.title" = "History";
 
 /// MARK: - Years
+"years.item" = "From 2007 to 2019";
 "years.title" = "Previous years";
 "years.year" = "FOSDEM %@";
 
