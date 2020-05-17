@@ -344,7 +344,14 @@ private extension SearchController {
         let favoriteAction = #selector(didToggleFavorite)
         let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
 
-        let eventsViewController = EventsViewController(style: .grouped)
+        let style: UITableView.Style
+        if traitCollection.userInterfaceIdiom == .pad {
+            style = .fos_insetGrouped
+        } else {
+            style = .grouped
+        }
+
+        let eventsViewController = EventsViewController(style: style)
         eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
         eventsViewController.favoritesDataSource = self
         eventsViewController.favoritesDelegate = self
