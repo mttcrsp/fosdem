@@ -99,13 +99,9 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
         if isFavoriteSection(section) {
             return NSLocalizedString("search.filter.favorites", comment: "")
+        } else {
+            return selectedFilter.title
         }
-
-        if selectedFilter == .all, !hasFavoriteTracks {
-            return nil
-        }
-
-        return selectedFilter.title
     }
 
     func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
