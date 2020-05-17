@@ -103,6 +103,10 @@ final class MapViewController: UIViewController {
         }
     }
 
+    func resetCamera() {
+        mapView.setRegion(preferredCoordinateRegion, animated: true)
+    }
+
     func deselectSelectedAnnotation() {
         for annotation in mapView.selectedAnnotations {
             mapView.deselectAnnotation(annotation, animated: true)
@@ -195,7 +199,7 @@ final class MapViewController: UIViewController {
     }
 
     @objc private func didTapReset() {
-        mapView.setRegion(preferredCoordinateRegion, animated: true)
+        resetCamera()
     }
 
     @objc private func didTapLocation() {

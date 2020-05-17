@@ -4,6 +4,16 @@ protocol MapControllerDelegate: AnyObject {
     func mapController(_ mapController: MapController, didError error: Error)
 }
 
+extension UIAccessibility {
+    static var fos_voiceOverStatusDidChangeNotification: NSNotification.Name {
+        if #available(iOS 11.0, *) {
+            return UIAccessibility.voiceOverStatusDidChangeNotification
+        } else {
+            return NSNotification.Name(rawValue: UIAccessibilityVoiceOverStatusChanged)
+        }
+    }
+}
+
 final class MapController: UIViewController {
     weak var delegate: MapControllerDelegate?
 
@@ -14,16 +24,27 @@ final class MapController: UIViewController {
     private weak var fullscreenBlueprintsNavigationController: UINavigationController?
 
     private var transition: FullscreenBlueprintsDismissalTransition?
+    private var observer: NSObjectProtocol?
 
     private let services: Services
 
     init(services: Services) {
         self.services = services
         super.init(nibName: nil, bundle: nil)
+
+        observer = notificationCenter.addObserver(forName: UIAccessibility.fos_voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.didChangeVoiceOverStatus()
+        }
     }
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        if let observer = observer {
+            notificationCenter.removeObserver(observer)
+        }
     }
 
     override func viewDidLoad() {
@@ -45,6 +66,17 @@ final class MapController: UIViewController {
                     self.mapViewController?.buildings = buildings
                 }
             }
+        }
+    }
+
+    private var notificationCenter: NotificationCenter {
+        .default
+    }
+
+    private func didChangeVoiceOverStatus() {
+        if isViewLoaded, UIAccessibility.isVoiceOverRunning {
+            mapViewController?.deselectSelectedAnnotation()
+            mapViewController?.resetCamera()
         }
     }
 }
