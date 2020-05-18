@@ -4,11 +4,17 @@ protocol AgendaControllerDelegate: AnyObject {
     func agendaController(_ agendaController: AgendaController, didError error: Error)
 }
 
-final class AgendaController: UISplitViewController {
+final class AgendaController: UIViewController {
     weak var agendaDelegate: AgendaControllerDelegate?
 
+    private weak var agendaSplitViewController: UISplitViewController?
     private weak var agendaViewController: EventsViewController?
     private weak var soonViewController: EventsViewController?
+    private weak var eventViewController: EventController?
+
+    private weak var rootViewController: UIViewController? {
+        didSet { didChangeRootViewController(from: oldValue, to: rootViewController) }
+    }
 
     private var observations: [NSObjectProtocol] = []
     private var eventsStartingSoon: [Event] = []
@@ -33,6 +39,10 @@ final class AgendaController: UISplitViewController {
         services.persistenceService
     }
 
+    private var isMissingSecondaryViewController: Bool {
+        eventViewController == nil
+    }
+
     private var now: Date {
         #if DEBUG
             return services.debugService.now
@@ -43,15 +53,6 @@ final class AgendaController: UISplitViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let agendaViewController = makeAgendaViewController()
-        let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
-
-        if #available(iOS 11.0, *) {
-            agendaNavigationController.navigationBar.prefersLargeTitles = true
-        }
-
-        viewControllers = [agendaNavigationController]
 
         reloadFavoriteEvents()
         let observation1 = favoritesService.addObserverForEvents { [weak self] in
@@ -65,14 +66,28 @@ final class AgendaController: UISplitViewController {
         observations = [observation1, observation2]
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
+            preselectFirstEvent()
+        }
+    }
+
     private func reloadLiveStatus() {
         agendaViewController?.reloadLiveStatus()
     }
 
     private func reloadFavoriteEvents() {
         let identifiers = favoritesService.eventsIdentifiers
-        let operation = EventsForIdentifiers(identifiers: identifiers)
 
+        if identifiers.isEmpty, !(rootViewController is UINavigationController) {
+            rootViewController = makeAgendaNavigationController()
+        } else if !identifiers.isEmpty, !(rootViewController is UISplitViewController) {
+            rootViewController = makeAgendaSplitViewController()
+        }
+
+        let operation = EventsForIdentifiers(identifiers: identifiers)
         persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
@@ -89,18 +104,15 @@ final class AgendaController: UISplitViewController {
 
     private func loadingDidSucceed(with events: [Event]) {
         self.events = events
-
         agendaViewController?.reloadData()
 
-        let isSingleChild = viewControllers.count == 1
-        let isRegularSize = traitCollection.horizontalSizeClass == .regular
-        let isDisplayingEmptyDetail = isSingleChild && isRegularSize
+        var didDeleteSelectedEvent = false
+        if let selectedEvent = eventViewController?.event, !events.contains(selectedEvent) {
+            didDeleteSelectedEvent = true
+        }
 
-        if isDisplayingEmptyDetail, let event = events.first {
-            agendaViewController?.select(event)
-
-            let eventViewController = makeEventViewController(for: event)
-            showDetailViewController(eventViewController, sender: nil)
+        if didDeleteSelectedEvent || isMissingSecondaryViewController {
+            preselectFirstEvent()
         }
     }
 
@@ -126,6 +138,36 @@ final class AgendaController: UISplitViewController {
 
     @objc private func didTapDismiss() {
         soonViewController?.dismiss(animated: true)
+    }
+
+    func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
+        if let viewController = oldViewController {
+            viewController.willMove(toParent: nil)
+            viewController.view.removeFromSuperview()
+            viewController.removeFromParent()
+        }
+
+        if let viewController = newViewController {
+            addChild(viewController)
+            view.addSubview(viewController.view)
+            viewController.view.translatesAutoresizingMaskIntoConstraints = false
+            viewController.didMove(toParent: self)
+
+            NSLayoutConstraint.activate([
+                viewController.view.topAnchor.constraint(equalTo: view.topAnchor),
+                viewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                viewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                viewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            ])
+        }
+    }
+
+    private func preselectFirstEvent() {
+        if let event = events.first, traitCollection.horizontalSizeClass == .regular {
+            let eventViewController = makeEventViewController(for: event)
+            agendaViewController?.showDetailViewController(eventViewController, sender: nil)
+            agendaViewController?.select(event)
+        }
     }
 }
 
@@ -178,8 +220,25 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 }
 
 private extension AgendaController {
-    func makeEventViewController(for event: Event) -> EventController {
-        EventController(event: event, favoritesService: favoritesService)
+    func makeAgendaSplitViewController() -> UISplitViewController {
+        let agendaSplitViewController = UISplitViewController()
+        agendaSplitViewController.viewControllers = [makeAgendaNavigationController()]
+        agendaSplitViewController.preferredPrimaryColumnWidthFraction = 0.4
+        agendaSplitViewController.preferredDisplayMode = .allVisible
+        agendaSplitViewController.maximumPrimaryColumnWidth = 375
+        self.agendaSplitViewController = agendaSplitViewController
+        return agendaSplitViewController
+    }
+
+    func makeAgendaNavigationController() -> UINavigationController {
+        let agendaViewController = makeAgendaViewController()
+        let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
+
+        if #available(iOS 11.0, *) {
+            agendaNavigationController.navigationBar.prefersLargeTitles = true
+        }
+
+        return agendaNavigationController
     }
 
     func makeAgendaViewController() -> EventsViewController {
@@ -221,5 +280,11 @@ private extension AgendaController {
         soonViewController.delegate = self
         self.soonViewController = soonViewController
         return soonViewController
+    }
+
+    func makeEventViewController(for event: Event) -> EventController {
+        let eventViewController = EventController(event: event, favoritesService: favoritesService)
+        self.eventViewController = eventViewController
+        return eventViewController
     }
 }

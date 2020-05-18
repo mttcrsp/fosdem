@@ -85,9 +85,6 @@ private extension ApplicationController {
         let agendaController = AgendaController(services: services)
         agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
         agendaController.title = NSLocalizedString("agenda.title", comment: "")
-        agendaController.preferredDisplayMode = .allVisible
-        agendaController.preferredPrimaryColumnWidthFraction = 0.4
-        agendaController.maximumPrimaryColumnWidth = 375
         agendaController.agendaDelegate = self
         return agendaController
     }

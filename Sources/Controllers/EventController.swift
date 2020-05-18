@@ -6,8 +6,9 @@ final class EventController: UIViewController {
 
     private var observation: NSObjectProtocol?
 
-    private let event: Event
     private let favoritesService: FavoritesService?
+
+    let event: Event
 
     init(event: Event, favoritesService: FavoritesService? = nil) {
         self.event = event
