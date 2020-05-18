@@ -60,7 +60,7 @@ final class EventsViewController: UITableViewController {
 
         for indexPath in tableView.indexPathsForVisibleRows ?? [] {
             if let cell = tableView.cellForRow(at: indexPath) {
-                let event = self.event(for: indexPath.section)
+                let event = self.event(forSection: indexPath.section)
                 let oldStatus = cell.showsLiveIndicator
                 let newStatus = shouldShowLiveIndicator(for: event)
 
@@ -94,7 +94,7 @@ final class EventsViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
-        view.text = dataSource?.eventsViewController(self, captionFor: event(for: section))
+        view.text = dataSource?.eventsViewController(self, captionFor: event(forSection: section))
         return view
     }
 
@@ -103,7 +103,7 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let event = self.event(for: indexPath.section)
+        let event = self.event(forSection: indexPath.section)
         let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
         cell.showsLiveIndicator = shouldShowLiveIndicator(for: event)
         cell.configure(with: event)
@@ -111,13 +111,13 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.eventsViewController(self, didSelect: event(for: indexPath.section))
+        delegate?.eventsViewController(self, didSelect: event(forSection: indexPath.section))
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard let favoritesDataSource = favoritesDataSource else { return nil }
 
-        let event = self.event(for: indexPath.section)
+        let event = self.event(forSection: indexPath.section)
 
         if favoritesDataSource.eventsViewController(self, canFavorite: event) {
             return [.favorite { [weak self] _ in self?.didFavorite(event) }]
@@ -134,7 +134,7 @@ final class EventsViewController: UITableViewController {
         favoritesDelegate?.eventsViewController(self, didUnfavorite: event)
     }
 
-    private func event(for section: Int) -> Event {
+    private func event(forSection section: Int) -> Event {
         events[section]
     }
 
