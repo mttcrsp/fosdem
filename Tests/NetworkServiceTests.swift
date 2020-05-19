@@ -21,7 +21,10 @@ final class NetworkServiceTests: XCTestCase {
         }
 
         XCTAssertTrue(dataTask.didResume)
-        XCTAssertEqual(session.url, request.url)
+        XCTAssertEqual(session.request?.url, request.url)
+        XCTAssertEqual(session.request?.httpBody, request.httpBody)
+        XCTAssertEqual(session.request?.httpMethod, request.httpMethod)
+        XCTAssertEqual(session.request?.allHTTPHeaderFields, request.allHTTPHeaderFields)
 
         guard let completionHandler = session.completionHandler else {
             return XCTAssertNotNil(session.completionHandler)
@@ -87,6 +90,18 @@ final class NetworkServiceTests: XCTestCase {
     private struct Request: NetworkRequest {
         var url: URL {
             URL(string: "https://www.fosdem.org")!
+        }
+
+        var httpMethod: String {
+            "POST"
+        }
+
+        var httpBody: Data? {
+            Data(base64Encoded: "fosdem")
+        }
+
+        var allHTTPHeaderFields: [String: String]? {
+            ["Content-Type": "application/json"]
         }
 
         func decode(_ data: Data) throws -> Int {

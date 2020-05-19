@@ -4,6 +4,9 @@ protocol NetworkRequest {
     associatedtype Model
 
     var url: URL { get }
+    var httpBody: Data? { get }
+    var httpMethod: String { get }
+    var allHTTPHeaderFields: [String: String]? { get }
 
     func decode(_ data: Data) throws -> Model
 }
@@ -13,7 +16,7 @@ protocol NetworkServiceTask {
 }
 
 protocol NetworkServiceSession {
-    func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
 }
 
 protocol NetworkServiceDelegate: AnyObject {
@@ -32,7 +35,7 @@ final class NetworkService {
 
     @discardableResult
     func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkServiceTask {
-        let task = session.dataTask(with: request.url) { [weak self] data, _, error in
+        let task = session.dataTask(with: request.httpRequest) { [weak self] data, _, error in
             if let self = self {
                 self.delegate?.networkServiceDidEndRequest(self)
             }
@@ -57,11 +60,35 @@ final class NetworkService {
     }
 }
 
+extension NetworkRequest {
+    var httpBody: Data? {
+        nil
+    }
+
+    var httpMethod: String {
+        "GET"
+    }
+
+    var allHTTPHeaderFields: [String: String]? {
+        nil
+    }
+}
+
 extension URLSessionDataTask: NetworkServiceTask {}
 
 extension URLSession: NetworkServiceSession {
-    func dataTask(with url: URL, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
-        let task: URLSessionDataTask = dataTask(with: url, completionHandler: completionHandler)
+    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
+        let task: URLSessionDataTask = dataTask(with: request, completionHandler: completionHandler)
         return task
+    }
+}
+
+private extension NetworkRequest {
+    var httpRequest: URLRequest {
+        let request = NSMutableURLRequest(url: url)
+        request.allHTTPHeaderFields = allHTTPHeaderFields
+        request.httpMethod = httpMethod
+        request.httpBody = httpBody
+        return request as URLRequest
     }
 }
