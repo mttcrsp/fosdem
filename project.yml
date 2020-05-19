@@ -3,6 +3,9 @@ packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift
     version: 4.9.0
+  CrashReporter:
+    url: https://github.com/microsoft/plcrashreporter
+    branch: master
 options:
   createIntermediateGroups: true
   bundleIdPrefix: com.mttcrsp.fosdem
@@ -24,6 +27,7 @@ targets:
           randomExecutionOrder: true
     dependencies:
     - package: GRDB
+    - package: CrashReporter
     postbuildScripts:
     - script: swiftformat .
     settings:
