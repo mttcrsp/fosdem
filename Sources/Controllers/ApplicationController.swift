@@ -52,6 +52,14 @@ final class ApplicationController: UITabBarController {
         services.scheduleService.startUpdating()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if let crashService = services.crashService, crashService.hasPendingReport {
+            present(makeCrashViewController(), animated: true)
+        }
+    }
+
     func applicationDidBecomeActive() {
         services.liveService.startMonitoring()
         services.scheduleService.startUpdating()
@@ -59,6 +67,21 @@ final class ApplicationController: UITabBarController {
 
     func applicationWillResignActive() {
         services.liveService.stopMonitoring()
+    }
+
+    private func didTapConfirmReport() {
+        services.crashService?.uploadReport()
+        services.crashService?.purgeReport()
+    }
+
+    private func didTapDismissReport() {
+        services.crashService?.purgeReport()
+    }
+
+    private func didTapUpdate() {
+        if let url = URL.fosdemAppStore {
+            UIApplication.shared.open(url)
+        }
     }
 
     @objc private func didSelectPrevTab(_: Any) {
@@ -107,19 +130,16 @@ private extension ApplicationController {
         return moreController
     }
 
-    func makeUpdateViewController(withHandler handler: @escaping () -> Void) -> UIAlertController {
-        let dismissTitle = NSLocalizedString("update.dismiss", comment: "")
-        let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
+    func makeUpdateViewController() -> UIAlertController {
+        UIAlertController.makeConfirmController(with: .update) { [weak self] in
+            self?.didTapUpdate()
+        }
+    }
 
-        let confirmTitle = NSLocalizedString("update.confirm", comment: "")
-        let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { _ in handler() }
-
-        let alertTitle = NSLocalizedString("update.title", comment: "")
-        let alertMessage = NSLocalizedString("update.message", comment: "")
-        let alertController = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
-        alertController.addAction(confirmAction)
-        alertController.addAction(dismissAction)
-        return alertController
+    func makeCrashViewController() -> UIAlertController {
+        let dismissHandler: () -> Void = { [weak self] in self?.didTapDismissReport() }
+        let confirmHandler: () -> Void = { [weak self] in self?.didTapConfirmReport() }
+        return UIAlertController.makeConfirmController(with: .crash, dismissHandler: dismissHandler, confirmHandler: confirmHandler)
     }
 }
 
@@ -150,17 +170,10 @@ extension ApplicationController: MapControllerDelegate {
 extension ApplicationController: UpdateServiceDelegate {
     func updateServiceDidDetectUpdate(_: UpdateService) {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-
-            let updateHandler: () -> Void = { [weak self] in self?.didTapUpdate() }
-            let updateViewController = self.makeUpdateViewController(withHandler: updateHandler)
-            self.present(updateViewController, animated: true)
-        }
-    }
-
-    private func didTapUpdate() {
-        if let url = URL.fosdemAppStore {
-            UIApplication.shared.open(url)
+            if let self = self {
+                let updateViewController = self.makeUpdateViewController()
+                self.present(updateViewController, animated: true)
+            }
         }
     }
 }
@@ -174,4 +187,24 @@ private extension UserDefaults {
 
 private extension String {
     static var selectedViewControllerKey: String { #function }
+}
+
+private extension UIAlertController.ConfirmConfiguration {
+    static var update: UIAlertController.ConfirmConfiguration {
+        UIAlertController.ConfirmConfiguration(
+            title: NSLocalizedString("update.title", comment: ""),
+            message: NSLocalizedString("update.message", comment: ""),
+            confirm: NSLocalizedString("update.confirm", comment: ""),
+            dismiss: NSLocalizedString("update.dismiss", comment: "")
+        )
+    }
+
+    static var crash: UIAlertController.ConfirmConfiguration {
+        UIAlertController.ConfirmConfiguration(
+            title: NSLocalizedString("crash.title", comment: ""),
+            message: NSLocalizedString("crash.message", comment: ""),
+            confirm: NSLocalizedString("crash.confirm", comment: ""),
+            dismiss: NSLocalizedString("crash.dismiss", comment: "")
+        )
+    }
 }

@@ -94,6 +94,12 @@
 "update.dismiss" = "Cancel";
 "update.confirm" = "Update";
 
+/// MARK: - Crash
+"crash.title" = "Report issue";
+"crash.message" = "Looks like the application crashed during your last session. Sorry about that. Do you want to report the crash?";
+"crash.dismiss" = "Cancel";
+"crash.confirm" = "Report";
+
 /// MARK: - Error
 "error.functionality.title" = "Ooops, something went wrong!";
 "error.functionality.message" = "Try again later or check the AppStore for updates.";
