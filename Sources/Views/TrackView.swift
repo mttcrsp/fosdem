@@ -26,6 +26,7 @@ final class TrackView: UIView {
 
         label.font = .fos_preferredFont(forTextStyle: .callout)
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.adjustsFontForContentSizeCategory = true
 
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),

@@ -36,6 +36,7 @@ final class EventView: UIStackView {
 
         let titleLabel = UILabel()
         titleLabel.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.text = event.title
         titleLabel.numberOfLines = 0
         addArrangedSubview(titleLabel)
@@ -58,6 +59,7 @@ final class EventView: UIStackView {
             let videoButton = RoundedButton()
             videoButton.accessibilityLabel = NSLocalizedString("event.video.accessibility", comment: "")
             videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
+            videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
             videoButton.setTitle(videoTitle, for: .normal)
             addArrangedSubview(videoButton)
 
@@ -103,6 +105,7 @@ final class EventView: UIStackView {
         if let subtitle = event.subtitle {
             let subtitleLabel = UILabel()
             subtitleLabel.font = .fos_preferredFont(forTextStyle: .headline)
+            subtitleLabel.adjustsFontForContentSizeCategory = true
             subtitleLabel.numberOfLines = 0
             subtitleLabel.text = subtitle
             addArrangedSubview(subtitleLabel)
@@ -111,6 +114,7 @@ final class EventView: UIStackView {
         if let abstract = event.formattedAbstract {
             let abstractLabel = UILabel()
             abstractLabel.font = .fos_preferredFont(forTextStyle: .body)
+            abstractLabel.adjustsFontForContentSizeCategory = true
             abstractLabel.numberOfLines = 0
             abstractLabel.text = abstract
             addArrangedSubview(abstractLabel)
@@ -119,6 +123,7 @@ final class EventView: UIStackView {
         if let summary = event.formattedSummary {
             let summaryLabel = UILabel()
             summaryLabel.font = .fos_preferredFont(forTextStyle: .body)
+            summaryLabel.adjustsFontForContentSizeCategory = true
             summaryLabel.numberOfLines = 0
             summaryLabel.text = summary
             addArrangedSubview(summaryLabel)
@@ -130,6 +135,7 @@ final class EventView: UIStackView {
             let attachmentsLabel = UILabel()
             attachmentsLabel.text = NSLocalizedString("event.attachments", comment: "")
             attachmentsLabel.font = .fos_preferredFont(forTextStyle: .headline)
+            attachmentsLabel.adjustsFontForContentSizeCategory = true
             attachmentsLabel.numberOfLines = 0
             addArrangedSubview(attachmentsLabel)
 

@@ -8,6 +8,10 @@ final class TextViewController: UIViewController {
 
     private lazy var textView = UITextView()
 
+    private var preferredFont: UIFont {
+        .fos_preferredFont(forTextStyle: .body)
+    }
+
     override func loadView() {
         view = textView
     }
@@ -29,5 +33,13 @@ final class TextViewController: UIViewController {
         textView.textContainerInset.bottom = verticalInset
         textView.textContainerInset.left = horizontalInset
         textView.textContainerInset.right = horizontalInset
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            textView.font = .fos_preferredFont(forTextStyle: .body)
+        }
     }
 }

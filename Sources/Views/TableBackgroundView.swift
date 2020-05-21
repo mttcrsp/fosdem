@@ -21,6 +21,7 @@ final class TableBackgroundView: UIView {
             label.numberOfLines = 0
             label.textColor = .fos_label
             label.textAlignment = .center
+            label.adjustsFontForContentSizeCategory = true
         }
 
         titleLabel.font = .fos_preferredFont(forTextStyle: .title2, withSymbolicTraits: .traitBold)

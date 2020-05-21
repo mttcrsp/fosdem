@@ -12,6 +12,7 @@ final class EventAttachmentView: UIControl {
         super.init(frame: frame)
 
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         label.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
 
         imageView.contentMode = .center

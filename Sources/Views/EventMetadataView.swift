@@ -18,6 +18,7 @@ final class EventMetadataView: UIView {
         super.init(frame: frame)
 
         label.numberOfLines = 0
+        label.adjustsFontForContentSizeCategory = true
         label.font = .fos_preferredFont(forTextStyle: .subheadline)
 
         for subview in [imageView, label] {
