@@ -14,5 +14,9 @@
   {
     "name": "Periphery",
     "url": "https://github.com/peripheryapp/periphery"
+  },
+  {
+    "name": "PLCrashReporter",
+    "url": "https://github.com/microsoft/PLCrashReporter"
   }
 ]
