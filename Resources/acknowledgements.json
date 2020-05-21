@@ -4,19 +4,19 @@
     "url": "https://github.com/groue/GRDB.swift"
   },
   {
-    "name": "SwiftFormat",
-    "url": "https://github.com/nicklockwood/SwiftFormat"
-  },
-  {
-    "name": "XcodeGen",
-    "url": "https://github.com/yonaskolb/XcodeGen"
-  },
-  {
     "name": "Periphery",
     "url": "https://github.com/peripheryapp/periphery"
   },
   {
     "name": "PLCrashReporter",
     "url": "https://github.com/microsoft/PLCrashReporter"
+  },
+  {
+    "name": "SwiftFormat",
+    "url": "https://github.com/nicklockwood/SwiftFormat"
+  },
+  {
+    "name": "XcodeGen",
+    "url": "https://github.com/yonaskolb/XcodeGen"
   }
 ]
