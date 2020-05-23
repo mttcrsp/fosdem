@@ -15,16 +15,20 @@ final class YearController: TracksViewController {
     private var events: [Event] = []
 
     private let year: String
-    private let persistenceService: PersistenceService
+    private let services: Services
 
-    init(year: String, persistenceService: PersistenceService) {
+    init(year: String, services: Services) {
         self.year = year
-        self.persistenceService = persistenceService
+        self.services = services
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private var persistenceService: PersistenceService {
+        services.persistenceService
     }
 
     override func viewDidLoad() {
@@ -170,6 +174,8 @@ private extension YearController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        EventController(event: event)
+        let eventViewController = EventController(event: event, services: services)
+        eventViewController.showsFavoriteButton = false
+        return eventViewController
     }
 }

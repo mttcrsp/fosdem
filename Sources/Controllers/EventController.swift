@@ -2,17 +2,21 @@ import AVKit
 import SafariServices
 
 final class EventController: UIViewController {
+    var showsFavoriteButton = true {
+        didSet { didChangeShowsFavoriteButton() }
+    }
+
     private weak var eventViewController: EventViewController?
 
     private var favoritesObserver: NSObjectProtocol?
 
-    private let favoritesService: FavoritesService?
+    private let services: Services
 
     let event: Event
 
-    init(event: Event, favoritesService: FavoritesService? = nil) {
+    init(event: Event, services: Services) {
         self.event = event
-        self.favoritesService = favoritesService
+        self.services = services
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -22,12 +26,16 @@ final class EventController: UIViewController {
 
     deinit {
         if let observer = favoritesObserver {
-            favoritesService?.removeObserver(observer)
+            favoritesService.removeObserver(observer)
         }
     }
 
+    private var favoritesService: FavoritesService {
+        services.favoritesService
+    }
+
     private var isEventFavorite: Bool {
-        favoritesService?.contains(event) ?? false
+        favoritesService.contains(event)
     }
 
     private var favoriteTitle: String {
@@ -39,24 +47,16 @@ final class EventController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if #available(iOS 11.0, *) {
+            navigationItem.largeTitleDisplayMode = .never
+        }
+
         let eventViewController = makeEventViewController(for: event)
         addChild(eventViewController)
         view.addSubview(eventViewController.view)
         eventViewController.didMove(toParent: self)
 
-        if #available(iOS 11.0, *) {
-            navigationItem.largeTitleDisplayMode = .never
-        }
-
-        guard let favoritesService = favoritesService else { return }
-
-        let favoriteAction = #selector(didToggleFavorite)
-        let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
-        navigationItem.rightBarButtonItem = favoriteButton
-
-        favoritesObserver = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
-            favoriteButton?.title = self?.favoriteTitle
-        }
+        didChangeShowsFavoriteButton()
     }
 
     override func viewDidLayoutSubviews() {
@@ -66,10 +66,39 @@ final class EventController: UIViewController {
 
     @objc private func didToggleFavorite() {
         if isEventFavorite {
-            favoritesService?.removeEvent(withIdentifier: event.id)
+            favoritesService.removeEvent(withIdentifier: event.id)
         } else {
-            favoritesService?.addEvent(withIdentifier: event.id)
+            favoritesService.addEvent(withIdentifier: event.id)
         }
+    }
+
+    private func didChangeShowsFavoriteButton() {
+        guard isViewLoaded else { return }
+
+        if showsFavoriteButton {
+            showFavoriteButton()
+        } else {
+            hideFavoriteButton()
+        }
+    }
+
+    private func showFavoriteButton() {
+        let favoriteAction = #selector(didToggleFavorite)
+        let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
+        navigationItem.rightBarButtonItem = favoriteButton
+
+        favoritesObserver = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
+            favoriteButton?.title = self?.favoriteTitle
+        }
+    }
+
+    private func hideFavoriteButton() {
+        if let observer = favoritesObserver {
+            favoritesService.removeObserver(observer)
+            favoritesObserver = nil
+        }
+
+        navigationItem.rightBarButtonItem = nil
     }
 }
 

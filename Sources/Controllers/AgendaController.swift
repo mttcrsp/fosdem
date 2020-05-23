@@ -283,7 +283,7 @@ private extension AgendaController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        let eventViewController = EventController(event: event, favoritesService: favoritesService)
+        let eventViewController = EventController(event: event, services: services)
         self.eventViewController = eventViewController
         return eventViewController
     }

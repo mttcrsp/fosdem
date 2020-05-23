@@ -372,7 +372,7 @@ private extension SearchController {
     }
 
     func makeEventViewController(for event: Event) -> EventController {
-        EventController(event: event, favoritesService: favoritesService)
+        EventController(event: event, services: services)
     }
 }
 
