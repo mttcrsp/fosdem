@@ -54,10 +54,6 @@ final class MapViewController: UIViewController {
             view.addSubview(resetButton)
         }
 
-        let tapAction = #selector(didTapMap(_:))
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: tapAction)
-        mapView.addGestureRecognizer(tapRecognizer)
-
         let locationAction = #selector(didTapLocation)
         let locationTitle = NSLocalizedString("map.location", comment: "")
         locationButton.setTitle(locationTitle, for: .normal)
@@ -204,21 +200,6 @@ final class MapViewController: UIViewController {
 
     @objc private func didTapLocation() {
         delegate?.mapViewControllerDidTapLocation(self)
-    }
-
-    @objc private func didTapMap(_ recognizer: UITapGestureRecognizer) {
-        guard canSelectBuilding else { return }
-
-        let location = recognizer.location(in: recognizer.view)
-        let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
-
-        let origin = MKMapPoint(coordinate)
-        let size = MKMapSize(width: .leastNonzeroMagnitude, height: .leastNonzeroMagnitude)
-        let rect = MKMapRect(origin: origin, size: size)
-
-        if let building = buildings.first(where: { building in building.polygon.intersects(rect) }) {
-            mapView.selectAnnotation(building, animated: true)
-        }
     }
 
     private func didChangeBuildings() {
