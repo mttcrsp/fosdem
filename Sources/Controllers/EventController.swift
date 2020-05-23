@@ -4,7 +4,7 @@ import SafariServices
 final class EventController: UIViewController {
     private weak var eventViewController: EventViewController?
 
-    private var observation: NSObjectProtocol?
+    private var favoritesObserver: NSObjectProtocol?
 
     private let favoritesService: FavoritesService?
 
@@ -18,6 +18,12 @@ final class EventController: UIViewController {
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    deinit {
+        if let observer = favoritesObserver {
+            favoritesService?.removeObserver(observer)
+        }
     }
 
     private var isEventFavorite: Bool {
@@ -48,7 +54,7 @@ final class EventController: UIViewController {
         let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
         navigationItem.rightBarButtonItem = favoriteButton
 
-        observation = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
+        favoritesObserver = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
             favoriteButton?.title = self?.favoriteTitle
         }
     }
