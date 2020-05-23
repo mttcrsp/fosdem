@@ -33,6 +33,10 @@ final class FavoritesService {
         notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil, using: { _ in handler() })
     }
 
+    func removeObserver(_ observer: NSObjectProtocol) {
+        notificationCenter.removeObserver(observer)
+    }
+
     func addTrack(withIdentifier trackID: String) {
         let (inserted, _) = tracksIdentifiers.insert(trackID)
         if inserted {
