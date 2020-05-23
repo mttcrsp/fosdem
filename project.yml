@@ -28,8 +28,6 @@ targets:
     dependencies:
     - package: GRDB
     - package: CrashReporter
-    prebuildScripts:
-    - script: [[ -z "${JSONBIN_SECRET_KEY}" ]] || sed -i "" "s|JSONBIN_SECRET_KEY|$JSONBIN_SECRET_KEY|" Sources/Models/Secret.swift
     postbuildScripts:
     - script: swiftformat .
     settings:
