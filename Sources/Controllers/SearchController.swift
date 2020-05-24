@@ -7,6 +7,7 @@ final class SearchController: UISplitViewController {
     private weak var searchController: UISearchController?
     private weak var filtersButton: UIBarButtonItem?
 
+    private var searchControllerRef: UISearchController?
     private var captions: [Event: String] = [:]
     private var events: [Event] = []
 
@@ -328,6 +329,16 @@ private extension SearchController {
         searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
         searchController.searchResultsUpdater = self
         self.searchController = searchController
+
+        if #available(iOS 11.0, *) {
+            // On iOS 10, UISearchController instances are not retained by their
+            // hosting view controller. You are responsible for retaining them
+            // in order prevent them from being deallocated before presentation
+            // occurs.
+        } else {
+            searchControllerRef = searchController
+        }
+
         return searchController
     }
 
