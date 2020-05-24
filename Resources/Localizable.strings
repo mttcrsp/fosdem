@@ -18,6 +18,8 @@
 "event.room" = "Room: %@";
 "event.weekday" = "on %@";
 "event.track" = "Track: %@";
+"event.add" = "Add to Agenda";
+"event.remove" = "Remove from Agenda";
 
 /// MARK: - Attachment
 "attachment.slides" = "Slides";

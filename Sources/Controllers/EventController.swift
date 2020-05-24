@@ -69,8 +69,8 @@ final class EventController: UIViewController {
 
     private var favoriteTitle: String {
         isEventFavorite
-            ? NSLocalizedString("unfavorite", comment: "")
-            : NSLocalizedString("favorite", comment: "")
+            ? NSLocalizedString("event.remove", comment: "")
+            : NSLocalizedString("event.add", comment: "")
     }
 
     override func viewDidLoad() {
