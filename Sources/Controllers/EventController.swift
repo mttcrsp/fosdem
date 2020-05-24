@@ -6,9 +6,12 @@ final class EventController: UIViewController {
         didSet { didChangeShowsFavoriteButton() }
     }
 
+    private weak var videoViewController: AVPlayerViewController?
     private weak var eventViewController: EventViewController?
 
     private var favoritesObserver: NSObjectProtocol?
+    private var finishObserver: NSObjectProtocol?
+    private var timeObserver: Any?
 
     private let services: Services
 
@@ -28,10 +31,36 @@ final class EventController: UIViewController {
         if let observer = favoritesObserver {
             favoritesService.removeObserver(observer)
         }
+
+        if let observer = timeObserver {
+            videoViewController?.player?.removeTimeObserver(observer)
+        }
+
+        if let observer = finishObserver {
+            notificationCenter.removeObserver(observer)
+        }
+
+        do {
+            try session.setActive(false)
+        } catch {
+            assertionFailure(error.localizedDescription)
+        }
     }
 
     private var favoritesService: FavoritesService {
         services.favoritesService
+    }
+
+    private var playbackService: PlaybackService {
+        services.playbackService
+    }
+
+    private var notificationCenter: NotificationCenter {
+        .default
+    }
+
+    private var session: AVAudioSession {
+        .sharedInstance()
     }
 
     private var isEventFavorite: Bool {
@@ -114,6 +143,44 @@ extension EventController: EventViewControllerDelegate {
         let attachmentViewController = makeAttachmentViewController(for: attachment)
         eventViewController.present(attachmentViewController, animated: true)
     }
+
+extension EventController: AVPlayerViewControllerDelegate {
+    func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
+        let event = self.event
+
+        do {
+            try session.setCategory(.playback)
+            try session.setActive(true)
+        } catch {
+            assertionFailure(error.localizedDescription)
+        }
+
+        let intervalScale = CMTimeScale(NSEC_PER_SEC)
+        let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
+        timeObserver = playerViewController.player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            self?.playbackService.setPlaybackPosition(.at(time), forEventWithIdentifier: event.id)
+        }
+
+        finishObserver = notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
+            self?.playbackService.setPlaybackPosition(.end, forEventWithIdentifier: event.id)
+        }
+
+        if case let .at(time) = playbackService.playbackPosition(forEventWithIdentifier: event.id) {
+            playerViewController.player?.seek(to: time)
+        }
+    }
+
+    func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
+        if let observer = timeObserver {
+            playerViewController.player?.removeTimeObserver(observer)
+            timeObserver = nil
+        }
+
+        if let observer = finishObserver {
+            notificationCenter.removeObserver(observer)
+            finishObserver = nil
+        }
+    }
 }
 
 private extension EventController {
@@ -127,29 +194,14 @@ private extension EventController {
 
     func makeVideoViewController(for url: URL) -> AVPlayerViewController {
         let videoViewController = AVPlayerViewController()
+        videoViewController.allowsPictureInPicturePlayback = true
         videoViewController.player = AVPlayer(url: url)
         videoViewController.player?.play()
-        videoViewController.allowsPictureInPicturePlayback = true
+        videoViewController.delegate = self
+        self.videoViewController = videoViewController
 
         if #available(iOS 11.0, *) {
             videoViewController.exitsFullScreenWhenPlaybackEnds = true
-        }
-
-        do {
-            let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playback)
-            try session.setActive(true)
-
-            let center = NotificationCenter.default
-            center.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { _ in
-                do {
-                    try session.setActive(false)
-                } catch {
-                    assertionFailure(error.localizedDescription)
-                }
-            }
-        } catch {
-            assertionFailure(error.localizedDescription)
         }
 
         return videoViewController

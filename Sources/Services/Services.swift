@@ -12,6 +12,7 @@ final class Services {
     let scheduleService: ScheduleService
     let buildingsService: BuildingsService
     let locationService = LocationService()
+    let playbackService = PlaybackService()
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService
     let acknowledgementsService = AcknowledgementsService()
