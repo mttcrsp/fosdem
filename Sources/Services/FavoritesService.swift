@@ -74,25 +74,29 @@ final class FavoritesService {
 
 private extension FavoritesServiceDefaults {
     var tracksIdentifiers: Set<String> {
-        get { value(forKey: .favoriteTracksKey) }
-        set { set(newValue, forKey: .favoriteTracksKey) }
+        get {
+            let object = value(forKey: .favoriteTracksKey)
+            let array = object as? [String] ?? []
+            return Set(array)
+        }
+        set {
+            let array = Array(newValue)
+            let arrayPlist = NSArray(array: array)
+            set(arrayPlist, forKey: .favoriteTracksKey)
+        }
     }
 
     var eventsIdentifiers: Set<Int> {
-        get { value(forKey: .favoriteEventsKey) }
-        set { set(newValue, forKey: .favoriteEventsKey) }
-    }
-
-    private func value<Value: Hashable>(forKey key: String) -> Set<Value> {
-        let object = value(forKey: key)
-        let array = object as? [Value] ?? []
-        return Set(array)
-    }
-
-    private func set<Value: Hashable>(_ value: Set<Value>, forKey defaultName: String) {
-        let array = Array(value)
-        let arrayPlist = NSArray(array: array)
-        set(arrayPlist, forKey: defaultName)
+        get {
+            let object = value(forKey: .favoriteEventsKey)
+            let array = object as? [Int] ?? []
+            return Set(array)
+        }
+        set {
+            let array = Array(newValue)
+            let arrayPlist = NSArray(array: array)
+            set(arrayPlist, forKey: .favoriteEventsKey)
+        }
     }
 }
 
