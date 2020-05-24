@@ -130,17 +130,61 @@ class TracksViewController: UITableViewController {
         let track = dataSource.tracksViewController(self, trackAt: indexPath)
 
         if favoritesDataSource.tracksViewController(self, canFavorite: track) {
-            return [.favorite { [weak self] _ in self?.didFavoriteTrack(track) }]
+            return [.favorite { [weak self] _ in self?.didFavorite(track) }]
         } else {
-            return [.unfavorite { [weak self] _ in self?.didUnfavoriteTrack(track) }]
+            return [.unfavorite { [weak self] _ in self?.didUnfavorite(track) }]
         }
     }
 
-    private func didFavoriteTrack(_ track: Track) {
+    @available(iOS 11.0, *)
+    override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard let dataSource = dataSource, let favoritesDataSource = favoritesDataSource else { return nil }
+
+        let track = dataSource.tracksViewController(self, trackAt: indexPath)
+
+        let actions: [UIContextualAction]
+        if favoritesDataSource.tracksViewController(self, canFavorite: track) {
+            actions = [makeFavoriteAction(for: track)]
+        } else {
+            actions = [makeUnfavoriteAction(for: track)]
+        }
+        return UISwipeActionsConfiguration(actions: actions)
+    }
+
+    @available(iOS 11.0, *)
+    private func makeFavoriteAction(for track: Track) -> UIContextualAction {
+        let handler: UIContextualAction.Handler = { [weak self] _, _, completionHandler in
+            self?.didFavorite(track)
+            completionHandler(true)
+        }
+
+        let actionImage = UIImage.fos_systemImage(withName: "star.fill")
+        let actionTitle = NSLocalizedString("favorite", comment: "")
+        let action = UIContextualAction(style: .normal, title: actionTitle, handler: handler)
+        action.backgroundColor = .systemBlue
+        action.image = actionImage
+        return action
+    }
+
+    @available(iOS 11.0, *)
+    private func makeUnfavoriteAction(for track: Track) -> UIContextualAction {
+        let handler: UIContextualAction.Handler = { [weak self] _, _, completionHandler in
+            self?.didUnfavorite(track)
+            completionHandler(true)
+        }
+
+        let actionImage = UIImage.fos_systemImage(withName: "star.slash.fill")
+        let actionTitle = NSLocalizedString("unfavorite", comment: "")
+        let action = UIContextualAction(style: .destructive, title: actionTitle, handler: handler)
+        action.image = actionImage
+        return action
+    }
+
+    private func didFavorite(_ track: Track) {
         favoritesDelegate?.tracksViewController(self, didFavorite: track)
     }
 
-    private func didUnfavoriteTrack(_ track: Track) {
+    private func didUnfavorite(_ track: Track) {
         favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
     }
 }
