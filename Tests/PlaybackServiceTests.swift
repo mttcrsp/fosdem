@@ -1,4 +1,3 @@
-import AVFoundation
 @testable
 import Fosdem
 import XCTest
@@ -15,53 +14,49 @@ final class PlaybackServiceTests: XCTestCase {
 
     func testSetPositionAt() {
         let identifier = 1
-        let timeScale = CMTimeScale(NSEC_PER_SEC)
-        let time = CMTime(seconds: 50, preferredTimescale: timeScale)
+        let position1 = PlaybackPosition.at(99)
 
         let userDefaults = PlaybackServiceDefaultsMock()
         let service = PlaybackService(userDefaults: userDefaults)
-        service.setPlaybackPosition(.at(time), forEventWithIdentifier: identifier)
+        service.setPlaybackPosition(position1, forEventWithIdentifier: identifier)
 
-        let position1 = service.playbackPosition(forEventWithIdentifier: identifier)
-        let position2 = PlaybackPosition.at(time)
+        let position2 = service.playbackPosition(forEventWithIdentifier: identifier)
         XCTAssertEqual(position1, position2)
     }
 
     func testSetPositionEnd() {
         let identifier = 1
+        let position1 = PlaybackPosition.end
+
         let userDefaults = PlaybackServiceDefaultsMock()
         let service = PlaybackService(userDefaults: userDefaults)
-        service.setPlaybackPosition(.end, forEventWithIdentifier: identifier)
+        service.setPlaybackPosition(position1, forEventWithIdentifier: identifier)
 
-        let position1 = service.playbackPosition(forEventWithIdentifier: identifier)
-        let position2 = PlaybackPosition.end
+        let position2 = service.playbackPosition(forEventWithIdentifier: identifier)
         XCTAssertEqual(position1, position2)
     }
 
     func testSetPositionMixed() {
         let identifier = 1
-        let timeScale = CMTimeScale(NSEC_PER_SEC)
-        let time1 = CMTime(seconds: 50, preferredTimescale: timeScale)
-        let time2 = CMTime(seconds: 99, preferredTimescale: timeScale)
+        let position1 = PlaybackPosition.at(50)
+        let position2 = PlaybackPosition.end
+        let position3 = PlaybackPosition.at(99)
 
         let userDefaults = PlaybackServiceDefaultsMock()
         let service = PlaybackService(userDefaults: userDefaults)
-        service.setPlaybackPosition(.at(time1), forEventWithIdentifier: identifier)
+        service.setPlaybackPosition(position1, forEventWithIdentifier: identifier)
 
-        let position1 = service.playbackPosition(forEventWithIdentifier: identifier)
-        let position2 = PlaybackPosition.at(time1)
-        XCTAssertEqual(position1, position2)
+        let position4 = service.playbackPosition(forEventWithIdentifier: identifier)
+        XCTAssertEqual(position1, position4)
 
-        service.setPlaybackPosition(.end, forEventWithIdentifier: identifier)
-
-        let position3 = service.playbackPosition(forEventWithIdentifier: identifier)
-        let position4 = PlaybackPosition.end
-        XCTAssertEqual(position3, position4)
-
-        service.setPlaybackPosition(.at(time2), forEventWithIdentifier: identifier)
+        service.setPlaybackPosition(position2, forEventWithIdentifier: identifier)
 
         let position5 = service.playbackPosition(forEventWithIdentifier: identifier)
-        let position6 = PlaybackPosition.at(time2)
-        XCTAssertEqual(position5, position6)
+        XCTAssertEqual(position2, position5)
+
+        service.setPlaybackPosition(position3, forEventWithIdentifier: identifier)
+
+        let position6 = service.playbackPosition(forEventWithIdentifier: identifier)
+        XCTAssertEqual(position3, position6)
     }
 }

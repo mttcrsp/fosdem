@@ -3,6 +3,14 @@ import Fosdem
 import XCTest
 
 final class CrashServiceTests: XCTestCase {
+    func testInit() {
+        let networkService = CrashServiceNetworkMock()
+        let reporter = CrashServiceReporterMock(canEnable: false, canPurge: false, hasReport: false, loadReportData: nil)
+        let service = CrashService(networkService: networkService, reporter: reporter, secretKey: "key")
+
+        XCTAssertNil(service)
+    }
+
     func testUploadReport() {
         let networkService = CrashServiceNetworkMock()
         let reporterData = Data(repeating: 1, count: 10)

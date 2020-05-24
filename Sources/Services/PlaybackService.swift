@@ -1,8 +1,8 @@
-import AVFoundation
+import Foundation
 
 enum PlaybackPosition: Equatable {
     case beginning
-    case at(CMTime)
+    case at(Double)
     case end
 }
 
@@ -34,9 +34,9 @@ final class PlaybackService {
         switch position {
         case .beginning:
             break
-        case let .at(time):
+        case let .at(seconds):
             watched.remove(identifier)
-            watching.updateValue(time.seconds, forKey: identifier.description)
+            watching.updateValue(seconds, forKey: identifier.description)
         case .end:
             watched.insert(identifier)
             watching.removeValue(forKey: identifier.description)
@@ -49,9 +49,7 @@ final class PlaybackService {
         }
 
         if let seconds = watching[identifier.description] {
-            let timeScale = CMTimeScale(NSEC_PER_SEC)
-            let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
-            return .at(time)
+            return .at(seconds)
         }
 
         return .beginning

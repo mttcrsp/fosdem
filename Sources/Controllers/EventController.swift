@@ -163,7 +163,7 @@ extension EventController: AVPlayerViewControllerDelegate {
         let intervalScale = CMTimeScale(NSEC_PER_SEC)
         let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
         timeObserver = playerViewController.player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-            self?.playbackService.setPlaybackPosition(.at(time), forEventWithIdentifier: event.id)
+            self?.playbackService.setPlaybackPosition(.at(time.seconds), forEventWithIdentifier: event.id)
             self?.eventViewController?.reloadPlaybackPosition()
         }
 
@@ -172,7 +172,9 @@ extension EventController: AVPlayerViewControllerDelegate {
             self?.eventViewController?.reloadPlaybackPosition()
         }
 
-        if case let .at(time) = playbackService.playbackPosition(forEventWithIdentifier: event.id) {
+        if case let .at(seconds) = playbackService.playbackPosition(forEventWithIdentifier: event.id) {
+            let timeScale = CMTimeScale(NSEC_PER_SEC)
+            let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
             playerViewController.player?.seek(to: time)
         }
     }
