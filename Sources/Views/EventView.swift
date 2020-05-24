@@ -5,8 +5,17 @@ protocol EventViewDelegate: AnyObject {
     func eventView(_ eventView: EventView, didSelect attachment: Attachment)
 }
 
+protocol EventViewDataSource: AnyObject {
+    func eventView(_ eventView: EventView, playbackPositionFor event: Event) -> PlaybackPosition
+}
+
 final class EventView: UIStackView {
     weak var delegate: EventViewDelegate?
+    weak var dataSource: EventViewDataSource? {
+        didSet { reloadPlaybackPosition() }
+    }
+
+    private weak var videoButton: RoundedButton?
 
     var event: Event? {
         didSet { didChangeEvent() }
@@ -22,6 +31,13 @@ final class EventView: UIStackView {
 
     required init(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func reloadPlaybackPosition() {
+        if let event = event {
+            let videoTitle = makeVideoTitle(for: event)
+            videoButton?.setTitle(videoTitle, for: .normal)
+        }
     }
 
     private func didChangeEvent() {
@@ -54,13 +70,14 @@ final class EventView: UIStackView {
         }
 
         if event.video != nil {
-            let videoTitle = NSLocalizedString("event.video", comment: "")
+            let videoTitle = makeVideoTitle(for: event)
             let videoAction = #selector(didTapVideo)
             let videoButton = RoundedButton()
             videoButton.accessibilityLabel = NSLocalizedString("event.video.accessibility", comment: "")
             videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
             videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
             videoButton.setTitle(videoTitle, for: .normal)
+            self.videoButton = videoButton
             addArrangedSubview(videoButton)
 
             constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
@@ -165,6 +182,15 @@ final class EventView: UIStackView {
     @objc private func didTapAttachment(_ attachmentView: EventAttachmentView) {
         if let attachment = attachmentView.attachment {
             delegate?.eventView(self, didSelect: attachment)
+        }
+    }
+
+    private func makeVideoTitle(for event: Event) -> String {
+        let position = dataSource?.eventView(self, playbackPositionFor: event)
+        switch position ?? .beginning {
+        case .beginning: return NSLocalizedString("event.video.begin", comment: "")
+        case .end: return NSLocalizedString("event.video.end", comment: "")
+        case .at: return NSLocalizedString("event.video.at", comment: "")
         }
     }
 

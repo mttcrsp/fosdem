@@ -5,13 +5,22 @@ protocol EventViewControllerDelegate: AnyObject {
     func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
 
+protocol EventViewControllerDataSource: AnyObject {
+    func eventViewController(_ eventViewController: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition
+}
+
 final class EventViewController: UIViewController {
     weak var delegate: EventViewControllerDelegate?
+    weak var dataSource: EventViewControllerDataSource?
 
     var event: Event?
 
     private lazy var eventView = EventView()
     private lazy var scrollView = UIScrollView()
+
+    func reloadPlaybackPosition() {
+        eventView.reloadPlaybackPosition()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +39,7 @@ final class EventViewController: UIViewController {
 
         eventView.event = event
         eventView.delegate = self
+        eventView.dataSource = self
         eventView.translatesAutoresizingMaskIntoConstraints = false
 
         let widthConstraint = eventView.widthAnchor.constraint(equalTo: view.widthAnchor)
@@ -52,12 +62,16 @@ final class EventViewController: UIViewController {
     }
 }
 
-extension EventViewController: EventViewDelegate {
+extension EventViewController: EventViewDelegate, EventViewDataSource {
     func eventViewDidTapVideo(_: EventView) {
         delegate?.eventViewControllerDidTapVideo(self)
     }
 
     func eventView(_: EventView, didSelect attachment: Attachment) {
         delegate?.eventViewController(self, didSelect: attachment)
+    }
+
+    func eventView(_: EventView, playbackPositionFor event: Event) -> PlaybackPosition {
+        dataSource?.eventViewController(self, playbackPositionFor: event) ?? .beginning
     }
 }

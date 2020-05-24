@@ -131,7 +131,7 @@ final class EventController: UIViewController {
     }
 }
 
-extension EventController: EventViewControllerDelegate {
+extension EventController: EventViewControllerDelegate, EventViewControllerDataSource {
     func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
         guard let video = event.video, let url = video.url else { return }
 
@@ -143,6 +143,11 @@ extension EventController: EventViewControllerDelegate {
         let attachmentViewController = makeAttachmentViewController(for: attachment)
         eventViewController.present(attachmentViewController, animated: true)
     }
+
+    func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
+        playbackService.playbackPosition(forEventWithIdentifier: event.id)
+    }
+}
 
 extension EventController: AVPlayerViewControllerDelegate {
     func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
@@ -159,10 +164,12 @@ extension EventController: AVPlayerViewControllerDelegate {
         let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
         timeObserver = playerViewController.player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             self?.playbackService.setPlaybackPosition(.at(time), forEventWithIdentifier: event.id)
+            self?.eventViewController?.reloadPlaybackPosition()
         }
 
         finishObserver = notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
             self?.playbackService.setPlaybackPosition(.end, forEventWithIdentifier: event.id)
+            self?.eventViewController?.reloadPlaybackPosition()
         }
 
         if case let .at(time) = playbackService.playbackPosition(forEventWithIdentifier: event.id) {
@@ -186,6 +193,7 @@ extension EventController: AVPlayerViewControllerDelegate {
 private extension EventController {
     func makeEventViewController(for event: Event) -> EventViewController {
         let eventViewController = EventViewController()
+        eventViewController.dataSource = self
         eventViewController.delegate = self
         eventViewController.event = event
         self.eventViewController = eventViewController

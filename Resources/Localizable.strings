@@ -9,7 +9,9 @@
 "agenda.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
 
 /// MARK: - Event
-"event.video" = "Watch now";
+"event.video.begin" = "Watch now";
+"event.video.at" = "Resume playback";
+"event.video.end" = "Watch again";
 "event.video.accessibility" = "Play recording";
 "event.attachments" = "Attachments";
 "event.people" = "Speakers: %@";
