@@ -53,7 +53,9 @@ class TracksViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        tableView.estimatedRowHeight = 44
         tableView.tableFooterView = UIView()
+        tableView.rowHeight = UITableView.automaticDimension
         tableView.showsVerticalScrollIndicator = indexDataSource == nil
         tableView.sectionHeaderHeight = indexDataSource == nil ? 0 : UITableView.automaticDimension
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
