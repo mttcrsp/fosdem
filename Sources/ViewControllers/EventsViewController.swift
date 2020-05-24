@@ -126,6 +126,50 @@ final class EventsViewController: UITableViewController {
         }
     }
 
+    @available(iOS 11.0, *)
+    override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard let favoritesDataSource = favoritesDataSource else { return nil }
+
+        let event = self.event(forSection: indexPath.section)
+
+        let actions: [UIContextualAction]
+        if favoritesDataSource.eventsViewController(self, canFavorite: event) {
+            actions = [makeFavoriteAction(for: event)]
+        } else {
+            actions = [makeUnfavoriteAction(for: event)]
+        }
+        return UISwipeActionsConfiguration(actions: actions)
+    }
+
+    @available(iOS 11.0, *)
+    private func makeFavoriteAction(for event: Event) -> UIContextualAction {
+        let handler: UIContextualAction.Handler = { [weak self] _, _, completionHandler in
+            self?.didFavorite(event)
+            completionHandler(true)
+        }
+
+        let actionTitle = NSLocalizedString("event.add", comment: "")
+        let actionImage = UIImage.fos_systemImage(withName: "calendar.badge.plus")
+        let action = UIContextualAction(style: .normal, title: actionTitle, handler: handler)
+        action.backgroundColor = .systemBlue
+        action.image = actionImage
+        return action
+    }
+
+    @available(iOS 11.0, *)
+    private func makeUnfavoriteAction(for event: Event) -> UIContextualAction {
+        let handler: UIContextualAction.Handler = { [weak self] _, _, completionHandler in
+            self?.didUnfavorite(event)
+            completionHandler(true)
+        }
+
+        let actionTitle = NSLocalizedString("event.remove", comment: "")
+        let actionImage = UIImage.fos_systemImage(withName: "calendar.badge.minus")
+        let action = UIContextualAction(style: .destructive, title: actionTitle, handler: handler)
+        action.image = actionImage
+        return action
+    }
+
     private func didFavorite(_ event: Event) {
         favoritesDelegate?.eventsViewController(self, didFavorite: event)
     }
