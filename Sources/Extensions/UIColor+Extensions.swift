@@ -21,7 +21,7 @@ extension UIColor {
         if #available(iOS 13.0, *) {
             return .secondaryLabel
         } else {
-            return UIColor(red: 60 / 255, green: 60 / 255, blue: 67 / 255, alpha: 60 / 255)
+            return UIColor(red: 60 / 255, green: 60 / 255, blue: 67 / 255, alpha: 0.6)
         }
     }
 }
