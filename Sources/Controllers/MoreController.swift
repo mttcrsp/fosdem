@@ -28,9 +28,18 @@ final class MoreController: UISplitViewController {
         }
 
         viewControllers = [moreNavigationController]
+        if traitCollection.horizontalSizeClass == .regular {
+            showInfoViewController(withTitle: MoreItem.history.title, for: .history)
+        }
+    }
 
-        if traitCollection.horizontalSizeClass == .regular, let section = MoreSection.allCases.first, let item = section.items.first, let info = item.info {
-            showInfoViewController(withTitle: item.title, for: info)
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
+            if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
+                showInfoViewController(withTitle: MoreItem.history.title, for: .history)
+            }
         }
     }
 }
