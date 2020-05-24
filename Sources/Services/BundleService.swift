@@ -38,10 +38,6 @@ final class BundleServiceData: BundleServiceDataProvider {
 }
 
 extension BundleService.Error {
-    var localizedDescription: String {
-        "Unable to locate the requested resource"
-    }
-
     static var errorDomain: String {
         "com.mttcrsp.fosdem.\(String(describing: BundleService.self))"
     }
