@@ -53,6 +53,7 @@ private extension UITableViewCell {
         let format = NSLocalizedString("years.year", comment: "")
         let string = String(format: format, year)
         textLabel?.text = string
+        textLabel?.font = .fos_preferredFont(forTextStyle: .body)
 
         if #available(iOS 13.0, *), let number = Int(year) {
             imageView?.image = UIImage(systemName: "\(number % 2000).circle.fill")

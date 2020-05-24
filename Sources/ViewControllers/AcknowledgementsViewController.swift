@@ -46,5 +46,6 @@ private extension UITableViewCell {
     func configure(with acknowledgement: Acknowledgement) {
         accessoryType = .disclosureIndicator
         textLabel?.text = acknowledgement.name
+        textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     }
 }

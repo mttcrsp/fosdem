@@ -195,6 +195,7 @@ private extension UITableViewCell {
     func configure(with track: Track) {
         textLabel?.numberOfLines = 0
         textLabel?.text = track.name
+        textLabel?.font = .fos_preferredFont(forTextStyle: .body)
         accessoryType = .disclosureIndicator
     }
 }

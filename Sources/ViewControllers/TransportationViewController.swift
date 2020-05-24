@@ -54,8 +54,9 @@ final class TransportationViewController: UITableViewController {
 
 private extension UITableViewCell {
     func configure(with item: TransportationViewController.Item) {
-        accessoryType = item.accessoryType
         textLabel?.text = item.title
+        textLabel?.font = .fos_preferredFont(forTextStyle: .body)
+        accessoryType = item.accessoryType
     }
 }
 
