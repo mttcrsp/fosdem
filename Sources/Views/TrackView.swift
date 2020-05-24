@@ -29,10 +29,10 @@ final class TrackView: UIView {
         label.adjustsFontForContentSizeCategory = true
 
         NSLayoutConstraint.activate([
-            label.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
-            label.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
-            label.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            label.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
         ])
     }
 
