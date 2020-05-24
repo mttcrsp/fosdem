@@ -78,8 +78,7 @@ extension URLSessionDataTask: NetworkServiceTask {}
 
 extension URLSession: NetworkServiceSession {
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
-        let task: URLSessionDataTask = dataTask(with: request, completionHandler: completionHandler)
-        return task
+        dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
     }
 }
 

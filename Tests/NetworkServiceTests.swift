@@ -3,9 +3,35 @@ import Fosdem
 import XCTest
 
 final class NetworkServiceTests: XCTestCase {
-    func testPerform() {
+    func testPerformSimpleRequest() {
+        let request = SimpleRequest()
+        let dataTask = NetworkServiceTaskMock()
+        let session = NetworkServiceSessionMock(dataTask: dataTask)
+        let service = NetworkService(session: session)
+
+        var didExecuteCompletion = false
+        service.perform(request) { result in
+            didExecuteCompletion = true
+
+            if case let .failure(error) = result {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        XCTAssertTrue(dataTask.didResume)
+        XCTAssertNil(session.request?.httpBody)
+        XCTAssertEqual(session.request?.url, request.url)
+        XCTAssertEqual(session.request?.httpMethod, "GET")
+        XCTAssertEqual(session.request?.allHTTPHeaderFields, [:])
+        XCTAssertNotNil(session.completionHandler)
+
+        session.completionHandler?(Data(), nil, nil)
+        XCTAssertTrue(didExecuteCompletion)
+    }
+
+    func testPerformAdvancedRequest() {
         let integer = 99
-        let request = Request()
+        let request = AdvancedRequest()
         let dataTask = NetworkServiceTaskMock()
         let session = NetworkServiceSessionMock(dataTask: dataTask)
         let service = NetworkService(session: session)
@@ -42,7 +68,7 @@ final class NetworkServiceTests: XCTestCase {
 
     func testPerformError() {
         let error = NSError(domain: "test", code: 1)
-        let request = Request()
+        let request = AdvancedRequest()
         let dataTask = NetworkServiceTaskMock()
         let session = NetworkServiceSessionMock(dataTask: dataTask)
         let service = NetworkService(session: session)
@@ -65,7 +91,7 @@ final class NetworkServiceTests: XCTestCase {
     }
 
     func testPerformDecodingError() {
-        let request = Request()
+        let request = AdvancedRequest()
         let dataTask = NetworkServiceTaskMock()
         let session = NetworkServiceSessionMock(dataTask: dataTask)
         let service = NetworkService(session: session)
@@ -87,7 +113,15 @@ final class NetworkServiceTests: XCTestCase {
         XCTAssertTrue(didExecuteCompletion)
     }
 
-    private struct Request: NetworkRequest {
+    private struct SimpleRequest: NetworkRequest {
+        var url: URL {
+            URL(string: "https://www.fosdem.org")!
+        }
+
+        func decode(_: Data) throws {}
+    }
+
+    private struct AdvancedRequest: NetworkRequest {
         var url: URL {
             URL(string: "https://www.fosdem.org")!
         }
