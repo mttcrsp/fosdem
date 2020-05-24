@@ -36,6 +36,7 @@ final class YearController: TracksViewController {
 
         delegate = self
         dataSource = self
+        definesPresentationContext = true
         addSearchViewController(makeSearchController())
 
         persistenceService.performRead(AllTracksOrderedByName()) { result in

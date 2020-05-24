@@ -290,6 +290,7 @@ private extension SearchController {
         tracksViewController.title = NSLocalizedString("search.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
         tracksViewController.addSearchViewController(makeSearchController())
+        tracksViewController.definesPresentationContext = true
         tracksViewController.favoritesDataSource = self
         tracksViewController.favoritesDelegate = self
         tracksViewController.indexDataSource = self
