@@ -29,7 +29,7 @@ final class MoreController: UISplitViewController {
 
         viewControllers = [moreNavigationController]
         if traitCollection.horizontalSizeClass == .regular {
-            showInfoViewController(withTitle: MoreItem.history.title, for: .history)
+            showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
         }
     }
 
@@ -38,7 +38,7 @@ final class MoreController: UISplitViewController {
 
         if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
             if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
-                showInfoViewController(withTitle: MoreItem.history.title, for: .history)
+                showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
             }
         }
     }
@@ -74,10 +74,12 @@ extension MoreController: MoreViewControllerDelegate {
     private func moreViewControllerDidSelectYears(_ moreViewController: MoreViewController) {
         services.yearsService.loadYears { years in
             DispatchQueue.main.async { [weak self, weak moreViewController] in
-                if let self = self {
-                    self.years = years
-                    moreViewController?.show(self.makeYearsViewController(), sender: nil)
-                }
+                guard let self = self else { return }
+
+                self.years = years
+                let yearsViewController = self.makeYearsViewController()
+                let navigationController = UINavigationController(rootViewController: yearsViewController)
+                moreViewController?.showDetailViewController(navigationController, sender: nil)
             }
         }
     }
@@ -91,33 +93,29 @@ extension MoreController: MoreViewControllerDelegate {
     }
 
     private func moreViewControllerDidSelectHistory(_: MoreViewController) {
-        showInfoViewController(withTitle: MoreItem.history.title, for: .history)
+        showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
     }
 
     private func moreViewControllerDidSelectDevrooms(_: MoreViewController) {
-        showInfoViewController(withTitle: MoreItem.devrooms.title, for: .devrooms)
+        showDetailInfoViewController(withTitle: MoreItem.devrooms.title, for: .devrooms)
     }
 
     private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
-        moreViewController.show(makeTransportationViewController(), sender: nil)
+        let transportationViewController = makeTransportationViewController()
+        let navigationController = UINavigationController(rootViewController: transportationViewController)
+        moreViewController.showDetailViewController(navigationController, sender: nil)
     }
 
-    private func showInfoViewController(withTitle title: String, for info: Info) {
-        services.infoService.loadAttributedText(for: info) { [weak moreViewController] attributedText in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+    private func showDetailInfoViewController(withTitle title: String, for info: Info) {
+        makeInfoViewController(withTitle: title, for: info) { [weak self, weak moreViewController] infoViewController in
+            guard let self = self else { return }
 
-                if let attributedText = attributedText {
-                    let textViewController = self.makeTextViewController()
-                    textViewController.attributedText = attributedText
-                    textViewController.title = title
-
-                    let textNavigationController = UINavigationController(rootViewController: textViewController)
-                    moreViewController?.showDetailViewController(textNavigationController, sender: nil)
-                } else {
-                    let errorViewController = self.makeErrorViewController()
-                    moreViewController?.present(errorViewController, animated: true)
-                }
+            if let infoViewController = infoViewController {
+                let navigationController = UINavigationController(rootViewController: infoViewController)
+                moreViewController?.showDetailViewController(navigationController, sender: nil)
+            } else {
+                let errorViewController = self.makeErrorViewController()
+                moreViewController?.present(errorViewController, animated: true)
             }
         }
     }
@@ -157,17 +155,30 @@ extension MoreController: TransportationViewControllerDelegate {
                 transportationViewController?.deselectSelectedRow(animated: true)
             }
         case .bus:
-            showInfoViewController(withTitle: item.title, for: .bus)
+            showInfoViewController(withTitle: item.title, for: .bus, from: transportationViewController)
         case .shuttle:
-            showInfoViewController(withTitle: item.title, for: .shuttle)
+            showInfoViewController(withTitle: item.title, for: .shuttle, from: transportationViewController)
         case .train:
-            showInfoViewController(withTitle: item.title, for: .train)
+            showInfoViewController(withTitle: item.title, for: .train, from: transportationViewController)
         case .car:
-            showInfoViewController(withTitle: item.title, for: .car)
+            showInfoViewController(withTitle: item.title, for: .car, from: transportationViewController)
         case .plane:
-            showInfoViewController(withTitle: item.title, for: .plane)
+            showInfoViewController(withTitle: item.title, for: .plane, from: transportationViewController)
         case .taxi:
-            showInfoViewController(withTitle: item.title, for: .taxi)
+            showInfoViewController(withTitle: item.title, for: .taxi, from: transportationViewController)
+        }
+    }
+
+    private func showInfoViewController(withTitle title: String, for info: Info, from transportationViewController: TransportationViewController) {
+        makeInfoViewController(withTitle: title, for: info) { [weak self, weak transportationViewController] infoViewController in
+            guard let self = self else { return }
+
+            if let infoViewController = infoViewController {
+                transportationViewController?.show(infoViewController, sender: nil)
+            } else {
+                let errorViewController = self.makeErrorViewController()
+                transportationViewController?.present(errorViewController, animated: true)
+            }
         }
     }
 }
@@ -237,6 +248,14 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
 }
 
 private extension MoreController {
+    private var preferredDetailViewControllerStyle: UITableView.Style {
+        if traitCollection.userInterfaceIdiom == .pad {
+            return .fos_insetGrouped
+        } else {
+            return .grouped
+        }
+    }
+
     func makeMoreViewController() -> MoreViewController {
         let moreViewController = MoreViewController(style: .grouped)
         moreViewController.title = NSLocalizedString("more.title", comment: "")
@@ -245,12 +264,23 @@ private extension MoreController {
         return moreViewController
     }
 
-    func makeTextViewController() -> TextViewController {
-        TextViewController()
+    private func makeInfoViewController(withTitle title: String, for info: Info, completion: @escaping (TextViewController?) -> Void) {
+        services.infoService.loadAttributedText(for: info) { attributedText in
+            DispatchQueue.main.async {
+                if let attributedText = attributedText {
+                    let textViewController = TextViewController()
+                    textViewController.attributedText = attributedText
+                    textViewController.title = title
+                    completion(textViewController)
+                } else {
+                    completion(nil)
+                }
+            }
+        }
     }
 
     func makeYearsViewController() -> YearsViewController {
-        let yearsViewController = YearsViewController(style: .grouped)
+        let yearsViewController = YearsViewController(style: preferredDetailViewControllerStyle)
         yearsViewController.title = NSLocalizedString("years.title", comment: "")
         yearsViewController.dataSource = self
         yearsViewController.delegate = self
@@ -258,7 +288,7 @@ private extension MoreController {
     }
 
     private func makeTransportationViewController() -> TransportationViewController {
-        let transportationViewController = TransportationViewController(style: .grouped)
+        let transportationViewController = TransportationViewController(style: preferredDetailViewControllerStyle)
         transportationViewController.title = NSLocalizedString("transportation.title", comment: "")
         transportationViewController.delegate = self
         return transportationViewController
@@ -277,7 +307,7 @@ private extension MoreController {
     }
 
     func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
-        let acknowledgementsViewController = AcknowledgementsViewController(style: .grouped)
+        let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
         acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
         acknowledgementsViewController.dataSource = self
         acknowledgementsViewController.delegate = self

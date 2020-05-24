@@ -115,10 +115,10 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
         let eventViewController = makeEventViewController(for: event)
 
         if presentingViewController == eventsViewController {
-            presentingViewController.showDetailViewController(eventViewController, sender: nil)
+            show(eventViewController, sender: nil)
         } else if presentingViewController == resultsViewController {
             presentingViewController.deselectSelectedRow(animated: true)
-            showDetailViewController(eventViewController, sender: nil)
+            show(eventViewController, sender: nil)
         }
     }
 }
