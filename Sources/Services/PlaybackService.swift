@@ -33,7 +33,8 @@ final class PlaybackService {
     func setPlaybackPosition(_ position: PlaybackPosition, forEventWithIdentifier identifier: Int) {
         switch position {
         case .beginning:
-            break
+            watched.remove(identifier)
+            watching.removeValue(forKey: identifier.description)
         case let .at(seconds):
             watched.remove(identifier)
             watching.updateValue(seconds, forKey: identifier.description)
