@@ -68,6 +68,16 @@ final class SearchController: UISplitViewController {
             viewControllers.append(WelcomeViewController())
         }
     }
+
+    @available(iOS 11.0, *)
+    private func prefersLargeTitleForDetailViewController(with title: String) -> Bool {
+        let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
+        let attributes = [NSAttributedString.Key.font: font]
+        let attributedString = NSAttributedString(string: title, attributes: attributes)
+        let preferredWidth = attributedString.size().width
+        let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
+        return preferredWidth < availableWidth
+    }
 }
 
 extension SearchController: TracksServiceDelegate {
@@ -373,7 +383,11 @@ private extension SearchController {
         self.eventsViewController = eventsViewController
 
         if #available(iOS 11.0, *) {
-            eventsViewController.navigationItem.largeTitleDisplayMode = .always
+            if prefersLargeTitleForDetailViewController(with: track.name) {
+                eventsViewController.navigationItem.largeTitleDisplayMode = .always
+            } else {
+                eventsViewController.navigationItem.largeTitleDisplayMode = .never
+            }
         }
 
         observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in
