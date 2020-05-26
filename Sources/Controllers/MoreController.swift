@@ -219,11 +219,11 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
         }
     }
 
-    private func showYearViewController(forYear year: String, with _: PersistenceService, from yearsViewController: YearsViewController) {
+    private func showYearViewController(forYear year: String, with persistenceService: PersistenceService, from yearsViewController: YearsViewController) {
         DispatchQueue.main.async { [weak self, weak yearsViewController] in
             guard let self = self else { return }
 
-            let yearViewController = self.makeYearViewController(forYear: year)
+            let yearViewController = self.makeYearViewController(forYear: year, with: persistenceService)
             yearsViewController?.show(yearViewController, sender: nil)
         }
     }
@@ -294,8 +294,8 @@ private extension MoreController {
         return transportationViewController
     }
 
-    func makeYearViewController(forYear year: String) -> YearController {
-        let yearController = YearController(year: year, services: services)
+    func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {
+        let yearController = YearController(year: year, yearPersistenceService: persistenceService, services: services)
         yearController.yearDelegate = self
         yearController.title = year
 

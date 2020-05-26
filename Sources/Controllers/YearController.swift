@@ -16,19 +16,17 @@ final class YearController: TracksViewController {
 
     private let year: String
     private let services: Services
+    private let persistenceService: PersistenceService
 
-    init(year: String, services: Services) {
+    init(year: String, yearPersistenceService: PersistenceService, services: Services) {
         self.year = year
         self.services = services
+        persistenceService = yearPersistenceService
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private var persistenceService: PersistenceService {
-        services.persistenceService
     }
 
     override func viewDidLoad() {
