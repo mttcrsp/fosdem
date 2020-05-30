@@ -43,7 +43,7 @@ final class EventViewController: UIViewController {
         eventView.translatesAutoresizingMaskIntoConstraints = false
 
         let widthConstraint = eventView.widthAnchor.constraint(equalTo: view.widthAnchor)
-        widthConstraint.priority = .defaultLow
+        widthConstraint.priority = .defaultHigh
 
         let maxWidthConstraint = eventView.widthAnchor.constraint(lessThanOrEqualToConstant: 500)
 
