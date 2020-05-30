@@ -9,56 +9,47 @@ protocol EventViewControllerDataSource: AnyObject {
     func eventViewController(_ eventViewController: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition
 }
 
-final class EventViewController: UIViewController {
+final class EventViewController: UITableViewController {
     weak var delegate: EventViewControllerDelegate?
     weak var dataSource: EventViewControllerDataSource?
 
     var event: Event?
 
-    private lazy var eventView = EventView()
-    private lazy var scrollView = UIScrollView()
+    private var eventCell: EventTableViewCell?
 
     func reloadPlaybackPosition() {
-        eventView.reloadPlaybackPosition()
+        eventCell?.reloadPlaybackPosition()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        guard let event = event else { return }
+        if let event = event {
+            tableView.separatorStyle = .none
 
-        view.backgroundColor = .fos_systemBackground
-        view.addSubview(scrollView)
+            var isAdaptive = true
+            if #available(iOS 13.0, *), tableView.style == .insetGrouped {
+                isAdaptive = false
+            }
 
-        scrollView.addSubview(eventView)
-        scrollView.contentInset.top = 20
-        scrollView.contentInset.bottom = 32
-        scrollView.alwaysBounceVertical = true
-        scrollView.preservesSuperviewLayoutMargins = true
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
+            if isAdaptive {
+                tableView.contentInset.top = 8
+                tableView.contentInset.bottom = 20
+            }
 
-        eventView.event = event
-        eventView.delegate = self
-        eventView.dataSource = self
-        eventView.translatesAutoresizingMaskIntoConstraints = false
+            eventCell = EventTableViewCell(isAdaptive: isAdaptive)
+            eventCell?.delegate = self
+            eventCell?.dataSource = self
+            eventCell?.configure(with: event)
+        }
+    }
 
-        let widthConstraint = eventView.widthAnchor.constraint(equalTo: view.widthAnchor)
-        widthConstraint.priority = .defaultHigh
+    override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        event == nil ? 0 : 1
+    }
 
-        let maxWidthConstraint = eventView.widthAnchor.constraint(lessThanOrEqualToConstant: 500)
-
-        NSLayoutConstraint.activate([widthConstraint, maxWidthConstraint] + [
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            eventView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            eventView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            eventView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            eventView.leadingAnchor.constraint(greaterThanOrEqualTo: scrollView.layoutMarginsGuide.leadingAnchor),
-            eventView.trailingAnchor.constraint(lessThanOrEqualTo: scrollView.layoutMarginsGuide.trailingAnchor),
-        ])
+    override func tableView(_: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+        eventCell ?? UITableViewCell()
     }
 }
 

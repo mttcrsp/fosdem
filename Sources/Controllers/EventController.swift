@@ -194,7 +194,12 @@ extension EventController: AVPlayerViewControllerDelegate {
 
 private extension EventController {
     func makeEventViewController(for event: Event) -> EventViewController {
-        let eventViewController = EventViewController()
+        var style: UITableView.Style = .plain
+        if #available(iOS 13.0, *), traitCollection.userInterfaceIdiom == .pad {
+            style = .insetGrouped
+        }
+
+        let eventViewController = EventViewController(style: style)
         eventViewController.dataSource = self
         eventViewController.delegate = self
         eventViewController.event = event
