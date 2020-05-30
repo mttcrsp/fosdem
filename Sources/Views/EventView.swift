@@ -193,10 +193,4 @@ final class EventView: UIStackView {
         case .at: return NSLocalizedString("event.video.at", comment: "")
         }
     }
-
-    private func makeVerticalSpacingView(ofHeight height: CGFloat) -> UIView {
-        let view = UIView()
-        view.heightAnchor.constraint(equalToConstant: height).isActive = true
-        return view
-    }
 }
