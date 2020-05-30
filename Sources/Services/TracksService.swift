@@ -15,10 +15,6 @@ final class TracksService {
         filteredTracks[.all] ?? []
     }
 
-    var favoriteTracks: [Track] {
-        filteredFavoriteTracks[.all] ?? []
-    }
-
     private var observation: NSObjectProtocol?
     private(set) var filters: [TracksFilter] = []
     private(set) var filteredTracks: [TracksFilter: [Track]] = [:]
