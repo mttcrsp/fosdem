@@ -32,6 +32,8 @@ final class YearController: TracksViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = .groupTableViewBackground
+
         delegate = self
         dataSource = self
         definesPresentationContext = true
