@@ -30,7 +30,7 @@ final class EmbeddedBlueprintViewController: UIViewController {
         super.traitCollectionDidChange(previousTraitCollection)
 
         if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
-            imageView.image = imageView.image?.inverted
+            didChangeBlueprint()
         }
     }
 

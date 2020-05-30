@@ -121,6 +121,7 @@ final class MapViewController: UIViewController {
         blueprintsView.layer.shadowRadius = 8
         blueprintsView.layer.shadowOpacity = 0.2
         blueprintsView.layer.shadowOffset = .zero
+        blueprintsView.layer.masksToBounds = true
         blueprintsView.layer.shadowColor = UIColor.black.cgColor
         view.addSubview(blueprintsView)
 
