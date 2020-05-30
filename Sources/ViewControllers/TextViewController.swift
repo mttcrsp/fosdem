@@ -19,8 +19,8 @@ final class TextViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         textView.isEditable = false
+        textView.font = preferredFont
         textView.backgroundColor = .groupTableViewBackground
-        textView.font = .fos_preferredFont(forTextStyle: .body)
     }
 
     override func viewDidLayoutSubviews() {
@@ -39,7 +39,7 @@ final class TextViewController: UIViewController {
         super.traitCollectionDidChange(previousTraitCollection)
 
         if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
-            textView.font = .fos_preferredFont(forTextStyle: .body)
+            textView.font = preferredFont
         }
     }
 }
