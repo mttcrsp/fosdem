@@ -51,7 +51,7 @@ class MapContainerViewController: UIViewController {
 
         let animation = updateDetailViewControllerVisibility
 
-        if animated {
+        if animated, !UIAccessibility.isReduceMotionEnabled {
             let animator = UIViewPropertyAnimator(duration: 0.3, timingParameters: UISpringTimingParameters())
             animator.addAnimations(animation)
             animator.startAnimation()
