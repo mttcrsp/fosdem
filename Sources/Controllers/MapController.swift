@@ -40,7 +40,7 @@ final class MapController: MapContainerViewController {
         super.viewDidLoad()
 
         containerDelegate = self
-        
+
         let blueprintsViewController = makeEmbeddedBlueprintsViewController()
         let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
 
@@ -124,9 +124,24 @@ extension MapController: MapContainerViewControllerDelegate {
 }
 
 extension MapController: MapViewControllerDelegate {
-    func mapViewController(_: MapViewController, didSelect building: Building) {
+    func mapViewController(_ mapViewController: MapViewController, didSelect building: Building) {
         embeddedBlueprintsViewController?.building = building
         setDetailViewControllerVisible(true, animated: true)
+
+        let detailSize = detailViewController?.view.frame.size ?? .zero
+
+        var center = mapViewController.convertToMapPoint(building.coordinate)
+        switch preferredLayout {
+        case .pad:
+            break
+        case .phonePortrait:
+            center.y += detailSize.height / 2
+        case .phoneLandscape:
+            center.x -= detailSize.width / 2
+        }
+
+        let centerCoordinates = mapViewController.convertToMapCoordinate(center)
+        mapViewController.setCenter(centerCoordinates, animated: true)
     }
 
     func mapViewControllerDidDeselectBuilding(_: MapViewController) {

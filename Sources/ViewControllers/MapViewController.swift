@@ -163,11 +163,21 @@ final class MapViewController: UIViewController {
     }
 
     private func didSelectBuilding(_ building: Building) {
-        guard !UIAccessibility.isVoiceOverRunning else { return }
+        if !UIAccessibility.isVoiceOverRunning {
+            delegate?.mapViewController(self, didSelect: building)
+        }
+    }
 
-        mapView.setCenter(building.coordinate, animated: true)
+    func setCenter(_ center: CLLocationCoordinate2D, animated: Bool) {
+        mapView.setCenter(center, animated: animated)
+    }
 
-        delegate?.mapViewController(self, didSelect: building)
+    func convertToMapPoint(_ coordinate: CLLocationCoordinate2D) -> CGPoint {
+        mapView.convert(coordinate, toPointTo: mapView)
+    }
+
+    func convertToMapCoordinate(_ point: CGPoint) -> CLLocationCoordinate2D {
+        mapView.convert(point, toCoordinateFrom: mapView)
     }
 }
 
