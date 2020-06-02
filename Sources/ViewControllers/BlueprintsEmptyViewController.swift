@@ -7,7 +7,7 @@ class BlueprintsEmptyViewController: UIViewController {
         super.viewDidLoad()
 
         view.addSubview(label)
-        view.backgroundColor = .fos_systemBackground
+        view.backgroundColor = .fos_tertiarySystemBackground
 
         label.textAlignment = .center
         label.textColor = .fos_secondaryLabel

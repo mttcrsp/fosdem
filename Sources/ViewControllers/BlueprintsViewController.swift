@@ -54,8 +54,8 @@ final class BlueprintsViewController: UIPageViewController {
         delegate = self
         dataSource = self
 
-        view.backgroundColor = .fos_systemBackground
         view.addGestureRecognizer(fullscreenRecognizer)
+        view.backgroundColor = .fos_tertiarySystemBackground
 
         let dismissAction = #selector(didTapDismiss)
         let dismissImage = UIImage.fos_systemImage(withName: "xmark")

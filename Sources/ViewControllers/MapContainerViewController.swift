@@ -118,6 +118,18 @@ class MapContainerViewController: UIViewController {
         updateDetailViewControllerVisibility()
     }
 
+    override func overrideTraitCollection(forChild childViewController: UIViewController) -> UITraitCollection? {
+        guard var traitCollection = super.overrideTraitCollection(forChild: childViewController) else {
+            return nil
+        }
+
+        if #available(iOS 13.0, *), childViewController == detailViewController {
+            traitCollection = UITraitCollection(traitsFrom: [traitCollection, UITraitCollection(userInterfaceLevel: .elevated)])
+        }
+
+        return traitCollection
+    }
+
     private func updateDetailViewControllerVisibility() {
         guard let detailView = detailViewController?.view else { return }
 

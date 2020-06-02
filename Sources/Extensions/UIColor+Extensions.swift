@@ -9,6 +9,14 @@ extension UIColor {
         }
     }
 
+    static var fos_tertiarySystemBackground: UIColor {
+        if #available(iOS 13.0, *) {
+            return .tertiarySystemBackground
+        } else {
+            return UIColor(red: 44 / 255, green: 44 / 255, blue: 46 / 255, alpha: 1)
+        }
+    }
+
     static var fos_label: UIColor {
         if #available(iOS 13.0, *) {
             return .label
