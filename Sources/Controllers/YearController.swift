@@ -102,7 +102,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
     }
 }
 
-extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerPreviewDelegate {
     func events(in _: EventsViewController) -> [Event] {
         events
     }
@@ -111,13 +111,19 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
         event.formattedPeople
     }
 
-    func eventsViewController(_ presentingViewController: EventsViewController, didSelect event: Event) {
-        let eventViewController = makeEventViewController(for: event)
+    func eventsViewController(_: EventsViewController, previewFor event: Event) -> UIViewController? {
+        makeEventViewController(for: event)
+    }
 
-        if presentingViewController == eventsViewController {
+    func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
+        eventsViewController(viewController, commit: makeEventViewController(for: event))
+    }
+
+    func eventsViewController(_ eventsViewController: EventsViewController, commit eventViewController: UIViewController) {
+        if eventsViewController == self.eventsViewController {
             show(eventViewController, sender: nil)
-        } else if presentingViewController == resultsViewController {
-            presentingViewController.deselectSelectedRow(animated: true)
+        } else if eventsViewController == resultsViewController {
+            eventsViewController.deselectSelectedRow(animated: true)
             show(eventViewController, sender: nil)
         }
     }
@@ -159,6 +165,7 @@ private extension YearController {
 
     func makeResultsViewController() -> EventsViewController {
         let resultsViewController = EventsViewController(style: .grouped)
+        resultsViewController.previewDelegate = self
         resultsViewController.dataSource = self
         resultsViewController.delegate = self
         self.resultsViewController = resultsViewController
@@ -167,6 +174,7 @@ private extension YearController {
 
     func makeEventsViewController(for track: Track) -> EventsViewController {
         let eventsViewController = EventsViewController(style: .grouped)
+        eventsViewController.previewDelegate = self
         eventsViewController.title = track.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self

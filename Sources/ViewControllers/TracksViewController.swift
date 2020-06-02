@@ -139,7 +139,9 @@ class TracksViewController: UITableViewController {
 
     @available(iOS 13.0, *)
     override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
-        UIContextMenuConfiguration(actions: actions(at: indexPath))
+        UIContextMenuConfiguration(actions: actions(at: indexPath)) {
+            nil
+        }
     }
 
     private func actions(at indexPath: IndexPath) -> [Action] {

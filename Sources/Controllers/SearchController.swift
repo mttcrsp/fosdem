@@ -199,7 +199,7 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
     }
 }
 
-extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
+extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerPreviewDelegate {
     func events(in _: EventsViewController) -> [Event] {
         events
     }
@@ -212,23 +212,29 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
         }
     }
 
+    func eventsViewController(_: EventsViewController, previewFor event: Event) -> UIViewController? {
+        makeEventViewController(for: event)
+    }
+
     func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
-        switch viewController {
-        case eventsViewController: trackViewController(viewController, didSelect: event)
-        case resultsViewController: resultsViewController(viewController, didSelect: event)
-        default: break
+        eventsViewController(viewController, commit: makeEventViewController(for: event))
+    }
+
+    func eventsViewController(_ eventsViewController: EventsViewController, commit previewViewController: UIViewController) {
+        if eventsViewController === self.eventsViewController {
+            trackViewController(eventsViewController, commit: previewViewController)
+        } else if eventsViewController === resultsViewController {
+            resultsViewController(eventsViewController, commit: previewViewController)
         }
     }
 
-    private func trackViewController(_ trackViewController: EventsViewController, didSelect event: Event) {
-        let eventViewController = makeEventViewController(for: event)
+    private func trackViewController(_ trackViewController: EventsViewController, commit eventViewController: UIViewController) {
         trackViewController.show(eventViewController, sender: nil)
     }
 
-    private func resultsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        eventsViewController.deselectSelectedRow(animated: true)
+    private func resultsViewController(_ resultsViewController: EventsViewController, commit eventViewController: UIViewController) {
+        resultsViewController.deselectSelectedRow(animated: true)
 
-        let eventViewController = makeEventViewController(for: event)
         tracksViewController?.showDetailViewController(eventViewController, sender: nil)
 
         if traitCollection.horizontalSizeClass == .regular {
@@ -356,6 +362,7 @@ private extension SearchController {
         let resultsViewController = EventsViewController(style: .grouped)
         resultsViewController.favoritesDataSource = self
         resultsViewController.favoritesDelegate = self
+        resultsViewController.previewDelegate = self
         resultsViewController.dataSource = self
         resultsViewController.delegate = self
         self.resultsViewController = resultsViewController
@@ -377,6 +384,7 @@ private extension SearchController {
         eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
         eventsViewController.favoritesDataSource = self
         eventsViewController.favoritesDelegate = self
+        eventsViewController.previewDelegate = self
         eventsViewController.title = track.name
         eventsViewController.dataSource = self
         eventsViewController.delegate = self

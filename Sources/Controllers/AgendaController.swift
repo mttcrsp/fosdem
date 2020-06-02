@@ -171,7 +171,7 @@ final class AgendaController: UIViewController {
     }
 }
 
-extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerLiveDataSource {
+extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerPreviewDelegate, EventsViewControllerLiveDataSource {
     func events(in eventsViewController: EventsViewController) -> [Event] {
         switch eventsViewController {
         case agendaViewController: return events
@@ -192,9 +192,15 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
         return items.compactMap { $0 }.joined(separator: " - ")
     }
 
-    func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-        let eventViewController = makeEventViewController(for: event)
+    func eventsViewController(_: EventsViewController, previewFor event: Event) -> UIViewController? {
+        makeEventViewController(for: event)
+    }
 
+    func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
+        eventsViewController(viewController, commit: makeEventViewController(for: event))
+    }
+
+    func eventsViewController(_ eventsViewController: EventsViewController, commit eventViewController: UIViewController) {
         switch eventsViewController {
         case agendaViewController: eventsViewController.showDetailViewController(eventViewController, sender: nil)
         case soonViewController: eventsViewController.show(eventViewController, sender: nil)
@@ -253,6 +259,7 @@ private extension AgendaController {
         agendaViewController.navigationItem.rightBarButtonItem = soonButton
         agendaViewController.favoritesDataSource = self
         agendaViewController.favoritesDelegate = self
+        agendaViewController.previewDelegate = self
         agendaViewController.liveDataSource = self
         agendaViewController.dataSource = self
         agendaViewController.delegate = self
@@ -276,6 +283,7 @@ private extension AgendaController {
         soonViewController.navigationItem.rightBarButtonItem = dismissButton
         soonViewController.favoritesDataSource = self
         soonViewController.favoritesDelegate = self
+        soonViewController.previewDelegate = self
         soonViewController.dataSource = self
         soonViewController.delegate = self
         self.soonViewController = soonViewController
