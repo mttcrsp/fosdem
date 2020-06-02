@@ -66,10 +66,6 @@ final class MapViewController: UIViewController {
 
         mapView.frame = view.bounds
 
-        if let blueprintsView = blueprintsViewController?.view {
-            blueprintsView.frame = blueprintsFrame
-        }
-
         locationButton.sizeToFit()
         locationButton.center.x = view.bounds.midX
         locationButton.frame.origin.y = view.layoutMargins.top + 5
@@ -109,49 +105,6 @@ final class MapViewController: UIViewController {
         }
     }
 
-    func addBlueprintsViewController(_ blueprintsViewController: UIViewController) {
-        self.blueprintsViewController = blueprintsViewController
-
-        addChild(blueprintsViewController)
-
-        let blueprintsView: UIView = blueprintsViewController.view
-        blueprintsView.backgroundColor = .fos_systemBackground
-        blueprintsView.alpha = 0
-        blueprintsView.layer.cornerRadius = 8
-        blueprintsView.layer.shadowRadius = 8
-        blueprintsView.layer.shadowOpacity = 0.2
-        blueprintsView.layer.shadowOffset = .zero
-        blueprintsView.layer.masksToBounds = true
-        blueprintsView.layer.shadowColor = UIColor.black.cgColor
-        view.addSubview(blueprintsView)
-
-        let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
-        animator.addAnimations { [weak self] in
-            self?.blueprintsViewController?.view.alpha = 1
-            self?.setControlButtonsAlpha(to: 0)
-        }
-        animator.addCompletion { [weak self] _ in
-            guard let self = self else { return }
-            self.blueprintsViewController?.didMove(toParent: self)
-        }
-        animator.startAnimation()
-    }
-
-    func removeBlueprinsViewController() {
-        blueprintsViewController?.willMove(toParent: nil)
-
-        let animator = UIViewPropertyAnimator(duration: 0.3, dampingRatio: 0.8)
-        animator.addAnimations { [weak self] in
-            self?.blueprintsViewController?.view.alpha = 0
-            self?.setControlButtonsAlpha(to: 1)
-        }
-        animator.addCompletion { [weak self] _ in
-            self?.blueprintsViewController?.view.removeFromSuperview()
-            self?.blueprintsViewController?.removeFromParent()
-        }
-        animator.startAnimation()
-    }
-
     private var preferredCoordinateRegion: MKCoordinateRegion {
         var boundingMapRect: MKMapRect = .null
         for building in buildings {
@@ -162,31 +115,6 @@ final class MapViewController: UIViewController {
 
     private var canSelectBuilding: Bool {
         !UIAccessibility.isVoiceOverRunning
-    }
-
-    private var prefersVerticalBlueprintsLayout: Bool {
-        view.bounds.width < view.bounds.height
-    }
-
-    private var blueprintsFrame: CGRect {
-        var frame = CGRect()
-
-        if traitCollection.horizontalSizeClass == .regular {
-            frame.size = CGSize(width: 320, height: 320)
-            frame.origin.x = view.layoutMargins.left
-            frame.origin.y = 16
-        } else if prefersVerticalBlueprintsLayout {
-            frame.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
-            frame.size.height = 200
-            frame.origin.x = view.layoutMargins.left
-            frame.origin.y = view.bounds.height - view.layoutMargins.bottom - frame.height - 32
-        } else {
-            frame.size.width = 300
-            frame.size.height = view.bounds.height - view.layoutMargins.bottom - 48
-            frame.origin.x = view.layoutMargins.left
-            frame.origin.y = 16
-        }
-        return frame
     }
 
     private func setControlButtonsAlpha(to alpha: CGFloat) {
@@ -241,17 +169,9 @@ final class MapViewController: UIViewController {
     private func didSelectBuilding(_ building: Building) {
         guard canSelectBuilding else { return }
 
+        mapView.setCenter(building.coordinate, animated: true)
+
         delegate?.mapViewController(self, didSelect: building)
-
-        var center = mapView.convert(building.coordinate, toPointTo: mapView)
-        if prefersVerticalBlueprintsLayout {
-            center.y += blueprintsFrame.height / 2
-        } else {
-            center.x -= blueprintsFrame.width / 2
-        }
-
-        let centerCoordinates = mapView.convert(center, toCoordinateFrom: mapView)
-        mapView.setCenter(centerCoordinates, animated: true)
     }
 }
 

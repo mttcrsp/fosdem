@@ -4,12 +4,11 @@ protocol MapControllerDelegate: AnyObject {
     func mapController(_ mapController: MapController, didError error: Error)
 }
 
-final class MapController: UIViewController {
+final class MapController: MapContainerViewController {
     weak var delegate: MapControllerDelegate?
 
     private weak var mapViewController: MapViewController?
     private weak var embeddedBlueprintsViewController: BlueprintsViewController?
-    private weak var blueprintsNavigationController: UINavigationController?
     private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
     private weak var fullscreenBlueprintsNavigationController: UINavigationController?
 
@@ -40,10 +39,13 @@ final class MapController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let mapViewController = makeMapViewController()
-        addChild(mapViewController)
-        view.addSubview(mapViewController.view)
-        mapViewController.didMove(toParent: self)
+        containerDelegate = self
+        
+        let blueprintsViewController = makeEmbeddedBlueprintsViewController()
+        let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
+
+        masterViewController = makeMapViewController()
+        detailViewController = blueprintsNavigationController
 
         services.locationService.delegate = self
         services.buildingsService.loadBuildings { buildings, error in
@@ -71,21 +73,64 @@ final class MapController: UIViewController {
     }
 }
 
+extension MapController: MapContainerViewControllerDelegate {
+    private enum Layout {
+        case pad, phonePortrait, phoneLandscape
+    }
+
+    private var preferredLayout: Layout {
+        if traitCollection.userInterfaceIdiom == .pad {
+            return .pad
+        } else if view.bounds.height > view.bounds.width {
+            return .phonePortrait
+        } else {
+            return .phoneLandscape
+        }
+    }
+
+    func containerViewController(_: MapContainerViewController, scrollDirectionFor _: UIViewController) -> MapContainerViewController.ScrollDirection {
+        switch preferredLayout {
+        case .phonePortrait:
+            return .vertical
+        case .pad, .phoneLandscape:
+            return .horizontal
+        }
+    }
+
+    func containerViewController(_: MapContainerViewController, rectFor _: UIViewController) -> CGRect {
+        var rect = CGRect()
+        switch preferredLayout {
+        case .pad:
+            rect.size = CGSize(width: 320, height: 320)
+            rect.origin.x = view.layoutMargins.left
+            rect.origin.y = view.layoutMargins.left + view.layoutMargins.top
+        case .phonePortrait:
+            rect.size.width = view.bounds.width - view.layoutMargins.left - view.layoutMargins.right
+            rect.size.height = 200
+            rect.origin.x = view.layoutMargins.left
+            rect.origin.y = view.bounds.height - view.layoutMargins.bottom - rect.height - 32
+        case .phoneLandscape:
+            rect.size.width = 300
+            rect.size.height = view.bounds.height - view.layoutMargins.bottom - 48
+            rect.origin.x = view.layoutMargins.left
+            rect.origin.y = 16
+        }
+        return rect
+    }
+
+    func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {
+        mapViewController?.deselectSelectedAnnotation()
+    }
+}
+
 extension MapController: MapViewControllerDelegate {
     func mapViewController(_: MapViewController, didSelect building: Building) {
-        if let blueprintsViewController = embeddedBlueprintsViewController {
-            blueprintsViewController.building = building
-            return
-        }
-
-        let blueprintsViewController = makeEmbeddedBlueprintsViewController(for: building)
-        let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
-        self.blueprintsNavigationController = blueprintsNavigationController
-        mapViewController?.addBlueprintsViewController(blueprintsNavigationController)
+        embeddedBlueprintsViewController?.building = building
+        setDetailViewControllerVisible(true, animated: true)
     }
 
     func mapViewControllerDidDeselectBuilding(_: MapViewController) {
-        mapViewController?.removeBlueprinsViewController()
+        setDetailViewControllerVisible(false, animated: true)
     }
 
     func mapViewControllerDidTapLocation(_: MapViewController) {
@@ -145,9 +190,8 @@ private extension MapController {
         return mapViewController
     }
 
-    func makeEmbeddedBlueprintsViewController(for building: Building) -> BlueprintsViewController {
+    func makeEmbeddedBlueprintsViewController() -> BlueprintsViewController {
         let blueprintsViewController = BlueprintsViewController(style: .embedded)
-        blueprintsViewController.building = building
         blueprintsViewController.blueprintsDelegate = self
         embeddedBlueprintsViewController = blueprintsViewController
         return blueprintsViewController
