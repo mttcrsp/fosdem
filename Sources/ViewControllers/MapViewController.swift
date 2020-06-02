@@ -95,8 +95,10 @@ final class MapViewController: UIViewController {
         }
     }
 
-    func resetCamera() {
-        mapView.setRegion(preferredCoordinateRegion, animated: true)
+    func resetCamera(animated: Bool) {
+        let coordinateRegion = preferredCoordinateRegion
+        mapView.setRegion(coordinateRegion, animated: animated)
+        mapView.camera.heading = 334.30179164562668
     }
 
     func deselectSelectedAnnotation() {
@@ -137,13 +139,13 @@ final class MapViewController: UIViewController {
             mapView.addAnnotation(building)
         }
 
-        let coordinateRegion = preferredCoordinateRegion
-        mapView.setRegion(coordinateRegion, animated: false)
-        mapView.camera.heading = 334.30179164562668
-
         if #available(iOS 13.0, *) {
-            mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: coordinateRegion)
+            let region = preferredCoordinateRegion
+            let boundary = MKMapView.CameraBoundary(coordinateRegion: region)
+            mapView.cameraBoundary = boundary
         }
+
+        resetCamera(animated: false)
     }
 
     private func didChangeSelectedBuilding() {

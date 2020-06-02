@@ -68,7 +68,7 @@ final class MapController: MapContainerViewController {
     private func didChangeVoiceOverStatus() {
         if isViewLoaded, UIAccessibility.isVoiceOverRunning {
             mapViewController?.deselectSelectedAnnotation()
-            mapViewController?.resetCamera()
+            mapViewController?.resetCamera(animated: true)
         }
     }
 }
