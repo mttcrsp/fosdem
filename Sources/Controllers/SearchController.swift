@@ -310,6 +310,7 @@ private extension SearchController {
         tracksViewController.definesPresentationContext = true
         tracksViewController.favoritesDataSource = self
         tracksViewController.favoritesDelegate = self
+        tracksViewController.previewDelegate = self
         tracksViewController.indexDataSource = self
         tracksViewController.indexDelegate = self
         tracksViewController.dataSource = self

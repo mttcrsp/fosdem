@@ -15,6 +15,11 @@ protocol TracksViewControllerFavoritesDataSource: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool
 }
 
+protocol TracksViewControllerPreviewDelegate: AnyObject {
+    func tracksViewController(_ tracksViewController: TracksViewController, previewFor track: Track) -> UIViewController?
+    func tracksViewController(_ tracksViewController: TracksViewController, commit previewViewController: UIViewController)
+}
+
 protocol TracksViewControllerDelegate: AnyObject {
     func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track)
 }
@@ -37,6 +42,8 @@ class TracksViewController: UITableViewController {
 
     weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
     weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
+
+    weak var previewDelegate: TracksViewControllerPreviewDelegate?
 
     private lazy var feedbackGenerator = UISelectionFeedbackGenerator()
 
@@ -139,8 +146,19 @@ class TracksViewController: UITableViewController {
 
     @available(iOS 13.0, *)
     override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
-        UIContextMenuConfiguration(actions: actions(at: indexPath)) {
-            nil
+        UIContextMenuConfiguration(actions: actions(at: indexPath)) { [weak self] in
+            guard let self = self, let dataSource = self.dataSource else { return nil }
+            let track = dataSource.tracksViewController(self, trackAt: indexPath)
+            return self.previewDelegate?.tracksViewController(self, previewFor: track)
+        }
+    }
+
+    @available(iOS 13.0, *)
+    override func tableView(_: UITableView, willPerformPreviewActionForMenuWith _: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        animator.preferredCommitStyle = .pop
+        animator.addCompletion { [weak self, weak animator] in
+            guard let self = self, let animator = animator, let previewViewController = animator.previewViewController else { return }
+            self.previewDelegate?.tracksViewController(self, commit: previewViewController)
         }
     }
 
