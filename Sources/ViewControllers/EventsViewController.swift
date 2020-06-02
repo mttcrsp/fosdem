@@ -119,59 +119,39 @@ final class EventsViewController: UITableViewController {
     }
 
     override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        guard let favoritesDataSource = favoritesDataSource else { return nil }
-
-        let event = self.event(forSection: indexPath.section)
-
-        if favoritesDataSource.eventsViewController(self, canFavorite: event) {
-            return [.favorite { [weak self] _ in self?.didFavorite(event) }]
-        } else {
-            return [.unfavorite { [weak self] _ in self?.didUnfavorite(event) }]
-        }
+        [UITableViewRowAction](actions: actions(at: indexPath))
     }
 
     @available(iOS 11.0, *)
     override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        guard let favoritesDataSource = favoritesDataSource else { return nil }
+        UISwipeActionsConfiguration(actions: actions(at: indexPath))
+    }
+
+    @available(iOS 13.0, *)
+    override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(actions: actions(at: indexPath))
+    }
+
+    private func actions(at indexPath: IndexPath) -> [Action] {
+        guard let favoritesDataSource = favoritesDataSource else {
+            return []
+        }
 
         let event = self.event(forSection: indexPath.section)
 
-        let actions: [UIContextualAction]
         if favoritesDataSource.eventsViewController(self, canFavorite: event) {
-            actions = [makeFavoriteAction(for: event)]
+            let title = NSLocalizedString("event.add", comment: "")
+            let image = UIImage.fos_systemImage(withName: "calendar.badge.plus")
+            return [Action(title: title, image: image) { [weak self] in
+                self?.didFavorite(event)
+            }]
         } else {
-            actions = [makeUnfavoriteAction(for: event)]
+            let title = NSLocalizedString("event.remove", comment: "")
+            let image = UIImage.fos_systemImage(withName: "calendar.badge.minus")
+            return [Action(title: title, image: image, style: .destructive) { [weak self] in
+                self?.didUnfavorite(event)
+            }]
         }
-        return UISwipeActionsConfiguration(actions: actions)
-    }
-
-    @available(iOS 11.0, *)
-    private func makeFavoriteAction(for event: Event) -> UIContextualAction {
-        let handler: UIContextualAction.Handler = { [weak self] _, _, completionHandler in
-            self?.didFavorite(event)
-            completionHandler(true)
-        }
-
-        let actionTitle = NSLocalizedString("event.add", comment: "")
-        let actionImage = UIImage.fos_systemImage(withName: "calendar.badge.plus")
-        let action = UIContextualAction(style: .normal, title: actionTitle, handler: handler)
-        action.backgroundColor = .systemBlue
-        action.image = actionImage
-        return action
-    }
-
-    @available(iOS 11.0, *)
-    private func makeUnfavoriteAction(for event: Event) -> UIContextualAction {
-        let handler: UIContextualAction.Handler = { [weak self] _, _, completionHandler in
-            self?.didUnfavorite(event)
-            completionHandler(true)
-        }
-
-        let actionTitle = NSLocalizedString("event.remove", comment: "")
-        let actionImage = UIImage.fos_systemImage(withName: "calendar.badge.minus")
-        let action = UIContextualAction(style: .destructive, title: actionTitle, handler: handler)
-        action.image = actionImage
-        return action
     }
 
     private func didFavorite(_ event: Event) {
