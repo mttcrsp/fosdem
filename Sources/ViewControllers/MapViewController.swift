@@ -113,10 +113,6 @@ final class MapViewController: UIViewController {
         return MKCoordinateRegion(boundingMapRect)
     }
 
-    private var canSelectBuilding: Bool {
-        !UIAccessibility.isVoiceOverRunning
-    }
-
     private func setControlButtonsAlpha(to alpha: CGFloat) {
         for button in [resetButton, locationButton] {
             button.alpha = alpha
@@ -167,7 +163,7 @@ final class MapViewController: UIViewController {
     }
 
     private func didSelectBuilding(_ building: Building) {
-        guard canSelectBuilding else { return }
+        guard !UIAccessibility.isVoiceOverRunning else { return }
 
         mapView.setCenter(building.coordinate, animated: true)
 
