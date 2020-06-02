@@ -96,9 +96,7 @@ private extension UIAction {
 }
 
 extension Array where Element == UITableViewRowAction {
-    init?(actions: [Action]) {
-        guard !actions.isEmpty else { return nil }
-
+    init(actions: [Action]) {
         self.init()
 
         for action in actions {
@@ -109,22 +107,19 @@ extension Array where Element == UITableViewRowAction {
 
 @available(iOS 11.0, *)
 extension UISwipeActionsConfiguration {
-    convenience init?(actions: [Action]) {
-        guard !actions.isEmpty else { return nil }
+    convenience init(actions: [Action]) {
         self.init(actions: actions.map(UIContextualAction.init))
     }
 }
 
 @available(iOS 13.0, *)
 extension UIContextMenuConfiguration {
-    convenience init?(actions: [Action]) {
-        guard !actions.isEmpty else { return nil }
-
+    convenience init(actions: [Action], previewProvider: UIContextMenuContentPreviewProvider?) {
         let children = actions.map(UIAction.init)
 
         self.init(
             identifier: nil,
-            previewProvider: nil,
+            previewProvider: previewProvider,
             actionProvider: { _ in
                 UIMenu(title: "", children: children)
             }
