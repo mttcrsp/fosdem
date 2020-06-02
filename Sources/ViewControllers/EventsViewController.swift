@@ -5,6 +5,11 @@ protocol EventsViewControllerDataSource: AnyObject {
     func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
 }
 
+protocol EventsViewControllerPreviewDelegate: AnyObject {
+    func eventsViewController(_ eventsViewController: EventsViewController, previewFor event: Event) -> UIViewController?
+    func eventsViewController(_ eventsViewController: EventsViewController, commit previewViewController: UIViewController)
+}
+
 protocol EventsViewControllerLiveDataSource: AnyObject {
     func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool
 }
@@ -30,6 +35,7 @@ final class EventsViewController: UITableViewController {
     weak var favoritesDelegate: EventsViewControllerFavoritesDelegate?
 
     weak var liveDataSource: EventsViewControllerLiveDataSource?
+    weak var previewDelegate: EventsViewControllerPreviewDelegate?
 
     var emptyBackgroundTitle: String? {
         get { emptyBackgroundView.title }
@@ -129,7 +135,19 @@ final class EventsViewController: UITableViewController {
 
     @available(iOS 13.0, *)
     override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
-        UIContextMenuConfiguration(actions: actions(at: indexPath))
+        UIContextMenuConfiguration(actions: actions(at: indexPath)) { [weak self] in
+            guard let self = self else { return nil }
+            return self.previewDelegate?.eventsViewController(self, previewFor: self.event(forSection: indexPath.section))
+        }
+    }
+
+    @available(iOS 13.0, *)
+    override func tableView(_: UITableView, willPerformPreviewActionForMenuWith _: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
+        animator.preferredCommitStyle = .pop
+        animator.addCompletion { [weak self, weak animator] in
+            guard let self = self, let animator = animator, let previewViewController = animator.previewViewController else { return }
+            self.previewDelegate?.eventsViewController(self, commit: previewViewController)
+        }
     }
 
     private func actions(at indexPath: IndexPath) -> [Action] {
