@@ -11,7 +11,6 @@ final class Services {
     let bundleService = BundleService()
     let scheduleService: ScheduleService
     let buildingsService: BuildingsService
-    let locationService = LocationService()
     let playbackService = PlaybackService()
     let favoritesService = FavoritesService()
     let persistenceService: PersistenceService

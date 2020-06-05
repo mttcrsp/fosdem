@@ -1,3 +1,4 @@
+import CoreLocation
 import UIKit
 
 protocol MapControllerDelegate: AnyObject {
@@ -15,6 +16,7 @@ final class MapController: MapContainerViewController {
     private var transition: FullscreenBlueprintsDismissalTransition?
     private var observer: NSObjectProtocol?
 
+    private let locationManager = CLLocationManager()
     private let services: Services
 
     init(services: Services) {
@@ -47,7 +49,8 @@ final class MapController: MapContainerViewController {
         masterViewController = makeMapViewController()
         detailViewController = blueprintsNavigationController
 
-        services.locationService.delegate = self
+        locationManager.delegate = self
+
         services.buildingsService.loadBuildings { buildings, error in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -149,7 +152,7 @@ extension MapController: MapViewControllerDelegate {
     }
 
     func mapViewControllerDidTapLocation(_: MapViewController) {
-        services.locationService.requestAuthorization()
+        locationManager.requestWhenInUseAuthorization()
     }
 }
 
@@ -186,21 +189,18 @@ extension MapController: BlueprintsViewControllerDelegate {
     }
 }
 
-extension MapController: LocationServiceDelegate {
-    func locationServiceDidChangeStatus(_: LocationService) {
-        mapViewController?.showsLocationButton = canRequestLocation
-    }
-
-    private var canRequestLocation: Bool {
-        services.locationService.canRequestLocation
+extension MapController: CLLocationManagerDelegate {
+    func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        mapViewController?.setAuthorizationStatus(status)
     }
 }
 
 private extension MapController {
     func makeMapViewController() -> MapViewController {
+        let authorizationStatus = CLLocationManager.authorizationStatus()
         let mapViewController = MapViewController()
         mapViewController.delegate = self
-        mapViewController.showsLocationButton = canRequestLocation
+        mapViewController.setAuthorizationStatus(authorizationStatus)
         self.mapViewController = mapViewController
         return mapViewController
     }
