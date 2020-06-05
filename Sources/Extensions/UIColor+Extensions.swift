@@ -32,4 +32,12 @@ extension UIColor {
             return UIColor(red: 60 / 255, green: 60 / 255, blue: 67 / 255, alpha: 0.6)
         }
     }
+
+    static var fos_separator: UIColor {
+        if #available(iOS 13.0, *) {
+            return .separator
+        } else {
+            return UIColor(red: 198 / 255, green: 198 / 255, blue: 200 / 255, alpha: 1)
+        }
+    }
 }
