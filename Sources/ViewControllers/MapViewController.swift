@@ -1,3 +1,4 @@
+import CoreLocation
 import MapKit
 
 protocol MapViewControllerDelegate: AnyObject {
@@ -13,26 +14,25 @@ final class MapViewController: UIViewController {
         didSet { didChangeBuildings() }
     }
 
-    var showsLocationButton: Bool {
-        get { !locationButton.isHidden }
-        set { locationButton.isHidden = !newValue }
-    }
-
     private(set) var selectedBuilding: Building? {
         didSet { didChangeSelectedBuilding() }
     }
 
     private lazy var mapView = MKMapView()
-    private lazy var resetButton = RoundedButton()
-    private lazy var locationButton = RoundedButton()
+    private lazy var controlsView = MapControlsView()
+    private lazy var blurView = UIVisualEffectView()
 
     private weak var blueprintsViewController: UIViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.addSubview(mapView)
+        if #available(iOS 13.0, *) {
+            blurView.effect = UIBlurEffect(style: .systemUltraThinMaterial)
+        }
+
         mapView.delegate = self
+        mapView.showsCompass = false
         mapView.isPitchEnabled = false
         mapView.showsUserLocation = true
         mapView.showsPointsOfInterest = false
@@ -41,42 +41,26 @@ final class MapViewController: UIViewController {
             mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
         }
 
-        if #available(iOS 13.0, *) {
-            // Camera boundary can be used to prevent the user to navigating too
-            // far away from the content of the map. No need to a reset button.
-        } else {
-            let resetAction = #selector(didTapReset)
-            let resetImage = UIImage(named: "arrow.counterclockwise")
-            resetButton.contentEdgeInsets = .zero
-            resetButton.imageView?.contentMode = .center
-            resetButton.setImage(resetImage, for: .normal)
-            resetButton.addTarget(self, action: resetAction, for: .touchUpInside)
-            view.addSubview(resetButton)
+        controlsView.delegate = self
+        controlsView.translatesAutoresizingMaskIntoConstraints = false
+
+        for subview in [mapView, blurView, controlsView] {
+            view.addSubview(subview)
         }
 
-        let locationAction = #selector(didTapLocation)
-        let locationTitle = NSLocalizedString("map.location", comment: "")
-        locationButton.setTitle(locationTitle, for: .normal)
-        locationButton.addTarget(self, action: locationAction, for: .touchUpInside)
-        view.addSubview(locationButton)
+        view.addSubview(blurView)
+
+        NSLayoutConstraint.activate([
+            controlsView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 16),
+            controlsView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+        ])
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-
         mapView.frame = view.bounds
-
-        locationButton.sizeToFit()
-        locationButton.center.x = view.bounds.midX
-        locationButton.frame.origin.y = view.layoutMargins.top + 5
-
-        resetButton.bounds.size = CGSize(width: 40, height: 40)
-        resetButton.frame.origin.y = locationButton.frame.minY
-        if #available(iOS 11.0, *) {
-            resetButton.frame.origin.x = view.safeAreaInsets.left + 5
-        } else {
-            resetButton.frame.origin.x = 5
-        }
+        blurView.frame.size.width = view.bounds.width
+        blurView.frame.size.height = view.layoutMargins.top
     }
 
     override func didMove(toParent parent: UIViewController?) {
@@ -93,6 +77,10 @@ final class MapViewController: UIViewController {
                 annotationView?.markerTintColor = mapView.tintColor
             }
         }
+    }
+
+    func setAuthorizationStatus(_ status: CLAuthorizationStatus) {
+        controlsView.setAuthorizationStatus(status)
     }
 
     func resetCamera(animated: Bool) {
@@ -113,20 +101,6 @@ final class MapViewController: UIViewController {
             boundingMapRect = boundingMapRect.union(building.polygon.boundingMapRect)
         }
         return MKCoordinateRegion(boundingMapRect)
-    }
-
-    private func setControlButtonsAlpha(to alpha: CGFloat) {
-        for button in [resetButton, locationButton] {
-            button.alpha = alpha
-        }
-    }
-
-    @objc private func didTapReset() {
-        resetCamera()
-    }
-
-    @objc private func didTapLocation() {
-        delegate?.mapViewControllerDidTapLocation(self)
     }
 
     private func didChangeBuildings() {
@@ -215,5 +189,15 @@ extension MapViewController: MKMapViewDelegate {
         if view.annotation is Building {
             selectedBuilding = nil
         }
+    }
+}
+
+extension MapViewController: MapControlsViewDelegate {
+    func controlsViewDidTapReset(_: MapControlsView) {
+        resetCamera(animated: true)
+    }
+
+    func controlsViewDidTapLocation(_: MapControlsView) {
+        delegate?.mapViewControllerDidTapLocation(self)
     }
 }
