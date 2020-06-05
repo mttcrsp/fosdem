@@ -47,13 +47,19 @@
 "search.empty.title" = "No results";
 "search.empty.message" = "Nothing found for \"%@\"";
 
-
 /// MARK: - Map
 "map.title" = "Map";
 "map.building" = "Building %@";
 "map.location" = "Display my location";
 "map.blueprint.title" = "Building %@";
 "map.blueprint.empty" = "No blueprint available";
+
+/// MARK: - Location
+"location.title" = "Location services";
+"location.message.enable" = "Location services are currently disabled for this device. You can enable them from the application settings.";
+"location.message.disable" = "Location services are currently enabled for this device. You can disable them from the application settings.";
+"location.dismiss" = "Cancel";
+"location.confirm" = "Open settings";
 
 /// MARK: - More
 "more.title" = "More";

@@ -68,10 +68,20 @@ final class MapController: MapContainerViewController {
         .default
     }
 
+    private var authorizationStatus: CLAuthorizationStatus {
+        CLLocationManager.authorizationStatus()
+    }
+
     private func didChangeVoiceOverStatus() {
         if isViewLoaded, UIAccessibility.isVoiceOverRunning {
             mapViewController?.deselectSelectedAnnotation()
             mapViewController?.resetCamera(animated: true)
+        }
+    }
+
+    private func didTapLocationSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
 }
@@ -151,8 +161,16 @@ extension MapController: MapViewControllerDelegate {
         setDetailViewControllerVisible(false, animated: true)
     }
 
-    func mapViewControllerDidTapLocation(_: MapViewController) {
-        locationManager.requestWhenInUseAuthorization()
+    func mapViewControllerDidTapLocation(_ mapViewController: MapViewController) {
+        switch authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .authorizedAlways, .authorizedWhenInUse, .denied, .restricted:
+            let settingsViewController = makeLocationSettingsViewController(for: authorizationStatus)
+            mapViewController.present(settingsViewController, animated: true)
+        @unknown default:
+            break
+        }
     }
 }
 
@@ -197,7 +215,6 @@ extension MapController: CLLocationManagerDelegate {
 
 private extension MapController {
     func makeMapViewController() -> MapViewController {
-        let authorizationStatus = CLLocationManager.authorizationStatus()
         let mapViewController = MapViewController()
         mapViewController.delegate = self
         mapViewController.setAuthorizationStatus(authorizationStatus)
@@ -219,5 +236,36 @@ private extension MapController {
         blueprintsViewController.setVisibleBlueprint(blueprint, animated: false)
         fullscreenBlueprintsViewController = blueprintsViewController
         return blueprintsViewController
+    }
+
+    func makeLocationSettingsViewController(for status: CLAuthorizationStatus) -> UIAlertController {
+        let dismissTitle = NSLocalizedString("location.dismiss", comment: "")
+        let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
+
+        let confirmTitle = NSLocalizedString("location.confirm", comment: "")
+        let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
+            self?.didTapLocationSettings()
+        }
+
+        let alertTitle = NSLocalizedString("location.title", comment: "")
+        let alertController = UIAlertController(title: alertTitle, message: status.settingsMessage, preferredStyle: .alert)
+        alertController.addAction(dismissAction)
+        alertController.addAction(confirmAction)
+        return alertController
+    }
+}
+
+private extension CLAuthorizationStatus {
+    var settingsMessage: String? {
+        switch self {
+        case .authorizedAlways, .authorizedWhenInUse:
+            return NSLocalizedString("location.message.disable", comment: "")
+        case .denied, .restricted:
+            return NSLocalizedString("location.message.enable", comment: "")
+        case .notDetermined:
+            return nil
+        @unknown default:
+            return nil
+        }
     }
 }
