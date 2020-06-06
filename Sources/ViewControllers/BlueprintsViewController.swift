@@ -103,8 +103,10 @@ final class BlueprintsViewController: UIPageViewController {
     private func didChangeVisibleBlueprint() {
         if let blueprintViewController = viewControllers?.first as? BlueprintViewController, let blueprint = blueprintViewController.blueprint {
             title = blueprint.title
-        } else {
-            title = nil
+        } else if let building = building?.title {
+            let format = NSLocalizedString("map.blueprint.title", comment: "")
+            let string = String(format: format, building)
+            title = string
         }
     }
 
