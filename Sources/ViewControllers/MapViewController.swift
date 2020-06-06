@@ -84,9 +84,34 @@ final class MapViewController: UIViewController {
     }
 
     func resetCamera(animated: Bool) {
-        let coordinateRegion = preferredCoordinateRegion
-        mapView.setRegion(coordinateRegion, animated: animated)
-        mapView.camera.heading = 334.30179164562668
+        let rect = preferredMapRect
+        let region = MKCoordinateRegion(rect)
+        let span = region.span
+        let center = region.center
+
+        let topLeftLatitude = center.latitude + span.latitudeDelta / 2
+        let topLeftLongitude = center.longitude - span.longitudeDelta / 2
+        let topLeftCoordinate = CLLocationCoordinate2D(latitude: topLeftLatitude, longitude: topLeftLongitude)
+        let topLeft = MKMapPoint(topLeftCoordinate)
+
+        let adjacent: CLLocationDistance
+        if rect.size.height > rect.size.width {
+            let bottomLeftLatitude = center.latitude - span.latitudeDelta / 2
+            let bottomLeftLongitude = center.longitude - span.longitudeDelta / 2
+            let bottomLeftCoordinate = CLLocationCoordinate2D(latitude: bottomLeftLatitude, longitude: bottomLeftLongitude)
+            let bottomLeft = MKMapPoint(bottomLeftCoordinate)
+            adjacent = topLeft.distance(to: bottomLeft) / 2
+        } else {
+            let topRightLatitude = center.latitude + span.latitudeDelta / 2
+            let topRightLongitude = center.longitude + span.longitudeDelta / 2
+            let topRightCoordinate = CLLocationCoordinate2D(latitude: topRightLatitude, longitude: topRightLongitude)
+            let topRight = MKMapPoint(topRightCoordinate)
+            adjacent = topLeft.distance(to: topRight) / 2
+        }
+
+        let distance = adjacent / tan(9 * .pi / 180)
+        let camera = MKMapCamera(lookingAtCenter: region.center, fromDistance: distance, pitch: 0, heading: 334.30179164562668)
+        mapView.setCamera(camera, animated: animated)
     }
 
     func deselectSelectedAnnotation() {
@@ -95,12 +120,12 @@ final class MapViewController: UIViewController {
         }
     }
 
-    private var preferredCoordinateRegion: MKCoordinateRegion {
-        var boundingMapRect: MKMapRect = .null
+    private var preferredMapRect: MKMapRect {
+        var rect: MKMapRect = .null
         for building in buildings {
-            boundingMapRect = boundingMapRect.union(building.polygon.boundingMapRect)
+            rect = rect.union(building.polygon.boundingMapRect)
         }
-        return MKCoordinateRegion(boundingMapRect)
+        return rect
     }
 
     private func didChangeBuildings() {
@@ -114,7 +139,7 @@ final class MapViewController: UIViewController {
         }
 
         if #available(iOS 13.0, *) {
-            let region = preferredCoordinateRegion
+            let region = MKCoordinateRegion(preferredMapRect)
             let boundary = MKMapView.CameraBoundary(coordinateRegion: region)
             mapView.cameraBoundary = boundary
         }
