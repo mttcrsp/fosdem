@@ -55,9 +55,10 @@
 "map.blueprint.empty" = "No blueprint available";
 
 /// MARK: - Location
-"location.title" = "Location services";
-"location.message.enable" = "Location services are currently disabled for this device. You can enable them from the application settings.";
-"location.message.disable" = "Location services are currently enabled for this device. You can disable them from the application settings.";
+"location.title.enable" = "Enable location services";
+"location.title.disable" = "Disable Location services";
+"location.message.enable" = "By enabling location services you will be able to see your current position on the map";
+"location.message.disable" = "You will always be able to renable them later";
 "location.dismiss" = "Cancel";
 "location.confirm" = "Open settings";
 

@@ -162,14 +162,11 @@ extension MapController: MapViewControllerDelegate {
     }
 
     func mapViewControllerDidTapLocation(_ mapViewController: MapViewController) {
-        switch authorizationStatus {
-        case .notDetermined:
+        if let action = authorizationStatus.action {
+            let actionViewController = makeActionViewController(for: action)
+            mapViewController.present(actionViewController, animated: true)
+        } else if authorizationStatus == .notDetermined {
             locationManager.requestWhenInUseAuthorization()
-        case .authorizedAlways, .authorizedWhenInUse, .denied, .restricted:
-            let settingsViewController = makeLocationSettingsViewController(for: authorizationStatus)
-            mapViewController.present(settingsViewController, animated: true)
-        @unknown default:
-            break
         }
     }
 }
@@ -238,7 +235,7 @@ private extension MapController {
         return blueprintsViewController
     }
 
-    func makeLocationSettingsViewController(for status: CLAuthorizationStatus) -> UIAlertController {
+    func makeActionViewController(for action: CLAuthorizationStatus.Action) -> UIAlertController {
         let dismissTitle = NSLocalizedString("location.dismiss", comment: "")
         let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
 
@@ -247,8 +244,7 @@ private extension MapController {
             self?.didTapLocationSettings()
         }
 
-        let alertTitle = NSLocalizedString("location.title", comment: "")
-        let alertController = UIAlertController(title: alertTitle, message: status.settingsMessage, preferredStyle: .alert)
+        let alertController = UIAlertController(title: action.title, message: action.message, preferredStyle: .alert)
         alertController.addAction(dismissAction)
         alertController.addAction(confirmAction)
         return alertController
@@ -256,16 +252,40 @@ private extension MapController {
 }
 
 private extension CLAuthorizationStatus {
-    var settingsMessage: String? {
+    enum Action {
+        case enable, disable
+    }
+
+    var action: Action? {
         switch self {
         case .authorizedAlways, .authorizedWhenInUse:
-            return NSLocalizedString("location.message.disable", comment: "")
+            return .disable
         case .denied, .restricted:
-            return NSLocalizedString("location.message.enable", comment: "")
+            return .enable
         case .notDetermined:
             return nil
         @unknown default:
             return nil
+        }
+    }
+}
+
+extension CLAuthorizationStatus.Action {
+    var title: String {
+        switch self {
+        case .enable:
+            return NSLocalizedString("location.title.enable", comment: "")
+        case .disable:
+            return NSLocalizedString("location.title.disable", comment: "")
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .enable:
+            return NSLocalizedString("location.message.enable", comment: "")
+        case .disable:
+            return NSLocalizedString("location.message.disable", comment: "")
         }
     }
 }
