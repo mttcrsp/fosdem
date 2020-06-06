@@ -17,7 +17,7 @@ targets:
   FOSDEM:
     type: application
     platform: iOS
-    deploymentTarget: '10.0'
+    deploymentTarget: '11.0'
     sources:
     - Sources
     - Resources
@@ -48,7 +48,7 @@ targets:
   Tests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: '10.0'
+    deploymentTarget: '11.0'
     sources:
     - Tests
     - Resources/Buildings
