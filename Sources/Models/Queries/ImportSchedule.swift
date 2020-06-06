@@ -4,6 +4,10 @@ struct ImportSchedule: PersistenceServiceWrite {
     let schedule: Schedule
 
     func perform(in database: Database) throws {
+        for type in [Event.self, Track.self, Person.self, Participation.self] as [MutablePersistableRecord.Type] {
+            try type.deleteAll(database)
+        }
+
         for day in schedule.days {
             for event in day.events {
                 try event.insert(database)
