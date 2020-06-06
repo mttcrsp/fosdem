@@ -107,7 +107,7 @@ final class QueriesTests: XCTestCase {
             let service = try self.makePersistentService(with: schedule)
             let events = try service.performReadSync(query)
 
-            XCTAssertEqual(events, [event2, event3, event4, event5, event6, event7])
+            XCTAssertEqual(events, [event2, event6, event3, event7, event4, event5])
         }())
     }
 

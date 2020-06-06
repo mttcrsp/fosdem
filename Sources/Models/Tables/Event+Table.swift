@@ -59,6 +59,12 @@ extension Event: PersistableRecord, FetchableRecord {
     }
 }
 
+extension Event.Columns {
+    static var searchable: [Event.Columns] {
+        [.id, .track, .title, .subtitle, .abstract, .summary, .people]
+    }
+}
+
 private extension Row {
     func decode<Value: Codable>(for column: String, default: Value) -> Value {
         guard let value = self[column] else {

@@ -4,11 +4,11 @@ struct CreateEventsSearchTable: PersistenceServiceMigration {
     let identifier = "create events search table"
 
     func perform(in database: GRDB.Database) throws {
-        try database.create(virtualTable: Event.searchDatabaseTableName, using: FTS4()) { table in
+        try database.create(virtualTable: Event.searchDatabaseTableName, using: FTS5()) { table in
             table.synchronize(withTable: Event.databaseTableName)
-            table.tokenizer = .unicode61()
+            table.tokenizer = .porter(wrapping: .ascii())
 
-            for column in Event.Columns.allCases {
+            for column in Event.Columns.searchable {
                 table.column(column.rawValue)
             }
         }

@@ -8,6 +8,7 @@ struct EventsForSearch: PersistenceServiceRead {
         SELECT events.*
         FROM events JOIN events_search ON events.id = events_search.id
         WHERE events_search MATCH ?
-        """, arguments: [FTS3Pattern(matchingAllTokensIn: query)])
+        ORDER BY bm25(events_search, 5.0, 2.0, 5.0, 3.0, 1.0, 1.0, 3.0)
+        """, arguments: [FTS5Pattern(matchingAnyTokenIn: query)])
     }
 }
