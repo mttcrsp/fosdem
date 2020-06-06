@@ -128,11 +128,6 @@ class TracksViewController: UITableViewController {
         }
     }
 
-    override func tableView(_: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        [UITableViewRowAction](actions: actions(at: indexPath))
-    }
-
-    @available(iOS 11.0, *)
     override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         UISwipeActionsConfiguration(actions: actions(at: indexPath))
     }

@@ -7,7 +7,6 @@ final class SearchController: UISplitViewController {
     private weak var searchController: UISearchController?
     private weak var filtersButton: UIBarButtonItem?
 
-    private var searchControllerRef: UISearchController?
     private var captions: [Event: String] = [:]
     private var events: [Event] = []
 
@@ -58,10 +57,7 @@ final class SearchController: UISplitViewController {
 
         let tracksViewController = makeTracksViewController()
         let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
-
-        if #available(iOS 11.0, *) {
-            tracksNavigationController.navigationBar.prefersLargeTitles = true
-        }
+        tracksNavigationController.navigationBar.prefersLargeTitles = true
 
         viewControllers = [tracksNavigationController]
         if traitCollection.horizontalSizeClass == .regular {
@@ -69,7 +65,6 @@ final class SearchController: UISplitViewController {
         }
     }
 
-    @available(iOS 11.0, *)
     private func prefersLargeTitleForDetailViewController(with title: String) -> Bool {
         let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
         let attributes = [NSAttributedString.Key.font: font]
@@ -307,6 +302,7 @@ private extension SearchController {
         let tracksViewController = TracksViewController(style: .fos_insetGrouped)
         tracksViewController.title = NSLocalizedString("search.title", comment: "")
         tracksViewController.navigationItem.rightBarButtonItem = filtersButton
+        tracksViewController.navigationItem.largeTitleDisplayMode = .always
         tracksViewController.addSearchViewController(makeSearchController())
         tracksViewController.definesPresentationContext = true
         tracksViewController.favoritesDataSource = self
@@ -316,11 +312,6 @@ private extension SearchController {
         tracksViewController.dataSource = self
         tracksViewController.delegate = self
         self.tracksViewController = tracksViewController
-
-        if #available(iOS 11.0, *) {
-            tracksViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
         return tracksViewController
     }
 
@@ -346,16 +337,6 @@ private extension SearchController {
         searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
         searchController.searchResultsUpdater = self
         self.searchController = searchController
-
-        if #available(iOS 11.0, *) {
-            // On iOS 10, UISearchController instances are not retained by their
-            // hosting view controller. You are responsible for retaining them
-            // in order prevent them from being deallocated before presentation
-            // occurs.
-        } else {
-            searchControllerRef = searchController
-        }
-
         return searchController
     }
 
@@ -389,12 +370,10 @@ private extension SearchController {
         eventsViewController.delegate = self
         self.eventsViewController = eventsViewController
 
-        if #available(iOS 11.0, *) {
-            if prefersLargeTitleForDetailViewController(with: track.name) {
-                eventsViewController.navigationItem.largeTitleDisplayMode = .always
-            } else {
-                eventsViewController.navigationItem.largeTitleDisplayMode = .never
-            }
+        if prefersLargeTitleForDetailViewController(with: track.name) {
+            eventsViewController.navigationItem.largeTitleDisplayMode = .always
+        } else {
+            eventsViewController.navigationItem.largeTitleDisplayMode = .never
         }
 
         observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in

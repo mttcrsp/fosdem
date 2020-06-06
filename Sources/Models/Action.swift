@@ -18,18 +18,6 @@ struct Action {
     }
 }
 
-private extension UITableViewRowAction.Style {
-    init(style: Action.Style) {
-        switch style {
-        case .default:
-            self = .default
-        case .destructive:
-            self = .destructive
-        }
-    }
-}
-
-@available(iOS 11.0, *)
 private extension UIContextualAction.Style {
     init(style: Action.Style) {
         switch style {
@@ -53,17 +41,6 @@ private extension UIMenuElement.Attributes {
     }
 }
 
-private extension UITableViewRowAction {
-    convenience init(action: Action) {
-        let style = UITableViewRowAction.Style(style: action.style)
-
-        self.init(style: style, title: action.title) { _, _ in
-            action.handler()
-        }
-    }
-}
-
-@available(iOS 11.0, *)
 private extension UIContextualAction {
     convenience init(action: Action) {
         let style = UIContextualAction.Style(style: action.style)
@@ -95,19 +72,6 @@ private extension UIAction {
     }
 }
 
-extension Array where Element == UITableViewRowAction {
-    init?(actions: [Action]) {
-        guard !actions.isEmpty else { return nil }
-
-        self.init()
-
-        for action in actions {
-            append(UITableViewRowAction(action: action))
-        }
-    }
-}
-
-@available(iOS 11.0, *)
 extension UISwipeActionsConfiguration {
     convenience init?(actions: [Action]) {
         guard !actions.isEmpty else { return nil }

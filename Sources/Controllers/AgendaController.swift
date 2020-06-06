@@ -233,11 +233,7 @@ private extension AgendaController {
     func makeAgendaNavigationController() -> UINavigationController {
         let agendaViewController = makeAgendaViewController()
         let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
-
-        if #available(iOS 11.0, *) {
-            agendaNavigationController.navigationBar.prefersLargeTitles = true
-        }
-
+        agendaNavigationController.navigationBar.prefersLargeTitles = true
         return agendaNavigationController
     }
 
@@ -250,6 +246,7 @@ private extension AgendaController {
         agendaViewController.emptyBackgroundMessage = NSLocalizedString("agenda.empty.message", comment: "")
         agendaViewController.emptyBackgroundTitle = NSLocalizedString("agenda.empty.title", comment: "")
         agendaViewController.title = NSLocalizedString("agenda.title", comment: "")
+        agendaViewController.navigationItem.largeTitleDisplayMode = .always
         agendaViewController.navigationItem.rightBarButtonItem = soonButton
         agendaViewController.favoritesDataSource = self
         agendaViewController.favoritesDelegate = self
@@ -257,11 +254,6 @@ private extension AgendaController {
         agendaViewController.dataSource = self
         agendaViewController.delegate = self
         self.agendaViewController = agendaViewController
-
-        if #available(iOS 11.0, *) {
-            agendaViewController.navigationItem.largeTitleDisplayMode = .always
-        }
-
         return agendaViewController
     }
 

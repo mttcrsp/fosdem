@@ -22,10 +22,7 @@ final class MoreController: UISplitViewController {
 
         let moreViewController = makeMoreViewController()
         let moreNavigationController = UINavigationController(rootViewController: moreViewController)
-
-        if #available(iOS 11.0, *) {
-            moreNavigationController.navigationBar.prefersLargeTitles = true
-        }
+        moreNavigationController.navigationBar.prefersLargeTitles = true
 
         viewControllers = [moreNavigationController]
         if traitCollection.horizontalSizeClass == .regular {
@@ -296,13 +293,9 @@ private extension MoreController {
 
     func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {
         let yearController = YearController(year: year, yearPersistenceService: persistenceService, services: services)
+        yearController.navigationItem.largeTitleDisplayMode = .never
         yearController.yearDelegate = self
         yearController.title = year
-
-        if #available(iOS 11.0, *) {
-            yearController.navigationItem.largeTitleDisplayMode = .never
-        }
-
         return yearController
     }
 

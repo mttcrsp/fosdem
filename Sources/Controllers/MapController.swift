@@ -23,7 +23,7 @@ final class MapController: MapContainerViewController {
         self.services = services
         super.init(nibName: nil, bundle: nil)
 
-        observer = notificationCenter.addObserver(forName: UIAccessibility.fos_voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
+        observer = notificationCenter.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
             self?.didChangeVoiceOverStatus()
         }
     }

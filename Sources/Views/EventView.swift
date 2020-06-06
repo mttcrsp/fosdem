@@ -56,18 +56,12 @@ final class EventView: UIStackView {
         titleLabel.text = event.title
         titleLabel.numberOfLines = 0
         addArrangedSubview(titleLabel)
-
-        if #available(iOS 11.0, *) {
-            setCustomSpacing(18, after: titleLabel)
-        }
+        setCustomSpacing(18, after: titleLabel)
 
         let trackView = TrackView()
         trackView.track = event.track
         addArrangedSubview(trackView)
-
-        if #available(iOS 11.0, *) {
-            setCustomSpacing(20, after: trackView)
-        }
+        setCustomSpacing(20, after: trackView)
 
         if event.video != nil {
             let videoTitle = makeVideoTitle(for: event)
@@ -79,12 +73,9 @@ final class EventView: UIStackView {
             videoButton.setTitle(videoTitle, for: .normal)
             self.videoButton = videoButton
             addArrangedSubview(videoButton)
+            setCustomSpacing(28, after: videoButton)
 
             constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
-
-            if #available(iOS 11.0, *) {
-                setCustomSpacing(28, after: videoButton)
-            }
         }
 
         if !event.people.isEmpty {
@@ -114,10 +105,7 @@ final class EventView: UIStackView {
         dateView.image = .fos_systemImage(withName: "clock.fill")
         dateView.text = event.formattedDate
         addArrangedSubview(dateView)
-
-        if #available(iOS 11.0, *) {
-            setCustomSpacing(28, after: dateView)
-        }
+        setCustomSpacing(28, after: dateView)
 
         if let subtitle = event.subtitle {
             let subtitleLabel = UILabel()
@@ -155,10 +143,7 @@ final class EventView: UIStackView {
             attachmentsLabel.adjustsFontForContentSizeCategory = true
             attachmentsLabel.numberOfLines = 0
             addArrangedSubview(attachmentsLabel)
-
-            if #available(iOS 11.0, *) {
-                setCustomSpacing(22, after: attachmentsLabel)
-            }
+            setCustomSpacing(22, after: attachmentsLabel)
         }
 
         for attachment in attachments {

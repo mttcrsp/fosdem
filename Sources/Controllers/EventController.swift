@@ -76,9 +76,7 @@ final class EventController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if #available(iOS 11.0, *) {
-            navigationItem.largeTitleDisplayMode = .never
-        }
+        navigationItem.largeTitleDisplayMode = .never
 
         let eventViewController = makeEventViewController(for: event)
         addChild(eventViewController)
@@ -209,16 +207,12 @@ private extension EventController {
 
     func makeVideoViewController(for url: URL) -> AVPlayerViewController {
         let videoViewController = AVPlayerViewController()
+        videoViewController.exitsFullScreenWhenPlaybackEnds = true
         videoViewController.allowsPictureInPicturePlayback = true
         videoViewController.player = AVPlayer(url: url)
         videoViewController.player?.play()
         videoViewController.delegate = self
         self.videoViewController = videoViewController
-
-        if #available(iOS 11.0, *) {
-            videoViewController.exitsFullScreenWhenPlaybackEnds = true
-        }
-
         return videoViewController
     }
 

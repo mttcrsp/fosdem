@@ -36,10 +36,7 @@ final class MapViewController: UIViewController {
         mapView.isPitchEnabled = false
         mapView.showsUserLocation = true
         mapView.showsPointsOfInterest = false
-
-        if #available(iOS 11.0, *) {
-            mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
-        }
+        mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
 
         controlsView.delegate = self
         controlsView.translatesAutoresizingMaskIntoConstraints = false
@@ -192,7 +189,7 @@ extension MapViewController: MKMapViewDelegate {
     }
 
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard #available(iOS 11.0, *), let building = annotation as? Building else { return nil }
+        guard let building = annotation as? Building else { return nil }
 
         let format = NSLocalizedString("map.building", comment: "")
         let string = String(format: format, building.title ?? "")
