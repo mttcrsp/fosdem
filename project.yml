@@ -1,8 +1,8 @@
 name: FOSDEM
 packages:
   GRDB:
-    url: https://github.com/groue/GRDB.swift
-    version: 4.9.0
+    url: https://github.com/mttcrsp/GRDB.swift
+    branch: master
   CrashReporter:
     url: https://github.com/microsoft/plcrashreporter
     branch: master
