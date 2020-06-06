@@ -262,9 +262,11 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 extension SearchController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let query = searchController.searchBar.text, query.count >= 3 else {
-            resultsViewController?.emptyBackgroundMessage = nil
-            resultsViewController?.view.isHidden = true
             events = []
+            resultsViewController?.emptyBackgroundMessage = nil
+            resultsViewController?.emptyBackgroundTitle = nil
+            resultsViewController?.view.isHidden = true
+            resultsViewController?.reloadData()
             return
         }
 
@@ -273,13 +275,18 @@ extension SearchController: UISearchResultsUpdating {
             DispatchQueue.main.async {
                 switch result {
                 case .failure:
-                    break
+                    let errorTitle = NSLocalizedString("search.error.title", comment: "")
+                    let errorMessage = NSLocalizedString("search.error.message", comment: "")
+                    self?.events = []
+                    self?.resultsViewController?.emptyBackgroundMessage = errorMessage
+                    self?.resultsViewController?.emptyBackgroundTitle = errorTitle
+                    self?.resultsViewController?.view.isHidden = false
+                    self?.resultsViewController?.reloadData()
                 case let .success(events):
-                    self?.events = events
-
                     let emptyTitle = NSLocalizedString("search.empty.title", comment: "")
                     let emptyMessageFormat = NSLocalizedString("search.empty.message", comment: "")
                     let emptyMessage = String(format: emptyMessageFormat, query)
+                    self?.events = events
                     self?.resultsViewController?.emptyBackgroundMessage = emptyMessage
                     self?.resultsViewController?.emptyBackgroundTitle = emptyTitle
                     self?.resultsViewController?.view.isHidden = false

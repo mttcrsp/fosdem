@@ -46,6 +46,8 @@
 "search.event.start" = "%@ on %@";
 "search.empty.title" = "No results";
 "search.empty.message" = "Nothing found for \"%@\"";
+"search.error.title" = "Ooops, something went wrong";
+"search.error.message" = "Sorry, this query is too good. Try with something else.";
 
 /// MARK: - Map
 "map.title" = "Map";
