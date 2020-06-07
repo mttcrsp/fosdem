@@ -65,12 +65,16 @@ extension Event {
 
         var string = attributedString.string
         string = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        string = string.replacingOccurrences(of: "\t", with: " ")
         string = string.replacingOccurrences(of: "\n", with: "\n\n")
         return string
     }
 
     var formattedSummary: String? {
-        summary?.replacingOccurrences(of: "\n", with: "\n\n")
+        var string = summary
+        string = string?.replacingOccurrences(of: "\t", with: " ")
+        string = string?.replacingOccurrences(of: "\n", with: "\n\n")
+        return string
     }
 
     var formattedPeople: String? {
