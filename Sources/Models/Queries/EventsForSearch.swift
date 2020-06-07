@@ -7,7 +7,7 @@ struct EventsForSearch: PersistenceServiceRead {
     let components = query.components(separatedBy: " ")
     let componentsEscaped = components.map { "\"\($0)\"" }
 
-    let predicate = componentsEscaped.joined(separator: " OR ")
+    let predicate = componentsEscaped.joined(separator: " AND ")
     let predicateWithPrefix = "\(predicate) *"
 
     let pattern = try database.makeFTS5Pattern(rawPattern: predicateWithPrefix, forTable: Event.searchDatabaseTableName)
