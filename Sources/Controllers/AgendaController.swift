@@ -55,15 +55,14 @@ final class AgendaController: UIViewController {
         super.viewDidLoad()
 
         reloadFavoriteEvents()
-        let observation1 = favoritesService.addObserverForEvents { [weak self] in
-            self?.reloadFavoriteEvents()
-        }
-
-        let observation2 = services.liveService.addObserver { [weak self] in
-            self?.reloadLiveStatus()
-        }
-
-        observations = [observation1, observation2]
+        observations = [
+            favoritesService.addObserverForEvents { [weak self] in
+                self?.reloadFavoriteEvents()
+            },
+            services.liveService.addObserver { [weak self] in
+                self?.reloadLiveStatus()
+            },
+        ]
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
