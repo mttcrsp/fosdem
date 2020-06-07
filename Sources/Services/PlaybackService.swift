@@ -14,12 +14,16 @@ protocol PlaybackServiceDefaults: AnyObject {
 extension UserDefaults: PlaybackServiceDefaults {}
 
 final class PlaybackService {
-  private var watched: Set<Int> {
+  var watching: Set<Int> {
+    Set(progress.keys.compactMap(Int.init))
+  }
+
+  private(set) var watched: Set<Int> {
     get { userDefaults.watched }
     set { userDefaults.watched = newValue }
   }
 
-  private var watching: [String: Double] {
+  private var progress: [String: Double] {
     get { userDefaults.watching }
     set { userDefaults.watching = newValue }
   }
@@ -34,13 +38,13 @@ final class PlaybackService {
     switch position {
     case .beginning:
       watched.remove(identifier)
-      watching.removeValue(forKey: identifier.description)
+      progress.removeValue(forKey: identifier.description)
     case let .at(seconds):
       watched.remove(identifier)
-      watching.updateValue(seconds, forKey: identifier.description)
+      progress.updateValue(seconds, forKey: identifier.description)
     case .end:
       watched.insert(identifier)
-      watching.removeValue(forKey: identifier.description)
+      progress.removeValue(forKey: identifier.description)
     }
   }
 
@@ -49,7 +53,7 @@ final class PlaybackService {
       return .end
     }
 
-    if let seconds = watching[identifier.description] {
+    if let seconds = progress[identifier.description] {
       return .at(seconds)
     }
 
