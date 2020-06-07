@@ -3,40 +3,40 @@ import Fosdem
 import XCTest
 
 final class LiveServiceTests: XCTestCase {
-    func testAddObserver() {
-        let timer = Timer()
-        let timerProvider = LiveServiceProviderMock(timer: timer)
-        let liveService = LiveService(timerProvider: timerProvider)
-        liveService.startMonitoring()
+  func testAddObserver() {
+    let timer = Timer()
+    let timerProvider = LiveServiceProviderMock(timer: timer)
+    let liveService = LiveService(timerProvider: timerProvider)
+    liveService.startMonitoring()
 
-        let expectation = self.expectation(description: #function)
-        expectation.expectedFulfillmentCount = 3
+    let expectation = self.expectation(description: #function)
+    expectation.expectedFulfillmentCount = 3
 
-        _ = liveService.addObserver {
-            expectation.fulfill()
-        }
-
-        timerProvider.block?(timer)
-        timerProvider.block?(timer)
-        timerProvider.block?(timer)
-
-        waitForExpectations(timeout: 0.1)
+    _ = liveService.addObserver {
+      expectation.fulfill()
     }
 
-    func testStartMonitoring() {
-        let timer = Timer()
-        let timerProvider = LiveServiceProviderMock(timer: timer)
-        let liveService = LiveService(timerProvider: timerProvider)
+    timerProvider.block?(timer)
+    timerProvider.block?(timer)
+    timerProvider.block?(timer)
 
-        let expectation = self.expectation(description: #function)
-        expectation.isInverted = true
+    waitForExpectations(timeout: 0.1)
+  }
 
-        _ = liveService.addObserver {
-            expectation.fulfill()
-        }
+  func testStartMonitoring() {
+    let timer = Timer()
+    let timerProvider = LiveServiceProviderMock(timer: timer)
+    let liveService = LiveService(timerProvider: timerProvider)
 
-        timerProvider.block?(timer)
+    let expectation = self.expectation(description: #function)
+    expectation.isInverted = true
 
-        waitForExpectations(timeout: 0.1)
+    _ = liveService.addObserver {
+      expectation.fulfill()
     }
+
+    timerProvider.block?(timer)
+
+    waitForExpectations(timeout: 0.1)
+  }
 }

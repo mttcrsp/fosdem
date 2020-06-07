@@ -1,3 +1,3 @@
 struct Participation: Codable {
-    let personID, eventID: Int
+  let personID, eventID: Int
 }

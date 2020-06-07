@@ -3,17 +3,17 @@ import Fosdem
 import Foundation
 
 final class AcknowledgementsServiceBundleMock: AcknowledgementsServiceBundle {
-    private(set) var name: String?
-    private(set) var ext: String?
-    private let url: URL?
+  private(set) var name: String?
+  private(set) var ext: String?
+  private let url: URL?
 
-    init(url: URL?) {
-        self.url = url
-    }
+  init(url: URL?) {
+    self.url = url
+  }
 
-    func url(forResource name: String?, withExtension ext: String?) -> URL? {
-        self.name = name
-        self.ext = ext
-        return url
-    }
+  func url(forResource name: String?, withExtension ext: String?) -> URL? {
+    self.name = name
+    self.ext = ext
+    return url
+  }
 }

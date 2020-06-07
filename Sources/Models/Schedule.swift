@@ -1,3 +1,3 @@
 struct Schedule: Codable {
-    let conference: Conference, days: [Day]
+  let conference: Conference, days: [Day]
 }

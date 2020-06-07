@@ -2,9 +2,9 @@
 import Fosdem
 
 final class NetworkServiceTaskMock: NetworkServiceTask {
-    private(set) var didResume = false
+  private(set) var didResume = false
 
-    func resume() {
-        didResume = true
-    }
+  func resume() {
+    didResume = true
+  }
 }

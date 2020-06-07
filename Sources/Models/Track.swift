@@ -1,11 +1,11 @@
 import Foundation
 
 struct Track: Codable {
-    let name: String, day: Int, date: Date
+  let name: String, day: Int, date: Date
 }
 
 extension Track: Equatable {
-    static func == (lhs: Track, rhs: Track) -> Bool {
-        lhs.name == rhs.name
-    }
+  static func == (lhs: Track, rhs: Track) -> Bool {
+    lhs.name == rhs.name
+  }
 }

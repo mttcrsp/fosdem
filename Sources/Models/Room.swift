@@ -1,3 +1,3 @@
 struct Room: Codable {
-    let name: String, events: [Event]
+  let name: String, events: [Event]
 }
