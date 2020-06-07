@@ -67,7 +67,7 @@ final class SearchController: UISplitViewController {
         }
     }
 
-    private func prefersLargeTitleForDetailViewController(with title: String) -> Bool {
+    private func prefersLargeTitleForDetailViewController(withTitle title: String) -> Bool {
         let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
         let attributes = [NSAttributedString.Key.font: font]
         let attributedString = NSAttributedString(string: title, attributes: attributes)
@@ -382,7 +382,7 @@ private extension SearchController {
         eventsViewController.delegate = self
         self.eventsViewController = eventsViewController
 
-        if prefersLargeTitleForDetailViewController(with: track.name) {
+        if prefersLargeTitleForDetailViewController(withTitle: track.name) {
             eventsViewController.navigationItem.largeTitleDisplayMode = .always
         } else {
             eventsViewController.navigationItem.largeTitleDisplayMode = .never
