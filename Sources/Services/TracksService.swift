@@ -98,10 +98,12 @@ final class TracksService {
 extension TracksFilter: Comparable {
     static func < (lhs: TracksFilter, rhs: TracksFilter) -> Bool {
         switch (lhs, rhs) {
-        case (.all, .all): return true
-        case (.all, .day): return true
-        case (.day, .all): return false
-        case let (.day(lhs), .day(rhs)): return lhs < rhs
+        case (.all, _):
+            return true
+        case (.day, .all):
+            return false
+        case let (.day(lhs), .day(rhs)):
+            return lhs < rhs
         }
     }
 }

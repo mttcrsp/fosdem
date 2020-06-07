@@ -42,8 +42,10 @@ final class YearController: TracksViewController {
         persistenceService.performRead(AllTracksOrderedByName()) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
-                case let .failure(error): self?.tracksLoadingDidError(with: error)
-                case let .success(tracks): self?.tracksLoadingDidFinish(with: tracks)
+                case let .failure(error):
+                    self?.tracksLoadingDidError(with: error)
+                case let .success(tracks):
+                    self?.tracksLoadingDidFinish(with: tracks)
                 }
             }
         }
@@ -84,8 +86,10 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
         persistenceService.performRead(EventsForTrack(track: track.name)) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
-                case let .failure(error): self?.eventsLoadingDidError(with: error)
-                case let .success(events): self?.eventsLoadingDidFinish(with: events)
+                case let .failure(error):
+                    self?.eventsLoadingDidError(with: error)
+                case let .success(events):
+                    self?.eventsLoadingDidFinish(with: events)
                 }
             }
         }

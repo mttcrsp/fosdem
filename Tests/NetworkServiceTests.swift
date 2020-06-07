@@ -41,8 +41,10 @@ final class NetworkServiceTests: XCTestCase {
             didExecuteCompletion = true
 
             switch result {
-            case let .success(value): XCTAssertEqual(value, integer)
-            case let .failure(error): XCTFail(error.localizedDescription)
+            case let .success(value):
+                XCTAssertEqual(value, integer)
+            case let .failure(error):
+                XCTFail(error.localizedDescription)
             }
         }
 

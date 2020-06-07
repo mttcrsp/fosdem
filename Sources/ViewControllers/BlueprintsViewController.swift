@@ -161,8 +161,10 @@ extension FullscreenBlueprintViewController: BlueprintViewController {}
 private extension BlueprintsViewController.Style {
     var blueprintViewControllerClass: BlueprintViewController.Type {
         switch self {
-        case .embedded: return EmbeddedBlueprintViewController.self
-        case .fullscreen: return FullscreenBlueprintViewController.self
+        case .embedded:
+            return EmbeddedBlueprintViewController.self
+        case .fullscreen:
+            return FullscreenBlueprintViewController.self
         }
     }
 }

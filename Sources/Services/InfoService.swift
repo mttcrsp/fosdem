@@ -70,15 +70,24 @@ final class InfoService {
 extension Info {
     var resource: String {
         switch self {
-        case .history: return "history"
-        case .devrooms: return "devrooms"
-        case .transportation: return "transportation"
-        case .bus: return "bus-tram"
-        case .shuttle: return "shuttle"
-        case .train: return "train"
-        case .car: return "car"
-        case .plane: return "plane"
-        case .taxi: return "taxi"
+        case .history:
+            return "history"
+        case .devrooms:
+            return "devrooms"
+        case .transportation:
+            return "transportation"
+        case .bus:
+            return "bus-tram"
+        case .shuttle:
+            return "shuttle"
+        case .train:
+            return "train"
+        case .car:
+            return "car"
+        case .plane:
+            return "plane"
+        case .taxi:
+            return "taxi"
         }
     }
 }

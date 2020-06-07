@@ -25,15 +25,19 @@ final class PreloadServiceFileMock: PreloadServiceFile {
         self.newPath = newPath
 
         switch copyItemResult {
-        case .success: break
-        case let .failure(error): throw error
+        case .success:
+            break
+        case let .failure(error):
+            throw error
         }
     }
 
     func url(for _: FileManager.SearchPathDirectory, in _: FileManager.SearchPathDomainMask, appropriateFor _: URL?, create _: Bool) throws -> URL {
         switch urlResult {
-        case let .success(value): return value
-        case let .failure(error): throw error
+        case let .success(value):
+            return value
+        case let .failure(error):
+            throw error
         }
     }
 }

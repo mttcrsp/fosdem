@@ -173,9 +173,12 @@ final class EventView: UIStackView {
     private func makeVideoTitle(for event: Event) -> String {
         let position = dataSource?.eventView(self, playbackPositionFor: event)
         switch position ?? .beginning {
-        case .beginning: return NSLocalizedString("event.video.begin", comment: "")
-        case .end: return NSLocalizedString("event.video.end", comment: "")
-        case .at: return NSLocalizedString("event.video.at", comment: "")
+        case .beginning:
+            return NSLocalizedString("event.video.begin", comment: "")
+        case .end:
+            return NSLocalizedString("event.video.end", comment: "")
+        case .at:
+            return NSLocalizedString("event.video.at", comment: "")
         }
     }
 }

@@ -14,8 +14,10 @@ final class AcknowledgementsServiceDataProviderMock: AcknowledgementsServiceData
         self.url = url
 
         switch data {
-        case let .success(data): return data
-        case let .failure(error): throw error
+        case let .success(data):
+            return data
+        case let .failure(error):
+            throw error
         }
     }
 }

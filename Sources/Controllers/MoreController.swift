@@ -44,15 +44,22 @@ final class MoreController: UISplitViewController {
 extension MoreController: MoreViewControllerDelegate {
     func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
         switch item {
+        case .code:
+            moreViewControllerDidSelectCode(moreViewController)
+        case .years:
+            moreViewControllerDidSelectYears(moreViewController)
+        case .history:
+            moreViewControllerDidSelectHistory(moreViewController)
+        case .devrooms:
+            moreViewControllerDidSelectDevrooms(moreViewController)
+        case .transportation:
+            moreViewControllerDidSelectTransportation(moreViewController)
+        case .acknowledgements:
+            moreViewControllerDidSelectAcknowledgements(moreViewController)
         #if DEBUG
-            case .time: moreViewControllerDidSelectTime(moreViewController)
+            case .time:
+                moreViewControllerDidSelectTime(moreViewController)
         #endif
-        case .code: moreViewControllerDidSelectCode(moreViewController)
-        case .years: moreViewControllerDidSelectYears(moreViewController)
-        case .history: moreViewControllerDidSelectHistory(moreViewController)
-        case .devrooms: moreViewControllerDidSelectDevrooms(moreViewController)
-        case .transportation: moreViewControllerDidSelectTransportation(moreViewController)
-        case .acknowledgements: moreViewControllerDidSelectAcknowledgements(moreViewController)
         }
     }
 

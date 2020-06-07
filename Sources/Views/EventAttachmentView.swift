@@ -85,11 +85,16 @@ private extension Attachment {
 private extension AttachmentType {
     var title: String? {
         switch self {
-        case .slides: return NSLocalizedString("attachment.slides", comment: "")
-        case .audio: return NSLocalizedString("attachment.audio", comment: "")
-        case .paper: return NSLocalizedString("attachment.paper", comment: "")
-        case .video: return NSLocalizedString("attachment.video", comment: "")
-        case .other: return nil
+        case .slides:
+            return NSLocalizedString("attachment.slides", comment: "")
+        case .audio:
+            return NSLocalizedString("attachment.audio", comment: "")
+        case .paper:
+            return NSLocalizedString("attachment.paper", comment: "")
+        case .video:
+            return NSLocalizedString("attachment.video", comment: "")
+        case .other:
+            return nil
         }
     }
 }

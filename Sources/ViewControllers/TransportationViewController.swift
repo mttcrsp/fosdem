@@ -63,8 +63,10 @@ private extension UITableViewCell {
 private extension TransportationViewController.Section {
     var title: String {
         switch self {
-        case .directions: return NSLocalizedString("transportation.section.directions", comment: "")
-        case .by: return NSLocalizedString("transportation.section.by", comment: "")
+        case .directions:
+            return NSLocalizedString("transportation.section.directions", comment: "")
+        case .by:
+            return NSLocalizedString("transportation.section.by", comment: "")
         }
     }
 
@@ -79,14 +81,22 @@ private extension TransportationViewController.Section {
 extension TransportationViewController.Item {
     var title: String {
         switch self {
-        case .googleMaps: return NSLocalizedString("transportation.item.google", comment: "")
-        case .appleMaps: return NSLocalizedString("transportation.item.apple", comment: "")
-        case .shuttle: return NSLocalizedString("transportation.item.shuttle", comment: "")
-        case .train: return NSLocalizedString("transportation.item.train", comment: "")
-        case .plane: return NSLocalizedString("transportation.item.plane", comment: "")
-        case .taxi: return NSLocalizedString("transportation.item.taxi", comment: "")
-        case .car: return NSLocalizedString("transportation.item.car", comment: "")
-        case .bus: return NSLocalizedString("transportation.item.bus", comment: "")
+        case .googleMaps:
+            return NSLocalizedString("transportation.item.google", comment: "")
+        case .appleMaps:
+            return NSLocalizedString("transportation.item.apple", comment: "")
+        case .shuttle:
+            return NSLocalizedString("transportation.item.shuttle", comment: "")
+        case .train:
+            return NSLocalizedString("transportation.item.train", comment: "")
+        case .plane:
+            return NSLocalizedString("transportation.item.plane", comment: "")
+        case .taxi:
+            return NSLocalizedString("transportation.item.taxi", comment: "")
+        case .car:
+            return NSLocalizedString("transportation.item.car", comment: "")
+        case .bus:
+            return NSLocalizedString("transportation.item.bus", comment: "")
         }
     }
 }
@@ -94,8 +104,10 @@ extension TransportationViewController.Item {
 private extension TransportationViewController.Item {
     var accessoryType: UITableViewCell.AccessoryType {
         switch self {
-        case .bus, .shuttle, .train, .car, .plane, .taxi: return .disclosureIndicator
-        case .appleMaps, .googleMaps: return .none
+        case .bus, .shuttle, .train, .car, .plane, .taxi:
+            return .disclosureIndicator
+        case .appleMaps, .googleMaps:
+            return .none
         }
     }
 }

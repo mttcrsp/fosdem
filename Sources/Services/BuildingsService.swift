@@ -33,9 +33,12 @@ final class BuildingsService {
             }
 
             switch buildings.count {
-            case resources.count: completion(buildings, nil)
-            case 0: completion([], .missingData)
-            case _: completion(buildings, .partialData)
+            case resources.count:
+                completion(buildings, nil)
+            case 0:
+                completion([], .missingData)
+            case _:
+                completion(buildings, .partialData)
             }
         }
     }

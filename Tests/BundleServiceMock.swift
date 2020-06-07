@@ -17,8 +17,10 @@ final class BundleServiceMock: InfoServiceBundle, BuildingsServiceBundle {
         self.ext = ext
 
         switch result {
-        case let .failure(error): throw error
-        case let .success(value): return value
+        case let .failure(error):
+            throw error
+        case let .success(value):
+            return value
         }
     }
 }

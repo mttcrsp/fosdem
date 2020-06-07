@@ -90,8 +90,10 @@ final class AgendaController: UIViewController {
         persistenceService.performRead(operation) { result in
             DispatchQueue.main.async { [weak self] in
                 switch result {
-                case let .failure(error): self?.loadingDidFail(with: error)
-                case let .success(events): self?.loadingDidSucceed(with: events)
+                case let .failure(error):
+                    self?.loadingDidFail(with: error)
+                case let .success(events):
+                    self?.loadingDidSucceed(with: events)
                 }
             }
         }
@@ -173,9 +175,12 @@ final class AgendaController: UIViewController {
 extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerLiveDataSource {
     func events(in eventsViewController: EventsViewController) -> [Event] {
         switch eventsViewController {
-        case agendaViewController: return events
-        case soonViewController: return eventsStartingSoon
-        default: return []
+        case agendaViewController:
+            return events
+        case soonViewController:
+            return eventsStartingSoon
+        default:
+            return []
         }
     }
 
@@ -183,9 +188,12 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
         let items: [String?]
 
         switch eventsViewController {
-        case agendaViewController: items = [event.formattedStart, event.room, event.track]
-        case soonViewController: items = [event.formattedStart, event.room]
-        default: return nil
+        case agendaViewController:
+            items = [event.formattedStart, event.room, event.track]
+        case soonViewController:
+            items = [event.formattedStart, event.room]
+        default:
+            return nil
         }
 
         return items.compactMap { $0 }.joined(separator: " - ")
@@ -195,9 +203,12 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
         let eventViewController = makeEventViewController(for: event)
 
         switch eventsViewController {
-        case agendaViewController: eventsViewController.showDetailViewController(eventViewController, sender: nil)
-        case soonViewController: eventsViewController.show(eventViewController, sender: nil)
-        default: break
+        case agendaViewController:
+            eventsViewController.showDetailViewController(eventViewController, sender: nil)
+        case soonViewController:
+            eventsViewController.show(eventViewController, sender: nil)
+        default:
+            break
         }
     }
 
