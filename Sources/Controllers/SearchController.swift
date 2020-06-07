@@ -8,6 +8,7 @@ final class SearchController: UISplitViewController {
   private weak var filtersButton: UIBarButtonItem?
 
   private var captions: [Event: String] = [:]
+  private var results: [Event] = []
   private var events: [Event] = []
 
   private var selectedFilter: TracksFilter = .all
@@ -207,8 +208,15 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
 }
 
 extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
-  func events(in eventsViewController: EventsViewController) -> [Event] {
-    events
+  func events(in viewController: EventsViewController) -> [Event] {
+    switch viewController {
+    case eventsViewController:
+      return events
+    case resultsViewController:
+      return results
+    default:
+      return []
+    }
   }
 
   func eventsViewController(_ viewController: EventsViewController, captionFor event: Event) -> String? {
@@ -275,7 +283,7 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 extension SearchController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
     guard let query = searchController.searchBar.text, query.count >= 3 else {
-      events = []
+      results = []
       resultsViewController?.configure(with: .noQuery)
       resultsViewController?.reloadData()
       return
@@ -286,11 +294,11 @@ extension SearchController: UISearchResultsUpdating {
       DispatchQueue.main.async {
         switch result {
         case .failure:
-          self?.events = []
+          self?.results = []
           self?.resultsViewController?.configure(with: .failure(query: query))
           self?.resultsViewController?.reloadData()
         case let .success(events):
-          self?.events = events
+          self?.results = events
           self?.resultsViewController?.configure(with: .success(query: query))
           self?.resultsViewController?.reloadData()
         }

@@ -13,6 +13,7 @@ final class YearController: TracksViewController {
 
   private var tracks: [Track] = []
   private var events: [Event] = []
+  private var results: [Event] = []
 
   private let year: String
   private let services: Services
@@ -107,22 +108,27 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
 }
 
 extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in eventsViewController: EventsViewController) -> [Event] {
-    events
+  func events(in viewController: EventsViewController) -> [Event] {
+    switch viewController {
+    case eventsViewController:
+      return events
+    case resultsViewController:
+      return results
+    default:
+      return []
+    }
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
 
-  func eventsViewController(_ presentingViewController: EventsViewController, didSelect event: Event) {
+  func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
     let eventViewController = makeEventViewController(for: event)
+    show(eventViewController, sender: nil)
 
-    if presentingViewController == eventsViewController {
-      show(eventViewController, sender: nil)
-    } else if presentingViewController == resultsViewController {
-      presentingViewController.deselectSelectedRow(animated: true)
-      show(eventViewController, sender: nil)
+    if viewController == resultsViewController {
+      viewController.deselectSelectedRow(animated: true)
     }
   }
 }
@@ -130,7 +136,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
 extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
     guard let query = searchController.searchBar.text, query.count >= 3 else {
-      events = []
+      results = []
       resultsViewController?.configure(with: .noQuery)
       resultsViewController?.reloadData()
       return
@@ -141,11 +147,11 @@ extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
       DispatchQueue.main.async {
         switch result {
         case .failure:
-          self?.events = []
+          self?.results = []
           self?.resultsViewController?.configure(with: .failure(query: query))
           self?.resultsViewController?.reloadData()
         case let .success(events):
-          self?.events = events
+          self?.results = events
           self?.resultsViewController?.configure(with: .success(query: query))
           self?.resultsViewController?.reloadData()
         }
