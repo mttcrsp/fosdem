@@ -32,6 +32,11 @@ final class BlueprintsViewController: UIPageViewController {
   let style: Style
 
   init(style: Style) {
+    let pageControl = UIPageControl.appearance(whenContainedInInstancesOf: [BlueprintsViewController.self])
+    pageControl.pageIndicatorTintColor = .fos_quaternaryLabel
+    pageControl.currentPageIndicatorTintColor = .fos_label
+    pageControl.hidesForSinglePage = true
+
     self.style = style
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [.interPageSpacing: 20])
   }
@@ -147,6 +152,19 @@ extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewCo
 
   func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
     didChangeVisibleBlueprint()
+  }
+
+  func presentationCount(for pageViewController: UIPageViewController) -> Int {
+    switch style {
+    case .embedded:
+      return 0
+    case .fullscreen:
+      return blueprints.count
+    }
+  }
+
+  func presentationIndex(for pageViewController: UIPageViewController) -> Int {
+    pageViewController.viewControllers?.first?.fos_index ?? 0
   }
 }
 
