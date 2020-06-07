@@ -5,6 +5,7 @@ protocol MapViewControllerDelegate: AnyObject {
     func mapViewController(_ mapViewController: MapViewController, didSelect building: Building)
     func mapViewControllerDidDeselectBuilding(_ mapViewController: MapViewController)
     func mapViewControllerDidTapLocation(_ mapViewController: MapViewController)
+    func mapViewControllerDidTapReset(_ mapViewController: MapViewController)
 }
 
 final class MapViewController: UIViewController {
@@ -215,11 +216,11 @@ extension MapViewController: MKMapViewDelegate {
 }
 
 extension MapViewController: MapControlsViewDelegate {
-    func controlsViewDidTapReset(_: MapControlsView) {
-        resetCamera(animated: true)
-    }
-
     func controlsViewDidTapLocation(_: MapControlsView) {
         delegate?.mapViewControllerDidTapLocation(self)
+    }
+
+    func controlsViewDidTapReset(_: MapControlsView) {
+        delegate?.mapViewControllerDidTapReset(self)
     }
 }

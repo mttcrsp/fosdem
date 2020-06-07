@@ -169,6 +169,11 @@ extension MapController: MapViewControllerDelegate {
             locationManager.requestWhenInUseAuthorization()
         }
     }
+
+    func mapViewControllerDidTapReset(_ mapViewController: MapViewController) {
+        mapViewController.deselectSelectedAnnotation()
+        mapViewController.resetCamera(animated: true)
+    }
 }
 
 extension MapController: BlueprintsViewControllerDelegate {
