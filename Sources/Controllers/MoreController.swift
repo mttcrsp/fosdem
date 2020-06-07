@@ -13,7 +13,7 @@ final class MoreController: UISplitViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -96,11 +96,11 @@ extension MoreController: MoreViewControllerDelegate {
     }
   }
 
-  private func moreViewControllerDidSelectHistory(_: MoreViewController) {
+  private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
     showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
   }
 
-  private func moreViewControllerDidSelectDevrooms(_: MoreViewController) {
+  private func moreViewControllerDidSelectDevrooms(_ moreViewController: MoreViewController) {
     showDetailInfoViewController(withTitle: MoreItem.devrooms.title, for: .devrooms)
   }
 
@@ -188,11 +188,11 @@ extension MoreController: TransportationViewControllerDelegate {
 }
 
 extension MoreController: YearsViewControllerDataSource, YearsViewControllerDelegate {
-  func numberOfYears(in _: YearsViewController) -> Int {
+  func numberOfYears(in yearsViewController: YearsViewController) -> Int {
     years.count
   }
 
-  func yearsViewController(_: YearsViewController, yearAt index: Int) -> String {
+  func yearsViewController(_ yearsViewController: YearsViewController, yearAt index: Int) -> String {
     years[index]
   }
 

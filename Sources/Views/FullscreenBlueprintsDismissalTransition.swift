@@ -13,11 +13,11 @@ final class FullscreenBlueprintsDismissalTransition: UIPercentDrivenInteractiveT
     panRecognizer.state == .began && dismissed == dismissedViewController ? self : nil
   }
 
-  func interactionControllerForDismissal(using _: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+  func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
     panRecognizer.state == .began ? self : nil
   }
 
-  func transitionDuration(using _: UIViewControllerContextTransitioning?) -> TimeInterval {
+  func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
     0.5
   }
 

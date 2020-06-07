@@ -23,7 +23,7 @@ final class AcknowledgementsViewController: UITableViewController {
     tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
   }
 
-  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     acknowledgements.count
   }
 
@@ -33,7 +33,7 @@ final class AcknowledgementsViewController: UITableViewController {
     return cell
   }
 
-  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     delegate?.acknowledgementsViewController(self, didSelect: acknowledgement(at: indexPath))
   }
 

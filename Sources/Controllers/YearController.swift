@@ -25,7 +25,7 @@ final class YearController: TracksViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -51,7 +51,7 @@ final class YearController: TracksViewController {
     }
   }
 
-  private func tracksLoadingDidError(with _: Error) {
+  private func tracksLoadingDidError(with error: Error) {
     yearDelegate?.yearControllerDidError(self)
   }
 
@@ -62,19 +62,19 @@ final class YearController: TracksViewController {
 }
 
 extension YearController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-  func numberOfSections(in _: TracksViewController) -> Int {
+  func numberOfSections(in tracksViewController: TracksViewController) -> Int {
     1
   }
 
-  func tracksViewController(_: TracksViewController, titleForSectionAt _: Int) -> String? {
+  func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt index: Int) -> String? {
     nil
   }
 
-  func tracksViewController(_: TracksViewController, numberOfTracksIn _: Int) -> Int {
+  func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
     tracks.count
   }
 
-  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+  func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
     tracks[indexPath.row]
   }
 
@@ -107,11 +107,11 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
 }
 
 extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in _: EventsViewController) -> [Event] {
+  func events(in eventsViewController: EventsViewController) -> [Event] {
     events
   }
 
-  func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
+  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
 

@@ -28,7 +28,7 @@ final class ScheduleServiceNetworkAutomaticMock: ScheduleServiceNetwork {
   }
 
   @discardableResult
-  func perform(_: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask {
+  func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask {
     numberOfInvocations += 1
     completion(.success(schedule))
     return NetworkServiceTaskMock()

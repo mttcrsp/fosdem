@@ -21,7 +21,7 @@ final class SearchController: UISplitViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -78,17 +78,17 @@ final class SearchController: UISplitViewController {
 }
 
 extension SearchController: UISplitViewControllerDelegate {
-  func splitViewController(_: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto _: UIViewController) -> Bool {
+  func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto primaryViewController: UIViewController) -> Bool {
     secondaryViewController is WelcomeViewController
   }
 
-  func splitViewController(_: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
+  func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
     primaryViewController is TracksViewController ? WelcomeViewController() : nil
   }
 }
 
 extension SearchController: TracksServiceDelegate {
-  func tracksServiceDidUpdate(_: TracksService) {
+  func tracksServiceDidUpdate(_ tracksService: TracksService) {
     tracksViewController?.reloadData()
   }
 }
@@ -110,11 +110,11 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     section == 0 && hasFavoriteTracks
   }
 
-  func numberOfSections(in _: TracksViewController) -> Int {
+  func numberOfSections(in tracksViewController: TracksViewController) -> Int {
     hasFavoriteTracks ? 2 : 1
   }
 
-  func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
+  func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String? {
     if isFavoriteSection(section) {
       return NSLocalizedString("search.filter.favorites", comment: "")
     } else {
@@ -122,7 +122,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
   }
 
-  func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
+  func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
     if isFavoriteSection(section) {
       return filteredFavoriteTracks.count
     } else {
@@ -130,7 +130,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
   }
 
-  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+  func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
     if isFavoriteSection(indexPath.section) {
       return filteredFavoriteTracks[indexPath.row]
     } else {
@@ -173,7 +173,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 }
 
 extension SearchController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
-  func sectionIndexTitles(in _: TracksViewController) -> [String] {
+  func sectionIndexTitles(in tracksViewController: TracksViewController) -> [String] {
     if let sectionIndexTitles = tracksService.filteredIndexTitles[selectedFilter] {
       return sectionIndexTitles.keys.sorted()
     } else {
@@ -193,21 +193,21 @@ extension SearchController: TracksViewControllerIndexDataSource, TracksViewContr
 }
 
 extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
-  func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
+  func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool {
     !favoritesService.contains(track)
   }
 
-  func tracksViewController(_: TracksViewController, didFavorite track: Track) {
+  func tracksViewController(_ tracksViewController: TracksViewController, didFavorite track: Track) {
     favoritesService.addTrack(withIdentifier: track.name)
   }
 
-  func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
+  func tracksViewController(_ tracksViewController: TracksViewController, didUnfavorite track: Track) {
     favoritesService.removeTrack(withIdentifier: track.name)
   }
 }
 
 extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
-  func events(in _: EventsViewController) -> [Event] {
+  func events(in eventsViewController: EventsViewController) -> [Event] {
     events
   }
 
@@ -249,15 +249,15 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
     }
   }
 
-  func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
+  func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool {
     !favoritesService.contains(event)
   }
 
-  func eventsViewController(_: EventsViewController, didFavorite event: Event) {
+  func eventsViewController(_ eventsViewController: EventsViewController, didFavorite event: Event) {
     favoritesService.addEvent(withIdentifier: event.id)
   }
 
-  func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
+  func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event) {
     favoritesService.removeEvent(withIdentifier: event.id)
   }
 

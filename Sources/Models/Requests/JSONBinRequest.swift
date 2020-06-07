@@ -23,5 +23,5 @@ struct JSONBinRequest: NetworkRequest {
     ["Content-Type": "application/json", "secret-key": secretKey]
   }
 
-  func decode(_: Data) throws {}
+  func decode(_ data: Data) throws {}
 }

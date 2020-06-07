@@ -90,7 +90,7 @@ final class EventsViewController: UITableViewController {
     tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
   }
 
-  override func numberOfSections(in _: UITableView) -> Int {
+  override func numberOfSections(in tableView: UITableView) -> Int {
     let count = events.count
     tableView.backgroundView = count == 0 ? emptyBackgroundView : nil
     return count
@@ -102,7 +102,7 @@ final class EventsViewController: UITableViewController {
     return view
   }
 
-  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     1
   }
 
@@ -114,16 +114,16 @@ final class EventsViewController: UITableViewController {
     return cell
   }
 
-  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     delegate?.eventsViewController(self, didSelect: event(forSection: indexPath.section))
   }
 
-  override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+  override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
     UISwipeActionsConfiguration(actions: actions(at: indexPath))
   }
 
   @available(iOS 13.0, *)
-  override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
+  override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
     UIContextMenuConfiguration(actions: actions(at: indexPath))
   }
 

@@ -27,7 +27,7 @@ final class ScrollImageView: UIScrollView {
     addSubview(imageView)
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -104,11 +104,11 @@ final class ScrollImageView: UIScrollView {
 }
 
 extension ScrollImageView: UIScrollViewDelegate {
-  func viewForZooming(in _: UIScrollView) -> UIView? {
+  func viewForZooming(in scrollView: UIScrollView) -> UIView? {
     imageView
   }
 
-  func scrollViewDidZoom(_: UIScrollView) {
+  func scrollViewDidZoom(_ scrollView: UIScrollView) {
     setNeedsLayout()
     layoutIfNeeded()
   }

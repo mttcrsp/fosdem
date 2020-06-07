@@ -55,7 +55,7 @@ final class UpdateServiceTests: XCTestCase {
   private final class Delegate: UpdateServiceDelegate {
     var didUpdate = false
 
-    func updateServiceDidDetectUpdate(_: UpdateService) {
+    func updateServiceDidDetectUpdate(_ updateService: UpdateService) {
       didUpdate = true
     }
   }

@@ -28,7 +28,7 @@ final class MapController: MapContainerViewController {
     }
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -101,7 +101,7 @@ extension MapController: MapContainerViewControllerDelegate {
     }
   }
 
-  func containerViewController(_: MapContainerViewController, scrollDirectionFor _: UIViewController) -> MapContainerViewController.ScrollDirection {
+  func containerViewController(_ containerViewController: MapContainerViewController, scrollDirectionFor direction: UIViewController) -> MapContainerViewController.ScrollDirection {
     switch preferredLayout {
     case .phonePortrait:
       return .vertical
@@ -110,7 +110,7 @@ extension MapController: MapContainerViewControllerDelegate {
     }
   }
 
-  func containerViewController(_: MapContainerViewController, rectFor _: UIViewController) -> CGRect {
+  func containerViewController(_ containerViewController: MapContainerViewController, rectFor detailViewController: UIViewController) -> CGRect {
     var rect = CGRect()
     switch preferredLayout {
     case .pad:
@@ -131,7 +131,7 @@ extension MapController: MapContainerViewControllerDelegate {
     return rect
   }
 
-  func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {
+  func containerViewController(_ containerViewController: MapContainerViewController, didHide detailViewController: UIViewController) {
     mapViewController?.deselectSelectedAnnotation()
   }
 }
@@ -157,7 +157,7 @@ extension MapController: MapViewControllerDelegate {
     mapViewController.setCenter(centerCoordinates, animated: true)
   }
 
-  func mapViewControllerDidDeselectBuilding(_: MapViewController) {
+  func mapViewControllerDidDeselectBuilding(_ mapViewController: MapViewController) {
     setDetailViewControllerVisible(false, animated: true)
   }
 
@@ -210,7 +210,7 @@ extension MapController: BlueprintsViewControllerDelegate {
 }
 
 extension MapController: CLLocationManagerDelegate {
-  func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+  func locationManager(_ locationManager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     mapViewController?.setAuthorizationStatus(status)
   }
 }

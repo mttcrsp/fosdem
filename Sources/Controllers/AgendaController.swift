@@ -27,7 +27,7 @@ final class AgendaController: UIViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -216,15 +216,15 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
     eventsViewController == agendaViewController && event.isLive(at: now)
   }
 
-  func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
+  func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool {
     !favoritesService.contains(event)
   }
 
-  func eventsViewController(_: EventsViewController, didFavorite event: Event) {
+  func eventsViewController(_ eventsViewController: EventsViewController, didFavorite event: Event) {
     favoritesService.addEvent(withIdentifier: event.id)
   }
 
-  func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
+  func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event) {
     favoritesService.removeEvent(withIdentifier: event.id)
   }
 }

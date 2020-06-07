@@ -8,7 +8,7 @@ final class ApplicationController: UITabBarController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder _: NSCoder) {
+  required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -24,8 +24,8 @@ final class ApplicationController: UITabBarController {
   override var keyCommands: [UIKeyCommand]? {
     let prevModifierFlags: UIKeyModifierFlags = [.alternate, .shift]
     let nextModifierFlags: UIKeyModifierFlags = [.alternate]
-    let prevAction = #selector(didSelectPrevTab(_:))
-    let nextAction = #selector(didSelectNextTab(_:))
+    let prevAction = #selector(didSelectPrevTab)
+    let nextAction = #selector(didSelectNextTab)
     let prevCommand = UIKeyCommand(input: "\t", modifierFlags: prevModifierFlags, action: prevAction)
     let nextCommand = UIKeyCommand(input: "\t", modifierFlags: nextModifierFlags, action: nextAction)
     return [prevCommand, nextCommand]
@@ -84,11 +84,11 @@ final class ApplicationController: UITabBarController {
     }
   }
 
-  @objc private func didSelectPrevTab(_: Any) {
+  @objc private func didSelectPrevTab() {
     selectedIndex = ((selectedIndex - 1) + children.count) % children.count
   }
 
-  @objc private func didSelectNextTab(_: Any) {
+  @objc private func didSelectNextTab() {
     selectedIndex = ((selectedIndex + 1) + children.count) % children.count
   }
 }
@@ -144,13 +144,13 @@ private extension ApplicationController {
 }
 
 extension ApplicationController: UITabBarControllerDelegate {
-  func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
+  func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
     previouslySelectedViewController = String(describing: type(of: viewController))
   }
 }
 
 extension ApplicationController: AgendaControllerDelegate {
-  func agendaController(_ agendaController: AgendaController, didError _: Error) {
+  func agendaController(_ agendaController: AgendaController, didError error: Error) {
     let errorViewController = ErrorViewController()
     agendaController.addChild(errorViewController)
     agendaController.view.addSubview(errorViewController.view)
@@ -159,7 +159,7 @@ extension ApplicationController: AgendaControllerDelegate {
 }
 
 extension ApplicationController: MapControllerDelegate {
-  func mapController(_ mapController: MapController, didError _: Error) {
+  func mapController(_ mapController: MapController, didError error: Error) {
     let errorViewController = ErrorViewController()
     mapController.addChild(errorViewController)
     mapController.view.addSubview(errorViewController.view)
@@ -168,7 +168,7 @@ extension ApplicationController: MapControllerDelegate {
 }
 
 extension ApplicationController: UpdateServiceDelegate {
-  func updateServiceDidDetectUpdate(_: UpdateService) {
+  func updateServiceDidDetectUpdate(_ updateService: UpdateService) {
     DispatchQueue.main.async { [weak self] in
       if let self = self {
         let updateViewController = self.makeUpdateViewController()

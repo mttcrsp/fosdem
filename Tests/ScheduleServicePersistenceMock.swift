@@ -19,7 +19,7 @@ final class ScheduleServicePersistenceMock: ScheduleServicePersistence {
 final class ScheduleServicePersistenceAutomaticMock: ScheduleServicePersistence {
   private(set) var numberOfInvocations = 0
 
-  func performWrite(_: PersistenceServiceWrite, completion: @escaping (Error?) -> Void) {
+  func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void) {
     numberOfInvocations += 1
     completion(nil)
   }

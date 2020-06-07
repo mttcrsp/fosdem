@@ -23,7 +23,7 @@ final class YearsViewController: UITableViewController {
     tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
   }
 
-  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     dataSource?.numberOfYears(in: self) ?? 0
   }
 
@@ -35,7 +35,7 @@ final class YearsViewController: UITableViewController {
     return cell
   }
 
-  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     if let year = year(at: indexPath) {
       delegate?.yearsViewController(self, didSelect: year)
     }

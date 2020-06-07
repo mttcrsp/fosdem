@@ -8,8 +8,8 @@ protocol MapContainerViewControllerDelegate: AnyObject {
 }
 
 extension MapContainerViewControllerDelegate {
-  func containerViewController(_: MapContainerViewController, didShow _: UIViewController) {}
-  func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {}
+  func containerViewController(_ containerViewController: MapContainerViewController, didShow detailViewController: UIViewController) {}
+  func containerViewController(_ containerViewController: MapContainerViewController, didHide detailViewController: UIViewController) {}
 }
 
 class MapContainerViewController: UIViewController {
@@ -196,7 +196,7 @@ class MapContainerViewController: UIViewController {
 }
 
 extension MapContainerViewController: UIScrollViewDelegate {
-  func scrollViewWillEndDragging(_: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+  func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
     guard let detailViewController = detailViewController else { return }
 
     switch scrollDirection {
@@ -245,7 +245,7 @@ extension MapContainerViewController: UIScrollViewDelegate {
     targetContentOffset.pointee = CGPoint(x: preferX1 ? x1 : x2, y: 0)
   }
 
-  func scrollViewDidEndDecelerating(_: UIScrollView) {
+  func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
     guard let detailViewController = detailViewController, let window = detailViewController.view.window else { return }
 
     let detailView = detailViewController.view as UIView
