@@ -1,0 +1,9 @@
+--disable unusedArguments
+--header strip
+--ifdef no-indent
+--indent 2
+--tabwidth 2
+--wraparguments before-first
+--wrapcollections before-first
+--wrapparameters before-first
+--xcodeindentation enabled

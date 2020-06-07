@@ -7,6 +7,8 @@ packages:
     url: https://github.com/microsoft/plcrashreporter
     branch: master
 options:
+  tabWidth: 2
+  indentWidth: 2
   knownRegions: ["en", "Base"]
   createIntermediateGroups: true
   bundleIdPrefix: com.mttcrsp.fosdem
