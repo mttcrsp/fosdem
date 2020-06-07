@@ -1,19 +1,64 @@
 import UIKit
 
 final class WelcomeViewController: UIViewController {
-    private lazy var scrollView = UIScrollView()
-    private lazy var imageView = UIImageView()
+    private var observers: [NSObjectProtocol] = []
     private lazy var label = UILabel()
-
-    override func loadView() {
-        view = scrollView
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let imageView = UIImageView()
         imageView.image = UIImage(named: "logo")
 
+        label.adjustsFontForContentSizeCategory = true
+        label.attributedText = makeAttributedText()
+        label.textAlignment = .center
+        label.numberOfLines = 0
+
+        let stackView = UIStackView(arrangedSubviews: [imageView, label])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.alignment = .center
+        stackView.axis = .vertical
+        stackView.spacing = 32
+
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(stackView)
+
+        view.addSubview(scrollView)
+        view.backgroundColor = .groupTableViewBackground
+
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.readableContentGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.readableContentGuide.trailingAnchor),
+        ])
+
+        observers = [
+            scrollView.observe(\.contentSize) { scrollView, _ in
+                scrollView.adjustTopContentInsetForVerticalCentering()
+            },
+            scrollView.observe(\.bounds) { scrollView, _ in
+                scrollView.adjustTopContentInsetForVerticalCentering()
+            },
+        ]
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
+            label.attributedText = makeAttributedText()
+        }
+    }
+
+    private func makeAttributedText() -> NSAttributedString {
         let titleFont: UIFont = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
         let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.fos_label]
         let titleString = NSLocalizedString("welcome.title", comment: "")
@@ -30,26 +75,12 @@ final class WelcomeViewController: UIViewController {
         attributedText.append(attributedTitle)
         attributedText.append(attributedSpacer)
         attributedText.append(attributedMessage)
-        label.attributedText = attributedText
-        label.textAlignment = .center
-        label.numberOfLines = 0
+        return attributedText
+    }
+}
 
-        let stackView = UIStackView(arrangedSubviews: [imageView, label])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = 32
-
-        view.addSubview(stackView)
-        view.backgroundColor = .groupTableViewBackground
-
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            stackView.topAnchor.constraint(greaterThanOrEqualTo: view.readableContentGuide.topAnchor),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.readableContentGuide.bottomAnchor),
-            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.readableContentGuide.leadingAnchor),
-            stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.readableContentGuide.trailingAnchor),
-        ])
+private extension UIScrollView {
+    func adjustTopContentInsetForVerticalCentering() {
+        contentInset.top = max(0, (bounds.height - contentSize.height) / 2)
     }
 }
