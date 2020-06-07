@@ -21,16 +21,11 @@ final class MapViewController: UIViewController {
 
     private lazy var mapView = MKMapView()
     private lazy var controlsView = MapControlsView()
-    private lazy var blurView = UIVisualEffectView()
 
     private weak var blueprintsViewController: UIViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        if #available(iOS 13.0, *) {
-            blurView.effect = UIBlurEffect(style: .systemUltraThinMaterial)
-        }
 
         mapView.delegate = self
         mapView.showsCompass = false
@@ -42,11 +37,9 @@ final class MapViewController: UIViewController {
         controlsView.delegate = self
         controlsView.translatesAutoresizingMaskIntoConstraints = false
 
-        for subview in [mapView, blurView, controlsView] {
+        for subview in [mapView, controlsView] {
             view.addSubview(subview)
         }
-
-        view.addSubview(blurView)
 
         NSLayoutConstraint.activate([
             controlsView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 16),
@@ -57,8 +50,6 @@ final class MapViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         mapView.frame = view.bounds
-        blurView.frame.size.width = view.bounds.width
-        blurView.frame.size.height = view.layoutMargins.top
     }
 
     override func didMove(toParent parent: UIViewController?) {
