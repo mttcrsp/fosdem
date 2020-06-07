@@ -276,33 +276,22 @@ extension SearchController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
     guard let query = searchController.searchBar.text, query.count >= 3 else {
       events = []
-      resultsViewController?.emptyBackgroundMessage = nil
-      resultsViewController?.emptyBackgroundTitle = nil
-      resultsViewController?.view.isHidden = true
+      resultsViewController?.configure(with: .noQuery)
       resultsViewController?.reloadData()
       return
     }
 
     let operation = EventsForSearch(query: query)
-    services.persistenceService.performRead(operation) { [weak self] result in
+    persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case .failure:
-          let errorTitle = NSLocalizedString("search.error.title", comment: "")
-          let errorMessage = NSLocalizedString("search.error.message", comment: "")
           self?.events = []
-          self?.resultsViewController?.emptyBackgroundMessage = errorMessage
-          self?.resultsViewController?.emptyBackgroundTitle = errorTitle
-          self?.resultsViewController?.view.isHidden = false
+          self?.resultsViewController?.configure(with: .failure(query: query))
           self?.resultsViewController?.reloadData()
         case let .success(events):
-          let emptyTitle = NSLocalizedString("search.empty.title", comment: "")
-          let emptyMessageFormat = NSLocalizedString("search.empty.message", comment: "")
-          let emptyMessage = String(format: emptyMessageFormat, query)
           self?.events = events
-          self?.resultsViewController?.emptyBackgroundMessage = emptyMessage
-          self?.resultsViewController?.emptyBackgroundTitle = emptyTitle
-          self?.resultsViewController?.view.isHidden = false
+          self?.resultsViewController?.configure(with: .success(query: query))
           self?.resultsViewController?.reloadData()
         }
       }

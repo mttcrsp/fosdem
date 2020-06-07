@@ -129,22 +129,24 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
 
 extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    guard let query = searchController.searchBar.text, !query.isEmpty else { return }
+    guard let query = searchController.searchBar.text, query.count >= 3 else {
+      events = []
+      resultsViewController?.configure(with: .noQuery)
+      resultsViewController?.reloadData()
+      return
+    }
 
     let operation = EventsForSearch(query: query)
     persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case .failure:
-          break
+          self?.events = []
+          self?.resultsViewController?.configure(with: .failure(query: query))
+          self?.resultsViewController?.reloadData()
         case let .success(events):
           self?.events = events
-
-          let emptyTitle = NSLocalizedString("search.empty.title", comment: "")
-          let emptyMessageFormat = NSLocalizedString("search.empty.message", comment: "")
-          let emptyMessage = String(format: emptyMessageFormat, query)
-          self?.resultsViewController?.emptyBackgroundMessage = emptyMessage
-          self?.resultsViewController?.emptyBackgroundTitle = emptyTitle
+          self?.resultsViewController?.configure(with: .success(query: query))
           self?.resultsViewController?.reloadData()
         }
       }
