@@ -1,9 +1,12 @@
+import Foundation
 import GRDB
 
 struct EventsForSearch: PersistenceServiceRead {
   let query: String
 
   func perform(in database: Database) throws -> [Event] {
+    let query = self.query.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+
     let components = query.components(separatedBy: " ")
     let componentsEscaped = components.map { "\"\($0)\"" }
 
