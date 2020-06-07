@@ -7,17 +7,18 @@ protocol YearControllerDelegate: AnyObject {
 final class YearController: TracksViewController {
   weak var yearDelegate: YearControllerDelegate?
 
-  private weak var resultsViewController: EventsViewController?
+  private(set) weak var resultsViewController: EventsViewController?
   private weak var eventsViewController: EventsViewController?
   private var searchController: UISearchController?
 
   private var tracks: [Track] = []
   private var events: [Event] = []
-  private var results: [Event] = []
+  var results: [Event] = []
 
-  private let year: String
   private let services: Services
-  private let persistenceService: PersistenceService
+  private let year: String
+
+  let persistenceService: PersistenceService
 
   init(year: String, yearPersistenceService: PersistenceService, services: Services) {
     self.year = year
@@ -133,30 +134,9 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   }
 }
 
-extension YearController: UISearchControllerDelegate, UISearchResultsUpdating {
+extension YearController: UISearchControllerDelegate, UISearchResultsUpdating, EventsSearchController {
   func updateSearchResults(for searchController: UISearchController) {
-    guard let query = searchController.searchBar.text, query.count >= 3 else {
-      results = []
-      resultsViewController?.configure(with: .noQuery)
-      resultsViewController?.reloadData()
-      return
-    }
-
-    let operation = EventsForSearch(query: query)
-    persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case .failure:
-          self?.results = []
-          self?.resultsViewController?.configure(with: .failure(query: query))
-          self?.resultsViewController?.reloadData()
-        case let .success(events):
-          self?.results = events
-          self?.resultsViewController?.configure(with: .success(query: query))
-          self?.resultsViewController?.reloadData()
-        }
-      }
-    }
+    didChangeQuery(searchController.searchBar.text ?? "")
   }
 }
 

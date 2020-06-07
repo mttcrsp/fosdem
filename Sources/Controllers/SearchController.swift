@@ -1,15 +1,15 @@
 import UIKit
 
 final class SearchController: UISplitViewController {
-  private weak var resultsViewController: EventsViewController?
+  private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var eventsViewController: EventsViewController?
   private weak var searchController: UISearchController?
   private weak var filtersButton: UIBarButtonItem?
 
   private var captions: [Event: String] = [:]
-  private var results: [Event] = []
   private var events: [Event] = []
+  var results: [Event] = []
 
   private var selectedFilter: TracksFilter = .all
   private var selectedTrack: Track?
@@ -26,16 +26,16 @@ final class SearchController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
+  var persistenceService: PersistenceService {
+    services.persistenceService
+  }
+
   private var tracksService: TracksService {
     services.tracksService
   }
 
   private var favoritesService: FavoritesService {
     services.favoritesService
-  }
-
-  private var persistenceService: PersistenceService {
-    services.persistenceService
   }
 
   private var favoriteTitle: String? {
@@ -280,30 +280,9 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
   }
 }
 
-extension SearchController: UISearchResultsUpdating {
+extension SearchController: UISearchResultsUpdating, EventsSearchController {
   func updateSearchResults(for searchController: UISearchController) {
-    guard let query = searchController.searchBar.text, query.count >= 3 else {
-      results = []
-      resultsViewController?.configure(with: .noQuery)
-      resultsViewController?.reloadData()
-      return
-    }
-
-    let operation = EventsForSearch(query: query)
-    persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case .failure:
-          self?.results = []
-          self?.resultsViewController?.configure(with: .failure(query: query))
-          self?.resultsViewController?.reloadData()
-        case let .success(events):
-          self?.results = events
-          self?.resultsViewController?.configure(with: .success(query: query))
-          self?.resultsViewController?.reloadData()
-        }
-      }
-    }
+    didChangeQuery(searchController.searchBar.text ?? "")
   }
 }
 
