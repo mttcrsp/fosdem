@@ -52,6 +52,8 @@ final class SearchController: UISplitViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        delegate = self
+
         tracksService.delegate = self
         tracksService.loadTracks()
 
@@ -72,6 +74,16 @@ final class SearchController: UISplitViewController {
         let preferredWidth = attributedString.size().width
         let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
         return preferredWidth < availableWidth
+    }
+}
+
+extension SearchController: UISplitViewControllerDelegate {
+    func splitViewController(_: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto _: UIViewController) -> Bool {
+        secondaryViewController is WelcomeViewController
+    }
+
+    func splitViewController(_: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
+        primaryViewController is TracksViewController ? WelcomeViewController() : nil
     }
 }
 
