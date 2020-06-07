@@ -43,14 +43,20 @@ final class EventsViewController: UITableViewController {
 
   private lazy var emptyBackgroundView = TableBackgroundView()
 
-  private var events: [Event] {
-    dataSource?.events(in: self) ?? []
-  }
+  private var events: [Event] = []
 
   func reloadData() {
-    if isViewLoaded {
-      tableView.reloadData()
-    }
+    guard isViewLoaded else { return }
+
+    let oldEvents = events
+    let newEvents = dataSource?.events(in: self) ?? []
+    let difference = makeDifference(from: oldEvents, to: newEvents)
+
+    tableView.performBatchUpdates({
+      events = newEvents
+      tableView.deleteSections(difference.deleteSections, with: .fade)
+      tableView.insertSections(difference.insertSections, with: .fade)
+    })
   }
 
   func reloadLiveStatus() {
@@ -82,6 +88,7 @@ final class EventsViewController: UITableViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
+    events = dataSource?.events(in: self) ?? []
     tableView.estimatedRowHeight = 44
     tableView.estimatedSectionHeaderHeight = 44
     tableView.rowHeight = UITableView.automaticDimension
@@ -163,6 +170,40 @@ final class EventsViewController: UITableViewController {
 
   private func shouldShowLiveIndicator(for event: Event) -> Bool {
     liveDataSource?.eventsViewController(self, shouldShowLiveIndicatorFor: event) ?? false
+  }
+
+  private func makeDifference(from oldEvents: [Event], to newEvents: [Event]) -> (deleteSections: IndexSet, insertSections: IndexSet) {
+    var oldEventsSet: Set<Event> = []
+    var newEventsSet: Set<Event> = []
+    var oldEventsIndices: [Int: Int] = [:]
+    var newEventsIndices: [Int: Int] = [:]
+
+    for (index, event) in oldEvents.enumerated() {
+      oldEventsSet.insert(event)
+      oldEventsIndices[event.id] = index
+    }
+
+    for (index, event) in newEvents.enumerated() {
+      newEventsSet.insert(event)
+      newEventsIndices[event.id] = index
+    }
+
+    var deleteSections: IndexSet = []
+    var insertSections: IndexSet = []
+
+    for event in oldEvents where !newEventsSet.contains(event) {
+      if let index = oldEventsIndices[event.id] {
+        deleteSections.insert(index)
+      }
+    }
+
+    for event in newEvents where !oldEventsSet.contains(event) {
+      if let index = newEventsIndices[event.id] {
+        insertSections.insert(index)
+      }
+    }
+
+    return (deleteSections, insertSections)
   }
 }
 
