@@ -51,6 +51,12 @@ final class AgendaController: UIViewController {
     #endif
   }
 
+  func popToRootViewController() {
+    if traitCollection.horizontalSizeClass == .compact {
+      agendaViewController?.navigationController?.popToRootViewController(animated: true)
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -141,7 +147,7 @@ final class AgendaController: UIViewController {
     soonViewController?.dismiss(animated: true)
   }
 
-  func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
+  private func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
     if let viewController = oldViewController {
       viewController.willMove(toParent: nil)
       viewController.view.removeFromSuperview()

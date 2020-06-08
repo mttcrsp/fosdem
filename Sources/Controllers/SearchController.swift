@@ -50,6 +50,12 @@ final class SearchController: UISplitViewController {
     }
   }
 
+  func popToRootViewController() {
+    if traitCollection.horizontalSizeClass == .compact {
+      tracksViewController?.navigationController?.popToRootViewController(animated: true)
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 

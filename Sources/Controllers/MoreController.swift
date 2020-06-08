@@ -17,6 +17,12 @@ final class MoreController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
+  func popToRootViewController() {
+    if traitCollection.horizontalSizeClass == .compact {
+      moreViewController?.navigationController?.popToRootViewController(animated: true)
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
