@@ -45,18 +45,23 @@ final class EventsViewController: UITableViewController {
 
   private var events: [Event] = []
 
-  func reloadData() {
+  func reloadData(animatingDifferences: Bool = true) {
     guard isViewLoaded else { return }
 
-    let oldEvents = events
-    let newEvents = dataSource?.events(in: self) ?? []
-    let difference = makeDifference(from: oldEvents, to: newEvents)
+    if animatingDifferences {
+      let oldEvents = events
+      let newEvents = dataSource?.events(in: self) ?? []
+      let difference = makeDifference(from: oldEvents, to: newEvents)
 
-    tableView.performBatchUpdates({
-      events = newEvents
-      tableView.deleteSections(difference.deleteSections, with: .fade)
-      tableView.insertSections(difference.insertSections, with: .fade)
-    })
+      tableView.performBatchUpdates({
+        events = newEvents
+        tableView.deleteSections(difference.deleteSections, with: .fade)
+        tableView.insertSections(difference.insertSections, with: .fade)
+      })
+    } else {
+      events = dataSource?.events(in: self) ?? []
+      tableView.reloadData()
+    }
   }
 
   func reloadLiveStatus() {
