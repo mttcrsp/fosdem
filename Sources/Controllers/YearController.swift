@@ -134,7 +134,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   }
 }
 
-extension YearController: UISearchControllerDelegate, UISearchResultsUpdating, EventsSearchController {
+extension YearController: UISearchResultsUpdating, EventsSearchController {
   func updateSearchResults(for searchController: UISearchController) {
     didChangeQuery(searchController.searchBar.text ?? "")
   }

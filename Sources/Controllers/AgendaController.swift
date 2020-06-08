@@ -179,7 +179,7 @@ final class AgendaController: UIViewController {
   }
 }
 
-extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate, EventsViewControllerLiveDataSource {
+extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
     case agendaViewController:
@@ -218,11 +218,9 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
       break
     }
   }
+}
 
-  func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: now)
-  }
-
+extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool {
     !favoritesService.contains(event)
   }
@@ -233,6 +231,12 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 
   func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event) {
     favoritesService.removeEvent(withIdentifier: event.id)
+  }
+}
+
+extension AgendaController: EventsViewControllerLiveDataSource {
+  func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
+    eventsViewController == agendaViewController && event.isLive(at: now)
   }
 }
 

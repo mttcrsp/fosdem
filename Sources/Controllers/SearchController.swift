@@ -213,7 +213,7 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
   }
 }
 
-extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate, EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
+extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in viewController: EventsViewController) -> [Event] {
     switch viewController {
     case eventsViewController:
@@ -262,7 +262,9 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
       searchController?.searchBar.endEditing(true)
     }
   }
+}
 
+extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool {
     !favoritesService.contains(event)
   }
