@@ -275,7 +275,7 @@ private extension CLAuthorizationStatus {
   }
 }
 
-extension CLAuthorizationStatus.Action {
+private extension CLAuthorizationStatus.Action {
   var title: String {
     switch self {
     case .enable:

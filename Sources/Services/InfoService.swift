@@ -67,7 +67,7 @@ final class InfoService {
   }
 }
 
-extension Info {
+private extension Info {
   var resource: String {
     switch self {
     case .history:
