@@ -60,10 +60,10 @@ final class AgendaController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    reloadFavoriteEvents()
+    reloadFavoriteEvents(animated: false)
     observations = [
       favoritesService.addObserverForEvents { [weak self] in
-        self?.reloadFavoriteEvents()
+        self?.reloadFavoriteEvents(animated: true)
       },
       services.liveService.addObserver { [weak self] in
         self?.reloadLiveStatus()
@@ -83,7 +83,7 @@ final class AgendaController: UIViewController {
     agendaViewController?.reloadLiveStatus()
   }
 
-  private func reloadFavoriteEvents() {
+  private func reloadFavoriteEvents(animated: Bool) {
     let identifiers = favoritesService.eventsIdentifiers
 
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
@@ -99,7 +99,7 @@ final class AgendaController: UIViewController {
         case let .failure(error):
           self?.loadingDidFail(with: error)
         case let .success(events):
-          self?.loadingDidSucceed(with: events)
+          self?.loadingDidSucceed(with: events, animated: animated)
         }
       }
     }
@@ -109,9 +109,10 @@ final class AgendaController: UIViewController {
     agendaDelegate?.agendaController(self, didError: error)
   }
 
-  private func loadingDidSucceed(with events: [Event]) {
+  private func loadingDidSucceed(with events: [Event], animated: Bool) {
     self.events = events
-    agendaViewController?.reloadData()
+
+    agendaViewController?.reloadData(animatingDifferences: animated)
 
     var didDeleteSelectedEvent = false
     if let selectedEvent = eventViewController?.event, !events.contains(selectedEvent) {
