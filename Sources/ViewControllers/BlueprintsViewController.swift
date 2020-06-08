@@ -29,14 +29,11 @@ final class BlueprintsViewController: UIPageViewController {
     return fullscreenRecognizer
   }()
 
-  let style: Style
+  private lazy var pageControl = UIPageControl()
+
+  private let style: Style
 
   init(style: Style) {
-    let pageControl = UIPageControl.appearance(whenContainedInInstancesOf: [BlueprintsViewController.self])
-    pageControl.pageIndicatorTintColor = .fos_quaternaryLabel
-    pageControl.currentPageIndicatorTintColor = .fos_label
-    pageControl.hidesForSinglePage = true
-
     self.style = style
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [.interPageSpacing: 20])
   }
@@ -66,6 +63,32 @@ final class BlueprintsViewController: UIPageViewController {
     let dismissImage = UIImage.fos_systemImage(withName: "xmark")
     let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
     navigationItem.rightBarButtonItem = dismissButton
+
+    guard style == .fullscreen else { return }
+
+    pageControl.hidesForSinglePage = true
+    pageControl.currentPageIndicatorTintColor = .fos_label
+    pageControl.pageIndicatorTintColor = .fos_quaternaryLabel
+    pageControl.translatesAutoresizingMaskIntoConstraints = false
+
+    let pageBackgroundView = UIView()
+    pageBackgroundView.alpha = 0.8
+    pageBackgroundView.layer.cornerRadius = 4
+    pageBackgroundView.backgroundColor = .fos_tertiarySystemBackground
+    pageBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+
+    view.addSubview(pageControl)
+    view.insertSubview(pageBackgroundView, belowSubview: pageControl)
+
+    NSLayoutConstraint.activate([
+      pageBackgroundView.topAnchor.constraint(equalTo: pageControl.topAnchor),
+      pageBackgroundView.bottomAnchor.constraint(equalTo: pageControl.bottomAnchor),
+      pageBackgroundView.leadingAnchor.constraint(equalTo: pageControl.leadingAnchor, constant: -12),
+      pageBackgroundView.trailingAnchor.constraint(equalTo: pageControl.trailingAnchor, constant: 12),
+
+      pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+      pageControl.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor),
+    ])
   }
 
   var visibleBlueprint: Blueprint? {
@@ -103,6 +126,7 @@ final class BlueprintsViewController: UIPageViewController {
     setVisibleBlueprint(blueprints.first, animated: false)
     fullscreenRecognizer.isEnabled = supportsFullscreenPresentation
     navigationItem.leftBarButtonItem = supportsFullscreenPresentation ? fullscreenButton : nil
+    pageControl.numberOfPages = blueprints.count
   }
 
   private func didChangeVisibleBlueprint() {
@@ -113,6 +137,7 @@ final class BlueprintsViewController: UIPageViewController {
       let string = String(format: format, building)
       title = string
     }
+    pageControl.currentPage = viewControllers?.first?.fos_index ?? 0
   }
 
   private func makeEmptyViewController() -> BlueprintsEmptyViewController {
@@ -152,19 +177,6 @@ extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewCo
 
   func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
     didChangeVisibleBlueprint()
-  }
-
-  func presentationCount(for pageViewController: UIPageViewController) -> Int {
-    switch style {
-    case .embedded:
-      return 0
-    case .fullscreen:
-      return blueprints.count
-    }
-  }
-
-  func presentationIndex(for pageViewController: UIPageViewController) -> Int {
-    pageViewController.viewControllers?.first?.fos_index ?? 0
   }
 }
 
