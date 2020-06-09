@@ -29,8 +29,12 @@ final class FavoritesService {
     notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil, using: { _ in handler() })
   }
 
-  func addObserverForEvents(_ handler: @escaping () -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil, using: { _ in handler() })
+  func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol {
+    notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil, using: { notification in
+      if let identifier = notification.userInfo?["identifier"] as? Int {
+        handler(identifier)
+      }
+    })
   }
 
   func removeObserver(_ observer: NSObjectProtocol) {
@@ -54,16 +58,16 @@ final class FavoritesService {
     tracksIdentifiers.contains(track.name)
   }
 
-  func addEvent(withIdentifier eventID: Int) {
-    let (inserted, _) = eventsIdentifiers.insert(eventID)
+  func addEvent(withIdentifier identifier: Int) {
+    let (inserted, _) = eventsIdentifiers.insert(identifier)
     if inserted {
-      notificationCenter.post(Notification(name: .favoriteEventsDidChange))
+      notificationCenter.post(Notification(name: .favoriteEventsDidChange, object: nil, userInfo: ["identifier": identifier]))
     }
   }
 
-  func removeEvent(withIdentifier eventID: Int) {
-    if let _ = eventsIdentifiers.remove(eventID) {
-      notificationCenter.post(Notification(name: .favoriteEventsDidChange))
+  func removeEvent(withIdentifier identifier: Int) {
+    if let _ = eventsIdentifiers.remove(identifier) {
+      notificationCenter.post(Notification(name: .favoriteEventsDidChange, object: nil, userInfo: ["identifier": identifier]))
     }
   }
 

@@ -114,7 +114,7 @@ final class EventController: UIViewController {
     let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
     navigationItem.rightBarButtonItem = favoriteButton
 
-    favoritesObserver = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
+    favoritesObserver = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] _ in
       favoriteButton?.title = self?.favoriteTitle
     }
   }
