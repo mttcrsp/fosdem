@@ -6,6 +6,7 @@ enum MoreItem: CaseIterable {
   #endif
 
   case code
+  case legal
   case years
   case history
   case devrooms
@@ -18,6 +19,8 @@ extension MoreItem {
     switch self {
     case .code:
       return NSLocalizedString("code.title", comment: "")
+    case .legal:
+      return NSLocalizedString("legal.title", comment: "")
     case .years:
       return NSLocalizedString("years.item", comment: "")
     case .history:
@@ -39,6 +42,8 @@ extension MoreItem {
     switch self {
     case .code:
       return UIImage(named: "contribute")
+    case .legal:
+      return UIImage(named: "document")
     case .years:
       return UIImage(named: "years")
     case .history:
@@ -48,7 +53,7 @@ extension MoreItem {
     case .transportation:
       return UIImage(named: "transportation")
     case .acknowledgements:
-      return UIImage(named: "acknowledgements")
+      return UIImage(named: "document")
     #if DEBUG
     case .time:
       return nil
@@ -58,6 +63,8 @@ extension MoreItem {
 
   var info: Info? {
     switch self {
+    case .legal:
+      return .legal
     case .history:
       return .history
     case .devrooms:

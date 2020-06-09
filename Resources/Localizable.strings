@@ -74,6 +74,9 @@
 /// MARK: - Acknowledgements
 "acknowledgements.title" = "Acknowledgements";
 
+/// MARK: - Legal
+"legal.title" = "Legal";
+
 /// MARK: - Code
 "code.title" = "Contribute on Github";
 

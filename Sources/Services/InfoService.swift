@@ -3,6 +3,7 @@ import UIKit
 enum Info {
   case history, devrooms, transportation
   case bus, shuttle, train, car, plane, taxi
+  case legal
 }
 
 protocol InfoServiceBundle {
@@ -88,6 +89,8 @@ private extension Info {
       return "plane"
     case .taxi:
       return "taxi"
+    case .legal:
+      return "legal"
     }
   }
 }

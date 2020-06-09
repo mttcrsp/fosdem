@@ -19,7 +19,7 @@ extension MoreSection {
     case .years:
       return [.years]
     case .other:
-      return [.code, .acknowledgements]
+      return [.code, .acknowledgements, .legal]
     case .about:
       return [.history, .devrooms, .transportation]
     }

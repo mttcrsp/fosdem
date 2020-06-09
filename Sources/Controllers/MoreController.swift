@@ -52,6 +52,8 @@ extension MoreController: MoreViewControllerDelegate {
     switch item {
     case .code:
       moreViewControllerDidSelectCode(moreViewController)
+    case .legal:
+      moreViewControllerDidSelectLegal(moreViewController)
     case .years:
       moreViewControllerDidSelectYears(moreViewController)
     case .history:
@@ -100,6 +102,10 @@ extension MoreController: MoreViewControllerDelegate {
         moreViewController?.deselectSelectedRow(animated: true)
       }
     }
+  }
+
+  private func moreViewControllerDidSelectLegal(_ moreViewController: MoreViewController) {
+    showDetailInfoViewController(withTitle: MoreItem.legal.title, for: .legal)
   }
 
   private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
