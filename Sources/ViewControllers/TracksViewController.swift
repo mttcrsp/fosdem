@@ -46,8 +46,15 @@ class TracksViewController: UITableViewController {
     }
   }
 
-  func beginUpdates() {
-    tableView.beginUpdates()
+  func performBatchUpdates(_ updates: () -> Void) {
+    tableView.performBatchUpdates(updates) { [weak self] _ in
+      // WORKAROUND: This call to -[UITableView reloadData] workarounds an issue
+      // that takes place when a section is deleted by swiping to delete on a
+      // row from a different section. On iOS 11 and 12, this issue results in
+      // some cells not being visible until the next layout pass. On iOS 13,
+      // this issue causes the table view to stop responding to touches.
+      self?.tableView.reloadData()
+    }
   }
 
   func insertFavoritesSection() {
@@ -68,10 +75,6 @@ class TracksViewController: UITableViewController {
   func deleteFavorite(at index: Int) {
     let indexPath = IndexPath(row: index, section: 0)
     tableView.deleteRows(at: [indexPath], with: .automatic)
-  }
-
-  func endUpdates() {
-    tableView.endUpdates()
   }
 
   func scrollToRow(at indexPath: IndexPath, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {

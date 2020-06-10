@@ -3,10 +3,9 @@ import Foundation
 protocol TracksServiceDelegate: AnyObject {
   func tracksServiceDidUpdateTracks(_ tracksService: TracksService)
 
-  func tracksServiceWillUpdateFavorites(_ tracksService: TracksService)
+  func tracksService(_ tracksService: TracksService, performBatchUpdates updates: () -> Void)
   func tracksService(_ tracksService: TracksService, insertFavoriteWith identifier: String)
   func tracksService(_ tracksService: TracksService, deleteFavoriteWith identifier: String)
-  func tracksServiceDidUpdateFavorites(_ tracksService: TracksService)
 }
 
 final class TracksService {
@@ -87,23 +86,27 @@ final class TracksService {
   private func didToggleTrack(withIdentifier identifier: String) {
     let isFavorite = favoritesService.tracksIdentifiers.contains(identifier)
 
-    delegate?.tracksServiceWillUpdateFavorites(self)
+    let updates = {
+      if !isFavorite {
+        self.delegate?.tracksService(self, deleteFavoriteWith: identifier)
+      }
 
-    if !isFavorite {
-      delegate?.tracksService(self, deleteFavoriteWith: identifier)
+      self.filteredFavoriteTracks = [:]
+      for track in self.tracks where self.favoritesService.contains(track) {
+        let filter = TracksFilter.day(track.day)
+        self.filteredFavoriteTracks[.all, default: []].append(track)
+        self.filteredFavoriteTracks[filter, default: []].append(track)
+      }
+
+      if isFavorite {
+        self.delegate?.tracksService(self, insertFavoriteWith: identifier)
+      }
     }
 
-    filteredFavoriteTracks = [:]
-    for track in tracks where favoritesService.contains(track) {
-      let filter = TracksFilter.day(track.day)
-      filteredFavoriteTracks[.all, default: []].append(track)
-      filteredFavoriteTracks[filter, default: []].append(track)
+    if let delegate = delegate {
+      delegate.tracksService(self, performBatchUpdates: updates)
+    } else {
+      updates()
     }
-
-    if isFavorite {
-      delegate?.tracksService(self, insertFavoriteWith: identifier)
-    }
-
-    delegate?.tracksServiceDidUpdateFavorites(self)
   }
 }

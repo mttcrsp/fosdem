@@ -99,8 +99,8 @@ extension SearchController: TracksServiceDelegate {
     tracksViewController?.reloadData()
   }
 
-  func tracksServiceWillUpdateFavorites(_ tracksService: TracksService) {
-    tracksViewController?.beginUpdates()
+  func tracksService(_ tracksService: TracksService, performBatchUpdates updates: () -> Void) {
+    tracksViewController?.performBatchUpdates(updates)
   }
 
   func tracksService(_ tracksService: TracksService, insertFavoriteWith identifier: String) {
@@ -117,10 +117,6 @@ extension SearchController: TracksServiceDelegate {
     } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
       tracksViewController?.deleteFavorite(at: index)
     }
-  }
-
-  func tracksServiceDidUpdateFavorites(_ tracksService: TracksService) {
-    tracksViewController?.endUpdates()
   }
 }
 
