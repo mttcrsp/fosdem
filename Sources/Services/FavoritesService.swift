@@ -25,8 +25,12 @@ final class FavoritesService {
     set { userDefaults.eventsIdentifiers = newValue }
   }
 
-  func addObserverForTracks(_ handler: @escaping () -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil, using: { _ in handler() })
+  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
+    notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil, using: { notification in
+      if let identifier = notification.userInfo?["identifier"] as? String {
+        handler(identifier)
+      }
+    })
   }
 
   func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol {
@@ -41,16 +45,20 @@ final class FavoritesService {
     notificationCenter.removeObserver(observer)
   }
 
-  func addTrack(withIdentifier trackID: String) {
-    let (inserted, _) = tracksIdentifiers.insert(trackID)
+  func addTrack(withIdentifier identifier: String) {
+    let (inserted, _) = tracksIdentifiers.insert(identifier)
     if inserted {
-      notificationCenter.post(Notification(name: .favoriteTracksDidChange))
+      let userInfo = ["identifier": identifier]
+      let notification = Notification(name: .favoriteTracksDidChange, userInfo: userInfo)
+      notificationCenter.post(notification)
     }
   }
 
-  func removeTrack(withIdentifier trackID: String) {
-    if let _ = tracksIdentifiers.remove(trackID) {
-      notificationCenter.post(Notification(name: .favoriteTracksDidChange))
+  func removeTrack(withIdentifier identifier: String) {
+    if let _ = tracksIdentifiers.remove(identifier) {
+      let userInfo = ["identifier": identifier]
+      let notification = Notification(name: .favoriteTracksDidChange, userInfo: userInfo)
+      notificationCenter.post(notification)
     }
   }
 
@@ -61,13 +69,17 @@ final class FavoritesService {
   func addEvent(withIdentifier identifier: Int) {
     let (inserted, _) = eventsIdentifiers.insert(identifier)
     if inserted {
-      notificationCenter.post(Notification(name: .favoriteEventsDidChange, object: nil, userInfo: ["identifier": identifier]))
+      let userInfo = ["identifier": identifier]
+      let notification = Notification(name: .favoriteEventsDidChange, userInfo: userInfo)
+      notificationCenter.post(notification)
     }
   }
 
   func removeEvent(withIdentifier identifier: Int) {
     if let _ = eventsIdentifiers.remove(identifier) {
-      notificationCenter.post(Notification(name: .favoriteEventsDidChange, object: nil, userInfo: ["identifier": identifier]))
+      let userInfo = ["identifier": identifier]
+      let notification = Notification(name: .favoriteEventsDidChange, userInfo: userInfo)
+      notificationCenter.post(notification)
     }
   }
 

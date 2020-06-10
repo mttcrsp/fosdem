@@ -46,6 +46,34 @@ class TracksViewController: UITableViewController {
     }
   }
 
+  func beginUpdates() {
+    tableView.beginUpdates()
+  }
+
+  func insertFavoritesSection() {
+    let section = IndexSet([0])
+    tableView.insertSections(section, with: .automatic)
+  }
+
+  func deleteFavoritesSection() {
+    let section = IndexSet([0])
+    tableView.deleteSections(section, with: .automatic)
+  }
+
+  func insertFavorite(at index: Int) {
+    let indexPath = IndexPath(row: index, section: 0)
+    tableView.insertRows(at: [indexPath], with: .automatic)
+  }
+
+  func deleteFavorite(at index: Int) {
+    let indexPath = IndexPath(row: index, section: 0)
+    tableView.deleteRows(at: [indexPath], with: .automatic)
+  }
+
+  func endUpdates() {
+    tableView.endUpdates()
+  }
+
   func scrollToRow(at indexPath: IndexPath, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {
     tableView.scrollToRow(at: indexPath, at: scrollPosition, animated: animated)
   }

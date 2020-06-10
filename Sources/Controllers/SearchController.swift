@@ -95,8 +95,32 @@ extension SearchController: UISplitViewControllerDelegate {
 }
 
 extension SearchController: TracksServiceDelegate {
-  func tracksServiceDidUpdate(_ tracksService: TracksService) {
+  func tracksServiceDidUpdateTracks(_ tracksService: TracksService) {
     tracksViewController?.reloadData()
+  }
+
+  func tracksServiceWillUpdateFavorites(_ tracksService: TracksService) {
+    tracksViewController?.beginUpdates()
+  }
+
+  func tracksService(_ tracksService: TracksService, insertFavoriteWith identifier: String) {
+    if filteredFavoriteTracks.count == 1 {
+      tracksViewController?.insertFavoritesSection()
+    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
+      tracksViewController?.insertFavorite(at: index)
+    }
+  }
+
+  func tracksService(_ tracksService: TracksService, deleteFavoriteWith identifier: String) {
+    if filteredFavoriteTracks.count == 1 {
+      tracksViewController?.deleteFavoritesSection()
+    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
+      tracksViewController?.deleteFavorite(at: index)
+    }
+  }
+
+  func tracksServiceDidUpdateFavorites(_ tracksService: TracksService) {
+    tracksViewController?.endUpdates()
   }
 }
 
@@ -378,7 +402,7 @@ private extension SearchController {
       eventsViewController.navigationItem.largeTitleDisplayMode = .never
     }
 
-    observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in
+    observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] _ in
       favoriteButton?.title = self?.favoriteTitle
     }
 

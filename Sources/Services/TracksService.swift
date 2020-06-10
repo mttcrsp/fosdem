@@ -1,7 +1,12 @@
 import Foundation
 
 protocol TracksServiceDelegate: AnyObject {
-  func tracksServiceDidUpdate(_ tracksService: TracksService)
+  func tracksServiceDidUpdateTracks(_ tracksService: TracksService)
+
+  func tracksServiceWillUpdateFavorites(_ tracksService: TracksService)
+  func tracksService(_ tracksService: TracksService, insertFavoriteWith identifier: String)
+  func tracksService(_ tracksService: TracksService, deleteFavoriteWith identifier: String)
+  func tracksServiceDidUpdateFavorites(_ tracksService: TracksService)
 }
 
 final class TracksService {
@@ -26,8 +31,8 @@ final class TracksService {
   }
 
   func loadTracks() {
-    observation = favoritesService.addObserverForTracks { [weak self] in
-      self?.didChangeFavorites()
+    observation = favoritesService.addObserverForTracks { [weak self] identifier in
+      self?.didToggleTrack(withIdentifier: identifier)
     }
 
     persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
@@ -75,11 +80,19 @@ final class TracksService {
       self.filteredTracks = filteredTracks
       self.filteredIndexTitles = filteredIndexTitles
       self.filteredFavoriteTracks = filteredFavoriteTracks
-      self.delegate?.tracksServiceDidUpdate(self)
+      self.delegate?.tracksServiceDidUpdateTracks(self)
     }
   }
 
-  private func didChangeFavorites() {
+  private func didToggleTrack(withIdentifier identifier: String) {
+    let isFavorite = favoritesService.tracksIdentifiers.contains(identifier)
+
+    delegate?.tracksServiceWillUpdateFavorites(self)
+
+    if !isFavorite {
+      delegate?.tracksService(self, deleteFavoriteWith: identifier)
+    }
+
     filteredFavoriteTracks = [:]
     for track in tracks where favoritesService.contains(track) {
       let filter = TracksFilter.day(track.day)
@@ -87,6 +100,10 @@ final class TracksService {
       filteredFavoriteTracks[filter, default: []].append(track)
     }
 
-    delegate?.tracksServiceDidUpdate(self)
+    if isFavorite {
+      delegate?.tracksService(self, insertFavoriteWith: identifier)
+    }
+
+    delegate?.tracksServiceDidUpdateFavorites(self)
   }
 }
