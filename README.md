@@ -1,4 +1,30 @@
 ![Travis status](https://travis-ci.com/mttcrsp/fosdem.svg?token=UP73xm7M7oVQzv1W5R96&branch=master)
 [![MIT license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/wikimedia/wikipedia-ios/develop/LICENSE.txt)
 
-# Fosdem
+# Fosdem.app
+
+[![Available on the App Store](http://cl.ly/WouG/Download_on_the_App_Store_Badge_US-UK_135x40.svg)](https://fosdem.org)
+
+FOSDEM.app is an open source full featured iOS application that lets you organise your visit to the FOSDEM conference.
+
+- Check the schedule for each track and search for events
+- Watch videos from this and previous years of the conference
+- Navigate around the campus with a map and blueprints for each building
+- Build up an agenda with your favorite events to quickly see what is coming up next
+- Get access to slides and all material provided by speakers
+
+The app is compatible with iOS 11+ iPhone/iPad devices and provides support for dynamic type, VoiceOver and Dark Mode.
+
+> The name FOSDEM and the gear logo are registered trademarks of FOSDEM VZW.
+
+## Contributing
+
+Contributions in the form of code, issues and feature requests are welcome! To get started with development make sure to run the [`bootstrap.sh`](https://github.com/mttcrsp/fosdem/blob/master/bootstrap.sh) script.
+
+## Acknowledgements
+
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
+- [Periphery](https://github.com/peripheryapp/periphery)
+- [GRDB.swift](https://github.com/groue/GRDB.swift)
+- [PLCrashReporter](https://github.com/microsoft/PLCrashReporter)
