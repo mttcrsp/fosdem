@@ -98,8 +98,8 @@ final class FavoritesServiceTests: XCTestCase {
     }
 
     let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
-    var tracksObservation: NSObjectProtocol? = service.addObserverForTracks { tracksExpectation.fulfill() }
-    var eventsObservation: NSObjectProtocol? = service.addObserverForEvents { eventsExpectation.fulfill() }
+    var tracksObservation: NSObjectProtocol? = service.addObserverForTracks { _ in tracksExpectation.fulfill() }
+    var eventsObservation: NSObjectProtocol? = service.addObserverForEvents { _ in eventsExpectation.fulfill() }
 
     service.addTrack(withIdentifier: "1")
     service.addTrack(withIdentifier: "1")
