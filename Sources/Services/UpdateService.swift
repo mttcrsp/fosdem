@@ -39,11 +39,7 @@ final class UpdateService {
       guard let self = self, case let .success(response) = result else { return }
 
       guard let result = response.results.first(where: { result in result.bundleIdentifier == bundleIdentifier }) else {
-        // The following assertion cannot be enable before the first
-        // version of the app is released to the store.
-        //
-        // return assertionFailure("AppStore search request did not return any application with identifier \(bundleIdentifier)")
-        return
+        return assertionFailure("AppStore search request did not return any application with identifier \(bundleIdentifier)")
       }
 
       if result.version.compare(bundleShortVersion, options: .numeric) == .orderedDescending {
