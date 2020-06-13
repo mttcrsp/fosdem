@@ -208,7 +208,6 @@ private extension EventController {
   func makeVideoViewController(for url: URL) -> AVPlayerViewController {
     let videoViewController = AVPlayerViewController()
     videoViewController.exitsFullScreenWhenPlaybackEnds = true
-    videoViewController.allowsPictureInPicturePlayback = true
     videoViewController.player = AVPlayer(url: url)
     videoViewController.player?.play()
     videoViewController.delegate = self
