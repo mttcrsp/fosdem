@@ -12,23 +12,21 @@ final class SearchControllerTests: XCTestCase {
 
     runActivity(named: "Unfavorite all from top") {
       for element in [app.day1TrackStaticText, app.day2TrackStaticText, favoriteCell1, favoriteCell1] {
-        element.swipeLeft()
-        app.firstTrailingAction.tap()
+        element.tapFirstTrailingAction()
       }
     }
 
     runActivity(named: "Unfavorite all from bottom") {
       for element in [app.day2TrackStaticText, app.day1TrackStaticText, favoriteCell2, favoriteCell1] {
-        element.swipeLeft()
-        app.firstTrailingAction.tap()
+        element.tapFirstTrailingAction()
       }
     }
 
     runActivity(named: "Unfavorite from non favorites section") {
       for _ in 1 ... 2 {
         let query = app.staticTexts.matching(identifier: "Ada")
-        query.element(boundBy: query.count - 1).swipeLeft()
-        app.firstTrailingAction.tap()
+        let element = query.element(boundBy: query.count - 1)
+        element.tapFirstTrailingAction()
       }
     }
   }
@@ -65,8 +63,7 @@ final class SearchControllerTests: XCTestCase {
     let unfavoriteTrackButton = app.buttons["unfavorite"]
 
     runActivity(named: "Favorite from search") {
-      app.day1TrackStaticText.swipeLeft()
-      app.firstTrailingAction.tap()
+      app.day1TrackStaticText.tapFirstTrailingAction()
       app.tracksTable.cells.firstMatch.tap()
       XCTAssert(unfavoriteTrackButton.exists)
     }
@@ -94,8 +91,7 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Unfavorite from search") {
-      app.tracksTable.cells.firstMatch.swipeLeft()
-      app.firstTrailingAction.tap()
+      app.tracksTable.cells.firstMatch.tapFirstTrailingAction()
       app.day1TrackStaticText.tap()
       XCTAssert(favoriteTrackButton.exists)
     }
@@ -122,16 +118,14 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Favorite event") {
-      cell.swipeLeft()
-      app.firstTrailingAction.tap()
+      cell.tapFirstTrailingAction()
       cell.tap()
       wait { unfavoriteButton.exists }
     }
 
     runActivity(named: "Unfavorite event") {
       app.navigationBars.buttons.firstMatch.tap()
-      cell.swipeLeft()
-      app.firstTrailingAction.tap()
+      cell.tapFirstTrailingAction()
       cell.tap()
       wait { favoriteButton.exists }
     }
@@ -148,8 +142,7 @@ final class SearchControllerTests: XCTestCase {
     let day2Header = app.otherElements["day 2"]
     let favoritesHeader = app.otherElements["favorites"]
 
-    app.day2TrackStaticText.swipeLeft()
-    app.firstTrailingAction.tap()
+    app.day2TrackStaticText.tapFirstTrailingAction()
 
     let filtersButton = app.buttons["filters"]
     let filterButtons = app.sheets["filters"].buttons
@@ -280,8 +273,11 @@ private extension XCUIApplication {
   }
 }
 
-extension XCUIElement {
-  var firstTrailingAction: XCUIElement {
-    buttons["trailing0"]
+  var day2TrackStaticText: XCUIElement {
+    tracksTable.staticTexts["BSD"]
+  }
+
+  var trackTable: XCUIElement {
+    tables["events"]
   }
 }
