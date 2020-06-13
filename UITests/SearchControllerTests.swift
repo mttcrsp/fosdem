@@ -128,7 +128,7 @@ final class SearchControllerTests: XCTestCase {
       cell.swipeLeft()
       app.firstTrailingAction.tap()
       cell.tap()
-      XCTAssert(unfavoriteButton.exists)
+      wait { unfavoriteButton.exists }
     }
 
     runActivity(named: "Unfavorite event") {
@@ -136,7 +136,7 @@ final class SearchControllerTests: XCTestCase {
       cell.swipeLeft()
       app.firstTrailingAction.tap()
       cell.tap()
-      XCTAssert(favoriteButton.exists)
+      wait { favoriteButton.exists }
     }
   }
 
@@ -206,7 +206,7 @@ final class SearchControllerTests: XCTestCase {
     runActivity(named: "Pop event") {
       app.day1TrackStaticText.tap()
       app.eventStaticText.tap()
-      XCTAssertTrue(app.eventTable.exists)
+      wait { app.eventTable.exists }
 
       app.searchButton.tap()
       XCTAssertTrue(app.tracksTable.exists)
