@@ -2,11 +2,15 @@
 import UIKit
 
 final class TestsService {
+  private let formatter = ISO8601DateFormatter()
+
   private let environment: [String: String]
+  private let debugService: DebugService
   private let favoritesService: FavoritesService
 
-  init(favoritesService: FavoritesService, environment: [String: String] = ProcessInfo.processInfo.environment) {
+  init(favoritesService: FavoritesService, debugService: DebugService, environment: [String: String] = ProcessInfo.processInfo.environment) {
     self.favoritesService = favoritesService
+    self.debugService = debugService
     self.environment = environment
   }
 
@@ -35,6 +39,12 @@ final class TestsService {
         if let identifier = Int(identifier) {
           favoritesService.addEvent(withIdentifier: identifier)
         }
+      }
+    }
+
+    if let string = environment["SOON_DATE"] {
+      if let date = formatter.date(from: string) {
+        debugService.override(date)
       }
     }
   }

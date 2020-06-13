@@ -40,7 +40,7 @@ final class Services {
     #endif
 
     #if DEBUG
-    testsService = TestsService(favoritesService: favoritesService)
+    testsService = TestsService(favoritesService: favoritesService, debugService: debugService)
     testsService.configureEnvironment()
     #endif
 
