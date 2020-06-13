@@ -4,6 +4,8 @@ import UIKit
 final class TestsService {
   private let formatter = ISO8601DateFormatter()
 
+  private var timer: Timer?
+
   private let environment: [String: String]
   private let debugService: DebugService
   private let favoritesService: FavoritesService
@@ -45,6 +47,19 @@ final class TestsService {
     if let string = environment["SOON_DATE"] {
       if let date = formatter.date(from: string) {
         debugService.override(date)
+      }
+    }
+
+    if let string = environment["LIVE_DATES"] {
+      let components = string.components(separatedBy: ",")
+      if components.count == 2,
+        let date1 = formatter.date(from: components[0]),
+        let date2 = formatter.date(from: components[1]) {
+        var flag = true
+        timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
+          self?.debugService.override(flag ? date1 : date2)
+          flag.toggle()
+        }
       }
     }
   }
