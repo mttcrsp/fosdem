@@ -17,6 +17,7 @@ final class Services {
   let acknowledgementsService = AcknowledgementsService()
 
   #if DEBUG
+  let testsService: TestsService
   let debugService = DebugService()
   #endif
 
@@ -36,6 +37,11 @@ final class Services {
     crashService = nil
     #else
     crashService = CrashService(networkService: networkService)
+    #endif
+
+    #if DEBUG
+    testsService = TestsService(favoritesService: favoritesService)
+    testsService.configureEnvironment()
     #endif
 
     updateService = UpdateService(networkService: networkService)

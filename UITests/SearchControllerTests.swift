@@ -1,19 +1,11 @@
 import XCTest
 
 final class SearchControllerTests: XCTestCase {
-  private var app: XCUIApplication {
-    XCUIApplication()
-  }
-
   func testTracksFavorites() {
+    let app = XCUIApplication()
+    app.launchEnvironment = ["RESET_FAVORITES": "1"]
     app.launch()
     app.searchButton.tap()
-
-    while app.favoritesHeader.exists {
-      let favoriteCell = app.tracksTable.cells.firstMatch
-      favoriteCell.swipeLeft()
-      favoriteCell.firstTrailingAction.tap()
-    }
 
     let favoriteCell1 = app.tracksTable.cells.element(boundBy: 0)
     let favoriteCell2 = app.tracksTable.cells.element(boundBy: 1)
@@ -42,6 +34,7 @@ final class SearchControllerTests: XCTestCase {
   }
 
   func testTracksSectionIndexTitles() {
+    let app = XCUIApplication()
     app.launch()
     app.searchButton.tap()
 
@@ -63,14 +56,10 @@ final class SearchControllerTests: XCTestCase {
   }
 
   func testTrack() {
+    let app = XCUIApplication()
+    app.launchEnvironment = ["RESET_FAVORITES": "1"]
     app.launch()
     app.searchButton.tap()
-
-    while app.favoritesHeader.exists {
-      let favoriteCell = app.tracksTable.cells.firstMatch
-      favoriteCell.swipeLeft()
-      favoriteCell.firstTrailingAction.tap()
-    }
 
     let favoriteTrackButton = app.buttons["favorite"]
     let unfavoriteTrackButton = app.buttons["unfavorite"]
@@ -116,14 +105,10 @@ final class SearchControllerTests: XCTestCase {
   func testUnfavoriteEvent() {}
 
   func testSearch() {
+    let app = XCUIApplication()
+    app.launchEnvironment = ["RESET_FAVORITES": "1"]
     app.launch()
     app.searchButton.tap()
-
-    while app.favoritesHeader.exists {
-      let favoriteCell = app.tracksTable.cells.firstMatch
-      favoriteCell.swipeLeft()
-      favoriteCell.firstTrailingAction.tap()
-    }
 
     let unfavoriteButton = app.buttons["unfavorite"]
     let favoriteButton = app.buttons["favorite"]
@@ -156,6 +141,8 @@ final class SearchControllerTests: XCTestCase {
   }
 
   func testFilters() {
+    let app = XCUIApplication()
+    app.launchEnvironment = ["RESET_FAVORITES": "1"]
     app.launch()
     app.searchButton.tap()
 
@@ -163,12 +150,6 @@ final class SearchControllerTests: XCTestCase {
     let day1Header = app.otherElements["day 1"]
     let day2Header = app.otherElements["day 2"]
     let favoritesHeader = app.favoritesHeader
-
-    while favoritesHeader.exists {
-      let favoriteCell = app.tracksTable.cells.firstMatch
-      favoriteCell.swipeLeft()
-      favoriteCell.firstTrailingAction.tap()
-    }
 
     app.day2TrackStaticText.swipeLeft()
     app.firstTrailingAction.tap()
@@ -209,6 +190,7 @@ final class SearchControllerTests: XCTestCase {
   func testNavigateToResult() {}
 
   func testPopToRoot() {
+    let app = XCUIApplication()
     app.launch()
     app.searchButton.tap()
 
@@ -233,7 +215,7 @@ final class SearchControllerTests: XCTestCase {
   }
 
   func testCollapseExpand() {
-    let app = self.app
+    let app = XCUIApplication()
     XCUIDevice.shared.orientation = .portrait
 
     runActivity(named: "Handle welcome") {
