@@ -97,7 +97,7 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidSelectCode(_ moreViewController: MoreViewController) {
-    if let url = URL(string: "https://www.github.com/mttcrsp/fosdem") {
+    if let url = URL.fosdemGithub {
       UIApplication.shared.open(url) { [weak moreViewController] _ in
         moreViewController?.deselectSelectedRow(animated: true)
       }
