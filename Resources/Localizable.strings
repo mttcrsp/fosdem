@@ -51,6 +51,7 @@
 
 /// MARK: - Map
 "map.title" = "Map";
+"map.reset" = "Reset map";
 "map.building" = "Building %@";
 "map.location" = "Display my location";
 "map.blueprint.title" = "Building %@";

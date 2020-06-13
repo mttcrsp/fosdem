@@ -21,14 +21,18 @@ final class MapControlsView: UIView {
     resetButton.imageView?.contentMode = .center
     resetButton.setImage(resetImage, for: .normal)
     resetButton.addTarget(self, action: resetAction, for: .touchUpInside)
-
+    resetButton.accessibilityLabel = NSLocalizedString("map.reset", comment: "")
+    resetButton.accessibilityIdentifier = "reset"
+    
     let locationImage = CLAuthorizationStatus.notDetermined.image
     let locationAction = #selector(didTapLocation)
     locationButton.contentEdgeInsets = .zero
     locationButton.imageView?.contentMode = .center
     locationButton.setImage(locationImage, for: .normal)
     locationButton.addTarget(self, action: locationAction, for: .touchUpInside)
-
+    locationButton.accessibilityLabel = NSLocalizedString("map.location", comment: "")
+    locationButton.accessibilityIdentifier = "location"
+    
     let separatorView = UIView()
     separatorView.backgroundColor = .fos_separator
 
