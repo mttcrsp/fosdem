@@ -62,7 +62,9 @@ extension MoreController: MoreViewControllerDelegate {
       showDetailInfoViewController(for: item)
     #if DEBUG
     case .time:
-      moreViewControllerDidSelectTime(moreViewController)
+      let date = services.debugService.now
+      let dateViewController = makeDateViewController(for: date)
+      moreViewController.present(dateViewController, animated: true)
     #endif
     }
   }
@@ -124,28 +126,6 @@ extension MoreController: MoreViewControllerDelegate {
     }
   }
 }
-
-#if DEBUG
-extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
-  private func moreViewControllerDidSelectTime(_ moreViewController: MoreViewController) {
-    let date = services.debugService.now
-    let dateViewController = makeDateViewController(for: date)
-    moreViewController.present(dateViewController, animated: true)
-  }
-
-  func dateViewControllerDidChange(_ dateViewController: DateViewController) {
-    let date = dateViewController.date
-    services.debugService.override(date)
-  }
-
-  private func makeDateViewController(for date: Date) -> DateViewController {
-    let timeViewController = DateViewController()
-    timeViewController.delegate = self
-    timeViewController.date = date
-    return timeViewController
-  }
-}
-#endif
 
 extension MoreController: TransportationViewControllerDelegate {
   func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item) {
@@ -251,6 +231,15 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
   }
 }
 
+#if DEBUG
+extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
+  func dateViewControllerDidChange(_ dateViewController: DateViewController) {
+    let date = dateViewController.date
+    services.debugService.override(date)
+  }
+}
+#endif
+
 private extension MoreController {
   private var preferredDetailViewControllerStyle: UITableView.Style {
     if traitCollection.userInterfaceIdiom == .pad {
@@ -317,6 +306,15 @@ private extension MoreController {
   private func makeErrorViewController() -> UIAlertController {
     UIAlertController.makeErrorController()
   }
+
+  #if DEBUG
+  private func makeDateViewController(for date: Date) -> DateViewController {
+    let timeViewController = DateViewController()
+    timeViewController.delegate = self
+    timeViewController.date = date
+    return timeViewController
+  }
+  #endif
 }
 
 private extension URL {
