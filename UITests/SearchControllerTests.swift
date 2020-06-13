@@ -180,7 +180,7 @@ final class SearchControllerTests: XCTestCase {
 
     runActivity(named: "Pop events") {
       app.day1TrackStaticText.tap()
-      XCTAssertTrue(app.trackTable.exists)
+      wait { app.trackTable.exists }
 
       app.searchButton.tap()
       XCTAssertTrue(app.tracksTable.exists)
@@ -205,8 +205,8 @@ final class SearchControllerTests: XCTestCase {
     runActivity(named: "Handle welcome") {
       let welcomeView = app.otherElements["welcome"]
 
-      app.searchButton.tap()
       app.launch()
+      app.searchButton.tap()
       wait { app.tracksTable.exists }
       wait { !welcomeView.exists }
 
