@@ -32,7 +32,7 @@ final class MoreController: UISplitViewController {
 
     viewControllers = [moreNavigationController]
     if traitCollection.horizontalSizeClass == .regular {
-      showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
+      showDetailInfoViewController(for: .history)
     }
   }
 
@@ -41,7 +41,7 @@ final class MoreController: UISplitViewController {
 
     if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
       if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
-        showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
+        showDetailInfoViewController(for: .history)
       }
     }
   }
@@ -52,18 +52,14 @@ extension MoreController: MoreViewControllerDelegate {
     switch item {
     case .code:
       moreViewControllerDidSelectCode(moreViewController)
-    case .legal:
-      moreViewControllerDidSelectLegal(moreViewController)
     case .years:
       moreViewControllerDidSelectYears(moreViewController)
-    case .history:
-      moreViewControllerDidSelectHistory(moreViewController)
-    case .devrooms:
-      moreViewControllerDidSelectDevrooms(moreViewController)
     case .transportation:
       moreViewControllerDidSelectTransportation(moreViewController)
     case .acknowledgements:
       moreViewControllerDidSelectAcknowledgements(moreViewController)
+    case .history, .legal, .devrooms:
+      showDetailInfoViewController(for: item)
     #if DEBUG
     case .time:
       moreViewControllerDidSelectTime(moreViewController)
@@ -104,26 +100,18 @@ extension MoreController: MoreViewControllerDelegate {
     }
   }
 
-  private func moreViewControllerDidSelectLegal(_ moreViewController: MoreViewController) {
-    showDetailInfoViewController(withTitle: MoreItem.legal.title, for: .legal)
-  }
-
-  private func moreViewControllerDidSelectHistory(_ moreViewController: MoreViewController) {
-    showDetailInfoViewController(withTitle: MoreItem.history.title, for: .history)
-  }
-
-  private func moreViewControllerDidSelectDevrooms(_ moreViewController: MoreViewController) {
-    showDetailInfoViewController(withTitle: MoreItem.devrooms.title, for: .devrooms)
-  }
-
   private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
     let transportationViewController = makeTransportationViewController()
     let navigationController = UINavigationController(rootViewController: transportationViewController)
     moreViewController.showDetailViewController(navigationController, sender: nil)
   }
 
-  private func showDetailInfoViewController(withTitle title: String, for info: Info) {
-    makeInfoViewController(withTitle: title, for: info) { [weak self, weak moreViewController] infoViewController in
+  private func showDetailInfoViewController(for item: MoreItem) {
+    guard let info = item.info else {
+      return assertionFailure("Failed to determine info model for more item '\(item)'")
+    }
+
+    makeInfoViewController(withTitle: item.title, for: info) { [weak self, weak moreViewController] infoViewController in
       guard let self = self else { return }
 
       if let infoViewController = infoViewController {
