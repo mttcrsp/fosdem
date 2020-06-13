@@ -26,6 +26,7 @@ final class WelcomeViewController: UIViewController {
     scrollView.addSubview(stackView)
 
     view.addSubview(scrollView)
+    view.accessibilityIdentifier = "welcome"
     view.backgroundColor = .groupTableViewBackground
 
     NSLayoutConstraint.activate([
