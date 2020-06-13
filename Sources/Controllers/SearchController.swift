@@ -90,7 +90,8 @@ extension SearchController: UISplitViewControllerDelegate {
   }
 
   func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
-    primaryViewController is TracksViewController ? WelcomeViewController() : nil
+    guard let navigationController = primaryViewController as? UINavigationController else { return nil }
+    return navigationController.topViewController is TracksViewController ? WelcomeViewController() : nil
   }
 }
 
