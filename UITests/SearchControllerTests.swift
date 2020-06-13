@@ -103,8 +103,6 @@ final class SearchControllerTests: XCTestCase {
     app.launch()
     app.searchButton.tap()
 
-    let unfavoriteButton = app.buttons["unfavorite"]
-    let favoriteButton = app.buttons["favorite"]
     let resultsCells = app.tables["events"].cells
     let cell = resultsCells.firstMatch
 
@@ -120,14 +118,14 @@ final class SearchControllerTests: XCTestCase {
     runActivity(named: "Favorite event") {
       cell.tapFirstTrailingAction()
       cell.tap()
-      wait { unfavoriteButton.exists }
+      wait { app.unfavoriteEventButton.exists }
     }
 
     runActivity(named: "Unfavorite event") {
       app.navigationBars.buttons.firstMatch.tap()
       cell.tapFirstTrailingAction()
       cell.tap()
-      wait { favoriteButton.exists }
+      wait { app.favoriteEventButton.exists }
     }
   }
 
@@ -243,35 +241,24 @@ final class SearchControllerTests: XCTestCase {
   }
 }
 
-private extension XCUIApplication {
+extension XCUIApplication {
   var searchButton: XCUIElement {
     tabBars.buttons["search"]
-  }
-
-  var tracksTable: XCUIElement {
-    tables["tracks"]
   }
 
   var day1TrackStaticText: XCUIElement {
     tracksTable.staticTexts["Ada"]
   }
 
-  var day2TrackStaticText: XCUIElement {
-    tracksTable.staticTexts["BSD"]
-  }
-
-  var trackTable: XCUIElement {
-    tables["events"]
-  }
-
   var eventStaticText: XCUIElement {
     trackTable.staticTexts["Welcome to the Ada DevRoom"]
   }
-
-  var eventTable: XCUIElement {
-    tables["event"]
-  }
 }
+
+private extension XCUIApplication {
+  var tracksTable: XCUIElement {
+    tables["tracks"]
+  }
 
   var day2TrackStaticText: XCUIElement {
     tracksTable.staticTexts["BSD"]
