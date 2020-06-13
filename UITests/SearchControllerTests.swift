@@ -16,7 +16,7 @@ final class SearchControllerTests: XCTestCase {
     while app.favoritesHeader.exists {
       let favoriteCell = app.tracksTable.cells.firstMatch
       favoriteCell.swipeLeft()
-      favoriteCell.buttons["trailing0"].tap()
+      favoriteCell.firstTrailingAction.tap()
     }
 
     let favoriteCell1 = app.tracksTable.cells.element(boundBy: 0)
@@ -25,14 +25,14 @@ final class SearchControllerTests: XCTestCase {
     runActivity(named: "Unfavorite all from top") {
       for element in [app.day1TrackStaticText, app.day2TrackStaticText, favoriteCell1, favoriteCell1] {
         element.swipeLeft()
-        app.buttons["trailing0"].tap()
+        app.firstTrailingAction.tap()
       }
     }
 
     runActivity(named: "Unfavorite all from bottom") {
       for element in [app.day2TrackStaticText, app.day1TrackStaticText, favoriteCell2, favoriteCell1] {
         element.swipeLeft()
-        app.buttons["trailing0"].tap()
+        app.firstTrailingAction.tap()
       }
     }
 
@@ -40,7 +40,7 @@ final class SearchControllerTests: XCTestCase {
       for _ in 1 ... 2 {
         let query = app.staticTexts.matching(identifier: "Ada")
         query.element(boundBy: query.count - 1).swipeLeft()
-        app.buttons["trailing0"].tap()
+        app.firstTrailingAction.tap()
       }
     }
   }
@@ -83,11 +83,11 @@ final class SearchControllerTests: XCTestCase {
     while favoritesHeader.exists {
       let favoriteCell = app.tracksTable.cells.firstMatch
       favoriteCell.swipeLeft()
-      favoriteCell.buttons["trailing0"].tap()
+      favoriteCell.firstTrailingAction.tap()
     }
 
     app.day2TrackStaticText.swipeLeft()
-    app.buttons["trailing0"].tap()
+    app.firstTrailingAction.tap()
 
     let filtersButton = app.buttons["filters"]
     let filterButtons = app.sheets["filters"].buttons
@@ -236,5 +236,11 @@ private extension XCUIApplication {
 
   var favoritesHeader: XCUIElement {
     otherElements["favorites"]
+  }
+}
+
+extension XCUIElement {
+  var firstTrailingAction: XCUIElement {
+    buttons["trailing0"]
   }
 }
