@@ -96,6 +96,7 @@ final class ApplicationController: UITabBarController {
 private extension ApplicationController {
   func makeSearchController() -> SearchController {
     let searchController = SearchController(services: services)
+    searchController.tabBarItem.accessibilityIdentifier = "search"
     searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
     searchController.title = NSLocalizedString("search.title", comment: "")
     searchController.preferredDisplayMode = .allVisible
@@ -106,6 +107,7 @@ private extension ApplicationController {
 
   func makeAgendaController() -> AgendaController {
     let agendaController = AgendaController(services: services)
+    agendaController.tabBarItem.accessibilityIdentifier = "agenda"
     agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
     agendaController.title = NSLocalizedString("agenda.title", comment: "")
     agendaController.agendaDelegate = self
@@ -114,6 +116,7 @@ private extension ApplicationController {
 
   func makeMapController() -> MapController {
     let mapController = MapController(services: services)
+    mapController.tabBarItem.accessibilityIdentifier = "map"
     mapController.tabBarItem.image = .fos_systemImage(withName: "map")
     mapController.title = NSLocalizedString("map.title", comment: "")
     mapController.delegate = self
@@ -122,6 +125,7 @@ private extension ApplicationController {
 
   func makeMoreController() -> MoreController {
     let moreController = MoreController(services: services)
+    moreController.tabBarItem.accessibilityIdentifier = "more"
     moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
     moreController.title = NSLocalizedString("more.title", comment: "")
     moreController.preferredDisplayMode = .allVisible
