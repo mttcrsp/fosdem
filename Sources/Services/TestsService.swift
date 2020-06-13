@@ -16,6 +16,14 @@ final class TestsService {
     self.environment = environment
   }
 
+  var liveTimerInterval: TimeInterval? {
+    if let string = environment["LIVE_INTERVAL"] {
+      return TimeInterval(string)
+    } else {
+      return nil
+    }
+  }
+
   func configureEnvironment() {
     DispatchQueue.main.async {
       UIApplication.shared.keyWindow?.layer.speed = 100

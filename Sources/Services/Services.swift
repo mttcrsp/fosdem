@@ -2,7 +2,7 @@ import Foundation
 
 final class Services {
   let infoService: InfoService
-  let liveService = LiveService()
+  let liveService: LiveService
   let crashService: CrashService?
   let updateService: UpdateService
   let tracksService: TracksService
@@ -42,6 +42,16 @@ final class Services {
     #if DEBUG
     testsService = TestsService(favoritesService: favoritesService, debugService: debugService)
     testsService.configureEnvironment()
+    #endif
+
+    #if DEBUG
+    if let timeInterval = testsService.liveTimerInterval {
+      liveService = LiveService(timeInterval: timeInterval)
+    } else {
+      liveService = LiveService()
+    }
+    #else
+    liveService = LiveService()
     #endif
 
     updateService = UpdateService(networkService: networkService)
