@@ -102,6 +102,7 @@ final class EventsViewController: UITableViewController {
     super.viewDidLoad()
     tableView.estimatedRowHeight = 44
     tableView.estimatedSectionHeaderHeight = 44
+    tableView.accessibilityIdentifier = "events"
     tableView.rowHeight = UITableView.automaticDimension
     tableView.sectionHeaderHeight = UITableView.automaticDimension
     tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)

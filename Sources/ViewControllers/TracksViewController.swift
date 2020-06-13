@@ -87,6 +87,7 @@ class TracksViewController: UITableViewController {
     tableView.tableFooterView = UIView()
     tableView.estimatedRowHeight = 44
     tableView.estimatedSectionHeaderHeight = 44
+    tableView.accessibilityIdentifier = "tracks"
     tableView.rowHeight = UITableView.automaticDimension
     tableView.sectionHeaderHeight = UITableView.automaticDimension
     tableView.showsVerticalScrollIndicator = indexDataSource == nil

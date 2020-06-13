@@ -26,6 +26,7 @@ final class EventViewController: UITableViewController {
 
     if let event = event {
       tableView.separatorStyle = .none
+      tableView.accessibilityIdentifier = "event"
 
       var isAdaptive = true
       if #available(iOS 13.0, *), tableView.style == .insetGrouped {
