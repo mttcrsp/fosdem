@@ -72,7 +72,7 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Display track") {
-      XCTAssert(app.eventHeaderStaticText.exists)
+      XCTAssert(app.trackTable.staticTexts["10:35"].exists)
       XCTAssertEqual(app.trackTable.cells.count, 15)
     }
 
@@ -146,7 +146,7 @@ final class SearchControllerTests: XCTestCase {
     let allHeader = app.otherElements["all"]
     let day1Header = app.otherElements["day 1"]
     let day2Header = app.otherElements["day 2"]
-    let favoritesHeader = app.favoritesHeader
+    let favoritesHeader = app.otherElements["favorites"]
 
     app.day2TrackStaticText.swipeLeft()
     app.firstTrailingAction.tap()
@@ -212,18 +212,20 @@ final class SearchControllerTests: XCTestCase {
     XCUIDevice.shared.orientation = .portrait
 
     runActivity(named: "Handle welcome") {
+      let welcomeView = app.otherElements["welcome"]
+
       app.searchButton.tap()
       app.launch()
       wait { app.tracksTable.exists }
-      wait { !app.welcomeView.exists }
+      wait { !welcomeView.exists }
 
       XCUIDevice.shared.orientation = .landscapeLeft
       wait { app.tracksTable.exists }
-      wait { app.welcomeView.exists }
+      wait { welcomeView.exists }
 
       XCUIDevice.shared.orientation = .portrait
       wait { app.tracksTable.exists }
-      wait { !app.welcomeView.exists }
+      wait { !welcomeView.exists }
     }
 
     runActivity(named: "Handle others") {
@@ -269,24 +271,12 @@ private extension XCUIApplication {
     tables["events"]
   }
 
-  var eventHeaderStaticText: XCUIElement {
-    trackTable.staticTexts["10:35"]
-  }
-
   var eventStaticText: XCUIElement {
     trackTable.staticTexts["Welcome to the Ada DevRoom"]
   }
 
   var eventTable: XCUIElement {
     tables["event"]
-  }
-
-  var welcomeView: XCUIElement {
-    otherElements["welcome"]
-  }
-
-  var favoritesHeader: XCUIElement {
-    otherElements["favorites"]
   }
 }
 
