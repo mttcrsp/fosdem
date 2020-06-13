@@ -45,7 +45,27 @@ final class SearchControllerTests: XCTestCase {
     }
   }
 
-  func testEvents() {} // (+ captions)
+  func testTracksSectionIndexTitles() {
+    app.launch()
+    app.searchButton.tap()
+
+    // WORKAROUND: UITableView does not provide access to its section index
+    // view. This means that no accessility identifier can be set on said view.
+    // This is why this test relies on the localized accessibility label for the
+    // section index view and will break for different locales.
+    let sectionIndex = app.tracksTable.otherElements["Section index"]
+    let topSectionIndex = sectionIndex.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.01))
+    let bottomSectionIndex = sectionIndex.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.99))
+    let firstTrackStaticText = app.staticTexts["Ada"]
+    let lastTrackStaticText = app.staticTexts["Workshops"]
+
+    bottomSectionIndex.tap()
+    XCTAssert(lastTrackStaticText.isHittable)
+
+    topSectionIndex.tap()
+    XCTAssert(firstTrackStaticText.isHittable)
+  }
+
   func testFavoriteEvent() {}
   func testUnfavoriteEvent() {}
 
