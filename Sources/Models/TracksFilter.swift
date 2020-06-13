@@ -28,4 +28,13 @@ extension TracksFilter {
       return string
     }
   }
+
+  var accessibilityIdentifier: String {
+    switch self {
+    case .all:
+      return "all"
+    case let .day(index):
+      return "day \(index)"
+    }
+  }
 }

@@ -150,6 +150,14 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
   }
 
+  func tracksViewController(_ tracksViewController: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
+    if isFavoriteSection(section) {
+      return "favorites"
+    } else {
+      return selectedFilter.accessibilityIdentifier
+    }
+  }
+
   func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
     if isFavoriteSection(section) {
       return filteredFavoriteTracks.count
@@ -320,6 +328,7 @@ private extension SearchController {
     let filtersTitle = NSLocalizedString("search.filter.title", comment: "")
     let filtersAction = #selector(didTapChangeFilter)
     let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
+    filtersButton.accessibilityIdentifier = "filters"
     self.filtersButton = filtersButton
 
     let tracksViewController = TracksViewController(style: .fos_insetGrouped)
@@ -341,6 +350,7 @@ private extension SearchController {
   func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
     let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     alertController.popoverPresentationController?.barButtonItem = filtersButton
+    alertController.view.accessibilityIdentifier = "filters"
 
     for filter in filters where filter != selectedFilter {
       let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in self?.didSelectFilter(filter) }

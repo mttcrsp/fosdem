@@ -9,6 +9,7 @@ protocol TracksViewControllerDataSource: AnyObject {
 protocol TracksViewControllerIndexDataSource: AnyObject {
   func sectionIndexTitles(in tracksViewController: TracksViewController) -> [String]
   func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String?
+  func tracksViewController(_ tracksViewController: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String?
 }
 
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
@@ -136,6 +137,7 @@ class TracksViewController: UITableViewController {
 
   override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
     let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
+    view.accessibilityIdentifier = indexDataSource?.tracksViewController(self, accessibilityIdentifierForSectionAt: section)
     view.text = indexDataSource?.tracksViewController(self, titleForSectionAt: section)
     view.font = .fos_preferredFont(forTextStyle: .headline)
     view.textColor = .fos_label

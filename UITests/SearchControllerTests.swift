@@ -15,6 +15,50 @@ final class SearchControllerTests: XCTestCase {
 
   func testSearch() {}
 
+  func testFilters() {
+    app.launch()
+    app.searchButton.tap()
+
+    let allHeader = app.otherElements["all"]
+    let day1Header = app.otherElements["day 1"]
+    let day2Header = app.otherElements["day 2"]
+    let favoritesHeader = app.otherElements["favorites"]
+
+    while favoritesHeader.exists {
+      let favoriteCell = app.tracksTable.cells.firstMatch
+      favoriteCell.swipeLeft()
+      favoriteCell.buttons["trailing0"].tap()
+    }
+
+    let dayTwoTrackStaticText = app.staticTexts["BSD"]
+    dayTwoTrackStaticText.swipeLeft()
+    app.buttons["trailing0"].tap()
+
+    let filtersButton = app.buttons["filters"]
+    let filterButtons = app.sheets["filters"].buttons
+
+    // WORKAROUND: UIAlertAction does not support accessility identifiers.
+    // This means that this test has to rely on index based queries to select
+    // specific filter buttons.
+    filtersButton.tap()
+    filterButtons.element(boundBy: 0).tap() // day 1
+    XCTAssertTrue(day1Header.exists)
+    XCTAssertFalse(favoritesHeader.exists)
+    XCTAssertEqual(app.tracksTable.cells.count, 34)
+
+    filtersButton.tap()
+    filterButtons.element(boundBy: 1).tap() // day 2
+    XCTAssertTrue(day2Header.exists)
+    XCTAssertTrue(favoritesHeader.exists)
+    XCTAssertEqual(app.tracksTable.cells.count, 38)
+
+    filtersButton.tap()
+    filterButtons.element(boundBy: 0).tap() // all
+    XCTAssertTrue(allHeader.exists)
+    XCTAssertTrue(favoritesHeader.exists)
+    XCTAssertEqual(app.tracksTable.cells.count, 72)
+  }
+
   func testNavigateToTrack() {}
   func testNavigateToEvent() {}
   func testNavigateToResult() {}
