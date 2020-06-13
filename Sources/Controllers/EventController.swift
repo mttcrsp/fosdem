@@ -73,6 +73,12 @@ final class EventController: UIViewController {
       : NSLocalizedString("event.add", comment: "")
   }
 
+  private var favoriteAccessibilityIdentifier: String {
+    isEventFavorite
+      ? "unfavorite"
+      : "favorite"
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -112,9 +118,11 @@ final class EventController: UIViewController {
   private func showFavoriteButton() {
     let favoriteAction = #selector(didToggleFavorite)
     let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
+    favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
     navigationItem.rightBarButtonItem = favoriteButton
 
     favoritesObserver = favoritesService.addObserverForEvents { [weak favoriteButton, weak self] _ in
+      favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
       favoriteButton?.title = self?.favoriteTitle
     }
   }

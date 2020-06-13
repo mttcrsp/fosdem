@@ -115,7 +115,45 @@ final class SearchControllerTests: XCTestCase {
   func testFavoriteEvent() {}
   func testUnfavoriteEvent() {}
 
-  func testSearch() {}
+  func testSearch() {
+    app.launch()
+    app.searchButton.tap()
+
+    while app.favoritesHeader.exists {
+      let favoriteCell = app.tracksTable.cells.firstMatch
+      favoriteCell.swipeLeft()
+      favoriteCell.firstTrailingAction.tap()
+    }
+
+    let unfavoriteButton = app.buttons["unfavorite"]
+    let favoriteButton = app.buttons["favorite"]
+    let resultsCells = app.tables["events"].cells
+    let cell = resultsCells.firstMatch
+
+    runActivity(named: "Display results") {
+      let searchBar = app.searchFields.firstMatch
+      searchBar.tap()
+      searchBar.typeText("javascript symphonies")
+      XCTAssertEqual(resultsCells.count, 1)
+      XCTAssert(app.staticTexts["JavaScript"].exists)
+      XCTAssert(app.staticTexts["Creating symphonies in JavaScript"].exists)
+    }
+
+    runActivity(named: "Favorite event") {
+      cell.swipeLeft()
+      app.firstTrailingAction.tap()
+      cell.tap()
+      XCTAssert(unfavoriteButton.exists)
+    }
+
+    runActivity(named: "Unfavorite event") {
+      app.navigationBars.buttons.firstMatch.tap()
+      cell.swipeLeft()
+      app.firstTrailingAction.tap()
+      cell.tap()
+      XCTAssert(favoriteButton.exists)
+    }
+  }
 
   func testFilters() {
     app.launch()
