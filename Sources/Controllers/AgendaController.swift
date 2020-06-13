@@ -275,6 +275,7 @@ private extension AgendaController {
     let soonTitle = NSLocalizedString("agenda.soon", comment: "")
     let soonAction = #selector(didTapSoon)
     let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
+    soonButton.accessibilityIdentifier = "soon"
 
     let agendaViewController = EventsViewController(style: .grouped)
     agendaViewController.emptyBackgroundMessage = NSLocalizedString("agenda.empty.message", comment: "")
@@ -294,6 +295,7 @@ private extension AgendaController {
   func makeSoonViewController() -> EventsViewController {
     let dismissAction = #selector(didTapDismiss)
     let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
+    dismissButton.accessibilityIdentifier = "dismiss"
 
     let soonViewController = EventsViewController(style: .grouped)
     soonViewController.emptyBackgroundMessage = NSLocalizedString("soon.empty.message", comment: "")

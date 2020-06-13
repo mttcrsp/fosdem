@@ -194,8 +194,13 @@ private extension UITableViewCell {
   }
 
   var showsLiveIndicator: Bool {
-    get { imageView?.image == .liveIndicator }
-    set { imageView?.image = newValue ? .liveIndicator : nil }
+    get {
+      imageView?.image == .liveIndicator
+    }
+    set {
+      imageView?.image = newValue ? .liveIndicator : nil
+      imageView?.accessibilityIdentifier = newValue ? "live" : nil
+    }
   }
 }
 

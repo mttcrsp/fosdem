@@ -24,7 +24,10 @@ final class TableBackgroundView: UIView {
       label.adjustsFontForContentSizeCategory = true
     }
 
+    titleLabel.accessibilityIdentifier = "background_title"
     titleLabel.font = .fos_preferredFont(forTextStyle: .title2, withSymbolicTraits: .traitBold)
+
+    messageLabel.accessibilityIdentifier = "background_message"
     messageLabel.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitItalic)
 
     let stackView = UIStackView(arrangedSubviews: [titleLabel, messageLabel])
