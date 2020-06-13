@@ -101,9 +101,6 @@ final class SearchControllerTests: XCTestCase {
     }
   }
 
-  func testFavoriteEvent() {}
-  func testUnfavoriteEvent() {}
-
   func testSearch() {
     let app = XCUIApplication()
     app.launchEnvironment = ["RESET_FAVORITES": "1"]
@@ -184,10 +181,6 @@ final class SearchControllerTests: XCTestCase {
       XCTAssertEqual(app.tracksTable.cells.count, 72)
     }
   }
-
-  func testNavigateToTrack() {}
-  func testNavigateToEvent() {}
-  func testNavigateToResult() {}
 
   func testPopToRoot() {
     let app = XCUIApplication()
