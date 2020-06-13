@@ -5,9 +5,45 @@ final class SearchControllerTests: XCTestCase {
     XCUIApplication()
   }
 
-  func testTracks() {} // + sections + titles + index
-  func testFavoriteTrack() {}
-  func testUnfavoriteTrack() {}
+  func testTracks() { // + sections + titles + index
+    
+  }
+
+  func testTracksFavorites() {
+    app.launch()
+    app.searchButton.tap()
+
+    while app.favoritesHeader.exists {
+      let favoriteCell = app.tracksTable.cells.firstMatch
+      favoriteCell.swipeLeft()
+      favoriteCell.buttons["trailing0"].tap()
+    }
+
+    let favoriteCell1 = app.tracksTable.cells.element(boundBy: 0)
+    let favoriteCell2 = app.tracksTable.cells.element(boundBy: 1)
+
+    runActivity(named: "Unfavorite all from top") {
+      for element in [app.day1TrackStaticText, app.day2TrackStaticText, favoriteCell1, favoriteCell1] {
+        element.swipeLeft()
+        app.buttons["trailing0"].tap()
+      }
+    }
+
+    runActivity(named: "Unfavorite all from bottom") {
+      for element in [app.day2TrackStaticText, app.day1TrackStaticText, favoriteCell2, favoriteCell1] {
+        element.swipeLeft()
+        app.buttons["trailing0"].tap()
+      }
+    }
+
+    runActivity(named: "Unfavorite from non favorites section") {
+      for _ in 1 ... 2 {
+        let query = app.staticTexts.matching(identifier: "Ada")
+        query.element(boundBy: query.count - 1).swipeLeft()
+        app.buttons["trailing0"].tap()
+      }
+    }
+  }
 
   func testEvents() {} // (+ captions)
   func testFavoriteEvent() {}
@@ -22,7 +58,7 @@ final class SearchControllerTests: XCTestCase {
     let allHeader = app.otherElements["all"]
     let day1Header = app.otherElements["day 1"]
     let day2Header = app.otherElements["day 2"]
-    let favoritesHeader = app.otherElements["favorites"]
+    let favoritesHeader = app.favoritesHeader
 
     while favoritesHeader.exists {
       let favoriteCell = app.tracksTable.cells.firstMatch
@@ -30,8 +66,7 @@ final class SearchControllerTests: XCTestCase {
       favoriteCell.buttons["trailing0"].tap()
     }
 
-    let dayTwoTrackStaticText = app.staticTexts["BSD"]
-    dayTwoTrackStaticText.swipeLeft()
+    app.day2TrackStaticText.swipeLeft()
     app.buttons["trailing0"].tap()
 
     let filtersButton = app.buttons["filters"]
@@ -40,23 +75,29 @@ final class SearchControllerTests: XCTestCase {
     // WORKAROUND: UIAlertAction does not support accessility identifiers.
     // This means that this test has to rely on index based queries to select
     // specific filter buttons.
-    filtersButton.tap()
-    filterButtons.element(boundBy: 0).tap() // day 1
-    XCTAssertTrue(day1Header.exists)
-    XCTAssertFalse(favoritesHeader.exists)
-    XCTAssertEqual(app.tracksTable.cells.count, 34)
+    runActivity(named: "Select day 1") {
+      filtersButton.tap()
+      filterButtons.element(boundBy: 0).tap() // day 1
+      XCTAssertTrue(day1Header.exists)
+      XCTAssertFalse(favoritesHeader.exists)
+      XCTAssertEqual(app.tracksTable.cells.count, 34)
+    }
 
-    filtersButton.tap()
-    filterButtons.element(boundBy: 1).tap() // day 2
-    XCTAssertTrue(day2Header.exists)
-    XCTAssertTrue(favoritesHeader.exists)
-    XCTAssertEqual(app.tracksTable.cells.count, 38)
+    runActivity(named: "Select day 2") {
+      filtersButton.tap()
+      filterButtons.element(boundBy: 1).tap() // day 2
+      XCTAssertTrue(day2Header.exists)
+      XCTAssertTrue(favoritesHeader.exists)
+      XCTAssertEqual(app.tracksTable.cells.count, 38)
+    }
 
-    filtersButton.tap()
-    filterButtons.element(boundBy: 0).tap() // all
-    XCTAssertTrue(allHeader.exists)
-    XCTAssertTrue(favoritesHeader.exists)
-    XCTAssertEqual(app.tracksTable.cells.count, 72)
+    runActivity(named: "Select all") {
+      filtersButton.tap()
+      filterButtons.element(boundBy: 0).tap() // all
+      XCTAssertTrue(allHeader.exists)
+      XCTAssertTrue(favoritesHeader.exists)
+      XCTAssertEqual(app.tracksTable.cells.count, 72)
+    }
   }
 
   func testNavigateToTrack() {}
@@ -68,7 +109,7 @@ final class SearchControllerTests: XCTestCase {
     app.searchButton.tap()
 
     runActivity(named: "Pop events") {
-      app.trackStaticText.tap()
+      app.day1TrackStaticText.tap()
       XCTAssertTrue(app.trackTable.exists)
 
       app.searchButton.tap()
@@ -77,7 +118,7 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Pop event") {
-      app.trackStaticText.tap()
+      app.day1TrackStaticText.tap()
       app.eventStaticText.tap()
       XCTAssertTrue(app.eventTable.exists)
 
@@ -107,14 +148,14 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Handle others") {
-      app.trackStaticText.tap()
+      app.day1TrackStaticText.tap()
       wait { app.trackTable.exists }
       wait { !app.tracksTable.exists }
 
       XCUIDevice.shared.orientation = .landscapeRight
       wait { app.trackTable.exists }
       wait { app.tracksTable.exists }
-      
+
       app.eventStaticText.tap()
       wait { app.eventTable.exists }
       wait { app.tracksTable.exists }
@@ -149,8 +190,12 @@ private extension XCUIApplication {
     tables["tracks"]
   }
 
-  var trackStaticText: XCUIElement {
-    staticTexts[trackName]
+  var day1TrackStaticText: XCUIElement {
+    staticTexts["Ada"]
+  }
+
+  var day2TrackStaticText: XCUIElement {
+    staticTexts["BSD"]
   }
 
   var trackTable: XCUIElement {
@@ -158,7 +203,7 @@ private extension XCUIApplication {
   }
 
   var eventStaticText: XCUIElement {
-    staticTexts[eventTitle]
+    staticTexts["Welcome to the Ada DevRoom"]
   }
 
   var eventTable: XCUIElement {
@@ -169,11 +214,7 @@ private extension XCUIApplication {
     otherElements["welcome"]
   }
 
-  private var trackName: String {
-    "Ada"
-  }
-
-  private var eventTitle: String {
-    "Welcome to the Ada DevRoom"
+  var favoritesHeader: XCUIElement {
+    otherElements["favorites"]
   }
 }
