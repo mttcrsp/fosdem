@@ -99,6 +99,25 @@ extension TransportationViewController.Item {
       return NSLocalizedString("transportation.item.bus", comment: "")
     }
   }
+
+  var info: Info? {
+    switch self {
+    case .bus:
+      return .bus
+    case .car:
+      return .car
+    case .taxi:
+      return .taxi
+    case .plane:
+      return .plane
+    case .train:
+      return .train
+    case .shuttle:
+      return .shuttle
+    case .appleMaps, .googleMaps:
+      return nil
+    }
+  }
 }
 
 private extension TransportationViewController.Item {
