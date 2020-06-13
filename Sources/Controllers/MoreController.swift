@@ -138,30 +138,20 @@ extension MoreController: TransportationViewControllerDelegate {
       UIApplication.shared.open(.ulbGoogleMaps) { [weak transportationViewController] _ in
         transportationViewController?.deselectSelectedRow(animated: true)
       }
-    case .bus:
-      showInfoViewController(withTitle: item.title, for: .bus, from: transportationViewController)
-    case .shuttle:
-      showInfoViewController(withTitle: item.title, for: .shuttle, from: transportationViewController)
-    case .train:
-      showInfoViewController(withTitle: item.title, for: .train, from: transportationViewController)
-    case .car:
-      showInfoViewController(withTitle: item.title, for: .car, from: transportationViewController)
-    case .plane:
-      showInfoViewController(withTitle: item.title, for: .plane, from: transportationViewController)
-    case .taxi:
-      showInfoViewController(withTitle: item.title, for: .taxi, from: transportationViewController)
-    }
-  }
+    case .bus, .car, .taxi, .plane, .train, .shuttle:
+      guard let info = item.info else {
+        return assertionFailure("Failed to determine info model for transportation item '\(item)'")
+      }
 
-  private func showInfoViewController(withTitle title: String, for info: Info, from transportationViewController: TransportationViewController) {
-    makeInfoViewController(withTitle: title, for: info) { [weak self, weak transportationViewController] infoViewController in
-      guard let self = self else { return }
+      makeInfoViewController(withTitle: item.title, for: info) { [weak self, weak transportationViewController] infoViewController in
+        guard let self = self else { return }
 
-      if let infoViewController = infoViewController {
-        transportationViewController?.show(infoViewController, sender: nil)
-      } else {
-        let errorViewController = self.makeErrorViewController()
-        transportationViewController?.present(errorViewController, animated: true)
+        if let infoViewController = infoViewController {
+          transportationViewController?.show(infoViewController, sender: nil)
+        } else {
+          let errorViewController = self.makeErrorViewController()
+          transportationViewController?.present(errorViewController, animated: true)
+        }
       }
     }
   }
