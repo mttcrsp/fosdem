@@ -5,10 +5,6 @@ final class SearchControllerTests: XCTestCase {
     XCUIApplication()
   }
 
-  func testTracks() { // + sections + titles + index
-    
-  }
-
   func testTracksFavorites() {
     app.launch()
     app.searchButton.tap()
@@ -64,6 +60,56 @@ final class SearchControllerTests: XCTestCase {
 
     topSectionIndex.tap()
     XCTAssert(firstTrackStaticText.isHittable)
+  }
+
+  func testTrack() {
+    app.launch()
+    app.searchButton.tap()
+
+    while app.favoritesHeader.exists {
+      let favoriteCell = app.tracksTable.cells.firstMatch
+      favoriteCell.swipeLeft()
+      favoriteCell.firstTrailingAction.tap()
+    }
+
+    let favoriteTrackButton = app.buttons["favorite"]
+    let unfavoriteTrackButton = app.buttons["unfavorite"]
+
+    runActivity(named: "Favorite from search") {
+      app.day1TrackStaticText.swipeLeft()
+      app.firstTrailingAction.tap()
+      app.tracksTable.cells.firstMatch.tap()
+      XCTAssert(unfavoriteTrackButton.exists)
+    }
+
+    runActivity(named: "Display track") {
+      XCTAssert(app.eventHeaderStaticText.exists)
+      XCTAssertEqual(app.trackTable.cells.count, 15)
+    }
+
+    runActivity(named: "Unfavorite from track") {
+      unfavoriteTrackButton.tap()
+      XCTAssert(favoriteTrackButton.exists)
+
+      app.searchButton.tap()
+      XCTAssertEqual(app.tracksTable.cells.count, 71)
+    }
+
+    runActivity(named: "Favorite from track") {
+      app.day1TrackStaticText.tap()
+      favoriteTrackButton.tap()
+      XCTAssert(unfavoriteTrackButton.exists)
+
+      app.searchButton.tap()
+      XCTAssertEqual(app.tracksTable.cells.count, 72)
+    }
+
+    runActivity(named: "Unfavorite from search") {
+      app.tracksTable.cells.firstMatch.swipeLeft()
+      app.firstTrailingAction.tap()
+      app.day1TrackStaticText.tap()
+      XCTAssert(favoriteTrackButton.exists)
+    }
   }
 
   func testFavoriteEvent() {}
@@ -208,6 +254,10 @@ private extension XCUIApplication {
 
   var trackTable: XCUIElement {
     tables["events"]
+  }
+
+  var eventHeaderStaticText: XCUIElement {
+    trackTable.staticTexts["10:35"]
   }
 
   var eventStaticText: XCUIElement {

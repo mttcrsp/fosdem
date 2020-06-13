@@ -38,16 +38,24 @@ final class SearchController: UISplitViewController {
     services.favoritesService
   }
 
-  private var favoriteTitle: String? {
-    guard let selectedTrack = selectedTrack else {
-      return nil
-    }
-
-    if favoritesService.contains(selectedTrack) {
-      return NSLocalizedString("unfavorite", comment: "")
+  private var isDisplayingFavoriteTrack: Bool {
+    if let selectedTrack = selectedTrack {
+      return favoritesService.contains(selectedTrack)
     } else {
-      return NSLocalizedString("favorite", comment: "")
+      return false
     }
+  }
+
+  private var favoriteTitle: String {
+    isDisplayingFavoriteTrack
+      ? NSLocalizedString("unfavorite", comment: "")
+      : NSLocalizedString("favorite", comment: "")
+  }
+
+  private var favoriteAccessibilityIdentifier: String {
+    isDisplayingFavoriteTrack
+      ? "unfavorite"
+      : "favorite"
   }
 
   func popToRootViewController() {
@@ -386,6 +394,7 @@ private extension SearchController {
   func makeEventsViewController(for track: Track) -> EventsViewController {
     let favoriteAction = #selector(didToggleFavorite)
     let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
+    favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
 
     let style: UITableView.Style
     if traitCollection.userInterfaceIdiom == .pad {
@@ -410,6 +419,7 @@ private extension SearchController {
     }
 
     observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] _ in
+      favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
       favoriteButton?.title = self?.favoriteTitle
     }
 
