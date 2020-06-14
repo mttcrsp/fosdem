@@ -11,6 +11,7 @@ class BlueprintsEmptyViewController: UIViewController {
 
     label.textAlignment = .center
     label.textColor = .fos_secondaryLabel
+    label.accessibilityIdentifier = "empty_blueprints"
     label.text = NSLocalizedString("map.blueprint.empty", comment: "")
     label.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitItalic)
   }

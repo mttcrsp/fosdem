@@ -20,6 +20,7 @@ final class BlueprintsViewController: UIPageViewController {
     let fullscreenAction = #selector(didTapFullscreen)
     let fullscreenImage = UIImage.fos_systemImage(withName: "arrow.up.left.and.arrow.down.right")
     let fullscreenButton = UIBarButtonItem(image: fullscreenImage, style: .plain, target: self, action: fullscreenAction)
+    fullscreenButton.accessibilityIdentifier = "fullscreen"
     return fullscreenButton
   }()
 
@@ -62,6 +63,7 @@ final class BlueprintsViewController: UIPageViewController {
     let dismissAction = #selector(didTapDismiss)
     let dismissImage = UIImage.fos_systemImage(withName: "xmark")
     let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
+    dismissButton.accessibilityIdentifier = style.dismissAccessibilityIdentifier
     navigationItem.rightBarButtonItem = dismissButton
 
     guard style == .fullscreen else { return }
@@ -195,6 +197,15 @@ private extension BlueprintsViewController.Style {
       return EmbeddedBlueprintViewController.self
     case .fullscreen:
       return FullscreenBlueprintViewController.self
+    }
+  }
+
+  var dismissAccessibilityIdentifier: String {
+    switch self {
+    case .embedded:
+      return "dismiss"
+    case .fullscreen:
+      return "fullscreen_dismiss"
     }
   }
 }

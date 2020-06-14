@@ -23,7 +23,7 @@ final class MapControlsView: UIView {
     resetButton.addTarget(self, action: resetAction, for: .touchUpInside)
     resetButton.accessibilityLabel = NSLocalizedString("map.reset", comment: "")
     resetButton.accessibilityIdentifier = "reset"
-    
+
     let locationImage = CLAuthorizationStatus.notDetermined.image
     let locationAction = #selector(didTapLocation)
     locationButton.contentEdgeInsets = .zero
@@ -31,8 +31,7 @@ final class MapControlsView: UIView {
     locationButton.setImage(locationImage, for: .normal)
     locationButton.addTarget(self, action: locationAction, for: .touchUpInside)
     locationButton.accessibilityLabel = NSLocalizedString("map.location", comment: "")
-    locationButton.accessibilityIdentifier = "location"
-    
+
     let separatorView = UIView()
     separatorView.backgroundColor = .fos_separator
 
@@ -78,6 +77,7 @@ final class MapControlsView: UIView {
   }
 
   func setAuthorizationStatus(_ status: CLAuthorizationStatus) {
+    locationButton.accessibilityIdentifier = status.accessibilityIdentifier
     locationButton.setImage(status.image, for: .normal)
   }
 
@@ -91,6 +91,19 @@ final class MapControlsView: UIView {
 }
 
 extension CLAuthorizationStatus {
+  var accessibilityIdentifier: String {
+    switch self {
+    case .notDetermined:
+      return "location"
+    case .authorizedWhenInUse, .authorizedAlways:
+      return "location_available"
+    case .denied, .restricted:
+      return "location_unavailable"
+        @unknown default:
+      return "location_unavailable"
+    }
+  }
+
   var image: UIImage? {
     switch self {
     case .notDetermined:
