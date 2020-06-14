@@ -123,7 +123,7 @@ final class AgendaControllerTests: XCTestCase {
 
     runActivity(named: "Handle expanded launch") {
       app.agendaButton.tap()
-      XCTAssertTrue(app.eventTable.exists)
+      wait { app.eventTable.exists }
     }
 
     runActivity(named: "Handle collapse") {
