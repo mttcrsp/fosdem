@@ -5,7 +5,7 @@ protocol TransportationViewControllerDelegate: AnyObject {
 }
 
 final class TransportationViewController: UITableViewController {
-  enum Item {
+  enum Item: String {
     case appleMaps, googleMaps
     case bus, shuttle, train, car, plane, taxi
   }
@@ -56,6 +56,7 @@ private extension UITableViewCell {
   func configure(with item: TransportationViewController.Item) {
     textLabel?.text = item.title
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
+    accessibilityIdentifier = item.accessibilityIdentifier
     accessoryType = item.accessoryType
   }
 }
@@ -128,5 +129,9 @@ private extension TransportationViewController.Item {
     case .appleMaps, .googleMaps:
       return .none
     }
+  }
+
+  var accessibilityIdentifier: String {
+    rawValue
   }
 }

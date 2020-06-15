@@ -49,6 +49,7 @@ final class YearsViewController: UITableViewController {
 private extension UITableViewCell {
   func configure(with year: Year) {
     accessoryType = .disclosureIndicator
+    accessibilityIdentifier = year
 
     let format = NSLocalizedString("years.year", comment: "")
     let string = String(format: format, year)

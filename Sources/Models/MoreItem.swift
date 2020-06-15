@@ -1,6 +1,6 @@
 import UIKit
 
-enum MoreItem: CaseIterable {
+enum MoreItem: String, CaseIterable {
   #if DEBUG
   case time
   #endif
@@ -78,5 +78,9 @@ extension MoreItem {
       return nil
     #endif
     }
+  }
+
+  var accessibilityIdentifier: String {
+    rawValue
   }
 }

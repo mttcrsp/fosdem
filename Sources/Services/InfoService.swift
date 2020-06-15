@@ -1,6 +1,6 @@
 import UIKit
 
-enum Info {
+enum Info: String {
   case history, devrooms, transportation
   case bus, shuttle, train, car, plane, taxi
   case legal
@@ -65,6 +65,12 @@ final class InfoService {
         completion(nil)
       }
     }
+  }
+}
+
+extension Info {
+  var accessibilityIdentifier: String {
+    rawValue
   }
 }
 

@@ -45,6 +45,7 @@ final class MoreViewController: UITableViewController {
 
 private extension UITableViewCell {
   func configure(with item: MoreItem) {
+    accessibilityIdentifier = item.accessibilityIdentifier
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     textLabel?.text = item.title
     textLabel?.numberOfLines = 0

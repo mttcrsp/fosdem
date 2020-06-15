@@ -252,6 +252,7 @@ private extension MoreController {
       DispatchQueue.main.async {
         if let attributedText = attributedText {
           let textViewController = TextViewController()
+          textViewController.accessibilityIdentifier = info.accessibilityIdentifier
           textViewController.attributedText = attributedText
           textViewController.title = title
           completion(textViewController)

@@ -6,6 +6,11 @@ final class TextViewController: UIViewController {
     set { textView.attributedText = newValue }
   }
 
+  var accessibilityIdentifier: String? {
+    get { textView.accessibilityIdentifier }
+    set { textView.accessibilityIdentifier = newValue }
+  }
+
   private lazy var textView = UITextView()
 
   private var preferredFont: UIFont {
