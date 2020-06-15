@@ -200,7 +200,6 @@ final class SearchControllerTests: XCTestCase {
 
   func testCollapseExpand() {
     let app = XCUIApplication()
-    XCUIDevice.shared.orientation = .portrait
 
     runActivity(named: "Handle welcome") {
       let welcomeView = app.otherElements["welcome"]
