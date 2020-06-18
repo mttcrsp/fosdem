@@ -208,6 +208,7 @@ private extension UITableViewCell {
     textLabel?.text = track.name
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     accessoryType = .disclosureIndicator
+    accessibilityIdentifier = track.name
   }
 }
 
