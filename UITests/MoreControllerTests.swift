@@ -125,10 +125,6 @@ private extension XCUIApplication {
     buttons["more"]
   }
 
-  var backButton: XCUIElement {
-    navigationBars.buttons.firstMatch
-  }
-
   var urlTextField: XCUIElement {
     textFields.firstMatch
   }

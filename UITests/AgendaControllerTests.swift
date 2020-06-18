@@ -180,8 +180,4 @@ private extension XCUIApplication {
   var emptyStaticText: XCUIElement {
     staticTexts["background_title"]
   }
-
-  var backButton: XCUIElement {
-    navigationBars.buttons.firstMatch
-  }
 }

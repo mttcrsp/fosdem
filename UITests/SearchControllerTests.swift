@@ -122,7 +122,7 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Unfavorite event") {
-      app.navigationBars.buttons.firstMatch.tap()
+      app.backButton.tap()
       cell.tapFirstTrailingAction()
       cell.tap()
       wait { app.favoriteEventButton.exists }
