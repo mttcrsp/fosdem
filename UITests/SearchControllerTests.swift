@@ -3,7 +3,7 @@ import XCTest
 final class SearchControllerTests: XCTestCase {
   func testTracksFavorites() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["RESET_FAVORITES": "1"]
+    app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
     app.searchButton.tap()
 
@@ -55,7 +55,7 @@ final class SearchControllerTests: XCTestCase {
 
   func testTrack() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["RESET_FAVORITES": "1"]
+    app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
     app.searchButton.tap()
 
@@ -99,7 +99,7 @@ final class SearchControllerTests: XCTestCase {
 
   func testSearch() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["RESET_FAVORITES": "1"]
+    app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
     app.searchButton.tap()
 
@@ -131,7 +131,7 @@ final class SearchControllerTests: XCTestCase {
 
   func testFilters() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["RESET_FAVORITES": "1"]
+    app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
     app.searchButton.tap()
 

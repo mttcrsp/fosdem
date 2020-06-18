@@ -29,14 +29,8 @@ final class TestsService {
       UIApplication.shared.keyWindow?.layer.speed = 100
     }
 
-    if environment["RESET_FAVORITES"] != nil {
-      for identifier in favoritesService.eventsIdentifiers {
-        favoritesService.removeEvent(withIdentifier: identifier)
-      }
-
-      for identifier in favoritesService.tracksIdentifiers {
-        favoritesService.removeTrack(withIdentifier: identifier)
-      }
+    if environment["RESET_DEFAULTS"] != nil, let name = Bundle.main.bundleIdentifier {
+      UserDefaults.standard.removePersistentDomain(forName: name)
     }
 
     if let tracks = environment["FAVORITE_EVENTS"] {

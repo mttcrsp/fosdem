@@ -43,7 +43,7 @@ final class AgendaControllerTests: XCTestCase {
 
     runActivity(named: "Content available") {
       app.terminate()
-      app.launchEnvironment = ["RESET_FAVORITES": "1", "SOON_DATE": "2020-02-01T09:45:00Z"]
+      app.launchEnvironment = ["RESET_DEFAULTS": "1", "SOON_DATE": "2020-02-01T09:45:00Z"]
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
