@@ -12,7 +12,9 @@
 "event.video.begin" = "Watch now";
 "event.video.at" = "Resume playback";
 "event.video.end" = "Watch again";
-"event.video.accessibility" = "Play recording";
+"event.video.accessibility.begin" = "Play recording";
+"event.video.accessibility.at" = "Resume recording";
+"event.video.accessibility.end" = "Replay recording";
 "event.attachments" = "Attachments";
 "event.people" = "Speakers: %@";
 "event.room" = "Room: %@";

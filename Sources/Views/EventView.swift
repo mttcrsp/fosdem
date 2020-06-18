@@ -34,10 +34,14 @@ final class EventView: UIStackView {
   }
 
   func reloadPlaybackPosition() {
-    if let event = event {
-      let videoTitle = makeVideoTitle(for: event)
-      videoButton?.setTitle(videoTitle, for: .normal)
+    var position: PlaybackPosition = .beginning
+    if let dataSource = dataSource, let event = event {
+      position = dataSource.eventView(self, playbackPositionFor: event)
     }
+
+    videoButton?.setTitle(position.title, for: .normal)
+    videoButton?.accessibilityLabel = position.accessibilityLabel
+    videoButton?.accessibilityIdentifier = position.accessibilityIdentifier
   }
 
   private func didChangeEvent() {
@@ -64,18 +68,18 @@ final class EventView: UIStackView {
     setCustomSpacing(20, after: trackView)
 
     if event.video != nil {
-      let videoTitle = makeVideoTitle(for: event)
       let videoAction = #selector(didTapVideo)
       let videoButton = RoundedButton()
       videoButton.accessibilityLabel = NSLocalizedString("event.video.accessibility", comment: "")
       videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
       videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
-      videoButton.setTitle(videoTitle, for: .normal)
       self.videoButton = videoButton
       addArrangedSubview(videoButton)
       setCustomSpacing(28, after: videoButton)
 
       constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
+
+      reloadPlaybackPosition()
     }
 
     if !event.people.isEmpty {
@@ -169,16 +173,39 @@ final class EventView: UIStackView {
       delegate?.eventView(self, didSelect: attachment)
     }
   }
+}
 
-  private func makeVideoTitle(for event: Event) -> String {
-    let position = dataSource?.eventView(self, playbackPositionFor: event)
-    switch position ?? .beginning {
+private extension PlaybackPosition {
+  var title: String {
+    switch self {
     case .beginning:
       return NSLocalizedString("event.video.begin", comment: "")
     case .end:
       return NSLocalizedString("event.video.end", comment: "")
     case .at:
       return NSLocalizedString("event.video.at", comment: "")
+    }
+  }
+
+  var accessibilityLabel: String {
+    switch self {
+    case .beginning:
+      return NSLocalizedString("event.video.accessibility.begin", comment: "")
+    case .end:
+      return NSLocalizedString("event.video.accessibility.end", comment: "")
+    case .at:
+      return NSLocalizedString("event.video.accessibility.at", comment: "")
+    }
+  }
+
+  var accessibilityIdentifier: String {
+    switch self {
+    case .beginning:
+      return "play"
+    case .end:
+      return "replay"
+    case .at:
+      return "resume"
     }
   }
 }
