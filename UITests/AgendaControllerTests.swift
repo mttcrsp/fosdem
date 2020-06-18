@@ -106,7 +106,7 @@ final class AgendaControllerTests: XCTestCase {
     runActivity(named: "Favorite") {
       app.searchButton.tap()
       app.day1TrackStaticText.tap()
-      app.eventStaticText.tapFirstTrailingAction()
+      app.day1TrackStaticText.tapFirstTrailingAction()
       app.backButton.tap()
       app.agendaButton.tap()
       XCTAssertEqual(app.agendaTable.cells.count, 1)
@@ -160,11 +160,13 @@ final class AgendaControllerTests: XCTestCase {
   }
 }
 
-private extension XCUIApplication {
+extension XCUIApplication {
   var agendaButton: XCUIElement {
     tabBars.buttons["agenda"]
   }
+}
 
+private extension XCUIApplication {
   var agendaTable: XCUIElement {
     tables["events"]
   }

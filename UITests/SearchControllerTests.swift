@@ -249,8 +249,8 @@ extension XCUIApplication {
     tracksTable.staticTexts["Ada"]
   }
 
-  var eventStaticText: XCUIElement {
-    trackTable.staticTexts["Welcome to the Ada DevRoom"]
+  var day1TrackEventStaticText: XCUIElement {
+    eventStaticText
   }
 }
 
@@ -261,6 +261,10 @@ private extension XCUIApplication {
 
   var day2TrackStaticText: XCUIElement {
     tracksTable.staticTexts["BSD"]
+  }
+
+  var eventStaticText: XCUIElement {
+    trackTable.staticTexts["Welcome to the Ada DevRoom"]
   }
 
   var trackTable: XCUIElement {
