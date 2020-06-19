@@ -74,7 +74,7 @@ final class TraitsTests: XCTestCase {
       app.activate()
       app.searchButton.tap()
     }
-    
+
     runActivity(named: "Decrease size") {
       settings.activate()
       midCoordinate.tap()

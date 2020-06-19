@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Xcodegen
+      run: brew install xcodegen
+    - name: Install Swiftformat
+      run: brew install swiftformat
+    - name: Install xcpretty
+      run: gem install xcpretty-travis-formatter
+    - name: Run Xcodegen
+      run: xcodegen
+    - name: Run unit and UI tests
+      run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' build test | xcpretty -f `xcpretty-travis-formatter`
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
