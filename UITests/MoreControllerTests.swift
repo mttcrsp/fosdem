@@ -116,13 +116,15 @@ final class MoreControllerTests: XCTestCase {
   }
 }
 
+extension XCUIApplication {
+  var moreButton: XCUIElement {
+    buttons["more"]
+  }
+}
+
 private extension XCUIApplication {
   static var safari: XCUIApplication {
     XCUIApplication(bundleIdentifier: "com.apple.mobilesafari")
-  }
-
-  var moreButton: XCUIElement {
-    buttons["more"]
   }
 
   var urlTextField: XCUIElement {

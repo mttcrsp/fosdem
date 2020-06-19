@@ -23,7 +23,7 @@ final class MapControllerTests: XCTestCase {
   }
 
   func testLocation() {
-    let settingsApp = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
+    let settingsApp = XCUIApplication.settings
     defer { settingsApp.terminate() }
 
     let app = XCUIApplication()
@@ -129,7 +129,7 @@ final class MapControllerTests: XCTestCase {
       app.swipeLeft()
     }
 
-    app.buttons["fullscreen_dismiss"].tap()
+    app.blueprintsFullscreenDismissButton.tap()
     XCTAssertFalse(app.pageIndicator.exists)
 
     app.buttons["fullscreen"].tap()
@@ -140,25 +140,31 @@ final class MapControllerTests: XCTestCase {
   }
 }
 
-private extension XCUIApplication {
+extension XCUIApplication {
   var mapButton: XCUIElement {
     tabBars.buttons["map"]
-  }
-
-  var map: XCUIElement {
-    maps.firstMatch
   }
 
   var buildingView: XCUIElement {
     map.otherElements["K"]
   }
 
-  var noBlueprintBuildingView: XCUIElement {
-    map.otherElements["F1"]
-  }
-
   var blueprintsContainer: XCUIElement {
     scrollViews.firstMatch
+  }
+
+  var blueprintsFullscreenDismissButton: XCUIElement {
+    buttons["fullscreen_dismiss"]
+  }
+}
+
+private extension XCUIApplication {
+  var map: XCUIElement {
+    maps.firstMatch
+  }
+
+  var noBlueprintBuildingView: XCUIElement {
+    map.otherElements["F1"]
   }
 
   var pageIndicator: XCUIElement {
