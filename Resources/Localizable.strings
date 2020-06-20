@@ -56,6 +56,8 @@
 "map.reset" = "Reset map";
 "map.building" = "Building %@";
 "map.location" = "Display my location";
+"map.location.enable" = "Enable location services";
+"map.location.disable" = "Disable Location services";
 "map.blueprint.title" = "Building %@";
 "map.blueprint.empty" = "No blueprint available";
 

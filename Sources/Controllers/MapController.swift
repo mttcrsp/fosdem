@@ -92,7 +92,7 @@ extension MapController: MapContainerViewControllerDelegate {
   }
 
   private var preferredLayout: Layout {
-    if traitCollection.userInterfaceIdiom == .pad {
+    if traitCollection.horizontalSizeClass == .regular, traitCollection.verticalSizeClass == .regular {
       return .pad
     } else if view.bounds.height > view.bounds.width {
       return .phonePortrait

@@ -19,10 +19,24 @@ final class MapViewController: UIViewController {
     didSet { didChangeSelectedBuilding() }
   }
 
+  private lazy var controlsViewCompactConstraints = [
+    controlsView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+    controlsView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 16),
+  ]
+
+  private lazy var controlsViewRegularConstraints = [
+    controlsView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+    controlsView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -32),
+  ]
+
   private lazy var mapView = MKMapView()
   private lazy var controlsView = MapControlsView()
 
   private weak var blueprintsViewController: UIViewController?
+
+  private var hasRegularTraits: Bool {
+    traitCollection.horizontalSizeClass == .regular && traitCollection.verticalSizeClass == .regular
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -40,16 +54,24 @@ final class MapViewController: UIViewController {
     for subview in [mapView, controlsView] {
       view.addSubview(subview)
     }
+  }
 
-    NSLayoutConstraint.activate([
-      controlsView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 16),
-      controlsView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-    ])
+  override func updateViewConstraints() {
+    if hasRegularTraits {
+      NSLayoutConstraint.activate(controlsViewRegularConstraints)
+      NSLayoutConstraint.deactivate(controlsViewCompactConstraints)
+    } else {
+      NSLayoutConstraint.activate(controlsViewCompactConstraints)
+      NSLayoutConstraint.deactivate(controlsViewRegularConstraints)
+    }
+
+    super.updateViewConstraints()
   }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     mapView.frame = view.bounds
+    controlsView.showsTitles = hasRegularTraits
   }
 
   override func didMove(toParent parent: UIViewController?) {
@@ -69,7 +91,7 @@ final class MapViewController: UIViewController {
   }
 
   func setAuthorizationStatus(_ status: CLAuthorizationStatus) {
-    controlsView.setAuthorizationStatus(status)
+    controlsView.authorizationStatus = status
   }
 
   func resetCamera(animated: Bool) {
