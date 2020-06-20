@@ -34,10 +34,6 @@ final class MapViewController: UIViewController {
 
   private weak var blueprintsViewController: UIViewController?
 
-  private var hasRegularTraits: Bool {
-    traitCollection.horizontalSizeClass == .regular && traitCollection.verticalSizeClass == .regular
-  }
-
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -57,7 +53,7 @@ final class MapViewController: UIViewController {
   }
 
   override func updateViewConstraints() {
-    if hasRegularTraits {
+    if traitCollection.fos_hasRegularSizeClasses {
       NSLayoutConstraint.activate(controlsViewRegularConstraints)
       NSLayoutConstraint.deactivate(controlsViewCompactConstraints)
     } else {
@@ -71,7 +67,6 @@ final class MapViewController: UIViewController {
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     mapView.frame = view.bounds
-    controlsView.showsTitles = hasRegularTraits
   }
 
   override func didMove(toParent parent: UIViewController?) {

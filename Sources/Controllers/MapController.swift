@@ -92,7 +92,7 @@ extension MapController: MapContainerViewControllerDelegate {
   }
 
   private var preferredLayout: Layout {
-    if traitCollection.horizontalSizeClass == .regular, traitCollection.verticalSizeClass == .regular {
+    if traitCollection.fos_hasRegularSizeClasses {
       return .pad
     } else if view.bounds.height > view.bounds.width {
       return .phonePortrait
@@ -205,7 +205,7 @@ extension MapController: BlueprintsViewControllerDelegate {
       blueprintsNavigationController?.view.alpha = 1
     }, completion: { [weak blueprintsNavigationController] _ in
       blueprintsNavigationController?.view.alpha = 1
-        })
+    })
   }
 }
 
