@@ -23,8 +23,8 @@ final class MapControllerTests: XCTestCase {
   }
 
   func testLocation() {
-    let settingsApp = XCUIApplication.settings
-    defer { settingsApp.terminate() }
+    let settings = XCUIApplication.settings
+    defer { settings.terminate() }
 
     let app = XCUIApplication()
     let locationButton = app.buttons["location"]
@@ -40,15 +40,18 @@ final class MapControllerTests: XCTestCase {
         return true
       }
 
-      settingsApp.launch()
-      settingsApp.cells["Privacy"].tap()
-      settingsApp.cells["Location Services"].tap()
+      settings.launch()
+      settings.cells["Privacy"].tap()
+      settings.cells["Location Services"].tap()
 
-      let fosdemPredicate = NSPredicate(format: "label CONTAINS %@", "FOSDEM")
-      let fosdemCell = settingsApp.cells.element(matching: fosdemPredicate)
-      fosdemCell.tap()
-
-      settingsApp.cells["Ask Next Time"].tap()
+      // HACK: The app's own location settings cells has no identifier and its
+      // label changes based on the current location authorization status of the
+      // app. Moreover attempting to match content within that label fails on CI
+      // for obscure reasons. This match by index will break if elements were
+      // ever change sorting within the location services screen but its
+      // currently the most reliable solution.
+      settings.cells.element(boundBy: 2).tap() // FOSDEM location settings
+      settings.cells.element(boundBy: 1).tap() // Ask Next Time
 
       app.launch()
       app.mapButton.tap()
@@ -68,9 +71,10 @@ final class MapControllerTests: XCTestCase {
       locationAvailableButton.tap()
       confirmButton.tap()
 
-      settingsApp.cells["Never"].tap()
+      settings.activate()
+      settings.cells["Never"].tap()
       app.activate()
-      XCTAssert(locationUnavailableButton.exists)
+      wait { locationUnavailableButton.exists }
     }
 
     runActivity(named: "Re-allow location services") {
@@ -79,7 +83,8 @@ final class MapControllerTests: XCTestCase {
       locationUnavailableButton.tap()
       confirmButton.tap()
 
-      settingsApp.cells["While Using the App"].tap()
+      settings.activate()
+      settings.cells["While Using the App"].tap()
       app.activate()
       XCTAssert(locationAvailableButton.exists)
     }
@@ -108,6 +113,8 @@ final class MapControllerTests: XCTestCase {
     wait { !blueprintsNavBar.exists }
 
     XCUIDevice.shared.orientation = .landscapeLeft
+    wait { app.buildingView.exists }
+
     app.buildingView.tap()
     blueprintsNavBar.swipeLeft()
     wait { !blueprintsNavBar.exists }
@@ -123,6 +130,7 @@ final class MapControllerTests: XCTestCase {
     app.launch()
     app.mapButton.tap()
 
+    wait { app.buildingView.exists }
     app.buildingView.tap()
     app.blueprintsContainer.tap()
     for i in 1 ... 5 {
