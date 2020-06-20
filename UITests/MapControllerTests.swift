@@ -155,6 +155,10 @@ extension XCUIApplication {
     buildingView(forIdentifier: "K")
   }
 
+  var niceBuildingView: XCUIElement {
+    buildingView(forIdentifier: "U")
+  }
+
   var blueprintsContainer: XCUIElement {
     scrollViews.firstMatch
   }
