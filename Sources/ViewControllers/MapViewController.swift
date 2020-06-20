@@ -187,7 +187,7 @@ extension MapViewController: MKMapViewDelegate {
     let string = String(format: format, building.title ?? "")
 
     let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MKMarkerAnnotationView.reuseIdentifier, for: annotation) as! MKMarkerAnnotationView
-    annotationView.accessibilityIdentifier = building.glyph
+    annotationView.accessibilityIdentifier = "building_\(building.glyph)"
     annotationView.markerTintColor = mapView.tintColor
     annotationView.accessibilityLabel = string
     annotationView.glyphText = building.glyph

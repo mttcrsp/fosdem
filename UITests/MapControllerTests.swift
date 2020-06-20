@@ -97,7 +97,6 @@ final class MapControllerTests: XCTestCase {
 
     let blueprintsNavBar = app.blueprintsContainer.navigationBars.firstMatch
 
-    wait { app.buildingView.exists }
     app.buildingView.tap()
     var titles: Set<String> = []
     for _ in 1 ... 6 {
@@ -113,8 +112,6 @@ final class MapControllerTests: XCTestCase {
     wait { !blueprintsNavBar.exists }
 
     XCUIDevice.shared.orientation = .landscapeLeft
-    wait { app.buildingView.exists }
-
     app.buildingView.tap()
     blueprintsNavBar.swipeLeft()
     wait { !blueprintsNavBar.exists }
@@ -129,8 +126,6 @@ final class MapControllerTests: XCTestCase {
     let app = XCUIApplication()
     app.launch()
     app.mapButton.tap()
-
-    wait { app.buildingView.exists }
     app.buildingView.tap()
     app.blueprintsContainer.tap()
 
@@ -157,7 +152,7 @@ extension XCUIApplication {
   }
 
   var buildingView: XCUIElement {
-    map.otherElements["K"]
+    buildingView(forIdentifier: "K")
   }
 
   var blueprintsContainer: XCUIElement {
@@ -175,7 +170,7 @@ private extension XCUIApplication {
   }
 
   var noBlueprintBuildingView: XCUIElement {
-    map.otherElements["F1"]
+    buildingView(forIdentifier: "F1")
   }
 
   var pageIndicator: XCUIElement {
@@ -183,7 +178,7 @@ private extension XCUIApplication {
   }
 
   var areAllBuildingsVisibile: Bool {
-    for identifier in ["AW", "F1", "Janson", "H", "U", "K"] {
+    for identifier in ["AW", "F1", "J", "H", "U", "K"] {
       if !buildingView(forIdentifier: identifier).exists {
         return false
       }
@@ -192,6 +187,6 @@ private extension XCUIApplication {
   }
 
   func buildingView(forIdentifier identifier: String) -> XCUIElement {
-    map.otherElements[identifier]
+    otherElements["building_\(identifier)"]
   }
 }
