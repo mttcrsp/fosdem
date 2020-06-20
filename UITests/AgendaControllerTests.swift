@@ -106,7 +106,7 @@ final class AgendaControllerTests: XCTestCase {
     runActivity(named: "Favorite") {
       app.searchButton.tap()
       app.day1TrackStaticText.tap()
-      app.day1TrackStaticText.tapFirstTrailingAction()
+      app.day1TrackEventStaticText.tapFirstTrailingAction()
       app.backButton.tap()
       app.agendaButton.tap()
       XCTAssertEqual(app.agendaTable.cells.count, 1)
