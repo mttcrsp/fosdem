@@ -124,22 +124,24 @@ final class AgendaControllerTests: XCTestCase {
     runActivity(named: "Handle expanded launch") {
       app.agendaButton.tap()
       wait { app.eventTable.exists }
+      wait { app.agendaTable.exists }
     }
 
     runActivity(named: "Handle collapse") {
       XCUIDevice.shared.orientation = .portrait
-      wait { !app.eventTable.exists }
+      wait { app.eventTable.exists }
+      wait { !app.agendaTable.exists }
     }
 
     runActivity(named: "Handle expand") {
       XCUIDevice.shared.orientation = .landscapeRight
       wait { app.eventTable.exists }
+      wait { app.agendaTable.exists }
     }
 
     runActivity(named: "Handle empty expanded") {
       app.agendaCell1.tapFirstTrailingAction()
       wait { !app.eventTable.exists }
-      wait { !app.agendaTable.exists }
       wait { app.emptyStaticText.exists }
     }
   }
