@@ -49,8 +49,7 @@ final class MoreControllerTests: XCTestCase {
 
       for identifier in ["bus", "shuttle", "train", "car", "plane", "taxi"] {
         app.cells[identifier].tap()
-        wait { app.textViews[identifier].exists
-        }
+        wait { app.textViews[identifier].exists }
         app.backButton.tap()
       }
     }

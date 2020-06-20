@@ -133,11 +133,13 @@ final class MapControllerTests: XCTestCase {
     wait { app.buildingView.exists }
     app.buildingView.tap()
     app.blueprintsContainer.tap()
+
     for i in 1 ... 5 {
       XCTAssertEqual(app.pageIndicator.value as? String, "page \(i) of 5")
       app.swipeLeft()
     }
 
+    app.otherElements["fullscreen_blueprints"].doubleTap()
     app.blueprintsFullscreenDismissButton.tap()
     XCTAssertFalse(app.pageIndicator.exists)
 

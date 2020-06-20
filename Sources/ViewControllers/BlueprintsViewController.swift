@@ -59,6 +59,7 @@ final class BlueprintsViewController: UIPageViewController {
 
     view.addGestureRecognizer(fullscreenRecognizer)
     view.backgroundColor = .fos_tertiarySystemBackground
+    view.accessibilityIdentifier = style.accessibilityIdentifier
 
     let dismissAction = #selector(didTapDismiss)
     let dismissImage = UIImage.fos_systemImage(withName: "xmark")
@@ -206,6 +207,15 @@ private extension BlueprintsViewController.Style {
       return "dismiss"
     case .fullscreen:
       return "fullscreen_dismiss"
+    }
+  }
+
+  var accessibilityIdentifier: String {
+    switch self {
+    case .embedded:
+      return "embedded_blueprints"
+    case .fullscreen:
+      return "fullscreen_blueprints"
     }
   }
 }
