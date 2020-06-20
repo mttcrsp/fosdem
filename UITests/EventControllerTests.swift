@@ -24,7 +24,7 @@ final class EventControllerTests: XCTestCase {
       app.launchEnvironment = [:]
       app.launch()
       app.agendaButton.tap()
-      XCTAssertEqual(app.cells.count, 1)
+      wait { self.app.cells.count == 1 }
     }
 
     runActivity(named: "Unfavorite event") {
