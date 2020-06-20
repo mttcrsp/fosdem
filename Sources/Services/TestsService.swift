@@ -2,8 +2,6 @@
 import UIKit
 
 final class TestsService {
-  private let formatter = ISO8601DateFormatter()
-
   private var timer: Timer?
 
   private let environment: [String: String]
@@ -47,16 +45,17 @@ final class TestsService {
     }
 
     if let string = environment["SOON_DATE"] {
-      if let date = formatter.date(from: string) {
-        debugService.override(date)
+      if let value = Double(string) {
+        debugService.override(Date(timeIntervalSince1970: value))
       }
     }
 
     if let string = environment["LIVE_DATES"] {
       let components = string.components(separatedBy: ",")
-      if components.count == 2,
-        let date1 = formatter.date(from: components[0]),
-        let date2 = formatter.date(from: components[1]) {
+      if components.count == 2, let value1 = Double(components[0]), let value2 = Double(components[1]) {
+        let date1 = Date(timeIntervalSince1970: value1)
+        let date2 = Date(timeIntervalSince1970: value2)
+
         var flag = true
         timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
           self?.debugService.override(flag ? date1 : date2)

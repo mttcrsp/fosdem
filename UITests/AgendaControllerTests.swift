@@ -2,10 +2,16 @@ import XCTest
 
 final class AgendaControllerTests: XCTestCase {
   func testAppearance() {
+    let components1 = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 32)
+    let components2 = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 37)
+    guard let interval1 = interval(for: components1), let interval2 = interval(for: components2) else {
+      return XCTFail("Failed to instantiate mock dates")
+    }
+
     let app = XCUIApplication()
     app.launchEnvironment = [
       "LIVE_INTERVAL": "1",
-      "LIVE_DATES": "2020-02-01T09:32:00Z,2020-02-01T09:37:00Z",
+      "LIVE_DATES": "\(interval1),\(interval2)",
       "FAVORITE_EVENTS": "10682,10683",
     ]
     app.launch()
@@ -27,6 +33,12 @@ final class AgendaControllerTests: XCTestCase {
   }
 
   func testSoon() throws {
+    let components1 = DateComponents(year: 2050, month: 2, day: 1, hour: 10, minute: 30)
+    let components2 = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 45)
+    guard let interval1 = interval(for: components1), let interval2 = interval(for: components2) else {
+      return XCTFail("Failed to instantiate mock dates")
+    }
+
     let app = XCUIApplication()
     let soonTable = app.tables["events"]
     let soonCell = soonTable.cells.firstMatch
@@ -34,7 +46,7 @@ final class AgendaControllerTests: XCTestCase {
     let doneButton = app.buttons["dismiss"]
 
     runActivity(named: "Content unavailable") {
-      app.launchEnvironment = ["SOON_DATE": "2049-12-31T23:00:00Z"]
+      app.launchEnvironment = ["SOON_DATE": "\(interval1)"]
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
@@ -43,7 +55,7 @@ final class AgendaControllerTests: XCTestCase {
 
     runActivity(named: "Content available") {
       app.terminate()
-      app.launchEnvironment = ["RESET_DEFAULTS": "1", "SOON_DATE": "2020-02-01T09:45:00Z"]
+      app.launchEnvironment = ["RESET_DEFAULTS": "1", "SOON_DATE": "\(interval2)"]
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
@@ -152,7 +164,7 @@ final class AgendaControllerTests: XCTestCase {
     app.launch()
     app.agendaButton.tap()
     wait { app.agendaTable.exists }
-    
+
     app.agendaTable.cells.firstMatch.tap()
     wait { app.eventTable.exists }
     wait { !app.agendaTable.exists }
@@ -160,6 +172,10 @@ final class AgendaControllerTests: XCTestCase {
     app.agendaButton.tap()
     wait { !app.eventTable.exists }
     wait { app.agendaTable.exists }
+  }
+
+  private func interval(for components: DateComponents) -> Double? {
+    Calendar.autoupdatingCurrent.date(from: components)?.timeIntervalSince1970
   }
 }
 
