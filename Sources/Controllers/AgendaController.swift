@@ -221,7 +221,7 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     switch eventsViewController {
-    case agendaViewController:
+    case agendaViewController where eventViewController?.event != event:
       let eventViewController = makeEventViewController(for: event)
       eventsViewController.showDetailViewController(eventViewController, sender: nil)
     case soonViewController:
