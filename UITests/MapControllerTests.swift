@@ -172,7 +172,7 @@ private extension XCUIApplication {
   }
 
   var areAllBuildingsVisibile: Bool {
-    for identifier in ["AW", "F1", "J", "H", "U", "K"] {
+    for identifier in ["AW", "F1", "Janson", "H", "U", "K"] {
       if !buildingView(forIdentifier: identifier).exists {
         return false
       }
