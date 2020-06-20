@@ -220,12 +220,12 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
-
     switch eventsViewController {
     case agendaViewController:
+      let eventViewController = makeEventViewController(for: event)
       eventsViewController.showDetailViewController(eventViewController, sender: nil)
     case soonViewController:
+      let eventViewController = makeSoonEventViewController(for: event)
       eventsViewController.show(eventViewController, sender: nil)
     default:
       break
@@ -314,5 +314,9 @@ private extension AgendaController {
     let eventViewController = EventController(event: event, services: services)
     self.eventViewController = eventViewController
     return eventViewController
+  }
+
+  func makeSoonEventViewController(for event: Event) -> EventController {
+    EventController(event: event, services: services)
   }
 }
