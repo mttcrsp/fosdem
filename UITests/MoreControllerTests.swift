@@ -20,8 +20,7 @@ final class MoreControllerTests: XCTestCase {
       app.cells["code"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
 
-      wait { safari.urlButton.exists }
-      safari.urlButton.tap()
+      safari.urlBar.tap()
       XCTAssertEqual(safari.urlTextField.value as? String, "https://github.com/mttcrsp/fosdem")
     }
 
@@ -33,8 +32,8 @@ final class MoreControllerTests: XCTestCase {
       app.staticTexts["XcodeGen"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
 
-      wait { safari.urlButton.exists }
-      safari.urlButton.tap()
+      wait { safari.urlBar.exists }
+      safari.urlBar.tap()
       XCTAssertEqual(safari.urlTextField.value as? String, "https://github.com/yonaskolb/XcodeGen")
     }
   }
@@ -80,7 +79,7 @@ final class MoreControllerTests: XCTestCase {
       let safari = XCUIApplication.safari
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
 
-      safari.urlButton.tap()
+      safari.urlBar.tap()
       XCTAssertEqual((safari.urlTextField.value as? String)?.contains("google.com/maps"), true)
     }
   }
@@ -132,7 +131,7 @@ private extension XCUIApplication {
     textFields.firstMatch
   }
 
-  var urlButton: XCUIElement {
-    buttons["URL"]
+  var urlBar: XCUIElement {
+    otherElements["URL"]
   }
 }
