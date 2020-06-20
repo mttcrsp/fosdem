@@ -44,6 +44,17 @@ final class TestsService {
       }
     }
 
+    if let tracks = environment["FAVORITE_TRACKS"] {
+      for identifier in favoritesService.tracksIdentifiers {
+        favoritesService.removeTrack(withIdentifier: identifier)
+      }
+
+      let identifiers = tracks.components(separatedBy: ",")
+      for identifier in identifiers {
+        favoritesService.addTrack(withIdentifier: identifier)
+      }
+    }
+
     if let string = environment["SOON_DATE"] {
       if let value = Double(string) {
         debugService.override(Date(timeIntervalSince1970: value))
