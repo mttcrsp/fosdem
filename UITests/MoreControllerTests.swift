@@ -20,6 +20,7 @@ final class MoreControllerTests: XCTestCase {
       app.cells["code"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
 
+      wait { safari.urlButton.exists }
       safari.urlButton.tap()
       XCTAssertEqual(safari.urlTextField.value as? String, "https://github.com/mttcrsp/fosdem")
     }
@@ -32,6 +33,7 @@ final class MoreControllerTests: XCTestCase {
       app.staticTexts["XcodeGen"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
 
+      wait { safari.urlButton.exists }
       safari.urlButton.tap()
       XCTAssertEqual(safari.urlTextField.value as? String, "https://github.com/yonaskolb/XcodeGen")
     }

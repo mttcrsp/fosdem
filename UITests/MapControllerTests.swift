@@ -92,6 +92,7 @@ final class MapControllerTests: XCTestCase {
 
     let blueprintsNavBar = app.blueprintsContainer.navigationBars.firstMatch
 
+    wait { app.buildingView.exists }
     app.buildingView.tap()
     var titles: Set<String> = []
     for _ in 1 ... 6 {

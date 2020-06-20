@@ -151,7 +151,8 @@ final class AgendaControllerTests: XCTestCase {
     app.launchEnvironment = ["FAVORITE_EVENTS": "10682"]
     app.launch()
     app.agendaButton.tap()
-
+    wait { app.agendaTable.exists }
+    
     app.agendaTable.cells.firstMatch.tap()
     wait { app.eventTable.exists }
     wait { !app.agendaTable.exists }
