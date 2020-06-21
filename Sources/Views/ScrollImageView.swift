@@ -95,8 +95,8 @@ final class ScrollImageView: UIScrollView {
       return
     }
 
-    let xScale = bounds.width / image.size.width
-    let yScale = bounds.height / image.size.height
+    let xScale = bounds.width / (image.size.width + 64)
+    let yScale = bounds.height / (image.size.height + 64)
     minimumZoomScale = min(xScale, yScale)
     maximumZoomScale = max(minimumZoomScale * 2, 2)
     zoomScale = minimumZoomScale
