@@ -37,12 +37,6 @@ final class EventAttachmentView: UIControl {
       imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
       imageView.centerYAnchor.constraint(equalTo: label.centerYAnchor),
     ])
-
-    let highlightEvent: UIControl.Event = [.touchDown, .touchDragEnter]
-    addTarget(self, action: #selector(didHighlight), for: highlightEvent)
-
-    let unhighlightEvent: UIControl.Event = [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit]
-    addTarget(self, action: #selector(didUnhighlight), for: unhighlightEvent)
   }
 
   required init?(coder: NSCoder) {
@@ -53,12 +47,8 @@ final class EventAttachmentView: UIControl {
     attachment.title != nil
   }
 
-  @objc private func didHighlight() {
-    alpha = 0.5
-  }
-
-  @objc private func didUnhighlight() {
-    alpha = 1
+  override var isHighlighted: Bool {
+    didSet { alpha = isHighlighted ? 0.5 : 1 }
   }
 
   private func didChangeAttachment() {
