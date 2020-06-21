@@ -224,6 +224,7 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
     case agendaViewController where eventViewController?.event != event:
       let eventViewController = makeEventViewController(for: event)
       eventsViewController.showDetailViewController(eventViewController, sender: nil)
+      UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
     case soonViewController:
       let eventViewController = makeSoonEventViewController(for: event)
       eventsViewController.show(eventViewController, sender: nil)

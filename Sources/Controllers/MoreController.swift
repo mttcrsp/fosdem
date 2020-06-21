@@ -45,6 +45,11 @@ final class MoreController: UISplitViewController {
       }
     }
   }
+
+  private func showDetailViewController(_ detailViewController: UIViewController) {
+    moreViewController?.showDetailViewController(detailViewController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
+  }
 }
 
 extension MoreController: MoreViewControllerDelegate {
@@ -73,8 +78,8 @@ extension MoreController: MoreViewControllerDelegate {
     do {
       acknowledgements = try services.acknowledgementsService.loadAcknowledgements()
       let acknowledgementsViewController = makeAcknowledgementsViewController()
-      let acknowledgementsNavigationController = UINavigationController(rootViewController: acknowledgementsViewController)
-      moreViewController.showDetailViewController(acknowledgementsNavigationController, sender: nil)
+      let navigationController = UINavigationController(rootViewController: acknowledgementsViewController)
+      showDetailViewController(navigationController)
     } catch {
       let errorViewController = makeErrorViewController()
       moreViewController.present(errorViewController, animated: true)
@@ -83,13 +88,13 @@ extension MoreController: MoreViewControllerDelegate {
 
   private func moreViewControllerDidSelectYears(_ moreViewController: MoreViewController) {
     services.yearsService.loadYears { years in
-      DispatchQueue.main.async { [weak self, weak moreViewController] in
+      DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
         self.years = years
         let yearsViewController = self.makeYearsViewController()
         let navigationController = UINavigationController(rootViewController: yearsViewController)
-        moreViewController?.showDetailViewController(navigationController, sender: nil)
+        self.showDetailViewController(navigationController)
       }
     }
   }
@@ -105,7 +110,7 @@ extension MoreController: MoreViewControllerDelegate {
   private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
     let transportationViewController = makeTransportationViewController()
     let navigationController = UINavigationController(rootViewController: transportationViewController)
-    moreViewController.showDetailViewController(navigationController, sender: nil)
+    showDetailViewController(navigationController)
   }
 
   private func showDetailInfoViewController(for item: MoreItem) {
@@ -118,7 +123,7 @@ extension MoreController: MoreViewControllerDelegate {
 
       if let infoViewController = infoViewController {
         let navigationController = UINavigationController(rootViewController: infoViewController)
-        moreViewController?.showDetailViewController(navigationController, sender: nil)
+        self.showDetailViewController(navigationController)
       } else {
         let errorViewController = self.makeErrorViewController()
         moreViewController?.present(errorViewController, animated: true)

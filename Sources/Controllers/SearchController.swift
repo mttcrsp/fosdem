@@ -185,21 +185,22 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
     persistenceService.performRead(EventsForTrack(track: track.name)) { [weak tracksViewController] result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        guard let self = self, let tracksViewController = tracksViewController else { return }
 
         switch result {
         case .failure:
           let errorViewController = UIAlertController.makeErrorController()
-          tracksViewController?.present(errorViewController, animated: true)
-          tracksViewController?.deselectSelectedRow(animated: true)
+          tracksViewController.present(errorViewController, animated: true)
+          tracksViewController.deselectSelectedRow(animated: true)
         case let .success(events):
           self.events = events
           self.selectedTrack = track
           self.captions = events.captions
 
           let eventsViewController = self.makeEventsViewController(for: track)
-          let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
-          tracksViewController?.showDetailViewController(eventsNavigationController, sender: nil)
+          let navigationController = UINavigationController(rootViewController: eventsViewController)
+          tracksViewController.showDetailViewController(navigationController, sender: nil)
+          UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
         }
       }
     }
