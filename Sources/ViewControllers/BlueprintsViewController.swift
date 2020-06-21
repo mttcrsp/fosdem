@@ -136,9 +136,7 @@ final class BlueprintsViewController: UIPageViewController {
     if let blueprintViewController = viewControllers?.first as? BlueprintViewController, let blueprint = blueprintViewController.blueprint {
       title = blueprint.title
     } else if let building = building?.title {
-      let format = NSLocalizedString("map.blueprint.title", comment: "")
-      let string = String(format: format, building)
-      title = string
+      title = FOSLocalizedString(format: "map.blueprint.title", building)
     }
     pageControl.currentPage = viewControllers?.first?.fos_index ?? 0
   }

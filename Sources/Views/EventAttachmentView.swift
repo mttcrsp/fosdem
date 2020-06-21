@@ -80,13 +80,13 @@ private extension AttachmentType {
   var title: String? {
     switch self {
     case .slides:
-      return NSLocalizedString("attachment.slides", comment: "")
+      return FOSLocalizedString("attachment.slides")
     case .audio:
-      return NSLocalizedString("attachment.audio", comment: "")
+      return FOSLocalizedString("attachment.audio")
     case .paper:
-      return NSLocalizedString("attachment.paper", comment: "")
+      return FOSLocalizedString("attachment.paper")
     case .video:
-      return NSLocalizedString("attachment.video", comment: "")
+      return FOSLocalizedString("attachment.video")
     case .other:
       return nil
     }

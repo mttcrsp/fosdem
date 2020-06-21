@@ -246,7 +246,7 @@ private extension MoreController {
 
   func makeMoreViewController() -> MoreViewController {
     let moreViewController = MoreViewController(style: .grouped)
-    moreViewController.title = NSLocalizedString("more.title", comment: "")
+    moreViewController.title = FOSLocalizedString("more.title")
     moreViewController.delegate = self
     self.moreViewController = moreViewController
     return moreViewController
@@ -270,7 +270,7 @@ private extension MoreController {
 
   func makeYearsViewController() -> YearsViewController {
     let yearsViewController = YearsViewController(style: preferredDetailViewControllerStyle)
-    yearsViewController.title = NSLocalizedString("years.title", comment: "")
+    yearsViewController.title = FOSLocalizedString("years.title")
     yearsViewController.dataSource = self
     yearsViewController.delegate = self
     return yearsViewController
@@ -278,7 +278,7 @@ private extension MoreController {
 
   private func makeTransportationViewController() -> TransportationViewController {
     let transportationViewController = TransportationViewController(style: preferredDetailViewControllerStyle)
-    transportationViewController.title = NSLocalizedString("transportation.title", comment: "")
+    transportationViewController.title = FOSLocalizedString("transportation.title")
     transportationViewController.delegate = self
     return transportationViewController
   }
@@ -293,7 +293,7 @@ private extension MoreController {
 
   func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
     let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
-    acknowledgementsViewController.title = NSLocalizedString("acknowledgements.title", comment: "")
+    acknowledgementsViewController.title = FOSLocalizedString("acknowledgements.title")
     acknowledgementsViewController.dataSource = self
     acknowledgementsViewController.delegate = self
     return acknowledgementsViewController

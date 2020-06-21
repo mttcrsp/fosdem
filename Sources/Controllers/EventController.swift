@@ -69,8 +69,8 @@ final class EventController: UIViewController {
 
   private var favoriteTitle: String {
     isEventFavorite
-      ? NSLocalizedString("event.remove", comment: "")
-      : NSLocalizedString("event.add", comment: "")
+      ? FOSLocalizedString("event.remove")
+      : FOSLocalizedString("event.add")
   }
 
   private var favoriteAccessibilityIdentifier: String {

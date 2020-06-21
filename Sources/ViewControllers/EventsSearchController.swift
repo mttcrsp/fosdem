@@ -53,9 +53,9 @@ extension EventsViewController.Configuration {
     case .noQuery:
       return nil
     case .failure:
-      return NSLocalizedString("search.error.title", comment: "")
+      return FOSLocalizedString("search.error.title")
     case .success:
-      return NSLocalizedString("search.empty.title", comment: "")
+      return FOSLocalizedString("search.empty.title")
     }
   }
 
@@ -64,11 +64,9 @@ extension EventsViewController.Configuration {
     case .noQuery:
       return nil
     case .failure:
-      return NSLocalizedString("search.error.message", comment: "")
+      return FOSLocalizedString("search.error.message")
     case let .success(query):
-      let format = NSLocalizedString("search.empty.message", comment: "")
-      let string = String(format: format, query)
-      return string
+      return FOSLocalizedString(format: "search.empty.message", query)
     }
   }
 

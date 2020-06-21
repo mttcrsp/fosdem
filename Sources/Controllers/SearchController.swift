@@ -48,8 +48,8 @@ final class SearchController: UISplitViewController {
 
   private var favoriteTitle: String {
     isDisplayingFavoriteTrack
-      ? NSLocalizedString("unfavorite", comment: "")
-      : NSLocalizedString("favorite", comment: "")
+      ? FOSLocalizedString("unfavorite")
+      : FOSLocalizedString("favorite")
   }
 
   private var favoriteAccessibilityIdentifier: String {
@@ -152,7 +152,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 
   func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String? {
     if isFavoriteSection(section) {
-      return NSLocalizedString("search.filter.favorites", comment: "")
+      return FOSLocalizedString("search.filter.favorites")
     } else {
       return selectedFilter.title
     }
@@ -334,14 +334,14 @@ extension SearchController: UISearchResultsUpdating, EventsSearchController {
 
 private extension SearchController {
   func makeTracksViewController() -> TracksViewController {
-    let filtersTitle = NSLocalizedString("search.filter.title", comment: "")
+    let filtersTitle = FOSLocalizedString("search.filter.title")
     let filtersAction = #selector(didTapChangeFilter)
     let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
     filtersButton.accessibilityIdentifier = "filters"
     self.filtersButton = filtersButton
 
     let tracksViewController = TracksViewController(style: .fos_insetGrouped)
-    tracksViewController.title = NSLocalizedString("search.title", comment: "")
+    tracksViewController.title = FOSLocalizedString("search.title")
     tracksViewController.navigationItem.rightBarButtonItem = filtersButton
     tracksViewController.navigationItem.largeTitleDisplayMode = .always
     tracksViewController.addSearchViewController(makeSearchController())
@@ -367,7 +367,7 @@ private extension SearchController {
       alertController.addAction(action)
     }
 
-    let cancelTitle = NSLocalizedString("search.filter.cancel", comment: "")
+    let cancelTitle = FOSLocalizedString("search.filter.cancel")
     let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
     alertController.addAction(cancelAction)
 
@@ -376,7 +376,7 @@ private extension SearchController {
 
   func makeSearchController() -> UISearchController {
     let searchController = UISearchController(searchResultsController: makeResultsViewController())
-    searchController.searchBar.placeholder = NSLocalizedString("more.search.prompt", comment: "")
+    searchController.searchBar.placeholder = FOSLocalizedString("more.search.prompt")
     searchController.searchResultsUpdater = self
     self.searchController = searchController
     return searchController

@@ -98,7 +98,7 @@ private extension ApplicationController {
     let searchController = SearchController(services: services)
     searchController.tabBarItem.accessibilityIdentifier = "search"
     searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
-    searchController.title = NSLocalizedString("search.title", comment: "")
+    searchController.title = FOSLocalizedString("search.title")
     searchController.preferredDisplayMode = .allVisible
     searchController.preferredPrimaryColumnWidthFraction = 0.4
     searchController.maximumPrimaryColumnWidth = 375
@@ -109,7 +109,7 @@ private extension ApplicationController {
     let agendaController = AgendaController(services: services)
     agendaController.tabBarItem.accessibilityIdentifier = "agenda"
     agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
-    agendaController.title = NSLocalizedString("agenda.title", comment: "")
+    agendaController.title = FOSLocalizedString("agenda.title")
     agendaController.agendaDelegate = self
     return agendaController
   }
@@ -118,7 +118,7 @@ private extension ApplicationController {
     let mapController = MapController(services: services)
     mapController.tabBarItem.accessibilityIdentifier = "map"
     mapController.tabBarItem.image = .fos_systemImage(withName: "map")
-    mapController.title = NSLocalizedString("map.title", comment: "")
+    mapController.title = FOSLocalizedString("map.title")
     mapController.delegate = self
     return mapController
   }
@@ -127,7 +127,7 @@ private extension ApplicationController {
     let moreController = MoreController(services: services)
     moreController.tabBarItem.accessibilityIdentifier = "more"
     moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
-    moreController.title = NSLocalizedString("more.title", comment: "")
+    moreController.title = FOSLocalizedString("more.title")
     moreController.preferredDisplayMode = .allVisible
     moreController.preferredPrimaryColumnWidthFraction = 0.4
     moreController.maximumPrimaryColumnWidth = 375
@@ -213,19 +213,19 @@ private extension String {
 private extension UIAlertController.ConfirmConfiguration {
   static var update: UIAlertController.ConfirmConfiguration {
     UIAlertController.ConfirmConfiguration(
-      title: NSLocalizedString("update.title", comment: ""),
-      message: NSLocalizedString("update.message", comment: ""),
-      confirm: NSLocalizedString("update.confirm", comment: ""),
-      dismiss: NSLocalizedString("update.dismiss", comment: "")
+      title: FOSLocalizedString("update.title"),
+      message: FOSLocalizedString("update.message"),
+      confirm: FOSLocalizedString("update.confirm"),
+      dismiss: FOSLocalizedString("update.dismiss")
     )
   }
 
   static var crash: UIAlertController.ConfirmConfiguration {
     UIAlertController.ConfirmConfiguration(
-      title: NSLocalizedString("crash.title", comment: ""),
-      message: NSLocalizedString("crash.message", comment: ""),
-      confirm: NSLocalizedString("crash.confirm", comment: ""),
-      dismiss: NSLocalizedString("crash.dismiss", comment: "")
+      title: FOSLocalizedString("crash.title"),
+      message: FOSLocalizedString("crash.message"),
+      confirm: FOSLocalizedString("crash.confirm"),
+      dismiss: FOSLocalizedString("crash.dismiss")
     )
   }
 }

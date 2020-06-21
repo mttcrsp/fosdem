@@ -200,13 +200,10 @@ extension MapViewController: MKMapViewDelegate {
   func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
     guard let building = annotation as? Building else { return nil }
 
-    let format = NSLocalizedString("map.building", comment: "")
-    let string = String(format: format, building.title ?? "")
-
     let annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: MKMarkerAnnotationView.reuseIdentifier, for: annotation) as! MKMarkerAnnotationView
+    annotationView.accessibilityLabel = FOSLocalizedString(format: "map.building", building.title ?? "")
     annotationView.accessibilityIdentifier = "building_\(building.glyph)"
     annotationView.markerTintColor = mapView.tintColor
-    annotationView.accessibilityLabel = string
     annotationView.glyphText = building.glyph
     return annotationView
   }

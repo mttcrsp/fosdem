@@ -48,13 +48,10 @@ final class YearsViewController: UITableViewController {
 
 private extension UITableViewCell {
   func configure(with year: Year) {
-    accessoryType = .disclosureIndicator
     accessibilityIdentifier = year
-
-    let format = NSLocalizedString("years.year", comment: "")
-    let string = String(format: format, year)
-    textLabel?.text = string
+    accessoryType = .disclosureIndicator
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
+    textLabel?.text = FOSLocalizedString(format: "years.year", year)
 
     if #available(iOS 13.0, *), let number = Int(year) {
       imageView?.image = UIImage(systemName: "\(number % 2000).circle.fill")

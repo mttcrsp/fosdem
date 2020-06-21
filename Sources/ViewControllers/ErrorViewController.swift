@@ -19,17 +19,17 @@ final class ErrorViewController: UIViewController {
     }
 
     titleLabel.textColor = .fos_label
-    titleLabel.text = NSLocalizedString("error.functionality.title", comment: "")
+    titleLabel.text = FOSLocalizedString("error.functionality.title")
     titleLabel.font = .fos_preferredFont(forTextStyle: .title2, withSymbolicTraits: [.traitBold, .traitItalic])
 
     messageLabel.textColor = .fos_secondaryLabel
     messageLabel.font = .fos_preferredFont(forTextStyle: .headline)
-    messageLabel.text = NSLocalizedString("error.functionality.message", comment: "")
+    messageLabel.text = FOSLocalizedString("error.functionality.message")
 
     actionButton.isHidden = true
     actionButton.translatesAutoresizingMaskIntoConstraints = false
     actionButton.addTarget(self, action: #selector(didTapAction), for: .touchUpInside)
-    actionButton.setTitle(NSLocalizedString("error.functionality.action", comment: ""), for: .normal)
+    actionButton.setTitle(FOSLocalizedString("error.functionality.action"), for: .normal)
 
     let stackView = UIStackView(arrangedSubviews: [titleLabel, messageLabel])
     stackView.translatesAutoresizingMaskIntoConstraints = false

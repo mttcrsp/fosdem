@@ -71,7 +71,7 @@ final class EventView: UIStackView {
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
       let videoButton = RoundedButton()
-      videoButton.accessibilityLabel = NSLocalizedString("event.video.accessibility", comment: "")
+      videoButton.accessibilityLabel = FOSLocalizedString("event.video.accessibility")
       videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
       videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
       self.videoButton = videoButton
@@ -83,26 +83,17 @@ final class EventView: UIStackView {
       reloadPlaybackPosition()
     }
 
-    if !event.people.isEmpty {
+    if !event.people.isEmpty, let people = event.formattedPeople {
       let peopleView = EventMetadataView()
+      peopleView.accessibilityLabel = FOSLocalizedString(format: "event.people", people)
       peopleView.image = .fos_systemImage(withName: "person.fill")
-      peopleView.text = event.formattedPeople
-
-      if let people = event.formattedPeople {
-        let accessibilityFormat = NSLocalizedString("event.people", comment: "")
-        let accessibilityLabel = String(format: accessibilityFormat, people)
-        peopleView.accessibilityLabel = accessibilityLabel
-      }
-
+      peopleView.text = people
       addArrangedSubview(peopleView)
     }
 
-    let roomFormat = NSLocalizedString("event.room", comment: "")
-    let roomLabel = String(format: roomFormat, event.room)
-
     let roomView = EventMetadataView()
+    roomView.accessibilityLabel = FOSLocalizedString(format: "event.room", event.room)
     roomView.image = .fos_systemImage(withName: "mappin.circle.fill")
-    roomView.accessibilityLabel = roomLabel
     roomView.text = event.room
     addArrangedSubview(roomView)
 
@@ -143,8 +134,8 @@ final class EventView: UIStackView {
 
     if !attachments.isEmpty {
       let attachmentsLabel = UILabel()
-      attachmentsLabel.text = NSLocalizedString("event.attachments", comment: "")
       attachmentsLabel.font = .fos_preferredFont(forTextStyle: .headline)
+      attachmentsLabel.text = FOSLocalizedString("event.attachments")
       attachmentsLabel.adjustsFontForContentSizeCategory = true
       attachmentsLabel.numberOfLines = 0
       addArrangedSubview(attachmentsLabel)
@@ -181,22 +172,22 @@ private extension PlaybackPosition {
   var title: String {
     switch self {
     case .beginning:
-      return NSLocalizedString("event.video.begin", comment: "")
+      return FOSLocalizedString("event.video.begin")
     case .end:
-      return NSLocalizedString("event.video.end", comment: "")
+      return FOSLocalizedString("event.video.end")
     case .at:
-      return NSLocalizedString("event.video.at", comment: "")
+      return FOSLocalizedString("event.video.at")
     }
   }
 
   var accessibilityLabel: String {
     switch self {
     case .beginning:
-      return NSLocalizedString("event.video.accessibility.begin", comment: "")
+      return FOSLocalizedString("event.video.accessibility.begin")
     case .end:
-      return NSLocalizedString("event.video.accessibility.end", comment: "")
+      return FOSLocalizedString("event.video.accessibility.end")
     case .at:
-      return NSLocalizedString("event.video.accessibility.at", comment: "")
+      return FOSLocalizedString("event.video.accessibility.at")
     }
   }
 

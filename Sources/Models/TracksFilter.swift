@@ -21,11 +21,9 @@ extension TracksFilter {
   var title: String {
     switch self {
     case .all:
-      return NSLocalizedString("search.filter.all", comment: "")
+      return FOSLocalizedString("search.filter.all")
     case let .day(day):
-      let format = NSLocalizedString("search.filter.day", comment: "")
-      let string = String(format: format, day)
-      return string
+      return FOSLocalizedString(format: "search.filter.day", day)
     }
   }
 

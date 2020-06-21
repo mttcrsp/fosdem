@@ -18,19 +18,19 @@ extension MoreItem {
   var title: String {
     switch self {
     case .code:
-      return NSLocalizedString("code.title", comment: "")
+      return FOSLocalizedString("code.title")
     case .legal:
-      return NSLocalizedString("legal.title", comment: "")
+      return FOSLocalizedString("legal.title")
     case .years:
-      return NSLocalizedString("years.item", comment: "")
+      return FOSLocalizedString("years.item")
     case .history:
-      return NSLocalizedString("history.title", comment: "")
+      return FOSLocalizedString("history.title")
     case .devrooms:
-      return NSLocalizedString("devrooms.title", comment: "")
+      return FOSLocalizedString("devrooms.title")
     case .transportation:
-      return NSLocalizedString("transportation.title", comment: "")
+      return FOSLocalizedString("transportation.title")
     case .acknowledgements:
-      return NSLocalizedString("acknowledgements.title", comment: "")
+      return FOSLocalizedString("acknowledgements.title")
     #if DEBUG
     case .time:
       return "Override current time"

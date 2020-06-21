@@ -54,9 +54,7 @@ extension Event {
     case let (start?, nil):
       return start
     case let (start?, weekday?):
-      let format = NSLocalizedString("search.event.start", comment: "")
-      let string = String(format: format, start, weekday)
-      return string
+      return FOSLocalizedString(format: "search.event.start", start, weekday)
     }
   }
 
@@ -93,13 +91,13 @@ extension Event {
     }
 
     if let weekday = formattedWeekday {
-      let format = NSLocalizedString("event.weekday", comment: weekday)
-      let string = String(format: format, weekday)
+      let string = FOSLocalizedString(format: "event.weekday", weekday)
       items.append(string)
     }
 
     if let duration = formattedDuration {
-      items.append("(\(duration) minutes)")
+      let string = "(\(FOSLocalizedString(format: "event.duration", duration)))"
+      items.append(string)
     }
 
     if items.isEmpty {

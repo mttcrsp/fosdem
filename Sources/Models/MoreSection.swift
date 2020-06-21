@@ -32,11 +32,11 @@ extension MoreSection {
       return "Debug"
     #endif
     case .years:
-      return NSLocalizedString("more.section.years", comment: "")
+      return FOSLocalizedString("more.section.years")
     case .about:
-      return NSLocalizedString("more.section.about", comment: "")
+      return FOSLocalizedString("more.section.about")
     case .other:
-      return NSLocalizedString("more.section.other", comment: "")
+      return FOSLocalizedString("more.section.other")
     }
   }
 }
