@@ -56,7 +56,7 @@ final class MapControlView: UIControl {
   }
 
   override var isHighlighted: Bool {
-    didSet { alpha = isHighlighted ? 0.8 : 1 }
+    didSet { alpha = isHighlighted ? 0.5 : 1 }
   }
 
   override func updateConstraints() {
