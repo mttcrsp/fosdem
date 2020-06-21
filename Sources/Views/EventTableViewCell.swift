@@ -17,6 +17,7 @@ final class EventTableViewCell: UITableViewCell {
     super.init(style: .default, reuseIdentifier: nil)
 
     selectionStyle = .none
+    isAccessibilityElement = false
     contentView.addSubview(eventView)
     eventView.translatesAutoresizingMaskIntoConstraints = false
 

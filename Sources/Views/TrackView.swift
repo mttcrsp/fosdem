@@ -20,6 +20,9 @@ final class TrackView: UIView {
   private func commonInit() {
     addSubview(label)
 
+    isAccessibilityElement = true
+    accessibilityTraits = .staticText
+
     layer.borderWidth = 1
     layer.borderColor = UIColor.fos_label.cgColor
     layer.cornerRadius = 4
@@ -45,6 +48,7 @@ final class TrackView: UIView {
   }
 
   private func didChangeTrack() {
+    accessibilityLabel = track
     label.text = track?.uppercased()
   }
 }

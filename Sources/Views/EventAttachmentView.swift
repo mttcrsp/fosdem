@@ -11,6 +11,9 @@ final class EventAttachmentView: UIControl {
   override init(frame: CGRect) {
     super.init(frame: frame)
 
+    accessibilityTraits = .link
+    isAccessibilityElement = true
+
     label.numberOfLines = 0
     label.adjustsFontForContentSizeCategory = true
     label.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
@@ -59,6 +62,7 @@ final class EventAttachmentView: UIControl {
   }
 
   private func didChangeAttachment() {
+    accessibilityLabel = attachment?.title
     label.text = attachment?.title
   }
 }

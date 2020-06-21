@@ -11,11 +11,19 @@ final class EventMetadataView: UIView {
     set { imageView.image = newValue }
   }
 
+  override var accessibilityLabel: String? {
+    get { super.accessibilityLabel ?? text }
+    set { super.accessibilityLabel = newValue }
+  }
+
   private let label = UILabel()
   private let imageView = UIImageView()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
+
+    isAccessibilityElement = true
+    accessibilityTraits = .staticText
 
     label.numberOfLines = 0
     label.adjustsFontForContentSizeCategory = true

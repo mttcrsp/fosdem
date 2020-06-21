@@ -57,6 +57,7 @@ final class EventView: UIStackView {
     let titleLabel = UILabel()
     titleLabel.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
     titleLabel.adjustsFontForContentSizeCategory = true
+    titleLabel.accessibilityTraits = .header
     titleLabel.text = event.title
     titleLabel.numberOfLines = 0
     addArrangedSubview(titleLabel)
@@ -153,13 +154,14 @@ final class EventView: UIStackView {
     for attachment in attachments {
       let attachmentAction = #selector(didTapAttachment(_:))
       let attachmentView = EventAttachmentView()
-      attachmentView.accessibilityTraits = .link
       attachmentView.attachment = attachment
       attachmentView.addTarget(self, action: attachmentAction, for: .touchUpInside)
       addArrangedSubview(attachmentView)
 
       constraints.append(attachmentView.widthAnchor.constraint(equalTo: widthAnchor))
     }
+
+    accessibilityElements = subviews
 
     NSLayoutConstraint.activate(constraints)
   }
