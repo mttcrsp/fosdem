@@ -11,6 +11,11 @@ final class MapControlView: UIControl {
     set { imageView.image = newValue }
   }
 
+  override var accessibilityLabel: String? {
+    get { super.accessibilityLabel ?? title }
+    set { super.accessibilityLabel = newValue }
+  }
+
   private let label = UILabel()
   private let imageView = UIImageView()
 
@@ -20,6 +25,7 @@ final class MapControlView: UIControl {
   override init(frame: CGRect) {
     super.init(frame: frame)
 
+    isAccessibilityElement = true
     accessibilityTraits = .button
 
     imageView.contentMode = .center
