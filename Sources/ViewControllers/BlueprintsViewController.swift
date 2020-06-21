@@ -83,14 +83,19 @@ final class BlueprintsViewController: UIPageViewController {
     view.addSubview(pageControl)
     view.insertSubview(pageBackgroundView, belowSubview: pageControl)
 
+    let pageControlBottomRequired = pageControl.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -16)
+    let pageControlBottomOptional = pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+    pageControlBottomOptional.priority = .defaultLow
+
     NSLayoutConstraint.activate([
       pageBackgroundView.topAnchor.constraint(equalTo: pageControl.topAnchor),
       pageBackgroundView.bottomAnchor.constraint(equalTo: pageControl.bottomAnchor),
       pageBackgroundView.leadingAnchor.constraint(equalTo: pageControl.leadingAnchor, constant: -12),
       pageBackgroundView.trailingAnchor.constraint(equalTo: pageControl.trailingAnchor, constant: 12),
 
-      pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
       pageControl.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor),
+      pageControlBottomOptional,
+      pageControlBottomRequired,
     ])
   }
 
