@@ -18,5 +18,9 @@
   {
     "name": "XcodeGen",
     "url": "https://github.com/yonaskolb/XcodeGen"
+  },
+  {
+    "name": "xcparse",
+    "url": "https://github.com/ChargePoint/xcparse"
   }
 ]

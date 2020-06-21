@@ -24,8 +24,9 @@ Contributions in the form of code, issues and feature requests are welcome! To g
 
 ## Acknowledgements
 
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
-- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
-- [Periphery](https://github.com/peripheryapp/periphery)
 - [GRDB.swift](https://github.com/groue/GRDB.swift)
+- [Periphery](https://github.com/peripheryapp/periphery)
 - [PLCrashReporter](https://github.com/microsoft/PLCrashReporter)
+- [SwiftFormat](https://github.com/nicklockwood/SwiftFormat)
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+- [xcparse](https://github.com/ChargePoint/xcparse)
