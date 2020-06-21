@@ -191,6 +191,11 @@ extension MapController: BlueprintsViewControllerDelegate {
     let blueprintsViewController = makeFullscreeBlueprintsViewController(for: building, showing: blueprint)
     let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
     blueprintsNavigationController.modalPresentationStyle = .overFullScreen
+
+    let navigationBar = blueprintsNavigationController.navigationBar
+    navigationBar.setBackgroundImage(UIImage(), for: .default)
+    navigationBar.shadowImage = UIImage()
+
     fullscreenBlueprintsNavigationController = blueprintsNavigationController
 
     let transition = FullscreenBlueprintsDismissalTransition(dismissedViewController: blueprintsNavigationController)
