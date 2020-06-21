@@ -1,9 +1,17 @@
-declare -a arr=("iPhone 8" "iPhone 8 Plus" "iPhone 11 Pro" "iPhone 11 Pro Max" "iPad (7th generation)" "iPad Pro (11-inch) (2nd generation)" "iPad Pro (12.9-inch) (4th generation)")
+declare -a devices=( \
+  "iPhone 8" \
+  "iPhone 8 Plus" \
+  "iPhone 11 Pro" \
+  "iPhone 11 Pro Max" \
+  "iPad (7th generation)" \
+  "iPad Pro (11-inch) (2nd generation)" \
+  "iPad Pro (12.9-inch) (4th generation)" \
+)
 
-for i in "${arr[@]}"
+for device in "${devices[@]}"
 do
-  xcrun simctl boot "$i"
-  xcrun simctl status_bar "$i" override \
+  xcrun simctl boot "$device"
+  xcrun simctl status_bar "$device" override \
     --batteryLevel 100 \
     --cellularBars 4 \
     --time "9:41"
@@ -21,11 +29,11 @@ xcodebuild \
   -destination "name=iPad Pro (11-inch) (2nd generation)" \
   -destination "name=iPad Pro (12.9-inch) (4th generation)" \
   -only-testing UITests/ScreenshotTests/testScreenshots \
-  test | xcpretty
+  test
 
 find ./Build/Logs/Test -name \*.xcresult -maxdepth 1 -exec xcparse screenshots {} ./Screenshots \;
 
-for i in "${arr[@]}"
+for device in "${devices[@]}"
 do
-  xcrun simctl shutdown "$i"
+  xcrun simctl shutdown "$device"
 done
