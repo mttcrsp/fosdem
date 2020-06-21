@@ -33,7 +33,7 @@ extension MoreItem {
       return NSLocalizedString("acknowledgements.title", comment: "")
     #if DEBUG
     case .time:
-      return NSLocalizedString("time.title", comment: "")
+      return "Override current time"
     #endif
     }
   }

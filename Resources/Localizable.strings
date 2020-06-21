@@ -1,133 +1,240 @@
 /// MARK: - Welcome
+
+// Title for the welcome screen of the app
 "welcome.title" = "FOSDEM 2020";
+// A short message describing what FOSDEM - the event - is
 "welcome.message" = "FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels.";
 
-/// MARK: - Agenda
-"agenda.title" = "Agenda";
-"agenda.soon" = "Starting soon";
-"agenda.empty.title" = "No favorite events";
-"agenda.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
-
 /// MARK: - Event
+
+// A button that starts playback of a video that the user has not seen yet
 "event.video.begin" = "Watch now";
+// A button that resumes playback of a video that the user has already being playing but did not finish
 "event.video.at" = "Resume playback";
+// A button that starts playback of a video that was already played by the user
 "event.video.end" = "Watch again";
+// An accessibility label for a button that starts playback of a video that the user has not seen yet
 "event.video.accessibility.begin" = "Play recording";
+// An accessibility label for a button that resumes playback of a video that the user has already being playing but did not finish
 "event.video.accessibility.at" = "Resume recording";
+// An accessibility label for a button that starts playback of a video that was already played by the user
 "event.video.accessibility.end" = "Replay recording";
+// Title for a section that contains the list of attachments for an event
 "event.attachments" = "Attachments";
+// An accessibility label reporting the name of the speakers for an event
 "event.people" = "Speakers: %@";
+// An accessibility label reporting in which room an event will take place
 "event.room" = "Room: %@";
+// A label reporting the weekday on which a event will take place
 "event.weekday" = "on %@";
+// A label reporting the duration of a given event in minutes
+"event.duration" = "%@ minutes";
+// An accessibility label reporting which track an event belongs to
 "event.track" = "Track: %@";
+// A button that adds an event from the user agenda
 "event.add" = "Add to Agenda";
+// A button that removes an event from the user agenda
 "event.remove" = "Remove from Agenda";
 
 /// MARK: - Attachment
+
+// A label describing that an attachment is a deck of slides
 "attachment.slides" = "Slides";
+// A label describing that an attachment is an audio file
 "attachment.audio" = "Audio";
+// A label describing that an attachment is a paper
 "attachment.paper" = "Paper";
+// A label describing that an attachment is a video
 "attachment.video" = "Video";
 
+/// MARK: - Agenda
+
+// Title for a screen with the list of events that the user plans to attend to
+"agenda.title" = "Agenda";
+// A button that presents a list of events starting soon
+"agenda.soon" = "Starting soon";
+// A short message reporting that the user has no events he plans to attend to
+"agenda.empty.title" = "No favorite events";
+// A multiline instructional message specifying that events favorited by the user will appear in this screen
+"agenda.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
+
 /// MARK: - Soon
+
+// Title for a screen displaying events that will start soon
 "soon.title" = "In the next 30 minutes";
+// A short message reporting that no events are starting soon
 "soon.empty.title" = "No events";
+// A multiline message reporting that no events are starting soon
 "soon.empty.message" = "No events are starting in the next 30 minutes";
 
 /// MARK: - Favorite
+
+// A button that adds a track to the list of tracks favorited by the user
 "favorite" = "Favorite";
+// A button that removes a track from the list of tracks favorited by the user
 "unfavorite" = "Unfavorite";
 
 /// MARK: - Search
+
+// Title for a tab where the user can access the full schedule for this year conference
 "search.title" = "Search";
+// A button that lets the user filter a list of tracks
 "search.filter.title" = "Filters";
-"search.filter.day" = "Day %d";
-"search.filter.all" = "All tracks";
-"search.filter.favorites" = "Your Favorites";
+// A button that lets lets the user cancel filtering of a list of tracks
 "search.filter.cancel" = "Cancel";
+// A button that lets the user filter the list of all tracks by displaying only the ones for a given day
+"search.filter.day" = "Day %d";
+// A button that lets the user go back to a list of all tracks
+"search.filter.all" = "All tracks";
+// Title for a section containing the user favorite tracks
+"search.filter.favorites" = "Your Favorites";
+// Caption that reports the weekday and time at which an event will start
 "search.event.start" = "%@ on %@";
+// A short message reporting that no results were found while searching for an event
 "search.empty.title" = "No results";
+// A multiline message reporting that no results were found while searching for an event with a given query
 "search.empty.message" = "Nothing found for \"%@\"";
+// A short message reporting that an error occurred while search for an event
 "search.error.title" = "Ooops, something went wrong";
+// A multiline message reporting that an error occurred while search for an event
 "search.error.message" = "Sorry, this query is too good. Try with something else.";
 
 /// MARK: - Map
+
+// Title for a tab where the user can see the map of the FOSDEM venue
 "map.title" = "Map";
+// A button that restores the original appearance of a map
 "map.reset" = "Reset map";
+// An accessibility label describing the map annotation of a building
 "map.building" = "Building %@";
+// A button that will allow the user to see its current position on a map of the venue
 "map.location" = "Display my location";
+// A button that will allow the user to authorize access to location services for the app
 "map.location.enable" = "Enable location services";
+// A button that will allow the user to revoke access to location services for the app
 "map.location.disable" = "Disable Location services";
+// Title for a screen that displays blueprints for a given building
 "map.blueprint.title" = "Building %@";
+// A short message reporting that no blueprints are available for the building that was selected by the user
 "map.blueprint.empty" = "No blueprint available";
 
 /// MARK: - Location
+
+// Title for an alert that allows the user to authorize access to location services for the app
 "location.title.enable" = "Enable location services";
+// Title for an alert that allows the user revoke access to location services for the app
 "location.title.disable" = "Disable Location services";
+// An instructional message reporting that by authorizing access to location services the user will be able to see its position on the map
 "location.message.enable" = "By enabling location services you will be able to see your current position on the map";
+// An instructional message reporting that the user will be able to reauthorize access to location services at a later time
 "location.message.disable" = "You will always be able to renable them later";
+// A button that lets the user cancel the current action
 "location.dismiss" = "Cancel";
+// A button that will present a the settings screen for the app
 "location.confirm" = "Open settings";
 
 /// MARK: - More
+
+// Title for a tab where the user can various functionalities of the app
 "more.title" = "More";
-"more.search.prompt" = "Search for events and speakers";
+// Prompt for a search bar that will let the user search for a given
+"more.search.prompt" = "Search for events";
+// Title of a section containing a link to schedules for previous years of the conference
 "more.section.years" = "Previous years";
+// Title of a section containing links to screens with history of the conference, an explanation of what developer rooms are and information on how to get to the conference
 "more.section.about" = "About";
+// Title of a section containing links to legal, a prompt for contributing to the application project and the acknowledgements section of the app
 "more.section.other" = "Other";
 
 /// MARK: - Acknowledgements
+
+// Title for a section of the app that contains acknowledgements for all various projects that were used to build this app
 "acknowledgements.title" = "Acknowledgements";
 
 /// MARK: - Legal
+
+// Title for a section of the app that contains legal information
 "legal.title" = "Legal";
 
 /// MARK: - Code
+
+// A link to the application project on Github
 "code.title" = "Contribute on Github";
 
 /// MARK: - History
+
+// Title for a screen detailing of the FOSDEM conference came to be
 "history.title" = "History";
 
 /// MARK: - Years
+
+// Link to a screen containing links to schedule of previous years of the conference
 "years.item" = "From 2007 to 2019";
+// Title for a screen containing links to schedule of previous years of the conference
 "years.title" = "Previous years";
+// A link to schedule for a given year
 "years.year" = "FOSDEM %@";
 
 /// MARK: - DevRooms
+
+// Title for a screen that explains what developer rooms are
 "devrooms.title" = "Developer Rooms";
 
 /// MARK: - Transportation
+
+// Title for a screen containing information on how to get to the conference
 "transportation.title" = "Transportation";
+// Title for a section containing links to applications that provide directions to the conference venue
 "transportation.section.directions" = "Directions";
+// Title for a section containing links to screens of the app with information on how to get to the conference venue using different means of transportation
 "transportation.section.by" = "Travelling by";
+// A link that opens the Apple Maps app with directions to the conference venue
 "transportation.item.apple" = "Open in Apple Maps";
+// A link that opens the Google Maps app with directions to the conference venue
 "transportation.item.google" = "Open in Google Maps";
+// A button that presents a screen with information on how to get to the conference by bus and/or tram
 "transportation.item.bus" = "By bus and/or tram";
+// A button that presents a screen with information on how to get to the conference using free shuttle busses
 "transportation.item.shuttle" = "Free shuttle buses";
+// A button that presents a screen with information on how to get to the conference by traing
 "transportation.item.train" = "By train";
+// A button that presents a screen with information on how to get to the conference by car
 "transportation.item.car" = "By car";
+// A button that presents a screen with information on how to get to the conference by plane
 "transportation.item.plane" = "By plane";
+// A button that presents a screen with information on how to get to the conference by taxi
 "transportation.item.taxi" = "By taxi";
 
 /// MARK: - Update
+// Title for an alert reporting that an update of the app is available on the Appstore
 "update.title" = "Update available";
+// Message for an alert reporting that an update of the app is available on the Appstore
 "update.message" = "A new version of this app is available. Update now to get access to the latests features, data and bug fixes.";
+// A button that dismisses an update available alert
 "update.dismiss" = "Cancel";
+// A button that will open the Appstore app to let the user download the latest update
 "update.confirm" = "Update";
 
 /// MARK: - Crash
+// Title for an alert prompting the user to report crash information
 "crash.title" = "Report issue";
+// Message for an alert prompting the user to report crash information
 "crash.message" = "Looks like the application crashed during your last session. Sorry about that. Do you want to report the crash?";
+// A button that dismisses a crash report alert
 "crash.dismiss" = "Cancel";
+// A button that will send the crash report
 "crash.confirm" = "Report";
 
 /// MARK: - Error
+// Title for a screen reporting that an unrecoverable error occurred
 "error.functionality.title" = "Ooops, something went wrong!";
+// An instructional message that prompts to "workaround" an unrecoverable error
 "error.functionality.message" = "Try again later or check the AppStore for updates.";
+// A button that will open the Appstore page for the app
 "error.functionality.action" = "Open AppStore";
+// Title for an alert reporting that an error occurred
 "error.alert.title" = "An error occurred";
+// Message for an alert reporting that an error occurred
 "error.alert.message" = "Something went wrong. Try againg later or check the AppStore for updates.";
+// A button that dismiss an error alert
 "error.dismiss" = "Ok";
-
-/// MARK: - Debug
-"time.title" = "Override current time";
