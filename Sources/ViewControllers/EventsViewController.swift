@@ -22,6 +22,11 @@ protocol EventsViewControllerFavoritesDelegate: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event)
 }
 
+protocol EventsViewControllerDeleteDelegate: AnyObject {
+  func eventsViewController(_ eventsViewController: EventsViewController, canDelete event: Event) -> Bool
+  func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event)
+}
+
 final class EventsViewController: UITableViewController {
   weak var dataSource: EventsViewControllerDataSource?
   weak var delegate: EventsViewControllerDelegate?
@@ -30,6 +35,7 @@ final class EventsViewController: UITableViewController {
   weak var favoritesDelegate: EventsViewControllerFavoritesDelegate?
 
   weak var liveDataSource: EventsViewControllerLiveDataSource?
+  weak var deleteDelegate: EventsViewControllerDeleteDelegate?
 
   var emptyBackgroundTitle: String? {
     get { emptyBackgroundView.title }
@@ -123,6 +129,14 @@ final class EventsViewController: UITableViewController {
 
   override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     1
+  }
+
+  override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+    deleteDelegate?.eventsViewController(self, canDelete: event(forSection: indexPath.section)) ?? false
+  }
+
+  override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    deleteDelegate?.eventsViewController(self, didDelete: event(forSection: indexPath.section))
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
