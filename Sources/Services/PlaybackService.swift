@@ -66,10 +66,10 @@ private extension PlaybackServiceDefaults {
     set {
       let array = Array(newValue)
       let arrayPlist = NSArray(array: array)
-      set(arrayPlist, forKey: .watched)
+      set(arrayPlist, forKey: .watchedKey)
     }
     get {
-      let object = value(forKey: .watched)
+      let object = value(forKey: .watchedKey)
       let array = object as? [Int] ?? []
       return Set(array)
     }
@@ -77,10 +77,10 @@ private extension PlaybackServiceDefaults {
 
   var watching: [String: Double] {
     set {
-      set(newValue, forKey: .watching)
+      set(newValue, forKey: .watchingKey)
     }
     get {
-      let object = value(forKey: .watching)
+      let object = value(forKey: .watchingKey)
       let dictionary = object as? [String: Double] ?? [:]
       return dictionary
     }
@@ -88,6 +88,6 @@ private extension PlaybackServiceDefaults {
 }
 
 private extension String {
-  static var watched: String { #function }
-  static var watching: String { #function }
+  static var watchedKey: String { #function }
+  static var watchingKey: String { #function }
 }
