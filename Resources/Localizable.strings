@@ -150,8 +150,19 @@
 
 /// MARK: - Recent
 
-// Title for a screen containing lists of videos that the user has watch/has been watching
+// Title for a screen containing the lists of videos that the user did watch/has been watching
 "recent.video" = "Videos";
+// Title for a screen containing the lists of videos that the user did watch
+"recent.video.watched" = "Watched";
+// Title for a screen containing the lists of videos that the user has been watching
+"recent.video.watching" = "Watching";
+// A short message reporting for that a list of videos is empty
+"recent.video.empty.title" = "No videos";
+// An instructional message specifying that videos that user user will complete watching will appear in this screen
+"recent.video.empty.watched" = "Recordings you watched will appear here";
+// An instructional message specifying that videos that user user will start watch will appear in this screen
+"recent.video.empty.watching" = "Recordings you started watching will appear here";
+
 
 /// MARK: - Acknowledgements
 
