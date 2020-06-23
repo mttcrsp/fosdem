@@ -29,22 +29,25 @@ final class PlaybackService {
   }
 
   private let userDefaults: PlaybackServiceDefaults
+  private let notificationCenter = NotificationCenter()
 
   init(userDefaults: PlaybackServiceDefaults = UserDefaults.standard) {
     self.userDefaults = userDefaults
   }
 
   func setPlaybackPosition(_ position: PlaybackPosition, forEventWithIdentifier identifier: Int) {
-    switch position {
-    case .beginning:
-      watched.remove(identifier)
-      progress.removeValue(forKey: identifier.description)
-    case let .at(seconds):
-      watched.remove(identifier)
-      progress.updateValue(seconds, forKey: identifier.description)
-    case .end:
-      watched.insert(identifier)
-      progress.removeValue(forKey: identifier.description)
+    var didChangeWatchStatus = false
+
+    if updateWatched(with: position, forEventWithIdentifier: identifier) {
+      didChangeWatchStatus = true
+    }
+
+    if updateProgress(with: position, forEventWithIdentifier: identifier) {
+      didChangeWatchStatus = true
+    }
+
+    if didChangeWatchStatus {
+      notificationCenter.post(Notification(name: .watchStatusChanged))
     }
   }
 
@@ -58,6 +61,46 @@ final class PlaybackService {
     }
 
     return .beginning
+  }
+
+  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol {
+    notificationCenter.addObserver(forName: .watchStatusChanged, object: nil, queue: nil) { _ in
+      handler()
+    }
+  }
+
+  func removeObserver(_ observer: NSObjectProtocol) {
+    notificationCenter.removeObserver(observer)
+  }
+
+  private func updateWatched(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
+    var didChange = false
+
+    switch position {
+    case .beginning, .at:
+      let value = watched.remove(identifier)
+      didChange = value != nil
+    case .end:
+      let (inserted, _) = watched.insert(identifier)
+      didChange = inserted
+    }
+
+    return didChange
+  }
+
+  private func updateProgress(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
+    var didChange = false
+
+    switch position {
+    case .beginning, .end:
+      let value = progress.removeValue(forKey: identifier.description)
+      didChange = value != nil
+    case let .at(seconds):
+      let value = progress.updateValue(seconds, forKey: identifier.description)
+      didChange = value == nil
+    }
+
+    return didChange
   }
 }
 
@@ -90,4 +133,8 @@ private extension PlaybackServiceDefaults {
 private extension String {
   static var watchedKey: String { #function }
   static var watchingKey: String { #function }
+}
+
+private extension Notification.Name {
+  static var watchStatusChanged: Notification.Name { Notification.Name(#function) }
 }
