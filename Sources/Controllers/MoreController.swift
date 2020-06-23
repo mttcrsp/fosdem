@@ -89,8 +89,8 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidSelectVideo(_ moreViewController: MoreViewController) {
-    let videoViewController = UIViewController()
-    let navigationController = UINavigationController(rootViewController: videoViewController)
+    let videosViewController = VideosController(services: services)
+    let navigationController = UINavigationController(rootViewController: videosViewController)
     moreViewController.showDetailViewController(navigationController, sender: nil)
   }
 
