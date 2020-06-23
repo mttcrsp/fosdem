@@ -8,6 +8,7 @@ enum MoreItem: String, CaseIterable {
   case code
   case legal
   case years
+  case video
   case history
   case devrooms
   case transportation
@@ -23,6 +24,8 @@ extension MoreItem {
       return FOSLocalizedString("legal.title")
     case .years:
       return FOSLocalizedString("years.item")
+    case .video:
+      return FOSLocalizedString("recent.video")
     case .history:
       return FOSLocalizedString("history.title")
     case .devrooms:
@@ -46,6 +49,8 @@ extension MoreItem {
       return UIImage(named: "document")
     case .years:
       return UIImage(named: "years")
+    case .video:
+      return UIImage(named: "video")
     case .history:
       return UIImage(named: "history")
     case .devrooms:
@@ -71,7 +76,7 @@ extension MoreItem {
       return .devrooms
     case .transportation:
       return .transportation
-    case .code, .years, .acknowledgements:
+    case .code, .years, .video, .acknowledgements:
       return nil
     #if DEBUG
     case .time:

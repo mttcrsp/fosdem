@@ -141,10 +141,17 @@
 "more.search.prompt" = "Search for events";
 // Title of a section containing a link to schedules for previous years of the conference
 "more.section.years" = "Previous years";
+// Title of a section containing a link to videos that have been watched by the user
+"more.section.recent" = "Recent";
 // Title of a section containing links to screens with history of the conference, an explanation of what developer rooms are and information on how to get to the conference
 "more.section.about" = "About";
 // Title of a section containing links to legal, a prompt for contributing to the application project and the acknowledgements section of the app
 "more.section.other" = "Other";
+
+/// MARK: - Recent
+
+// Title for a screen containing lists of videos that the user has watch/has been watching
+"recent.video" = "Videos";
 
 /// MARK: - Acknowledgements
 
