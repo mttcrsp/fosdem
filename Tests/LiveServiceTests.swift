@@ -4,39 +4,43 @@ import XCTest
 
 final class LiveServiceTests: XCTestCase {
   func testAddObserver() {
-    let timer = Timer()
+    let timer = LiveServiceTimerMock()
     let timerProvider = LiveServiceProviderMock(timer: timer)
     let liveService = LiveService(timerProvider: timerProvider)
     liveService.startMonitoring()
 
-    let expectation = self.expectation(description: #function)
-    expectation.expectedFulfillmentCount = 3
-
+    var invocationsCount = 0
     _ = liveService.addObserver {
-      expectation.fulfill()
+      invocationsCount += 1
     }
 
     timerProvider.block?(timer)
     timerProvider.block?(timer)
     timerProvider.block?(timer)
 
-    waitForExpectations(timeout: 0.1)
+    XCTAssertEqual(invocationsCount, 3)
   }
 
-  func testStartMonitoring() {
-    let timer = Timer()
+  func testMonitoring() {
+    let timer = LiveServiceTimerMock()
     let timerProvider = LiveServiceProviderMock(timer: timer)
     let liveService = LiveService(timerProvider: timerProvider)
 
-    let expectation = self.expectation(description: #function)
-    expectation.isInverted = true
-
+    var invocationsCount = 0
     _ = liveService.addObserver {
-      expectation.fulfill()
+      invocationsCount += 1
     }
 
+    liveService.startMonitoring()
     timerProvider.block?(timer)
+    XCTAssertEqual(invocationsCount, 1)
 
-    waitForExpectations(timeout: 0.1)
+    liveService.stopMonitoring()
+    timerProvider.block?(timer)
+    XCTAssertEqual(invocationsCount, 1)
+
+    liveService.startMonitoring()
+    timerProvider.block?(timer)
+    XCTAssertEqual(invocationsCount, 2)
   }
 }

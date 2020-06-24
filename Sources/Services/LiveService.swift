@@ -1,11 +1,15 @@
 import Foundation
 
+protocol LiveServiceTimer {
+  func invalidate()
+}
+
 protocol LiveServiceProvider {
-  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer
+  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (LiveServiceTimer) -> Void) -> LiveServiceTimer
 }
 
 final class LiveService {
-  private var timer: Timer?
+  private var timer: LiveServiceTimer?
 
   private let notificationCenter = NotificationCenter()
   private let timerProvider: LiveServiceProvider
@@ -41,10 +45,12 @@ final class LiveService {
 }
 
 private final class LiveServiceTimerProvider: LiveServiceProvider {
-  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
-    .scheduledTimer(withTimeInterval: interval, repeats: repeats, block: block)
+  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (LiveServiceTimer) -> Void) -> LiveServiceTimer {
+    Timer.scheduledTimer(withTimeInterval: interval, repeats: repeats, block: block)
   }
 }
+
+extension Timer: LiveServiceTimer {}
 
 private extension Notification.Name {
   static var timeDidChange: Notification.Name { Notification.Name(#function) }
