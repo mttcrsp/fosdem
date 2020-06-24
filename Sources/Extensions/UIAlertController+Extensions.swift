@@ -1,13 +1,13 @@
 import UIKit
 
 extension UIAlertController {
-  static func makeErrorController() -> UIAlertController {
+  static func makeErrorController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
     let title = FOSLocalizedString("error.alert.title")
     let message = FOSLocalizedString("error.alert.message")
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
     let dismissTitle = FOSLocalizedString("error.dismiss")
-    let dismissAction = UIAlertAction(title: dismissTitle, style: .default)
+    let dismissAction = UIAlertAction(title: dismissTitle, style: .default) { _ in handler?() }
     alertController.addAction(dismissAction)
 
     return alertController

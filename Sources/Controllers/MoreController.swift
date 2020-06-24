@@ -89,7 +89,7 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidSelectVideo(_ moreViewController: MoreViewController) {
-    let videosViewController = VideosController(services: services)
+    let videosViewController = makeVideosViewController()
     let navigationController = UINavigationController(rootViewController: videosViewController)
     moreViewController.showDetailViewController(navigationController, sender: nil)
   }
@@ -234,6 +234,15 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
   }
 }
 
+extension MoreController: VideosControllerDelegate {
+  func videosController(_ videosController: VideosController, didError error: Error) {
+    let errorViewController = makeErrorViewController { [weak self] in
+      self?.popToRootViewController()
+    }
+    videosController.present(errorViewController, animated: true)
+  }
+}
+
 #if DEBUG
 extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
   func dateViewControllerDidChange(_ dateViewController: DateViewController) {
@@ -307,8 +316,14 @@ private extension MoreController {
     return acknowledgementsViewController
   }
 
-  private func makeErrorViewController() -> UIAlertController {
-    UIAlertController.makeErrorController()
+  private func makeVideosViewController() -> VideosController {
+    let videosViewController = VideosController(services: services)
+    videosViewController.videoDelegate = self
+    return videosViewController
+  }
+
+  private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
+    UIAlertController.makeErrorController(withHandler: handler)
   }
 
   #if DEBUG

@@ -1,6 +1,12 @@
 import UIKit
 
+protocol VideosControllerDelegate: AnyObject {
+  func videosController(_ videosController: VideosController, didError error: Error)
+}
+
 final class VideosController: UIPageViewController {
+  weak var videoDelegate: VideosControllerDelegate?
+
   private lazy var watchingViewController = makeEventsViewController()
   private lazy var watchedViewController = makeEventsViewController()
   private lazy var segmentedControl = UISegmentedControl()
@@ -61,31 +67,44 @@ final class VideosController: UIPageViewController {
   }
 
   private func reloadData() {
+    let group = DispatchGroup()
+    var groupError: Error?
+
     let watchedIdentifiers = services.playbackService.watched
     let watchedOperation = EventsForIdentifiers(identifiers: watchedIdentifiers)
     services.persistenceService.performRead(watchedOperation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
-        case .failure:
-          break
+        case let .failure(error):
+          groupError = groupError ?? error
         case let .success(events):
           self?.watchedEvents = events
           self?.watchedViewController.reloadData()
         }
+        group.leave()
       }
     }
+    group.enter()
 
     let watchingIdentifiers = services.playbackService.watching
     let watchingOperation = EventsForIdentifiers(identifiers: watchingIdentifiers)
     services.persistenceService.performRead(watchingOperation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
-        case .failure:
-          break
+        case let .failure(error):
+          groupError = groupError ?? error
         case let .success(events):
           self?.watchingEvents = events
           self?.watchingViewController.reloadData()
         }
+        group.leave()
+      }
+    }
+    group.enter()
+
+    group.notify(queue: .main) { [weak self] in
+      if let self = self, let error = groupError {
+        self.videoDelegate?.videosController(self, didError: error)
       }
     }
   }
