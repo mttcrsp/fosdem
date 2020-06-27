@@ -15,9 +15,6 @@ packages:
   GRDB:
     url: https://github.com/mttcrsp/GRDB.swift
     branch: master
-  CrashReporter:
-    url: https://github.com/microsoft/plcrashreporter
-    branch: master
 
 targets:
   FOSDEM:
@@ -36,7 +33,6 @@ targets:
           randomExecutionOrder: true
     dependencies:
     - package: GRDB
-    - package: CrashReporter
     postbuildScripts:
     - script: swiftformat .
     settings:
