@@ -4,14 +4,16 @@ import UIKit
 final class TestsService {
   private var timer: Timer?
 
-  private let environment: [String: String]
   private let debugService: DebugService
   private let favoritesService: FavoritesService
 
-  init(favoritesService: FavoritesService, debugService: DebugService, environment: [String: String] = ProcessInfo.processInfo.environment) {
+  init(favoritesService: FavoritesService, debugService: DebugService) {
     self.favoritesService = favoritesService
     self.debugService = debugService
-    self.environment = environment
+  }
+
+  private var environment: [String: String] {
+    ProcessInfo.processInfo.environment
   }
 
   var liveTimerInterval: TimeInterval? {
@@ -23,8 +25,10 @@ final class TestsService {
   }
 
   func configureEnvironment() {
-    DispatchQueue.main.async {
-      UIApplication.shared.keyWindow?.layer.speed = 100
+    if ProcessInfo.processInfo.arguments.contains("-isRunningUITests") {
+      DispatchQueue.main.async {
+        UIApplication.shared.keyWindow?.layer.speed = 100
+      }
     }
 
     if environment["RESET_DEFAULTS"] != nil, let name = Bundle.main.bundleIdentifier {

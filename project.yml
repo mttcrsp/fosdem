@@ -80,3 +80,6 @@ targets:
     - target: FOSDEM
     postbuildScripts:
     - script: swiftformat .
+    settings:
+      base:
+        INFOPLIST_FILE: UITests/Info.plist
