@@ -146,7 +146,7 @@ final class EventControllerTests: XCTestCase {
     app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
 
-    let attachmentButton = app.staticTexts["Jail Orchestration (Slides)"]
+    let attachmentButton = app.links["Jail Orchestration (Slides)"]
 
     runActivity(named: "Open event") {
       app.staticTexts["BSD"].tap()
