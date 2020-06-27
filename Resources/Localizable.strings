@@ -233,16 +233,6 @@
 // A button that will open the Appstore app to let the user download the latest update
 "update.confirm" = "Update";
 
-/// MARK: - Crash
-// Title for an alert prompting the user to report crash information
-"crash.title" = "Report issue";
-// Message for an alert prompting the user to report crash information
-"crash.message" = "Looks like the application crashed during your last session. Sorry about that. Do you want to report the crash?";
-// A button that dismisses a crash report alert
-"crash.dismiss" = "Cancel";
-// A button that will send the crash report
-"crash.confirm" = "Report";
-
 /// MARK: - Error
 // Title for a screen reporting that an unrecoverable error occurred
 "error.functionality.title" = "Ooops, something went wrong!";

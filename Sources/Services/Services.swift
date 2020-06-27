@@ -3,7 +3,6 @@ import Foundation
 final class Services {
   let infoService: InfoService
   let liveService: LiveService
-  let crashService: CrashService?
   let updateService: UpdateService
   let tracksService: TracksService
   let yearsService = YearsService()
@@ -32,12 +31,6 @@ final class Services {
     session.configuration.timeoutIntervalForRequest = 30
     session.configuration.timeoutIntervalForResource = 30
     networkService = NetworkService(session: session)
-
-    #if DEBUG
-    crashService = nil
-    #else
-    crashService = CrashService(networkService: networkService)
-    #endif
 
     #if DEBUG
     testsService = TestsService(favoritesService: favoritesService, debugService: debugService)

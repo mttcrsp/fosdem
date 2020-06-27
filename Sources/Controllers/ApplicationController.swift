@@ -52,14 +52,6 @@ final class ApplicationController: UITabBarController {
     services.scheduleService.startUpdating()
   }
 
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
-    if let crashService = services.crashService, crashService.hasPendingReport {
-      present(makeCrashViewController(), animated: true)
-    }
-  }
-
   func applicationDidBecomeActive() {
     services.liveService.startMonitoring()
     services.scheduleService.startUpdating()
@@ -67,15 +59,6 @@ final class ApplicationController: UITabBarController {
 
   func applicationWillResignActive() {
     services.liveService.stopMonitoring()
-  }
-
-  private func didTapConfirmReport() {
-    services.crashService?.uploadReport()
-    services.crashService?.purgeReport()
-  }
-
-  private func didTapDismissReport() {
-    services.crashService?.purgeReport()
   }
 
   private func didTapUpdate() {
@@ -138,12 +121,6 @@ private extension ApplicationController {
     UIAlertController.makeConfirmController(with: .update) { [weak self] in
       self?.didTapUpdate()
     }
-  }
-
-  func makeCrashViewController() -> UIAlertController {
-    let dismissHandler: () -> Void = { [weak self] in self?.didTapDismissReport() }
-    let confirmHandler: () -> Void = { [weak self] in self?.didTapConfirmReport() }
-    return UIAlertController.makeConfirmController(with: .crash, dismissHandler: dismissHandler, confirmHandler: confirmHandler)
   }
 }
 
@@ -217,15 +194,6 @@ private extension UIAlertController.ConfirmConfiguration {
       message: FOSLocalizedString("update.message"),
       confirm: FOSLocalizedString("update.confirm"),
       dismiss: FOSLocalizedString("update.dismiss")
-    )
-  }
-
-  static var crash: UIAlertController.ConfirmConfiguration {
-    UIAlertController.ConfirmConfiguration(
-      title: FOSLocalizedString("crash.title"),
-      message: FOSLocalizedString("crash.message"),
-      confirm: FOSLocalizedString("crash.confirm"),
-      dismiss: FOSLocalizedString("crash.dismiss")
     )
   }
 }
