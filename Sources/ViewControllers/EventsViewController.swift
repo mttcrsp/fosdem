@@ -117,7 +117,9 @@ final class EventsViewController: UITableViewController {
 
   override func numberOfSections(in tableView: UITableView) -> Int {
     let count = events.count
-    tableView.backgroundView = count == 0 ? emptyBackgroundView : nil
+    let isEmpty = count == 0
+    tableView.isUserInteractionEnabled = !isEmpty
+    tableView.backgroundView = isEmpty ? emptyBackgroundView : nil
     return count
   }
 
