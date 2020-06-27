@@ -133,10 +133,6 @@ final class EventsViewController: UITableViewController {
     1
   }
 
-  override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-    deleteDelegate?.eventsViewController(self, canDelete: event(forSection: indexPath.section)) ?? false
-  }
-
   override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
     deleteDelegate?.eventsViewController(self, didDelete: event(forSection: indexPath.section))
   }
