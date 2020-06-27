@@ -10,7 +10,9 @@ declare -a devices=( \
 
 for device in "${devices[@]}"
 do
+  echo "Booting $device"
   xcrun simctl boot "$device"
+  echo "Configuring $device"
   xcrun simctl status_bar "$device" override \
     --batteryLevel 100 \
     --cellularBars 4 \
@@ -35,5 +37,6 @@ find ./Build/Logs/Test -name \*.xcresult -maxdepth 1 -exec xcparse screenshots {
 
 for device in "${devices[@]}"
 do
+  echo "Shutting down $device"
   xcrun simctl shutdown "$device"
 done
