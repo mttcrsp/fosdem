@@ -2,12 +2,15 @@
 import UIKit
 
 final class TestsService {
-  private var timer: Timer?
+  private var datesTimer: Timer?
+  private var videoTimer: Timer?
 
   private let debugService: DebugService
   private let favoritesService: FavoritesService
+  private let persistenceService: PersistenceService
 
-  init(favoritesService: FavoritesService, debugService: DebugService) {
+  init(persistenceService: PersistenceService, favoritesService: FavoritesService, debugService: DebugService) {
+    self.persistenceService = persistenceService
     self.favoritesService = favoritesService
     self.debugService = debugService
   }
@@ -72,9 +75,27 @@ final class TestsService {
         let date2 = Date(timeIntervalSince1970: value2)
 
         var flag = true
-        timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
+        datesTimer = .scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
           self?.debugService.override(flag ? date1 : date2)
           flag.toggle()
+        }
+      }
+    }
+
+    if let base64 = environment["VIDEO"], let data = Data(base64Encoded: base64) {
+      // HACK: Overriding the video URL every second ensures that the change
+      // will not be overridden by schedule updates.
+      videoTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
+        do {
+          let directory = FileManager.default.temporaryDirectory
+          let url = directory.appendingPathComponent("test.mp4")
+          try data.write(to: url)
+
+          let links = [Link(name: "test", url: url)]
+          let write = UpdateLinksForEvent(eventID: 10682, links: links)
+          try self?.persistenceService.performWriteSync(write)
+        } catch {
+          assertionFailure(error.localizedDescription)
         }
       }
     }
