@@ -33,7 +33,7 @@ final class Services {
     networkService = NetworkService(session: session)
 
     #if DEBUG
-    testsService = TestsService(favoritesService: favoritesService, debugService: debugService)
+    testsService = TestsService(persistenceService: persistenceService, favoritesService: favoritesService, debugService: debugService)
     testsService.configureEnvironment()
     #endif
 
