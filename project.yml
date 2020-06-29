@@ -78,4 +78,4 @@ targets:
     - script: swiftformat .
     settings:
       base:
-        INFOPLIST_FILE: UITests/Info.plist
+        INFOPLIST_FILE: UITests/Resources/Info.plist
