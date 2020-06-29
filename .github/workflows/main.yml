@@ -20,4 +20,4 @@ jobs:
     - name: Run Xcodegen
       run: xcodegen
     - name: Run unit and UI tests
-      run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' -skip-testing UITests build test | xcpretty -f `xcpretty-travis-formatter`
+      run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' build test | xcpretty -f `xcpretty-travis-formatter`
