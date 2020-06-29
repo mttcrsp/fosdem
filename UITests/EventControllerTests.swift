@@ -1,16 +1,11 @@
 import XCTest
 
 final class EventControllerTests: XCTestCase {
-  private var app: XCUIApplication!
-
-  override func setUp() {
-    super.setUp()
-    app = XCUIApplication()
+  func testFavorite() {
+    let app = XCUIApplication()
     app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
-  }
 
-  func testFavorite() {
     runActivity(named: "Favorite event") {
       app.searchButton.tap()
       app.day1TrackStaticText.tap()
@@ -24,7 +19,7 @@ final class EventControllerTests: XCTestCase {
       app.launchEnvironment = [:]
       app.launch()
       app.agendaButton.tap()
-      wait { self.app.cells.count == 1 }
+      wait { app.cells.count == 1 }
     }
 
     runActivity(named: "Unfavorite event") {
