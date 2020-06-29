@@ -19,9 +19,6 @@ final class MoreControllerTests: XCTestCase {
     runActivity(named: "Contribute") {
       app.cells["code"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
-
-      safari.urlBar.tap()
-      XCTAssertEqual(safari.urlTextField.value as? String, "https://github.com/mttcrsp/fosdem")
     }
 
     runActivity(named: "Acknowledgements") {
@@ -31,10 +28,6 @@ final class MoreControllerTests: XCTestCase {
 
       app.staticTexts["XcodeGen"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
-
-      wait { safari.urlBar.exists }
-      safari.urlBar.tap()
-      XCTAssertEqual(safari.urlTextField.value as? String, "https://github.com/yonaskolb/XcodeGen")
     }
   }
 
@@ -75,12 +68,7 @@ final class MoreControllerTests: XCTestCase {
     runActivity(named: "Google Maps") {
       app.activate()
       app.cells["googleMaps"].tap()
-
-      let safari = XCUIApplication.safari
-      XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
-
-      safari.urlBar.tap()
-      XCTAssertEqual((safari.urlTextField.value as? String)?.contains("google.com/maps"), true)
+      XCTAssert(XCUIApplication.safari.wait(for: .runningForeground, timeout: 10))
     }
   }
 
