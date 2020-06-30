@@ -21,8 +21,14 @@ jobs:
       run: xcodegen
     - name: Run unit and UI tests
       run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' -resultBundlePath ./results build test | xcpretty -f `xcpretty-travis-formatter`
-    - uses: actions/upload-artifact@v2
+    - name: Upload xcresult bundle on failure
+      uses: actions/upload-artifact@v2
       if: failure()
       with:
         name: results
         path: ./results.xcresult
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./results.xcresult
+        token: ${{ secrets.CODECOV_TOKEN }}
