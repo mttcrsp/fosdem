@@ -72,6 +72,7 @@ targets:
     deploymentTarget: '11.0'
     sources:
     - UITests
+    - Tests/BundleDataLoader.swift
     dependencies:
     - target: FOSDEM
     postbuildScripts:

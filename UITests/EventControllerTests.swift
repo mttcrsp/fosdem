@@ -32,12 +32,8 @@ final class EventControllerTests: XCTestCase {
   }
 
   func testVideo() {
-    guard let url = Bundle(for: Self.self).url(forResource: "test", withExtension: "mp4") else {
-      return XCTFail("Failed to locate test file")
-    }
-
-    guard let data = try? Data(contentsOf: url) else {
-      return XCTFail("Failed to read test file")
+    guard let data = BundleDataLoader().data(forResource: "test", withExtension: "mp4") else {
+      return XCTFail("Unable to load video")
     }
 
     let app = XCUIApplication()
