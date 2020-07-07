@@ -6,7 +6,7 @@
 
 # Fosdem.app
 
-[![Available on the App Store](http://cl.ly/WouG/Download_on_the_App_Store_Badge_US-UK_135x40.svg)](https://fosdem.org)
+[![Available on the App Store](http://cl.ly/WouG/Download_on_the_App_Store_Badge_US-UK_135x40.svg)](https://itunes.apple.com/it/app/id1513719757)
 
 FOSDEM.app is a full featured iOS application that lets you organise your visit to the FOSDEM conference.
 
