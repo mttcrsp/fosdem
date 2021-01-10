@@ -329,7 +329,7 @@ private extension Conference {
   }
 
   init(attributes: [String: String]) throws {
-    guard let title = attributes["title"], let venue = attributes["venue"], let city = attributes["city"], let startRawValue = attributes["start"], let endRawValue = attributes["end"] else {
+    guard let title = attributes["title"], let venue = attributes["venue"], let startRawValue = attributes["start"], let endRawValue = attributes["end"] else {
       throw Error(element: "conference", value: attributes)
     }
 
@@ -342,6 +342,7 @@ private extension Conference {
     }
 
     let subtitle = attributes["subtitle"]
+    let city = attributes["city"]
     self.init(title: title, subtitle: subtitle, venue: venue, city: city, start: start, end: end)
   }
 }
