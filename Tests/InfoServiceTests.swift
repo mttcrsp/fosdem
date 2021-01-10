@@ -33,6 +33,6 @@ final class InfoServiceTests: XCTestCase {
       expectation.fulfill()
     }
 
-    waitForExpectations(timeout: 0.5)
+    waitForExpectations(timeout: 1)
   }
 }
