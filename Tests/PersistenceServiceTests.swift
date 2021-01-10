@@ -16,7 +16,7 @@ final class PersistenceServiceTests: XCTestCase {
       }
 
       self.waitForExpectations(timeout: 0.1)
-        }())
+    }())
   }
 
   func testWriteError() {
@@ -33,7 +33,7 @@ final class PersistenceServiceTests: XCTestCase {
       }
 
       self.waitForExpectations(timeout: 0.1)
-        }())
+    }())
   }
 
   func testRead() {
@@ -54,7 +54,7 @@ final class PersistenceServiceTests: XCTestCase {
       }
 
       self.waitForExpectations(timeout: 0.1)
-        }())
+    }())
   }
 
   func testReadError() {
@@ -77,7 +77,7 @@ final class PersistenceServiceTests: XCTestCase {
       }
 
       self.waitForExpectations(timeout: 0.1)
-        }())
+    }())
   }
 
   private func makeError() -> NSError {

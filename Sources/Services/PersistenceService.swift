@@ -49,7 +49,7 @@ final class PersistenceService {
       case let .failure(error):
         completion(error)
       }
-        })
+    })
   }
 
   func performRead<Read: PersistenceServiceRead>(_ read: Read, completion: @escaping (Result<Read.Model, Error>) -> Void) {

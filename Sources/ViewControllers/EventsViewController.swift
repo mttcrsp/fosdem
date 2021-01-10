@@ -170,13 +170,13 @@ final class EventsViewController: UITableViewController {
       let image = UIImage.fos_systemImage(withName: "calendar.badge.plus")
       return [Action(title: title, image: image) { [weak self] in
         self?.didFavorite(event)
-            }]
+      }]
     } else {
       let title = FOSLocalizedString("event.remove")
       let image = UIImage.fos_systemImage(withName: "calendar.badge.minus")
       return [Action(title: title, image: image, style: .destructive) { [weak self] in
         self?.didUnfavorite(event)
-            }]
+      }]
     }
   }
 

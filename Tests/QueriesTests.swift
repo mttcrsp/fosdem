@@ -29,7 +29,7 @@ final class QueriesTests: XCTestCase {
       let operation = ImportSchedule(schedule: schedule)
       let service = try self.makePersistenceService()
       try service.performWriteSync(operation)
-        }())
+    }())
   }
 
   func testAllTracksOrderedByName() {
@@ -53,7 +53,7 @@ final class QueriesTests: XCTestCase {
         Track(name: "3", day: 2, date: Date()),
         Track(name: "5", day: 1, date: Date()),
       ])
-        }())
+    }())
   }
 
   func testEventsForTrack() {
@@ -72,7 +72,7 @@ final class QueriesTests: XCTestCase {
       let events = try service.performReadSync(query)
 
       XCTAssertEqual(events, [event4, event3])
-        }())
+    }())
   }
 
   func testEventsForIdentifiers() {
@@ -88,7 +88,7 @@ final class QueriesTests: XCTestCase {
       let events = try service.performReadSync(query)
 
       XCTAssertEqual(events, [event2, event3])
-        }())
+    }())
   }
 
   func testEventsForSearch() {
@@ -108,7 +108,7 @@ final class QueriesTests: XCTestCase {
       let events = try service.performReadSync(query)
 
       XCTAssertEqual(events, [event2, event6, event3, event7, event4, event5])
-        }())
+    }())
   }
 
   func testEventsStartingIn30Minutes() {
@@ -131,7 +131,7 @@ final class QueriesTests: XCTestCase {
       let events = try service.performReadSync(query)
 
       XCTAssertEqual(events, [event3, event2])
-        }())
+    }())
   }
 
   private func makePersistenceService() throws -> PersistenceService {

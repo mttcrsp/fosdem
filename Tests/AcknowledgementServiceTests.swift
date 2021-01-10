@@ -22,7 +22,7 @@ final class AcknowledgementsServiceTests: XCTestCase {
         Acknowledgement(name: "b", url: URL(string: "https://fosdem.org/b")!),
       ]
       XCTAssertEqual(acknowledgements1, acknowledgements2)
-        }())
+    }())
   }
 
   func testLoadAcknowledgementsBundleError() {

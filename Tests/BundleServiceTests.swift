@@ -19,7 +19,7 @@ final class BundleServiceTests: XCTestCase {
       XCTAssertEqual(bundle.ext, ext)
       XCTAssertEqual(bundle.name, resource)
       XCTAssertEqual(dataProvider.url, bundleURL)
-        }())
+    }())
   }
 
   func testErrorData() {

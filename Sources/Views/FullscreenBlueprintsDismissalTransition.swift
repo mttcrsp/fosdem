@@ -36,7 +36,7 @@ final class FullscreenBlueprintsDismissalTransition: UIPercentDrivenInteractiveT
         dismissedView.removeFromSuperview()
       }
       transitionContext.completeTransition(didComplete)
-        })
+    })
   }
 
   @objc private func panned(_ recognizer: UIPanGestureRecognizer) {

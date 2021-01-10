@@ -43,7 +43,7 @@ final class PreloadServiceTests: XCTestCase {
 
       let service = try PreloadService(bundle: bundle, fileManager: fileManager)
       XCTAssertEqual(service.databasePath, "/documents/db.sqlite")
-        }())
+    }())
   }
 
   func testPreloadDatabaseIfNeeded() {
@@ -56,7 +56,7 @@ final class PreloadServiceTests: XCTestCase {
       try service.preloadDatabaseIfNeeded()
       XCTAssertEqual(fileManager.oldPath, "/bundle")
       XCTAssertEqual(fileManager.newPath, "/documents/db.sqlite")
-        }())
+    }())
   }
 
   func testPreloadDatabaseIfNeededFileExists() {
@@ -69,7 +69,7 @@ final class PreloadServiceTests: XCTestCase {
       try service.preloadDatabaseIfNeeded()
       XCTAssertNil(fileManager.oldPath)
       XCTAssertNil(fileManager.newPath)
-        }())
+    }())
   }
 
   func testPreloadDatabaseIfNeededMoveItemError() {

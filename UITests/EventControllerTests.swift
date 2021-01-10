@@ -127,7 +127,8 @@ private extension XCUIElement {
     let components = value?.components(separatedBy: ":")
     if let components = components, components.count == 2,
       let minutes = Int(components[0]),
-      let seconds = Int(components[1]) {
+      let seconds = Int(components[1])
+    {
       return (minutes * 60) + seconds
     } else {
       return nil

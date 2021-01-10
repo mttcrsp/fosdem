@@ -17,6 +17,6 @@ final class AppStoreSearchRequestTests: XCTestCase {
       let request = AppStoreSearchRequest()
       XCTAssertEqual(request.url, requestURL)
       XCTAssertEqual(try request.decode(data), response)
-        }())
+    }())
   }
 }
