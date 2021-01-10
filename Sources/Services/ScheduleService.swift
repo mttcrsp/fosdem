@@ -59,7 +59,7 @@ final class ScheduleService {
     guard shouldPerformUpdate, !isUpdating else { return }
     isUpdating = true
 
-    let request = ScheduleRequest(year: 2020)
+    let request = ScheduleRequest(year: 2021)
     networkService.perform(request) { [weak self] result in
       guard case let .success(schedule) = result else { return }
 

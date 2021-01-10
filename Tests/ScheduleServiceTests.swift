@@ -17,7 +17,7 @@ final class ScheduleServiceTests: XCTestCase {
 
     service.startUpdating()
     XCTAssertNotNil(networkService.completion)
-    XCTAssertEqual(networkService.request?.url, URL(string: "https://fosdem.org/2020/schedule/xml"))
+    XCTAssertEqual(networkService.request?.url, URL(string: "https://fosdem.org/2021/schedule/xml"))
 
     networkService.completion?(.success(makeSchedule()))
     XCTAssertNotNil(persistenceService.completion)
