@@ -31,12 +31,13 @@ final class PreloadService {
     self.fileManager = fileManager
     self.bundle = bundle
 
-    guard let oldPath = bundle.path(forResource: "db", ofType: "sqlite") else {
+    let fileName = "db", fileExtension = "sqlite"
+    guard let oldPath = bundle.path(forResource: fileName, ofType: fileExtension) else {
       throw Error.resourceNotFound
     }
 
     let applicationSupportURL = try fileManager.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-    let applicationDatabaseURL = applicationSupportURL.appendingPathComponent("db.sqlite")
+    let applicationDatabaseURL = applicationSupportURL.appendingPathComponent(fileName).appendingPathExtension(fileExtension)
     let newPath = applicationDatabaseURL.path
 
     self.oldPath = oldPath
