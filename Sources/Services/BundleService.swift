@@ -9,7 +9,7 @@ protocol BundleServiceDataProvider {
 }
 
 final class BundleService {
-  enum Error {
+  enum Error: CustomNSError {
     case resourceNotFound
   }
 
@@ -34,11 +34,5 @@ extension Bundle: BundleServiceBundle {}
 final class BundleServiceData: BundleServiceDataProvider {
   func data(withContentsOf url: URL) throws -> Data {
     try Data(contentsOf: url)
-  }
-}
-
-extension BundleService.Error: CustomNSError {
-  static var errorDomain: String {
-    "com.mttcrsp.fosdem.\(String(describing: BundleService.self))"
   }
 }
