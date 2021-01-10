@@ -28,7 +28,7 @@ final class TestsService {
   }
 
   func configureEnvironment() {
-    if ProcessInfo.processInfo.arguments.contains("-isRunningUITests") {
+    if ProcessInfo.processInfo.isRunningUITests {
       DispatchQueue.main.async {
         UIApplication.shared.keyWindow?.layer.speed = 100
       }

@@ -14,7 +14,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     #if DEBUG
-    guard !isRunningUnitTests else { return false }
+    guard !ProcessInfo.processInfo.isRunningUnitTests else { return false }
     #endif
 
     let rootViewController: UIViewController
@@ -71,11 +71,3 @@ extension AppDelegate: NetworkServiceDelegate {
     }
   }
 }
-
-#if DEBUG
-private extension AppDelegate {
-  var isRunningUnitTests: Bool {
-    CommandLine.arguments.contains("-ApplePersistenceIgnoreState")
-  }
-}
-#endif
