@@ -1,7 +1,7 @@
 /// MARK: - Welcome
 
 // Title for the welcome screen of the app
-"welcome.title" = "FOSDEM 2020";
+"welcome.title" = "FOSDEM 2021";
 // A short message describing what FOSDEM - the event - is
 "welcome.message" = "FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels.";
 
@@ -187,7 +187,7 @@
 /// MARK: - Years
 
 // Link to a screen containing links to schedule of previous years of the conference
-"years.item" = "From 2007 to 2019";
+"years.item" = "From 2007 to 2020";
 // Title for a screen containing links to schedule of previous years of the conference
 "years.title" = "Previous years";
 // A link to schedule for a given year
