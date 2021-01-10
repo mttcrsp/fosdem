@@ -43,15 +43,8 @@ final class MapControllerTests: XCTestCase {
       settings.launch()
       settings.cells["Privacy"].tap()
       settings.cells["Location Services"].tap()
-
-      // HACK: The app's own location settings cells has no identifier and its
-      // label changes based on the current location authorization status of the
-      // app. Moreover attempting to match content within that label fails on CI
-      // for obscure reasons. This match by index will break if elements were
-      // ever change sorting within the location services screen but its
-      // currently the most reliable solution.
-      settings.cells.element(boundBy: 2).tap() // FOSDEM location settings
-      settings.cells.element(boundBy: 1).tap() // Ask Next Time
+      settings.staticTexts["com.mttcrsp.fosdem"].tap()
+      settings.staticTexts["LOCATION_SERVICES_AUTH_NOT_DETERMINED"].tap()
 
       app.launch()
       app.mapButton.tap()
@@ -72,7 +65,7 @@ final class MapControllerTests: XCTestCase {
       confirmButton.tap()
 
       settings.activate()
-      settings.cells["Never"].tap()
+      settings.staticTexts["LOCATION_SERVICES_AUTH_NEVER"].tap()
       app.activate()
       wait { locationUnavailableButton.exists }
     }
@@ -84,7 +77,7 @@ final class MapControllerTests: XCTestCase {
       confirmButton.tap()
 
       settings.activate()
-      settings.cells["While Using the App"].tap()
+      settings.staticTexts["LOCATION_SERVICES_AUTH_WHEN_IN_USE"].tap()
       app.activate()
       XCTAssert(locationAvailableButton.exists)
     }
