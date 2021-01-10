@@ -4,10 +4,15 @@ protocol PreloadServiceFile {
   func fileExists(atPath path: String) -> Bool
   func copyItem(atPath srcPath: String, toPath dstPath: String) throws
   func url(for directory: FileManager.SearchPathDirectory, in domain: FileManager.SearchPathDomainMask, appropriateFor url: URL?, create shouldCreate: Bool) throws -> URL
+  func removeItem(atPath path: String) throws
 }
 
 protocol PreloadServiceBundle {
   func path(forResource name: String?, ofType ext: String?) -> String?
+}
+
+protocol PreloadServiceLaunch {
+  var didLaunchAfterUpdate: Bool { get }
 }
 
 final class PreloadService {
@@ -19,8 +24,10 @@ final class PreloadService {
   private let newPath: String
   private let bundle: PreloadServiceBundle
   private let fileManager: PreloadServiceFile
+  private let launchService: PreloadServiceLaunch
 
-  init(bundle: PreloadServiceBundle = Bundle.main, fileManager: PreloadServiceFile = FileManager.default) throws {
+  init(launchService: PreloadServiceLaunch, bundle: PreloadServiceBundle = Bundle.main, fileManager: PreloadServiceFile = FileManager.default) throws {
+    self.launchService = launchService
     self.fileManager = fileManager
     self.bundle = bundle
 
@@ -41,6 +48,10 @@ final class PreloadService {
   }
 
   func preloadDatabaseIfNeeded() throws {
+    if launchService.didLaunchAfterUpdate {
+      try fileManager.removeItem(atPath: newPath)
+    }
+
     if !fileManager.fileExists(atPath: newPath) {
       try fileManager.copyItem(atPath: oldPath, toPath: newPath)
     }
@@ -50,3 +61,5 @@ final class PreloadService {
 extension Bundle: PreloadServiceBundle {}
 
 extension FileManager: PreloadServiceFile {}
+
+extension LaunchService: PreloadServiceLaunch {}

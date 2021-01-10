@@ -21,7 +21,10 @@ final class Services {
   #endif
 
   init() throws {
-    let preloadService = try PreloadService()
+    let launchService = LaunchService()
+    try launchService.detectStatus()
+
+    let preloadService = try PreloadService(launchService: launchService)
     try preloadService.preloadDatabaseIfNeeded()
 
     let path = preloadService.databasePath
