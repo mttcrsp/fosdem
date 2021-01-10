@@ -203,6 +203,7 @@ private extension UITableViewCell {
     textLabel?.numberOfLines = 0
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     accessoryType = .disclosureIndicator
+    accessibilityIdentifier = event.title
   }
 
   var showsLiveIndicator: Bool {

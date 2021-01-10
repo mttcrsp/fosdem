@@ -71,14 +71,14 @@ final class AgendaControllerTests: XCTestCase {
 
     runActivity(named: "Favorite") {
       app.backButton.tap()
-      soonCell.tapFirstTrailingAction()
+      soonCell.tapTrailingAction(withIdentifier: "Add to Agenda")
       doneButton.tap()
       XCTAssertEqual(app.agendaTable.cells.count, 1)
     }
 
     runActivity(named: "Unfavorite") {
       soonButton.tap()
-      soonCell.tapFirstTrailingAction()
+      soonCell.tapTrailingAction(withIdentifier: "Remove from Agenda")
       doneButton.tap()
       XCTAssert(app.emptyStaticText.exists)
     }
@@ -91,16 +91,16 @@ final class AgendaControllerTests: XCTestCase {
     app.agendaButton.tap()
 
     runActivity(named: "Unfavorite from top") {
-      app.agendaCell1.tapFirstTrailingAction()
-      app.agendaCell1.tapFirstTrailingAction()
+      app.agendaCell1.tapTrailingAction(withIdentifier: "Remove from Agenda")
+      app.agendaCell1.tapTrailingAction(withIdentifier: "Remove from Agenda")
       XCTAssert(app.emptyStaticText.exists)
     }
 
     runActivity(named: "Unfavorite from bottom") {
       app.terminate()
       app.launch()
-      app.agendaCell2.tapFirstTrailingAction()
-      app.agendaCell1.tapFirstTrailingAction()
+      app.agendaCell2.tapTrailingAction(withIdentifier: "Remove from Agenda")
+      app.agendaCell1.tapTrailingAction(withIdentifier: "Remove from Agenda")
       XCTAssert(app.emptyStaticText.exists)
     }
 
@@ -117,8 +117,8 @@ final class AgendaControllerTests: XCTestCase {
 
     runActivity(named: "Favorite") {
       app.searchButton.tap()
-      app.day1TrackStaticText.tap()
-      app.day1TrackEventStaticText.tapFirstTrailingAction()
+      app.day1TrackCell.tap()
+      app.day1TrackEventCell.tapTrailingAction(withIdentifier: "Add to Agenda")
       app.backButton.tap()
       app.agendaButton.tap()
       XCTAssertEqual(app.agendaTable.cells.count, 1)
@@ -152,7 +152,7 @@ final class AgendaControllerTests: XCTestCase {
     }
 
     runActivity(named: "Handle empty expanded") {
-      app.agendaCell1.tapFirstTrailingAction()
+      app.agendaCell1.tapTrailingAction(withIdentifier: "Remove from Agenda")
       wait { !app.eventTable.exists }
       wait { app.emptyStaticText.exists }
     }

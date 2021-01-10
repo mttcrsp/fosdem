@@ -17,13 +17,13 @@ final class VideoControllerTests: XCTestCase {
 
     runActivity(named: "Watching updates") {
       app.searchButton.tap()
-      app.day1TrackStaticText.tap()
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackCell.tap()
+      app.day1TrackEventCell.tap()
       app.buttons["play"].tap()
       app.buttons["Done"].tap()
       app.moreButton.tap()
       app.cells["video"].tap()
-      XCTAssert(app.day1TrackEventStaticText.exists)
+      XCTAssert(app.day1TrackEventCell.exists)
     }
 
     runActivity(named: "Watched updates") {
@@ -32,7 +32,7 @@ final class VideoControllerTests: XCTestCase {
       XCTAssert(app.staticTexts["background_message"].exists)
 
       watchingButton.tap()
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackEventCell.tap()
       app.buttons["resume"].tap()
       wait(timeout: 15) { app.backButton.exists }
 
@@ -41,7 +41,7 @@ final class VideoControllerTests: XCTestCase {
       XCTAssert(app.staticTexts["background_message"].exists)
 
       watchedButton.tap()
-      XCTAssert(app.day1TrackEventStaticText.exists)
+      XCTAssert(app.day1TrackEventCell.exists)
     }
   }
 }

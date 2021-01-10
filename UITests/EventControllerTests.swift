@@ -8,8 +8,8 @@ final class EventControllerTests: XCTestCase {
 
     runActivity(named: "Favorite event") {
       app.searchButton.tap()
-      app.day1TrackStaticText.tap()
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackCell.tap()
+      app.day1TrackEventCell.tap()
       app.favoriteEventButton.tap()
       XCTAssert(app.unfavoriteEventButton.exists)
     }
@@ -24,8 +24,8 @@ final class EventControllerTests: XCTestCase {
 
     runActivity(named: "Unfavorite event") {
       app.searchButton.tap()
-      app.day1TrackStaticText.tap()
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackCell.tap()
+      app.day1TrackEventCell.tap()
       app.unfavoriteEventButton.tap()
       XCTAssert(app.favoriteEventButton.exists)
     }
@@ -44,8 +44,8 @@ final class EventControllerTests: XCTestCase {
 
     runActivity(named: "Play video") {
       app.searchButton.tap()
-      app.day1TrackStaticText.tap()
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackCell.tap()
+      app.day1TrackEventCell.tap()
       app.buttons["play"].tap()
 
       wait {

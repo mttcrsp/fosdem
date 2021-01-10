@@ -7,9 +7,9 @@ final class TraitsTests: XCTestCase {
     app.searchButton.tap()
 
     runActivity(named: "Show event") {
-      app.day1TrackStaticText.tap()
+      app.day1TrackCell.tap()
       wait { app.trackTable.exists }
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackEventCell.tap()
     }
 
     runActivity(named: "Show fullscreen blueprints") {
@@ -48,9 +48,9 @@ final class TraitsTests: XCTestCase {
     app.searchButton.tap()
 
     runActivity(named: "Present views") {
-      app.day1TrackStaticText.tap()
+      app.day1TrackCell.tap()
       wait { app.trackTable.exists }
-      app.day1TrackEventStaticText.tap()
+      app.day1TrackEventCell.tap()
       app.moreButton.tap()
       app.cells["history"].tap()
     }
