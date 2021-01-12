@@ -92,7 +92,7 @@ final class TestsService {
           try data.write(to: url)
 
           let links = [Link(name: "test", url: url)]
-          let write = UpdateLinksForEvent(eventID: 10682, links: links)
+          let write = UpdateLinksForEvent(eventID: 11423, links: links)
           try self?.persistenceService.performWriteSync(write)
         } catch {
           assertionFailure(error.localizedDescription)

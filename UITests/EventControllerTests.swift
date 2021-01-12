@@ -79,18 +79,22 @@ final class EventControllerTests: XCTestCase {
     app.launchEnvironment = ["RESET_DEFAULTS": "1"]
     app.launch()
 
-    let attachmentButton = app.links["Jail Orchestration (Slides)"]
+    let attachmentButton = app.links["Screenshot"]
 
     runActivity(named: "Open event") {
       app.staticTexts["BSD"].tap()
-      app.staticTexts["Orchestrating jails with nomad and pot"].tap()
+      app.staticTexts["hello... again?"].tap()
       wait { app.eventTable.exists }
     }
 
     runActivity(named: "Open attachment") {
       app.eventTable.swipeUp()
       attachmentButton.tap()
-      wait { app.staticTexts["Jail_orchestration"].exists }
+
+      let attachmentImage = app.images.firstMatch
+      wait { attachmentImage.exists }
+      XCTAssertEqual(attachmentImage.frame.minX, 0)
+      XCTAssertEqual(attachmentImage.frame.minY, 64)
     }
 
     runActivity(named: "Close attachment") {

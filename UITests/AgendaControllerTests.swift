@@ -2,8 +2,8 @@ import XCTest
 
 final class AgendaControllerTests: XCTestCase {
   func testAppearance() {
-    let components1 = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 32)
-    let components2 = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 37)
+    let components1 = DateComponents(year: 2021, month: 2, day: 7, hour: 12, minute: 12)
+    let components2 = DateComponents(year: 2021, month: 2, day: 7, hour: 13, minute: 19)
     guard let interval1 = interval(for: components1), let interval2 = interval(for: components2) else {
       return XCTFail("Failed to instantiate mock dates")
     }
@@ -12,16 +12,16 @@ final class AgendaControllerTests: XCTestCase {
     app.launchEnvironment = [
       "LIVE_INTERVAL": "1",
       "LIVE_DATES": "\(interval1),\(interval2)",
-      "FAVORITE_EVENTS": "10682,10683",
+      "FAVORITE_EVENTS": "11246,11621",
     ]
     app.launch()
     app.agendaButton.tap()
 
     runActivity(named: "Captions") {
-      XCTAssert(app.staticTexts["10:30 - AW1.125 - Ada"].exists)
-      XCTAssert(app.staticTexts["10:35 - AW1.125 - Ada"].exists)
-      XCTAssert(app.staticTexts["Welcome to the Ada DevRoom"].exists)
-      XCTAssert(app.staticTexts["An Introduction to Ada for Beginning and Experienced Programmers"].exists)
+      XCTAssert(app.staticTexts["12:10 - D.bsd - BSD"].exists)
+      XCTAssert(app.staticTexts["13:00 - D.containers - Containers"].exists)
+      XCTAssert(app.staticTexts["hello... again?"].exists)
+      XCTAssert(app.staticTexts["vdi using lxd"].exists)
     }
 
     runActivity(named: "Live status") {
@@ -33,8 +33,8 @@ final class AgendaControllerTests: XCTestCase {
   }
 
   func testSoon() throws {
-    let components1 = DateComponents(year: 2050, month: 2, day: 1, hour: 10, minute: 30)
-    let components2 = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 45)
+    let components1 = DateComponents(year: 2050, month: 2, day: 7, hour: 13, minute: 19)
+    let components2 = DateComponents(year: 2021, month: 2, day: 7, hour: 13, minute: 19)
     guard let interval1 = interval(for: components1), let interval2 = interval(for: components2) else {
       return XCTFail("Failed to instantiate mock dates")
     }
@@ -59,9 +59,9 @@ final class AgendaControllerTests: XCTestCase {
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
-      wait { app.staticTexts["BlackParrot"].exists }
-      wait { app.staticTexts["10:50 - K.3.401"].exists }
-      XCTAssertEqual(app.tables.firstMatch.cells.count, 24)
+      wait { app.staticTexts["13:20 - D.bsd"].exists }
+      wait { app.staticTexts["Porting fwupd to the BSD distributions"].exists }
+      XCTAssertEqual(app.tables.firstMatch.cells.count, 16)
     }
 
     runActivity(named: "Open event") {
@@ -86,7 +86,7 @@ final class AgendaControllerTests: XCTestCase {
 
   func testFavorites() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "10682,10683"]
+    app.launchEnvironment = ["FAVORITE_EVENTS": "11246,11621"]
     app.launch()
     app.agendaButton.tap()
 
@@ -130,7 +130,7 @@ final class AgendaControllerTests: XCTestCase {
     defer { XCUIDevice.shared.orientation = .portrait }
 
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "10682"]
+    app.launchEnvironment = ["FAVORITE_EVENTS": "11246"]
     app.launch()
 
     runActivity(named: "Handle expanded launch") {
@@ -160,7 +160,7 @@ final class AgendaControllerTests: XCTestCase {
 
   func testPopToRoot() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "10682"]
+    app.launchEnvironment = ["FAVORITE_EVENTS": "11246"]
     app.launch()
     app.agendaButton.tap()
     wait { app.agendaTable.exists }

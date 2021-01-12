@@ -51,8 +51,8 @@ final class SearchControllerTests: XCTestCase {
     let sectionIndex = app.tracksTable.otherElements["Section index"]
     let topSectionIndex = sectionIndex.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.01))
     let bottomSectionIndex = sectionIndex.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.99))
-    let firstTrackStaticText = app.staticTexts["Ada"]
-    let lastTrackStaticText = app.staticTexts["Workshops"]
+    let firstTrackStaticText = app.staticTexts["BSD"]
+    let lastTrackStaticText = app.staticTexts["Zig Programming Language"]
 
     bottomSectionIndex.tap()
     XCTAssert(lastTrackStaticText.isHittable)
@@ -77,16 +77,18 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Display track") {
-      XCTAssert(app.trackTable.staticTexts["10:35"].exists)
-      XCTAssertEqual(app.trackTable.cells.count, 15)
+      XCTAssert(app.trackTable.staticTexts["11:00"].exists)
+      XCTAssertEqual(app.trackTable.cells.count, 10)
     }
+
+    let tracksCount = 38
 
     runActivity(named: "Unfavorite from track") {
       unfavoriteTrackButton.tap()
       XCTAssert(favoriteTrackButton.exists)
 
       app.searchButton.tap()
-      XCTAssertEqual(app.tracksTable.cells.count, 71)
+      XCTAssertEqual(app.tracksTable.cells.count, tracksCount)
     }
 
     runActivity(named: "Favorite from track") {
@@ -95,7 +97,7 @@ final class SearchControllerTests: XCTestCase {
       XCTAssert(unfavoriteTrackButton.exists)
 
       app.searchButton.tap()
-      XCTAssertEqual(app.tracksTable.cells.count, 72)
+      XCTAssertEqual(app.tracksTable.cells.count, tracksCount + 1)
     }
 
     runActivity(named: "Unfavorite from search") {
@@ -117,10 +119,10 @@ final class SearchControllerTests: XCTestCase {
     runActivity(named: "Display results") {
       let searchBar = app.searchFields.firstMatch
       searchBar.tap()
-      searchBar.typeText("javascript symphonies")
+      searchBar.typeText("javascript learning")
       XCTAssertEqual(resultsCells.count, 1)
       XCTAssert(app.staticTexts["JavaScript"].exists)
-      XCTAssert(app.staticTexts["Creating symphonies in JavaScript"].exists)
+      XCTAssert(app.staticTexts["Reinforcement Learning with JavaScript"].exists)
     }
 
     runActivity(named: "Favorite event") {
@@ -161,7 +163,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 0).tap() // day 1
       XCTAssertTrue(day1Header.exists)
       XCTAssertFalse(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 34)
+      XCTAssertEqual(app.tracksTable.cells.count, 15)
     }
 
     runActivity(named: "Select day 2") {
@@ -169,7 +171,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 1).tap() // day 2
       XCTAssertTrue(day2Header.exists)
       XCTAssertTrue(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 38)
+      XCTAssertEqual(app.tracksTable.cells.count, 24)
     }
 
     runActivity(named: "Select all") {
@@ -177,7 +179,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 0).tap() // all
       XCTAssertTrue(allHeader.exists)
       XCTAssertTrue(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 72)
+      XCTAssertEqual(app.tracksTable.cells.count, 39)
     }
   }
 
@@ -258,7 +260,7 @@ extension XCUIApplication {
   }
 
   var day1TrackCellIdentifier: String {
-    "Ada"
+    "Collaborative Information and Content Management Applications"
   }
 
   var day1TrackCell: XCUIElement {
@@ -276,10 +278,10 @@ private extension XCUIApplication {
   }
 
   var day2TrackCell: XCUIElement {
-    tracksTable.cells["BSD"]
+    tracksTable.cells["Containers"]
   }
 
   var eventCell: XCUIElement {
-    trackTable.cells["Welcome to the Ada DevRoom"]
+    trackTable.cells["Living on the edge with CryptPad"]
   }
 }
