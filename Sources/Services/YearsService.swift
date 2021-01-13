@@ -16,6 +16,10 @@ final class YearsService {
     self.bundle = bundle
   }
 
+  var current: Int {
+    2021
+  }
+
   func loadYears(_ completion: @escaping ([String]) -> Void) {
     queue.async { [weak self] in
       guard let self = self else { return }
