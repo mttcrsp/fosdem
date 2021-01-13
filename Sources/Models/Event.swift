@@ -58,6 +58,7 @@ extension Event {
     }
   }
 
+  #if os(iOS)
   var formattedAbstract: String? {
     guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }
 
@@ -67,6 +68,7 @@ extension Event {
     string = string.replacingOccurrences(of: "\n", with: "\n\n")
     return string
   }
+  #endif
 
   var formattedSummary: String? {
     var string = summary

@@ -79,3 +79,34 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: UITests/Resources/Info.plist
+
+  GenerateDB:
+    type: tool
+    platform: macOS
+    deploymentTarget: '10.13'
+    sources:
+    - Sources/Models/Conference.swift
+    - Sources/Models/Room.swift
+    - Sources/Models/Day.swift
+    - Sources/Models/Attachment.swift
+    - Sources/Models/Link.swift
+    - Sources/Models/ScheduleXMLParser.swift
+    - Sources/Models/Event.swift
+    - Sources/Models/Track.swift
+    - Sources/Models/Person.swift
+    - Sources/Models/Participation.swift
+    - Sources/Models/Schedule.swift
+    - Sources/Models/Queries/ImportSchedule.swift
+    - Sources/Models/Requests/ScheduleRequest.swift
+    - Sources/Models/Tables
+    - Sources/Models/Migrations
+    - Sources/Services/PersistenceService.swift
+    - Sources/Services/NetworkService.swift
+    - Sources/Extensions/NSLocalizedString+Extensions.swift
+    - Sources/Extensions/DateComponentsFormatter+Extensions.swift
+    - Sources/Extensions/DateFormatter+Extensions.swift
+    - Scripts/GenerateDB.swift
+    dependencies:
+    - package: GRDB
+    postbuildScripts:
+    - script: swiftformat .
