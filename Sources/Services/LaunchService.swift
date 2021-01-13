@@ -16,6 +16,7 @@ final class LaunchService {
 
   private(set) var didLaunchAfterUpdate = false
   private(set) var didLaunchAfterInstall = false
+  private(set) var didLaunchAfterFosdemYearChange = false
 
   private let fosdemYear: Int
   private let bundle: LaunchServiceBundle
@@ -32,7 +33,7 @@ final class LaunchService {
       throw Error.versionDetectionFailed
     }
 
-    switch defaults.latestBundleShortVersionKey {
+    switch defaults.latestBundleShortVersion {
     case .some(bundleShortVersion):
       didLaunchAfterUpdate = false
       didLaunchAfterInstall = false
@@ -44,18 +45,27 @@ final class LaunchService {
       didLaunchAfterInstall = true
     }
 
-    defaults.latestBundleShortVersionKey = bundleShortVersion
+    didLaunchAfterFosdemYearChange = !didLaunchAfterInstall && defaults.latestFosdemYear != fosdemYear
+
+    defaults.latestFosdemYear = fosdemYear
+    defaults.latestBundleShortVersion = bundleShortVersion
   }
 }
 
 extension LaunchServiceDefaults {
-  var latestBundleShortVersionKey: String? {
+  var latestFosdemYear: Int? {
+    set { set(newValue?.description, forKey: .latestFosdemYearKey) }
+    get { string(forKey: .latestFosdemYearKey).flatMap { string in Int(string) } }
+  }
+
+  var latestBundleShortVersion: String? {
     get { string(forKey: .latestBundleShortVersionKey) }
     set { set(newValue, forKey: .latestBundleShortVersionKey) }
   }
 }
 
 private extension String {
+  static var latestFosdemYearKey: String { "LATEST_FOSDEM_YEAR" }
   static var latestBundleShortVersionKey: String { "LATEST_BUNDLE_SHORT_VERSION" }
 }
 

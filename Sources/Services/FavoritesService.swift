@@ -86,6 +86,16 @@ final class FavoritesService {
   func contains(_ event: Event) -> Bool {
     eventsIdentifiers.contains(event.id)
   }
+
+  func removeAllTracksAndEvents() {
+    for identifier in tracksIdentifiers {
+      removeTrack(withIdentifier: identifier)
+    }
+
+    for identifier in eventsIdentifiers {
+      removeEvent(withIdentifier: identifier)
+    }
+  }
 }
 
 private extension FavoritesServiceDefaults {

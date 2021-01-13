@@ -55,6 +55,10 @@ final class Services {
     liveService = LiveService()
     #endif
 
+    if launchService.didLaunchAfterFosdemYearChange {
+      favoritesService.removeAllTracksAndEvents()
+    }
+
     updateService = UpdateService(networkService: networkService)
     tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
     scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
