@@ -34,6 +34,12 @@ final class MapControllerTests: XCTestCase {
     let dismissButton = app.alerts.buttons.element(boundBy: 0)
     let confirmButton = app.alerts.buttons.element(boundBy: 1)
 
+    runActivity(named: "Force location services section to appear") {
+      app.launch()
+      app.mapButton.tap()
+      app.terminate()
+    }
+
     runActivity(named: "Allow location services") {
       addUIInterruptionMonitor(withDescription: "Location Services") { alert in
         alert.buttons["Allow While Using App"].tap()
