@@ -9,7 +9,6 @@ options:
 
 settings:
   SWIFT_TREAT_WARNINGS_AS_ERRORS: 'YES'
-  SWIFT_VERSION: '5.1'
 
 packages:
   GRDB:
