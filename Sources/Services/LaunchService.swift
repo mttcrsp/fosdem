@@ -17,12 +17,14 @@ final class LaunchService {
   private(set) var didLaunchAfterUpdate = false
   private(set) var didLaunchAfterInstall = false
 
+  private let fosdemYear: Int
   private let bundle: LaunchServiceBundle
   private let defaults: LaunchServiceDefaults
 
-  init(bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
+  init(fosdemYear: Int, bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
     self.bundle = bundle
     self.defaults = defaults
+    self.fosdemYear = fosdemYear
   }
 
   func detectStatus() throws {

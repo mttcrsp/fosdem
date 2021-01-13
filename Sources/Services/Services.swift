@@ -21,7 +21,7 @@ final class Services {
   #endif
 
   init() throws {
-    let launchService = LaunchService()
+    let launchService = LaunchService(fosdemYear: yearsService.current)
     try launchService.detectStatus()
 
     let preloadService = try PreloadService(launchService: launchService)

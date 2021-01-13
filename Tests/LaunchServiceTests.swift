@@ -8,7 +8,7 @@ final class LaunchServiceTests: XCTestCase {
     let bundle = LaunchServiceBundleMock()
     bundle.bundleShortVersion = "1.0.0"
 
-    let service = LaunchService(bundle: bundle, defaults: defaults)
+    let service = LaunchService(fosdemYear: 2021, bundle: bundle, defaults: defaults)
     try service.detectStatus()
     XCTAssertFalse(service.didLaunchAfterUpdate)
     XCTAssertTrue(service.didLaunchAfterInstall)
@@ -30,7 +30,7 @@ final class LaunchServiceTests: XCTestCase {
   func testDetectMissingBundleShortVersion() {
     let bundle = LaunchServiceBundleMock()
     let defaults = LaunchServiceDefaultsMock()
-    let service = LaunchService(bundle: bundle, defaults: defaults)
+    let service = LaunchService(fosdemYear: 2021, bundle: bundle, defaults: defaults)
     do {
       try service.detectStatus()
     } catch {
