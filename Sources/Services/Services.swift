@@ -24,7 +24,12 @@ final class Services {
     let launchService = LaunchService(fosdemYear: yearsService.current)
     try launchService.detectStatus()
 
-    let preloadService = try PreloadService(launchService: launchService)
+    let preloadService = try PreloadService()
+    // Remove the database after each update as the new database might contain
+    // updates even if the year did not change.
+    if launchService.didLaunchAfterUpdate {
+      try preloadService.removeDatabase()
+    }
     try preloadService.preloadDatabaseIfNeeded()
 
     let path = preloadService.databasePath

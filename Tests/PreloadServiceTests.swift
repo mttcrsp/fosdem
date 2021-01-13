@@ -9,8 +9,7 @@ final class PreloadServiceTests: XCTestCase {
       let bundle = PreloadServiceBundleMock(path: bundlePath)
       let fileManagerURL = URL(fileURLWithPath: "/documents")
       let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: false)
-      _ = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
+      _ = try PreloadService(bundle: bundle, fileManager: fileManager)
       XCTFail("Unexpectedly succeeded in initialising from bundle service")
     } catch {
       let error1 = error as NSError
@@ -25,8 +24,7 @@ final class PreloadServiceTests: XCTestCase {
     do {
       let bundle = PreloadServiceBundleMock(path: "/bundle")
       let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .failure(fileManagerError))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: false)
-      _ = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
+      _ = try PreloadService(bundle: bundle, fileManager: fileManager)
       XCTFail("Unexpectedly succeeded in initialising from bundle service")
     } catch {
       let error1 = error as NSError
@@ -40,8 +38,7 @@ final class PreloadServiceTests: XCTestCase {
       let bundle = PreloadServiceBundleMock(path: "/bundle")
       let fileManagerURL = URL(fileURLWithPath: "/documents")
       let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: false)
-      let service = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
+      let service = try PreloadService(bundle: bundle, fileManager: fileManager)
       XCTAssertEqual(service.databasePath, "/documents/db.sqlite")
     }())
   }
@@ -51,9 +48,7 @@ final class PreloadServiceTests: XCTestCase {
       let bundle = PreloadServiceBundleMock(path: "/bundle")
       let fileManagerURL = URL(fileURLWithPath: "/documents")
       let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: false)
-      let service = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
-
+      let service = try PreloadService(bundle: bundle, fileManager: fileManager)
       try service.preloadDatabaseIfNeeded()
       XCTAssertEqual(fileManager.oldPath, "/bundle")
       XCTAssertEqual(fileManager.newPath, "/documents/db.sqlite")
@@ -65,27 +60,10 @@ final class PreloadServiceTests: XCTestCase {
       let bundle = PreloadServiceBundleMock(path: "/bundle")
       let fileManagerURL = URL(fileURLWithPath: "/documents")
       let fileManager = PreloadServiceFileMock(fileExists: true, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: false)
-      let service = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
-
+      let service = try PreloadService(bundle: bundle, fileManager: fileManager)
       try service.preloadDatabaseIfNeeded()
       XCTAssertNil(fileManager.oldPath)
       XCTAssertNil(fileManager.newPath)
-    }())
-  }
-
-  func testPreloadDatabaseIfNeededAfterUpdate() {
-    XCTAssertNoThrow(try {
-      let bundle = PreloadServiceBundleMock(path: "/bundle")
-      let fileManagerURL = URL(fileURLWithPath: "/documents")
-      let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: true)
-      let service = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
-
-      try service.preloadDatabaseIfNeeded()
-      XCTAssertEqual(fileManager.oldPath, "/bundle")
-      XCTAssertEqual(fileManager.newPath, "/documents/db.sqlite")
-      XCTAssertEqual(fileManager.path, "/documents/db.sqlite")
     }())
   }
 
@@ -96,8 +74,7 @@ final class PreloadServiceTests: XCTestCase {
       let bundle = PreloadServiceBundleMock(path: "/bundle")
       let fileManagerURL = URL(fileURLWithPath: "/documents")
       let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .failure(fileManagerError), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: false)
-      let service = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
+      let service = try PreloadService(bundle: bundle, fileManager: fileManager)
       try service.preloadDatabaseIfNeeded()
       XCTFail("Unexpectedly succeeded in preloading database")
     } catch {
@@ -107,16 +84,26 @@ final class PreloadServiceTests: XCTestCase {
     }
   }
 
-  func testPreloadDatabaseIfNeededDeleteItemError() {
+  func testRemoveDatabase() {
+    XCTAssertNoThrow(try {
+      let bundle = PreloadServiceBundleMock(path: "/bundle")
+      let fileManagerURL = URL(fileURLWithPath: "/documents")
+      let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .success(()), urlResult: .success(fileManagerURL))
+      let service = try PreloadService(bundle: bundle, fileManager: fileManager)
+      try service.removeDatabase()
+      XCTAssertEqual(fileManager.path, "/documents/db.sqlite")
+    }())
+  }
+
+  func testRemoveDatabaseError() {
     let fileManagerError = NSError(domain: "test", code: 1)
 
     do {
       let bundle = PreloadServiceBundleMock(path: "/bundle")
       let fileManagerURL = URL(fileURLWithPath: "/documents")
       let fileManager = PreloadServiceFileMock(fileExists: false, copyItemResult: .success(()), removeItemResult: .failure(fileManagerError), urlResult: .success(fileManagerURL))
-      let launchService = PreloadServiceLaunchMock(didLaunchAfterUpdate: true)
-      let service = try PreloadService(launchService: launchService, bundle: bundle, fileManager: fileManager)
-      try service.preloadDatabaseIfNeeded()
+      let service = try PreloadService(bundle: bundle, fileManager: fileManager)
+      try service.removeDatabase()
       XCTFail("Unexpectedly succeeded in preloading database")
     } catch {
       let error1 = error as NSError

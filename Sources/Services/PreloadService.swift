@@ -11,10 +11,6 @@ protocol PreloadServiceBundle {
   func path(forResource name: String?, ofType ext: String?) -> String?
 }
 
-protocol PreloadServiceLaunch {
-  var didLaunchAfterUpdate: Bool { get }
-}
-
 final class PreloadService {
   enum Error: CustomNSError {
     case resourceNotFound
@@ -24,10 +20,8 @@ final class PreloadService {
   private let newPath: String
   private let bundle: PreloadServiceBundle
   private let fileManager: PreloadServiceFile
-  private let launchService: PreloadServiceLaunch
 
-  init(launchService: PreloadServiceLaunch, bundle: PreloadServiceBundle = Bundle.main, fileManager: PreloadServiceFile = FileManager.default) throws {
-    self.launchService = launchService
+  init(bundle: PreloadServiceBundle = Bundle.main, fileManager: PreloadServiceFile = FileManager.default) throws {
     self.fileManager = fileManager
     self.bundle = bundle
 
@@ -48,11 +42,11 @@ final class PreloadService {
     newPath
   }
 
-  func preloadDatabaseIfNeeded() throws {
-    if launchService.didLaunchAfterUpdate {
-      try fileManager.removeItem(atPath: newPath)
-    }
+  func removeDatabase() throws {
+    try fileManager.removeItem(atPath: newPath)
+  }
 
+  func preloadDatabaseIfNeeded() throws {
     if !fileManager.fileExists(atPath: newPath) {
       try fileManager.copyItem(atPath: oldPath, toPath: newPath)
     }
@@ -62,5 +56,3 @@ final class PreloadService {
 extension Bundle: PreloadServiceBundle {}
 
 extension FileManager: PreloadServiceFile {}
-
-extension LaunchService: PreloadServiceLaunch {}
