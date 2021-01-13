@@ -52,7 +52,7 @@ final class Services {
 
     updateService = UpdateService(networkService: networkService)
     tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
-    scheduleService = ScheduleService(networkService: networkService, persistenceService: persistenceService)
+    scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
 
     infoService = InfoService(bundleService: bundleService)
     buildingsService = BuildingsService(bundleService: bundleService)

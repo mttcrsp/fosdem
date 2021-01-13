@@ -9,6 +9,7 @@ final class ScheduleServiceTests: XCTestCase {
     let defaults = ScheduleServiceDefaultsMock()
 
     let service = ScheduleService(
+      fosdemYear: 2021,
       networkService: networkService,
       persistenceService: persistenceService,
       defaults: defaults,
@@ -35,6 +36,7 @@ final class ScheduleServiceTests: XCTestCase {
     let networkService = ScheduleServiceNetworkAutomaticMock(schedule: makeSchedule())
 
     let service = ScheduleService(
+      fosdemYear: 2021,
       networkService: networkService,
       persistenceService: persistenceService,
       defaults: defaults,
@@ -59,6 +61,7 @@ final class ScheduleServiceTests: XCTestCase {
     let persistenceService = ScheduleServicePersistenceMock()
 
     let service = ScheduleService(
+      fosdemYear: 2021,
       networkService: networkService,
       persistenceService: persistenceService,
       defaults: defaults,
@@ -81,12 +84,13 @@ final class ScheduleServiceTests: XCTestCase {
     service.stopUpdating()
   }
 
-  func testPreventsSimultaneus() {
+  func testPreventsSimultaneous() {
     let defaults = ScheduleServiceDefaultsMock()
     let persistenceService = ScheduleServicePersistenceMock()
     let networkService = ScheduleServiceNetworkAutomaticMock(schedule: makeSchedule())
 
     let service = ScheduleService(
+      fosdemYear: 2021,
       networkService: networkService,
       persistenceService: persistenceService,
       defaults: defaults,

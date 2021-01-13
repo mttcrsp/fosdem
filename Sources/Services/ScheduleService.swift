@@ -18,13 +18,15 @@ final class ScheduleService {
   private var timer: Timer?
   private var isUpdating = false
 
+  private let fosdemYear: Int
   private let timeInterval: TimeInterval
   private let defaults: ScheduleServiceDefaults
   private let networkService: ScheduleServiceNetwork
   private let persistenceService: ScheduleServicePersistence
 
-  init(networkService: ScheduleServiceNetwork, persistenceService: ScheduleServicePersistence, defaults: ScheduleServiceDefaults = UserDefaults.standard, timeInterval: TimeInterval = 60 * 60) {
+  init(fosdemYear: Int, networkService: ScheduleServiceNetwork, persistenceService: ScheduleServicePersistence, defaults: ScheduleServiceDefaults = UserDefaults.standard, timeInterval: TimeInterval = 60 * 60) {
     self.defaults = defaults
+    self.fosdemYear = fosdemYear
     self.timeInterval = timeInterval
     self.networkService = networkService
     self.persistenceService = persistenceService
@@ -59,7 +61,7 @@ final class ScheduleService {
     guard shouldPerformUpdate, !isUpdating else { return }
     isUpdating = true
 
-    let request = ScheduleRequest(year: 2021)
+    let request = ScheduleRequest(year: fosdemYear)
     networkService.perform(request) { [weak self] result in
       guard case let .success(schedule) = result else { return }
 
