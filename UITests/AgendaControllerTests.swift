@@ -61,7 +61,7 @@ final class AgendaControllerTests: XCTestCase {
       soonButton.tap()
       wait { app.staticTexts["13:20 - D.bsd"].exists }
       wait { app.staticTexts["Porting fwupd to the BSD distributions"].exists }
-      XCTAssertEqual(app.tables.firstMatch.cells.count, 16)
+      XCTAssertEqual(app.tables.firstMatch.cells.count, 15)
     }
 
     runActivity(named: "Open event") {
