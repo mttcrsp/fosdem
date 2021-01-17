@@ -27,6 +27,10 @@ final class TestsService {
     }
   }
 
+  var shouldUpdateSchedule: Bool {
+    environment["ENABLE_SCHEDULE_UPDATES"] != nil
+  }
+
   func configureEnvironment() {
     if ProcessInfo.processInfo.isRunningUITests {
       DispatchQueue.main.async {

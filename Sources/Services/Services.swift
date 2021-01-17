@@ -8,7 +8,7 @@ final class Services {
   let yearsService = YearsService()
   let networkService: NetworkService
   let bundleService = BundleService()
-  let scheduleService: ScheduleService
+  let scheduleService: ScheduleService?
   let buildingsService: BuildingsService
   let playbackService = PlaybackService()
   let favoritesService = FavoritesService()
@@ -40,9 +40,26 @@ final class Services {
     session.configuration.timeoutIntervalForResource = 30
     networkService = NetworkService(session: session)
 
+    if launchService.didLaunchAfterFosdemYearChange {
+      favoritesService.removeAllTracksAndEvents()
+    }
+
+    updateService = UpdateService(networkService: networkService)
+    tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
+
     #if DEBUG
     testsService = TestsService(persistenceService: persistenceService, favoritesService: favoritesService, debugService: debugService)
     testsService.configureEnvironment()
+    #endif
+
+    #if DEBUG
+    if testsService.shouldUpdateSchedule {
+      scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
+    } else {
+      scheduleService = nil
+    }
+    #else
+    scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
     #endif
 
     #if DEBUG
@@ -54,14 +71,6 @@ final class Services {
     #else
     liveService = LiveService()
     #endif
-
-    if launchService.didLaunchAfterFosdemYearChange {
-      favoritesService.removeAllTracksAndEvents()
-    }
-
-    updateService = UpdateService(networkService: networkService)
-    tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
-    scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
 
     infoService = InfoService(bundleService: bundleService)
     buildingsService = BuildingsService(bundleService: bundleService)

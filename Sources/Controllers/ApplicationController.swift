@@ -49,12 +49,12 @@ final class ApplicationController: UITabBarController {
 
     services.updateService.delegate = self
     services.updateService.detectUpdates()
-    services.scheduleService.startUpdating()
+    services.scheduleService?.startUpdating()
   }
 
   func applicationDidBecomeActive() {
     services.liveService.startMonitoring()
-    services.scheduleService.startUpdating()
+    services.scheduleService?.startUpdating()
   }
 
   func applicationWillResignActive() {
