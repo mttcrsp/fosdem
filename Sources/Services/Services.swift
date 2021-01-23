@@ -1,25 +1,60 @@
 import Foundation
 
 final class Services {
-  let infoService: InfoService
-  let liveService: LiveService
-  let updateService: UpdateService
-  let tracksService: TracksService
+  let persistenceService: PersistenceService
+
   let yearsService = YearsService()
-  let networkService: NetworkService
   let bundleService = BundleService()
-  let noticesService: NoticesService?
-  let scheduleService: ScheduleService?
-  let buildingsService: BuildingsService
   let playbackService = PlaybackService()
   let favoritesService = FavoritesService()
-  let persistenceService: PersistenceService
   let acknowledgementsService = AcknowledgementsService()
 
+  private(set) lazy var infoService = InfoService(bundleService: bundleService)
+  private(set) lazy var updateService = UpdateService(networkService: networkService)
+  private(set) lazy var buildingsService = BuildingsService(bundleService: bundleService)
+  private(set) lazy var tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
+
+  private(set) lazy var networkService: NetworkService = {
+    let session = URLSession.shared
+    session.configuration.timeoutIntervalForRequest = 30
+    session.configuration.timeoutIntervalForResource = 30
+    return NetworkService(session: session)
+  }()
+  
   #if DEBUG
-  let testsService: TestsService
-  let debugService = DebugService()
+  private(set) lazy var debugService = DebugService()
+  private(set) lazy var testsService = TestsService(persistenceService: persistenceService, favoritesService: favoritesService, debugService: debugService)
   #endif
+
+  private(set) lazy var noticesService: NoticesService? = {
+    var noticesService: NoticesService? = NoticesService(currentYear: yearsService.current)
+    #if DEBUG
+    if !testsService.shouldDiplayNotices {
+      noticesService = nil
+    }
+    #endif
+    return noticesService
+  }()
+
+  private(set) lazy var scheduleService: ScheduleService? = {
+    var scheduleService: ScheduleService? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
+    #if DEBUG
+    if !testsService.shouldUpdateSchedule {
+      scheduleService = nil
+    }
+    #endif
+    return scheduleService
+  }()
+
+  private(set) lazy var liveService: LiveService = {
+    var liveService = LiveService()
+    #if DEBUG
+    if let timeInterval = testsService.liveTimerInterval {
+      liveService = LiveService(timeInterval: timeInterval)
+    }
+    #endif
+    return liveService
+  }()
 
   init() throws {
     let launchService = LaunchService(fosdemYear: yearsService.current)
@@ -33,57 +68,14 @@ final class Services {
     }
     try preloadService.preloadDatabaseIfNeeded()
 
-    let path = preloadService.databasePath
-    persistenceService = try PersistenceService(path: path, migrations: .allMigrations)
-
-    let session = URLSession.shared
-    session.configuration.timeoutIntervalForRequest = 30
-    session.configuration.timeoutIntervalForResource = 30
-    networkService = NetworkService(session: session)
+    persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
 
     if launchService.didLaunchAfterFosdemYearChange {
       favoritesService.removeAllTracksAndEvents()
     }
 
-    updateService = UpdateService(networkService: networkService)
-    tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
-
     #if DEBUG
-    testsService = TestsService(persistenceService: persistenceService, favoritesService: favoritesService, debugService: debugService)
     testsService.configureEnvironment()
     #endif
-
-    #if DEBUG
-    if testsService.shouldUpdateSchedule {
-      scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
-    } else {
-      scheduleService = nil
-    }
-    #else
-    scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
-    #endif
-
-    #if DEBUG
-    if testsService.shouldDiplayNotices {
-      noticesService = NoticesService(currentYear: yearsService.current)
-    } else {
-      noticesService = nil
-    }
-    #else
-    noticesService = NoticesService(currentYear: yearsService.current)
-    #endif
-
-    #if DEBUG
-    if let timeInterval = testsService.liveTimerInterval {
-      liveService = LiveService(timeInterval: timeInterval)
-    } else {
-      liveService = LiveService()
-    }
-    #else
-    liveService = LiveService()
-    #endif
-
-    infoService = InfoService(bundleService: bundleService)
-    buildingsService = BuildingsService(bundleService: bundleService)
   }
 }
