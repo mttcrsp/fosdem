@@ -54,13 +54,16 @@ final class MapControllerTests: XCTestCase {
 
       app.launch()
       app.mapButton.tap()
+      locationButton.tap()
 
       // WORKAROUND: When an alert is presented the application process looses
       // its focus. This means that assertions will fail to locate elements from
       // the application UI. In order to workaround this issue, force the app
-      // back into focus by interacting with some element.
-      locationButton.tap()
+      // back into focus by interacting with some element. On iOS 14, you also
+      // need to wait for the alert to be dismissed before attempting this tap.
+      wait { app.mapButton.isHittable }
       app.mapButton.tap()
+
       XCTAssert(locationAvailableButton.exists)
     }
 
