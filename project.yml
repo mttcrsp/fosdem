@@ -24,6 +24,8 @@ targets:
     - Sources
     - Resources
     scheme:
+      environmentVariables:
+        ENABLE_SCHEDULE_UPDATES: "1"
       gatherCoverageData: true
       testTargets:
         - name: Tests
