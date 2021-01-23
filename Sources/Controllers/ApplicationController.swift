@@ -1,7 +1,8 @@
-import SafariServices
 import UIKit
 
-final class ApplicationController: UITabBarController {
+final class ApplicationController: UIViewController {
+  private weak var tabsController: UITabBarController?
+
   private let services: Services
 
   init(services: Services) {
@@ -35,33 +36,33 @@ final class ApplicationController: UITabBarController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    delegate = self
-
-    var viewControllers: [UIViewController] = []
-    viewControllers.append(makeSearchController())
-    viewControllers.append(makeAgendaController())
-    viewControllers.append(makeMapController())
-    viewControllers.append(makeMoreController())
-    setViewControllers(viewControllers, animated: false)
-
-    for (index, viewController) in viewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
-      selectedIndex = index
+    var viewControllers: [UIViewController] = [makeTabsController()]
+    if traitCollection.userInterfaceIdiom == .phone, services.launchService.didLaunchAfterInstall {
+      viewControllers.append(makeWelcomeViewController())
     }
+
+    var constraints: [NSLayoutConstraint] = []
+    for viewController in viewControllers {
+      addChild(viewController)
+      view.addSubview(viewController.view)
+      viewController.view.translatesAutoresizingMaskIntoConstraints = false
+      viewController.didMove(toParent: self)
+
+      constraints.append(contentsOf: [
+        viewController.view.topAnchor.constraint(equalTo: view.topAnchor),
+        viewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        viewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+        viewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      ])
+    }
+
+    NSLayoutConstraint.activate(constraints)
+
+    view.backgroundColor = .fos_systemGroupedBackground
 
     services.updateService.delegate = self
     services.updateService.detectUpdates()
     services.scheduleService?.startUpdating()
-  }
-
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
-    if let noticesService = services.noticesService, noticesService.shouldDisplay2021Notice {
-      noticesService.mark2021NoticeDisplayed()
-
-      let noticeViewController = make2021NoticeViewController()
-      present(noticeViewController, animated: true)
-    }
   }
 
   func applicationDidBecomeActive() {
@@ -74,11 +75,15 @@ final class ApplicationController: UITabBarController {
   }
 
   @objc private func didSelectPrevTab() {
-    selectedIndex = ((selectedIndex - 1) + children.count) % children.count
+    if let rootTabBarController = tabsController {
+      rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex - 1) + children.count) % children.count
+    }
   }
 
   @objc private func didSelectNextTab() {
-    selectedIndex = ((selectedIndex + 1) + children.count) % children.count
+    if let rootTabBarController = tabsController {
+      rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex + 1) + children.count) % children.count
+    }
   }
 
   private func didTapUpdate() {
@@ -86,16 +91,28 @@ final class ApplicationController: UITabBarController {
       UIApplication.shared.open(url)
     }
   }
-
-  private func didTapVisitSite() {
-    if let url = URL.fosdemSite {
-      let safariViewController = SFSafariViewController(url: url)
-      present(safariViewController, animated: true)
-    }
-  }
 }
 
 private extension ApplicationController {
+  func makeTabsController() -> UITabBarController {
+    let tabsController = UITabBarController()
+    tabsController.delegate = self
+
+    var viewControllers: [UIViewController] = []
+    viewControllers.append(makeSearchController())
+    viewControllers.append(makeAgendaController())
+    viewControllers.append(makeMapController())
+    viewControllers.append(makeMoreController())
+    tabsController.setViewControllers(viewControllers, animated: false)
+
+    for (index, viewController) in viewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
+      tabsController.selectedIndex = index
+    }
+
+    self.tabsController = tabsController
+    return tabsController
+  }
+
   func makeSearchController() -> SearchController {
     let searchController = SearchController(services: services)
     searchController.tabBarItem.accessibilityIdentifier = "search"
@@ -136,15 +153,16 @@ private extension ApplicationController {
     return moreController
   }
 
+  func makeWelcomeViewController() -> WelcomeViewController {
+    let welcomeViewController = WelcomeViewController(year: services.yearsService.current)
+    welcomeViewController.showsContinue = true
+    welcomeViewController.delegate = self
+    return welcomeViewController
+  }
+
   func makeUpdateViewController() -> UIAlertController {
     UIAlertController.makeConfirmController(with: .update) { [weak self] in
       self?.didTapUpdate()
-    }
-  }
-
-  func make2021NoticeViewController() -> UIAlertController {
-    UIAlertController.makeConfirmController(with: .notice2021) { [weak self] in
-      self?.didTapVisitSite()
     }
   }
 }
@@ -201,6 +219,20 @@ extension ApplicationController: UpdateServiceDelegate {
   }
 }
 
+extension ApplicationController: WelcomeViewControllerDelegate {
+  func welcomeViewControllerDidTapContinue(_ welcomeViewController: WelcomeViewController) {
+    tabsController?.view.transform = .init(translationX: 0, y: 60)
+    welcomeViewController.willMove(toParent: nil)
+    UIView.animate(withDuration: 0.2) {
+      self.tabsController?.view.transform = .identity
+      welcomeViewController.view.alpha = 0
+    } completion: { _ in
+      welcomeViewController.view.removeFromSuperview()
+      welcomeViewController.removeFromParent()
+    }
+  }
+}
+
 private extension UserDefaults {
   var selectedViewController: String? {
     get { string(forKey: .selectedViewControllerKey) }
@@ -219,15 +251,6 @@ private extension UIAlertController.ConfirmConfiguration {
       message: FOSLocalizedString("update.message"),
       confirm: FOSLocalizedString("update.confirm"),
       dismiss: FOSLocalizedString("update.dismiss")
-    )
-  }
-
-  static var notice2021: UIAlertController.ConfirmConfiguration {
-    UIAlertController.ConfirmConfiguration(
-      title: FOSLocalizedString("notice.2021.title"),
-      message: FOSLocalizedString("notice.2021.message"),
-      confirm: FOSLocalizedString("notice.2021.confirm"),
-      dismiss: FOSLocalizedString("notice.2021.dismiss")
     )
   }
 }

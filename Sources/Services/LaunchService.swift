@@ -50,6 +50,13 @@ final class LaunchService {
     defaults.latestFosdemYear = fosdemYear
     defaults.latestBundleShortVersion = bundleShortVersion
   }
+
+  #if DEBUG
+  func markAsLaunched() {
+    defaults.latestFosdemYear = fosdemYear
+    defaults.latestBundleShortVersion = bundle.bundleShortVersion
+  }
+  #endif
 }
 
 extension LaunchServiceDefaults {

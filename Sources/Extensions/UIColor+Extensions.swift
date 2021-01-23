@@ -17,6 +17,14 @@ extension UIColor {
     }
   }
 
+  static var fos_systemGroupedBackground: UIColor {
+    if #available(iOS 13.0, *) {
+      return .systemGroupedBackground
+    } else {
+      return UIColor(red: 242 / 255, green: 242 / 255, blue: 247 / 255, alpha: 1)
+    }
+  }
+
   static var fos_label: UIColor {
     if #available(iOS 13.0, *) {
       return .label

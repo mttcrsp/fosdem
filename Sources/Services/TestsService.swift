@@ -31,8 +31,8 @@ final class TestsService {
     environment["ENABLE_SCHEDULE_UPDATES"] != nil
   }
 
-  var shouldDiplayNotices: Bool {
-    environment["ENABLE_NOTICES"] != nil
+  var shouldDiplayOnboarding: Bool {
+    environment["ENABLE_ONBOARDING"] != nil
   }
 
   func configureEnvironment() {

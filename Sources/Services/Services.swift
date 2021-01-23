@@ -1,6 +1,7 @@
 import Foundation
 
 final class Services {
+  let launchService: LaunchService
   let persistenceService: PersistenceService
 
   let yearsService = YearsService()
@@ -20,21 +21,11 @@ final class Services {
     session.configuration.timeoutIntervalForResource = 30
     return NetworkService(session: session)
   }()
-  
+
   #if DEBUG
   private(set) lazy var debugService = DebugService()
   private(set) lazy var testsService = TestsService(persistenceService: persistenceService, favoritesService: favoritesService, debugService: debugService)
   #endif
-
-  private(set) lazy var noticesService: NoticesService? = {
-    var noticesService: NoticesService? = NoticesService(currentYear: yearsService.current)
-    #if DEBUG
-    if !testsService.shouldDiplayNotices {
-      noticesService = nil
-    }
-    #endif
-    return noticesService
-  }()
 
   private(set) lazy var scheduleService: ScheduleService? = {
     var scheduleService: ScheduleService? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
@@ -57,8 +48,7 @@ final class Services {
   }()
 
   init() throws {
-    let launchService = LaunchService(fosdemYear: yearsService.current)
-    try launchService.detectStatus()
+    launchService = LaunchService(fosdemYear: yearsService.current)
 
     let preloadService = try PreloadService()
     // Remove the database after each update as the new database might contain
@@ -84,12 +74,20 @@ final class Services {
 
     persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
 
-    if launchService.didLaunchAfterFosdemYearChange {
-      favoritesService.removeAllTracksAndEvents()
-    }
-
     #if DEBUG
     testsService.configureEnvironment()
     #endif
+
+    #if DEBUG
+    if !testsService.shouldDiplayOnboarding {
+      launchService.markAsLaunched()
+    }
+    #endif
+
+    try launchService.detectStatus()
+
+    if launchService.didLaunchAfterFosdemYearChange {
+      favoritesService.removeAllTracksAndEvents()
+    }
   }
 }

@@ -1,8 +1,45 @@
 import UIKit
 
+protocol WelcomeViewControllerDelegate: AnyObject {
+  func welcomeViewControllerDidTapContinue(_ welcomeViewController: WelcomeViewController)
+}
+
 final class WelcomeViewController: UIViewController {
+  weak var delegate: WelcomeViewControllerDelegate?
+
+  var showsContinue = false {
+    didSet { showsContinueChanged() }
+  }
+
   private var observers: [NSObjectProtocol] = []
-  private lazy var label = UILabel()
+
+  private lazy var stackView: UIStackView = {
+    let stackView = UIStackView(arrangedSubviews: [imageView, messageLabel])
+    stackView.translatesAutoresizingMaskIntoConstraints = false
+    stackView.alignment = .center
+    stackView.axis = .vertical
+    stackView.spacing = 32
+    return stackView
+  }()
+
+  private let imageView = UIImageView(image: UIImage(named: "logo"))
+
+  private lazy var messageLabel: UILabel = {
+    let messageLabel = UILabel()
+    messageLabel.adjustsFontForContentSizeCategory = true
+    messageLabel.attributedText = makeAttributedText()
+    messageLabel.textAlignment = .center
+    messageLabel.numberOfLines = 0
+    return messageLabel
+  }()
+
+  private lazy var continueButton: RoundedButton = {
+    let continueButton = RoundedButton()
+    continueButton.accessibilityIdentifier = "continue"
+    continueButton.setTitle(FOSLocalizedString("welcome.continue"), for: .normal)
+    continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
+    return continueButton
+  }()
 
   private let year: Int
 
@@ -18,22 +55,10 @@ final class WelcomeViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    let imageView = UIImageView()
-    imageView.image = UIImage(named: "logo")
-
-    label.adjustsFontForContentSizeCategory = true
-    label.attributedText = makeAttributedText()
-    label.textAlignment = .center
-    label.numberOfLines = 0
-
-    let stackView = UIStackView(arrangedSubviews: [imageView, label])
-    stackView.translatesAutoresizingMaskIntoConstraints = false
-    stackView.alignment = .center
-    stackView.axis = .vertical
-    stackView.spacing = 32
-
     let scrollView = UIScrollView()
     scrollView.translatesAutoresizingMaskIntoConstraints = false
+    scrollView.contentInset.bottom = 20
+    scrollView.contentInset.top = 20
     scrollView.addSubview(stackView)
 
     view.addSubview(scrollView)
@@ -41,6 +66,12 @@ final class WelcomeViewController: UIViewController {
     view.backgroundColor = .groupTableViewBackground
 
     NSLayoutConstraint.activate([
+      messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 500),
+      continueButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 200),
+
+      messageLabel.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+      messageLabel.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+
       scrollView.topAnchor.constraint(equalTo: view.topAnchor),
       scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
       scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -66,7 +97,20 @@ final class WelcomeViewController: UIViewController {
     super.traitCollectionDidChange(previousTraitCollection)
 
     if traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
-      label.attributedText = makeAttributedText()
+      messageLabel.attributedText = makeAttributedText()
+    }
+  }
+
+  @objc private func continueTapped() {
+    delegate?.welcomeViewControllerDidTapContinue(self)
+  }
+
+  private func showsContinueChanged() {
+    if showsContinue {
+      stackView.addArrangedSubview(continueButton)
+    } else {
+      stackView.removeArrangedSubview(continueButton)
+      continueButton.removeFromSuperview()
     }
   }
 

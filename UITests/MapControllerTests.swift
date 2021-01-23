@@ -97,7 +97,7 @@ final class MapControllerTests: XCTestCase {
     app.launch()
     app.mapButton.tap()
 
-    let blueprintsNavBar = app.blueprintsContainer.navigationBars.firstMatch
+    let blueprintsNavBar = app.navigationBars.firstMatch
 
     app.buildingView.tap()
     var titles: Set<String> = []
@@ -162,7 +162,7 @@ extension XCUIApplication {
   }
 
   var blueprintsContainer: XCUIElement {
-    scrollViews.firstMatch
+    otherElements["embedded_blueprints"]
   }
 
   var blueprintsFullscreenDismissButton: XCUIElement {
