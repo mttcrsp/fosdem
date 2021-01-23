@@ -4,6 +4,17 @@ final class WelcomeViewController: UIViewController {
   private var observers: [NSObjectProtocol] = []
   private lazy var label = UILabel()
 
+  private let year: Int
+
+  init(year: Int) {
+    self.year = year
+    super.init(nibName: nil, bundle: nil)
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -62,8 +73,7 @@ final class WelcomeViewController: UIViewController {
   private func makeAttributedText() -> NSAttributedString {
     let titleFont: UIFont = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
     let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.fos_label]
-    let titleString = FOSLocalizedString("welcome.title")
-
+    let titleString = FOSLocalizedString(format: "welcome.title", year)
     let messageFont: UIFont = .fos_preferredFont(forTextStyle: .title3, withSymbolicTraits: .traitItalic)
     let messageAttributes: [NSAttributedString.Key: Any] = [.font: messageFont, .foregroundColor: UIColor.fos_label]
     let messageString = FOSLocalizedString("welcome.message")

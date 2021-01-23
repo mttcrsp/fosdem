@@ -78,7 +78,7 @@ final class SearchController: UISplitViewController {
 
     viewControllers = [tracksNavigationController]
     if traitCollection.horizontalSizeClass == .regular {
-      viewControllers.append(WelcomeViewController())
+      viewControllers.append(makeWelcomeViewController())
     }
   }
 
@@ -99,7 +99,7 @@ extension SearchController: UISplitViewControllerDelegate {
 
   func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
     guard let navigationController = primaryViewController as? UINavigationController else { return nil }
-    return navigationController.topViewController is TracksViewController ? WelcomeViewController() : nil
+    return navigationController.topViewController is TracksViewController ? makeWelcomeViewController() : nil
   }
 }
 
@@ -425,6 +425,10 @@ private extension SearchController {
     }
 
     return eventsViewController
+  }
+
+  func makeWelcomeViewController() -> WelcomeViewController {
+    WelcomeViewController(year: services.yearsService.current)
   }
 
   func makeEventViewController(for event: Event) -> EventController {

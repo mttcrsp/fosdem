@@ -8,16 +8,14 @@ protocol YearsServiceBundle {
 extension Bundle: YearsServiceBundle {}
 
 final class YearsService {
+  let current = 2021
+
   private let queue: DispatchQueue
   private let bundle: YearsServiceBundle
 
   init(bundle: YearsServiceBundle = Bundle.main, queue: DispatchQueue = .global()) {
     self.queue = queue
     self.bundle = bundle
-  }
-
-  var current: Int {
-    2021
   }
 
   func loadYears(_ completion: @escaping ([String]) -> Void) {
