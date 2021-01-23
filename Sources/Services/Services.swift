@@ -8,6 +8,7 @@ final class Services {
   let yearsService = YearsService()
   let networkService: NetworkService
   let bundleService = BundleService()
+  let noticesService: NoticesService?
   let scheduleService: ScheduleService?
   let buildingsService: BuildingsService
   let playbackService = PlaybackService()
@@ -60,6 +61,16 @@ final class Services {
     }
     #else
     scheduleService = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
+    #endif
+
+    #if DEBUG
+    if testsService.shouldDiplayNotices {
+      noticesService = NoticesService(currentYear: yearsService.current)
+    } else {
+      noticesService = nil
+    }
+    #else
+    noticesService = NoticesService(currentYear: yearsService.current)
     #endif
 
     #if DEBUG

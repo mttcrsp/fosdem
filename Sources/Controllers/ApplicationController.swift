@@ -1,3 +1,4 @@
+import SafariServices
 import UIKit
 
 final class ApplicationController: UITabBarController {
@@ -52,6 +53,17 @@ final class ApplicationController: UITabBarController {
     services.scheduleService?.startUpdating()
   }
 
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+    if let noticesService = services.noticesService, noticesService.shouldDisplay2021Notice {
+      noticesService.mark2021NoticeDisplayed()
+
+      let noticeViewController = make2021NoticeViewController()
+      present(noticeViewController, animated: true)
+    }
+  }
+
   func applicationDidBecomeActive() {
     services.liveService.startMonitoring()
     services.scheduleService?.startUpdating()
@@ -61,18 +73,25 @@ final class ApplicationController: UITabBarController {
     services.liveService.stopMonitoring()
   }
 
-  private func didTapUpdate() {
-    if let url = URL.fosdemAppStore {
-      UIApplication.shared.open(url)
-    }
-  }
-
   @objc private func didSelectPrevTab() {
     selectedIndex = ((selectedIndex - 1) + children.count) % children.count
   }
 
   @objc private func didSelectNextTab() {
     selectedIndex = ((selectedIndex + 1) + children.count) % children.count
+  }
+
+  private func didTapUpdate() {
+    if let url = URL.fosdemAppStore {
+      UIApplication.shared.open(url)
+    }
+  }
+
+  private func didTapVisitSite() {
+    if let url = URL.fosdemSite {
+      let safariViewController = SFSafariViewController(url: url)
+      present(safariViewController, animated: true)
+    }
   }
 }
 
@@ -120,6 +139,12 @@ private extension ApplicationController {
   func makeUpdateViewController() -> UIAlertController {
     UIAlertController.makeConfirmController(with: .update) { [weak self] in
       self?.didTapUpdate()
+    }
+  }
+
+  func make2021NoticeViewController() -> UIAlertController {
+    UIAlertController.makeConfirmController(with: .notice2021) { [weak self] in
+      self?.didTapVisitSite()
     }
   }
 }
@@ -194,6 +219,15 @@ private extension UIAlertController.ConfirmConfiguration {
       message: FOSLocalizedString("update.message"),
       confirm: FOSLocalizedString("update.confirm"),
       dismiss: FOSLocalizedString("update.dismiss")
+    )
+  }
+
+  static var notice2021: UIAlertController.ConfirmConfiguration {
+    UIAlertController.ConfirmConfiguration(
+      title: FOSLocalizedString("notice.2021.title"),
+      message: FOSLocalizedString("notice.2021.message"),
+      confirm: FOSLocalizedString("notice.2021.confirm"),
+      dismiss: FOSLocalizedString("notice.2021.dismiss")
     )
   }
 }

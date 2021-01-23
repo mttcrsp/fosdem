@@ -246,3 +246,15 @@
 "error.alert.message" = "Something went wrong. Try againg later or check the AppStore for updates.";
 // A button that dismiss an error alert
 "error.dismiss" = "Ok";
+
+
+/// MARK: - 2021 Online Notice
+
+// Title for an alert reporting that FOSDEM 2021 will take place online
+"notice.2021.title" = "FOSDEM 2021";
+// Message for an alert reporting that FOSDEM 2021 will take place online
+"notice.2021.message" = "In 2021, FOSDEM will take place on Saturday 6 and Sunday 7 February as an online event. Visit fosdem.org for additional information.";
+// A button that links to fosdem.org in the online notice alert
+"notice.2021.confirm" = "Visit fosdem.org";
+// A button that dismisses the 2021 online notice alert
+"notice.2021.dismiss" = "Continue";

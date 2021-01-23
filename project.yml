@@ -26,6 +26,7 @@ targets:
     scheme:
       environmentVariables:
         ENABLE_SCHEDULE_UPDATES: "1"
+        ENABLE_NOTICES: "1"
       gatherCoverageData: true
       testTargets:
         - name: Tests
