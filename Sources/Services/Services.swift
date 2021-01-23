@@ -23,8 +23,8 @@ final class Services {
   }()
 
   #if DEBUG
-  private(set) lazy var debugService = DebugService()
-  private(set) lazy var testsService = TestsService(persistenceService: persistenceService, favoritesService: favoritesService, debugService: debugService)
+  let debugService = DebugService()
+  let testsService = TestsService()
   #endif
 
   private(set) lazy var scheduleService: ScheduleService? = {
@@ -50,6 +50,21 @@ final class Services {
   init() throws {
     launchService = LaunchService(fosdemYear: yearsService.current)
 
+    #if DEBUG
+    if testsService.shouldResetDefaults, let name = Bundle.main.bundleIdentifier {
+      UserDefaults.standard.removePersistentDomain(forName: name)
+    }
+
+    if !testsService.shouldDiplayOnboarding {
+      launchService.markAsLaunched()
+    }
+    #endif
+
+    try launchService.detectStatus()
+
+    if launchService.didLaunchAfterFosdemYearChange {
+      favoritesService.removeAllTracksAndEvents()
+    }
     let preloadService = try PreloadService()
     // Remove the database after each update as the new database might contain
     // updates even if the year did not change.
@@ -75,19 +90,62 @@ final class Services {
     persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
 
     #if DEBUG
-    testsService.configureEnvironment()
-    #endif
+    if let identifiers = testsService.favoriteEventsIdentifiers {
+      favoritesService.setEventsIdentifiers(identifiers)
+    }
 
-    #if DEBUG
-    if !testsService.shouldDiplayOnboarding {
-      launchService.markAsLaunched()
+    if let identifiers = testsService.favoriteTracksIdentifiers {
+      favoritesService.setTracksIdentifiers(identifiers)
+    }
+
+    if let date = testsService.date {
+      debugService.override(date)
+    }
+
+    if let dates = testsService.dates {
+      testsService.startTogglingDates(dates) { date in
+        self.debugService.override(date)
+      }
+    }
+
+    if let video = testsService.video {
+      do {
+        let directory = FileManager.default.temporaryDirectory
+        let url = directory.appendingPathComponent("test.mp4")
+        try video.write(to: url)
+
+        let links = [Link(name: "test", url: url)]
+        let write = UpdateLinksForEvent(eventID: 11423, links: links)
+        try persistenceService.performWriteSync(write)
+      } catch {
+        assertionFailure(error.localizedDescription)
+      }
     }
     #endif
+  }
+}
 
-    try launchService.detectStatus()
+#if DEBUG
+private extension FavoritesService {
+  func setTracksIdentifiers(_ newTracksIdentifiers: Set<String>) {
+    for identifier in tracksIdentifiers {
+      removeTrack(withIdentifier: identifier)
+    }
 
-    if launchService.didLaunchAfterFosdemYearChange {
-      favoritesService.removeAllTracksAndEvents()
+    for identifier in newTracksIdentifiers {
+      addTrack(withIdentifier: identifier)
+    }
+  }
+
+  func setEventsIdentifiers(_ newEventsIdentifiers: Set<Int>) {
+    for identifier in eventsIdentifiers {
+      removeEvent(withIdentifier: identifier)
+    }
+
+    for identifier in newEventsIdentifiers {
+      addEvent(withIdentifier: identifier)
     }
   }
 }
+
+#endif

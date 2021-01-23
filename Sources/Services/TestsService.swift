@@ -2,29 +2,14 @@
 import UIKit
 
 final class TestsService {
-  private var datesTimer: Timer?
-  private var videoTimer: Timer?
-
-  private let debugService: DebugService
-  private let favoritesService: FavoritesService
-  private let persistenceService: PersistenceService
-
-  init(persistenceService: PersistenceService, favoritesService: FavoritesService, debugService: DebugService) {
-    self.persistenceService = persistenceService
-    self.favoritesService = favoritesService
-    self.debugService = debugService
-  }
+  private var timer: Timer?
 
   private var environment: [String: String] {
     ProcessInfo.processInfo.environment
   }
 
-  var liveTimerInterval: TimeInterval? {
-    if let string = environment["LIVE_INTERVAL"] {
-      return TimeInterval(string)
-    } else {
-      return nil
-    }
+  var shouldResetDefaults: Bool {
+    environment["RESET_DEFAULTS"] != nil
   }
 
   var shouldUpdateSchedule: Bool {
@@ -35,77 +20,68 @@ final class TestsService {
     environment["ENABLE_ONBOARDING"] != nil
   }
 
-  func configureEnvironment() {
-    if ProcessInfo.processInfo.isRunningUITests {
-      DispatchQueue.main.async {
-        UIApplication.shared.keyWindow?.layer.speed = 100
-      }
+  var liveTimerInterval: TimeInterval? {
+    if let string = environment["LIVE_INTERVAL"] {
+      return TimeInterval(string)
+    } else {
+      return nil
+    }
+  }
+
+  var favoriteTracksIdentifiers: Set<String>? {
+    if let value = environment["FAVORITE_TRACKS"] {
+      return Set(value.components(separatedBy: ","))
+    } else {
+      return nil
+    }
+  }
+
+  var favoriteEventsIdentifiers: Set<Int>? {
+    if let value = environment["FAVORITE_EVENTS"] {
+      return Set(value.components(separatedBy: ",").compactMap(Int.init))
+    } else {
+      return nil
+    }
+  }
+
+  var video: Data? {
+    if let base64 = environment["VIDEO"] {
+      return Data(base64Encoded: base64)
+    } else {
+      return nil
+    }
+  }
+
+  var date: Date? {
+    if let string = environment["SOON_DATE"], let value = Double(string) {
+      return Date(timeIntervalSince1970: value)
+    } else {
+      return nil
+    }
+  }
+
+  var dates: (Date, Date)? {
+    guard let string = environment["LIVE_DATES"] else {
+      return nil
     }
 
-    if environment["RESET_DEFAULTS"] != nil, let name = Bundle.main.bundleIdentifier {
-      UserDefaults.standard.removePersistentDomain(forName: name)
+    let components = string.components(separatedBy: ",")
+    guard components.count == 2, let value1 = Double(components[0]), let value2 = Double(components[1]) else {
+      return nil
     }
 
-    if let tracks = environment["FAVORITE_EVENTS"] {
-      for identifier in favoritesService.eventsIdentifiers {
-        favoritesService.removeEvent(withIdentifier: identifier)
-      }
+    let date1 = Date(timeIntervalSince1970: value1)
+    let date2 = Date(timeIntervalSince1970: value2)
+    return (date1, date2)
+  }
 
-      let identifiers = tracks.components(separatedBy: ",")
-      for identifier in identifiers {
-        if let identifier = Int(identifier) {
-          favoritesService.addEvent(withIdentifier: identifier)
-        }
-      }
-    }
+  func startTogglingDates(_ dates: (Date, Date), handler: @escaping (Date) -> Void) {
+    let (date1, date2) = dates
 
-    if let tracks = environment["FAVORITE_TRACKS"] {
-      for identifier in favoritesService.tracksIdentifiers {
-        favoritesService.removeTrack(withIdentifier: identifier)
-      }
-
-      let identifiers = tracks.components(separatedBy: ",")
-      for identifier in identifiers {
-        favoritesService.addTrack(withIdentifier: identifier)
-      }
-    }
-
-    if let string = environment["SOON_DATE"] {
-      if let value = Double(string) {
-        debugService.override(Date(timeIntervalSince1970: value))
-      }
-    }
-
-    if let string = environment["LIVE_DATES"] {
-      let components = string.components(separatedBy: ",")
-      if components.count == 2, let value1 = Double(components[0]), let value2 = Double(components[1]) {
-        let date1 = Date(timeIntervalSince1970: value1)
-        let date2 = Date(timeIntervalSince1970: value2)
-
-        var flag = true
-        datesTimer = .scheduledTimer(withTimeInterval: 3, repeats: true) { [weak self] _ in
-          self?.debugService.override(flag ? date1 : date2)
-          flag.toggle()
-        }
-      }
-    }
-
-    if let base64 = environment["VIDEO"], let data = Data(base64Encoded: base64) {
-      // HACK: Overriding the video URL every second ensures that the change
-      // will not be overridden by schedule updates.
-      videoTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-        do {
-          let directory = FileManager.default.temporaryDirectory
-          let url = directory.appendingPathComponent("test.mp4")
-          try data.write(to: url)
-
-          let links = [Link(name: "test", url: url)]
-          let write = UpdateLinksForEvent(eventID: 11423, links: links)
-          try self?.persistenceService.performWriteSync(write)
-        } catch {
-          assertionFailure(error.localizedDescription)
-        }
-      }
+    var flag = true
+    timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
+      handler(flag ? date1 : date2)
+      flag.toggle()
     }
   }
 }

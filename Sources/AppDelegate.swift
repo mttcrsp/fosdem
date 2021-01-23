@@ -14,7 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     #if DEBUG
-    guard !ProcessInfo.processInfo.isRunningUnitTests else { return false }
+    if ProcessInfo.processInfo.isRunningUnitTests {
+      return false
+    }
     #endif
 
     let rootViewController: UIViewController
@@ -29,6 +31,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window.rootViewController = rootViewController
     window.makeKeyAndVisible()
     self.window = window
+
+    #if DEBUG
+    if ProcessInfo.processInfo.isRunningUITests {
+      window.layer.speed = 100
+    }
+    #endif
 
     return true
   }
