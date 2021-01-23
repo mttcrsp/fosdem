@@ -257,8 +257,8 @@ private extension Event {
       throw Error(element: "event start", value: startRawValue)
     }
 
-    let start = DateComponents(hour: startHour, minute: startMinute)
     let duration = DateComponents(hour: durationHour, minute: durationMinute)
+    let start = DateComponents(hour: startHour, minute: startMinute)
 
     guard let dateRawValue = dayAttributes["date"] else {
       throw Error(element: "day", value: "missing date")
@@ -268,8 +268,14 @@ private extension Event {
       throw Error(element: "day date", value: dateRawValue)
     }
 
-    guard let date = Calendar.autoupdatingCurrent.date(byAdding: start, to: dateWithoutTime) else {
-      throw Error(element: "day date time", value: start)
+    let calendar = Calendar.autoupdatingCurrent
+    var components = calendar.dateComponents([.day, .month, .year], from: dateWithoutTime)
+    components.timeZone = TimeZone(identifier: "Europe/Brussels")
+    components.minute = startMinute
+    components.hour = startHour
+
+    guard let date = calendar.date(from: components) else {
+      throw Error(element: "day date time", value: startRawValue)
     }
 
     let summary = attributes["summary"]
