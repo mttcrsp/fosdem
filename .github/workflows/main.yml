@@ -11,11 +11,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install Xcodegen
-      run: brew install xcodegen
-    - name: Install Swiftformat
-      run: brew install swiftformat
-    - name: Install xcpretty
+    - name: Install Brew dependencies
+      run: brew install xcodegen swiftformat
+      env:
+        HOMEBREW_NO_INSTALL_CLEANUP: 1
+    - name: Install Rubygems dependencies
       run: gem install xcpretty-travis-formatter
     - name: Run Xcodegen
       run: xcodegen
