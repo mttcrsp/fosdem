@@ -66,6 +66,20 @@ final class Services {
     if launchService.didLaunchAfterUpdate {
       try preloadService.removeDatabase()
     }
+    // In the 2020 release, installs and updates where not being recorded. This
+    // means that users updating from 2020 to new version will be registered as
+    // new installs. The database also needs to be removed for those users too.
+    if launchService.didLaunchAfterInstall {
+      do {
+        try preloadService.removeDatabase()
+      } catch {
+        if let error = error as? CocoaError, error.code == .fileNoSuchFile {
+          // Do nothing
+        } else {
+          throw error
+        }
+      }
+    }
     try preloadService.preloadDatabaseIfNeeded()
 
     persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
