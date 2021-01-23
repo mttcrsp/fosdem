@@ -10,7 +10,8 @@ final class DebugService {
 
   init() {
     let calendar = Calendar.autoupdatingCurrent
-    let components = DateComponents(year: 2020, month: 2, day: 1, hour: 10, minute: 45)
+    let timeZone = TimeZone(identifier: "Europe/Brussels")
+    let components = DateComponents(timeZone: timeZone, year: 2021, month: 2, day: 6, hour: 12, minute: 45)
     date = calendar.date(from: components)
   }
 
