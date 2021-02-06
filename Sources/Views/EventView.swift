@@ -74,19 +74,6 @@ final class EventView: UIStackView {
     addArrangedSubview(trackView)
     setCustomSpacing(20, after: trackView)
 
-    if showsLivestream {
-      let livestreamAction = #selector(didTapLivestream)
-      let livestreamButton = RoundedButton()
-      livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
-      livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
-      livestreamButton.setTitle(FOSLocalizedString("event.livestream"), for: .normal)
-      self.livestreamButton = livestreamButton
-      addArrangedSubview(livestreamButton)
-      setCustomSpacing(28, after: livestreamButton)
-
-      constraints.append(livestreamButton.widthAnchor.constraint(equalTo: widthAnchor))
-    }
-
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
       let videoButton = RoundedButton()
@@ -100,6 +87,17 @@ final class EventView: UIStackView {
       constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
 
       reloadPlaybackPosition()
+    } else if showsLivestream {
+      let livestreamAction = #selector(didTapLivestream)
+      let livestreamButton = RoundedButton()
+      livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
+      livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
+      livestreamButton.setTitle(FOSLocalizedString("event.livestream"), for: .normal)
+      self.livestreamButton = livestreamButton
+      addArrangedSubview(livestreamButton)
+      setCustomSpacing(28, after: livestreamButton)
+
+      constraints.append(livestreamButton.widthAnchor.constraint(equalTo: widthAnchor))
     }
 
     if !event.people.isEmpty, let people = event.formattedPeople {
