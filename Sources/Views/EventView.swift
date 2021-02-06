@@ -2,6 +2,7 @@ import UIKit
 
 protocol EventViewDelegate: AnyObject {
   func eventViewDidTapVideo(_ eventView: EventView)
+  func eventViewDidTapLivestream(_ eventView: EventView)
   func eventView(_ eventView: EventView, didSelect attachment: Attachment)
 }
 
@@ -16,9 +17,14 @@ final class EventView: UIStackView {
   }
 
   private weak var videoButton: RoundedButton?
+  private weak var livestreamButton: RoundedButton?
 
   var event: Event? {
     didSet { didChangeEvent() }
+  }
+
+  var showsLivestream = false {
+    didSet { didChangeShowLivestream() }
   }
 
   override init(frame: CGRect) {
@@ -67,6 +73,19 @@ final class EventView: UIStackView {
     trackView.track = event.track
     addArrangedSubview(trackView)
     setCustomSpacing(20, after: trackView)
+
+    if showsLivestream {
+      let livestreamAction = #selector(didTapLivestream)
+      let livestreamButton = RoundedButton()
+      livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
+      livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
+      livestreamButton.setTitle(FOSLocalizedString("event.livestream"), for: .normal)
+      self.livestreamButton = livestreamButton
+      addArrangedSubview(livestreamButton)
+      setCustomSpacing(28, after: livestreamButton)
+
+      constraints.append(livestreamButton.widthAnchor.constraint(equalTo: widthAnchor))
+    }
 
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
@@ -155,6 +174,14 @@ final class EventView: UIStackView {
     accessibilityElements = subviews
 
     NSLayoutConstraint.activate(constraints)
+  }
+
+  private func didChangeShowLivestream() {
+    livestreamButton?.isHidden = !showsLivestream
+  }
+
+  @objc private func didTapLivestream() {
+    delegate?.eventViewDidTapLivestream(self)
   }
 
   @objc private func didTapVideo() {

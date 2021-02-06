@@ -79,6 +79,22 @@ final class EventController: UIViewController {
       : "favorite"
   }
 
+  private var now: Date {
+    #if DEBUG
+    return services.debugService.now
+    #else
+    return Date()
+    #endif
+  }
+
+  private var isEventToday: Bool {
+    event.isSameDay(as: now)
+  }
+
+  private var hasLivestream: Bool {
+    event.links.contains(where: \.isLivestream)
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -138,11 +154,18 @@ final class EventController: UIViewController {
 }
 
 extension EventController: EventViewControllerDelegate, EventViewControllerDataSource {
-  func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
-    guard let video = event.video, let url = video.url else { return }
+  func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController) {
+    if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
+      let livestreamViewController = makeVideoViewController(for: url)
+      eventViewController.present(livestreamViewController, animated: true)
+    }
+  }
 
-    let videoViewController = makeVideoViewController(for: url)
-    eventViewController.present(videoViewController, animated: true)
+  func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
+    if let video = event.video, let url = video.url {
+      let videoViewController = makeVideoViewController(for: url)
+      eventViewController.present(videoViewController, animated: true)
+    }
   }
 
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
@@ -206,6 +229,7 @@ private extension EventController {
     }
 
     let eventViewController = EventViewController(style: style)
+    eventViewController.showsLivestream = hasLivestream && isEventToday
     eventViewController.dataSource = self
     eventViewController.delegate = self
     eventViewController.event = event

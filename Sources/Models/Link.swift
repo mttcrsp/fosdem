@@ -5,6 +5,10 @@ struct Link: Equatable, Codable {
 }
 
 extension Link {
+  var isLivestream: Bool {
+    livestreamURL != nil
+  }
+
   var livestreamURL: URL? {
     guard let host = url?.host, let pathComponents = url?.pathComponents else {
       return nil

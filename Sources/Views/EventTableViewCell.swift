@@ -13,6 +13,11 @@ final class EventTableViewCell: UITableViewCell {
     get { eventView.delegate }
   }
 
+  var showsLivestream: Bool {
+    get { eventView.showsLivestream }
+    set { eventView.showsLivestream = newValue }
+  }
+
   init(isAdaptive: Bool) {
     super.init(style: .default, reuseIdentifier: nil)
 

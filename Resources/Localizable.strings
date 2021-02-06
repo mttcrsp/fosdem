@@ -9,6 +9,8 @@
 
 /// MARK: - Event
 
+// A button that starts playback of the livestream for a given event
+"event.livestream" = "Play livestream";
 // A button that starts playback of a video that the user has not seen yet
 "event.video.begin" = "Watch now";
 // A button that resumes playback of a video that the user has already being playing but did not finish

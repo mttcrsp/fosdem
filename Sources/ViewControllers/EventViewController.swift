@@ -2,6 +2,7 @@ import UIKit
 
 protocol EventViewControllerDelegate: AnyObject {
   func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
+  func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
 
@@ -14,6 +15,7 @@ final class EventViewController: UITableViewController {
   weak var dataSource: EventViewControllerDataSource?
 
   var event: Event?
+  var showsLivestream = false
 
   private var eventCell: EventTableViewCell?
 
@@ -41,6 +43,7 @@ final class EventViewController: UITableViewController {
       eventCell = EventTableViewCell(isAdaptive: isAdaptive)
       eventCell?.delegate = self
       eventCell?.dataSource = self
+      eventCell?.showsLivestream = showsLivestream
       eventCell?.configure(with: event)
     }
   }
@@ -55,6 +58,10 @@ final class EventViewController: UITableViewController {
 }
 
 extension EventViewController: EventViewDelegate, EventViewDataSource {
+  func eventViewDidTapLivestream(_ eventView: EventView) {
+    delegate?.eventViewControllerDidTapLivestream(self)
+  }
+
   func eventViewDidTapVideo(_ eventView: EventView) {
     delegate?.eventViewControllerDidTapVideo(self)
   }
