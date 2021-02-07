@@ -12,16 +12,16 @@ final class AgendaControllerTests: XCTestCase {
     app.launchEnvironment = [
       "LIVE_INTERVAL": "1",
       "LIVE_DATES": "\(interval1),\(interval2)",
-      "FAVORITE_EVENTS": "11246,11621",
+      "FAVORITE_EVENTS": "11317,11621",
     ]
     app.launch()
     app.agendaButton.tap()
 
     runActivity(named: "Captions") {
       XCTAssert(app.staticTexts["12:10 - D.bsd - BSD"].exists)
-      XCTAssert(app.staticTexts["13:00 - D.containers - Containers"].exists)
+      XCTAssert(app.staticTexts["13:05 - D.containers - Containers"].exists)
       XCTAssert(app.staticTexts["hello... again?"].exists)
-      XCTAssert(app.staticTexts["vdi using lxd"].exists)
+      XCTAssert(app.staticTexts["MariaDB Buildbot Container environments"].exists)
     }
 
     runActivity(named: "Live status") {
@@ -59,9 +59,9 @@ final class AgendaControllerTests: XCTestCase {
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
-      wait { app.staticTexts["13:20 - D.bsd"].exists }
-      wait { app.staticTexts["Porting fwupd to the BSD distributions"].exists }
-      XCTAssertEqual(app.tables.firstMatch.cells.count, 15)
+      wait { app.staticTexts["13:20 - L.lightningtalks"].exists }
+      wait { app.staticTexts["Etebase - Your End-to-End Encrypted Backend"].exists }
+      XCTAssertEqual(app.tables.firstMatch.cells.count, 23)
     }
 
     runActivity(named: "Open event") {
@@ -86,7 +86,7 @@ final class AgendaControllerTests: XCTestCase {
 
   func testFavorites() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "11246,11621"]
+    app.launchEnvironment = ["FAVORITE_EVENTS": "11317,11621"]
     app.launch()
     app.agendaButton.tap()
 
@@ -130,7 +130,7 @@ final class AgendaControllerTests: XCTestCase {
     defer { XCUIDevice.shared.orientation = .portrait }
 
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "11246"]
+    app.launchEnvironment = ["FAVORITE_EVENTS": "11317"]
     app.launch()
 
     runActivity(named: "Handle expanded launch") {
@@ -160,7 +160,7 @@ final class AgendaControllerTests: XCTestCase {
 
   func testPopToRoot() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "11246"]
+    app.launchEnvironment = ["FAVORITE_EVENTS": "11317"]
     app.launch()
     app.agendaButton.tap()
     wait { app.agendaTable.exists }

@@ -77,11 +77,11 @@ final class SearchControllerTests: XCTestCase {
     }
 
     runActivity(named: "Display track") {
-      XCTAssert(app.trackTable.staticTexts["11:00"].exists)
-      XCTAssertEqual(app.trackTable.cells.count, 10)
+      XCTAssert(app.trackTable.staticTexts["11:15"].exists)
+      XCTAssertEqual(app.trackTable.cells.count, 8)
     }
 
-    let tracksCount = 37
+    let tracksCount = 111
 
     runActivity(named: "Unfavorite from track") {
       unfavoriteTrackButton.tap()
@@ -119,7 +119,7 @@ final class SearchControllerTests: XCTestCase {
     runActivity(named: "Display results") {
       let searchBar = app.searchFields.firstMatch
       searchBar.tap()
-      searchBar.typeText("javascript learning")
+      searchBar.typeText("javascript learning re")
       XCTAssertEqual(resultsCells.count, 1)
       XCTAssert(app.staticTexts["JavaScript"].exists)
       XCTAssert(app.staticTexts["Reinforcement Learning with JavaScript"].exists)
@@ -163,7 +163,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 0).tap() // day 1
       XCTAssertTrue(day1Header.exists)
       XCTAssertFalse(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 14)
+      XCTAssertEqual(app.tracksTable.cells.count, 72)
     }
 
     runActivity(named: "Select day 2") {
@@ -171,7 +171,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 1).tap() // day 2
       XCTAssertTrue(day2Header.exists)
       XCTAssertTrue(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 24)
+      XCTAssertEqual(app.tracksTable.cells.count, 40)
     }
 
     runActivity(named: "Select all") {
@@ -179,7 +179,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 0).tap() // all
       XCTAssertTrue(allHeader.exists)
       XCTAssertTrue(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 38)
+      XCTAssertEqual(app.tracksTable.cells.count, 112)
     }
   }
 
@@ -260,7 +260,7 @@ extension XCUIApplication {
   }
 
   var day1TrackCellIdentifier: String {
-    "Collaborative Information and Content Management Applications"
+    "Apache OpenOffice"
   }
 
   var day1TrackCell: XCUIElement {
@@ -278,10 +278,10 @@ private extension XCUIApplication {
   }
 
   var day2TrackCell: XCUIElement {
-    tracksTable.cells["Containers"]
+    tracksTable.cells["BSD"]
   }
 
   var eventCell: XCUIElement {
-    trackTable.cells["Living on the edge with CryptPad"]
+    trackTable.cells["State of Apache OpenOffice"]
   }
 }

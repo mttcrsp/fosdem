@@ -115,7 +115,7 @@ final class Services {
         try video.write(to: url)
 
         let links = [Link(name: "test", url: url)]
-        let write = UpdateLinksForEvent(eventID: 11423, links: links)
+        let write = UpdateLinksForEvent(eventID: 11717, links: links)
         try persistenceService.performWriteSync(write)
       } catch {
         assertionFailure(error.localizedDescription)

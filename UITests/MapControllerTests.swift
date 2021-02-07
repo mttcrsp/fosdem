@@ -37,12 +37,12 @@ final class MapControllerTests: XCTestCase {
     runActivity(named: "Force location services section to appear") {
       app.launch()
       app.mapButton.tap()
-      app.terminate()
     }
 
     runActivity(named: "Allow location services") {
       addUIInterruptionMonitor(withDescription: "Location Services") { alert in
-        alert.buttons["Allow While Using App"].tap()
+        // Attempts to match "Allow While Using App" will fail in Xcode 12.4
+        alert.buttons.element(boundBy: 1).tap()
         return true
       }
 
@@ -52,7 +52,7 @@ final class MapControllerTests: XCTestCase {
       settings.staticTexts["com.mttcrsp.fosdem"].tap()
       settings.staticTexts["LOCATION_SERVICES_AUTH_NOT_DETERMINED"].tap()
 
-      app.launch()
+      app.activate()
       app.mapButton.tap()
       locationButton.tap()
 
