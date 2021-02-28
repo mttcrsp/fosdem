@@ -23,7 +23,6 @@ protocol EventsViewControllerFavoritesDelegate: AnyObject {
 }
 
 protocol EventsViewControllerDeleteDelegate: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, canDelete event: Event) -> Bool
   func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event)
 }
 

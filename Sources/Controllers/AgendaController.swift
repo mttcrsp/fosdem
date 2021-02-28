@@ -7,7 +7,6 @@ protocol AgendaControllerDelegate: AnyObject {
 final class AgendaController: UIViewController {
   weak var agendaDelegate: AgendaControllerDelegate?
 
-  private weak var agendaSplitViewController: UISplitViewController?
   private weak var agendaViewController: EventsViewController?
   private weak var soonViewController: EventsViewController?
   private weak var eventViewController: EventController?
@@ -261,7 +260,6 @@ private extension AgendaController {
     agendaSplitViewController.preferredPrimaryColumnWidthFraction = 0.4
     agendaSplitViewController.preferredDisplayMode = .allVisible
     agendaSplitViewController.maximumPrimaryColumnWidth = 375
-    self.agendaSplitViewController = agendaSplitViewController
     return agendaSplitViewController
   }
 

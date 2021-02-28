@@ -11,7 +11,6 @@ final class MapController: MapContainerViewController {
   private weak var mapViewController: MapViewController?
   private weak var embeddedBlueprintsViewController: BlueprintsViewController?
   private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
-  private weak var fullscreenBlueprintsNavigationController: UINavigationController?
 
   private var transition: FullscreenBlueprintsDismissalTransition?
   private var observer: NSObjectProtocol?
@@ -195,8 +194,6 @@ extension MapController: BlueprintsViewControllerDelegate {
     let navigationBar = blueprintsNavigationController.navigationBar
     navigationBar.setBackgroundImage(UIImage(), for: .default)
     navigationBar.shadowImage = UIImage()
-
-    fullscreenBlueprintsNavigationController = blueprintsNavigationController
 
     let transition = FullscreenBlueprintsDismissalTransition(dismissedViewController: blueprintsNavigationController)
     blueprintsNavigationController.view.addGestureRecognizer(transition.panRecognizer)

@@ -149,10 +149,6 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
 }
 
 extension VideosController: EventsViewControllerDeleteDelegate {
-  func eventsViewController(_ eventsViewController: EventsViewController, canDelete event: Event) -> Bool {
-    true
-  }
-
   func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event) {
     services.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
   }

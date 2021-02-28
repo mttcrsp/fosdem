@@ -8,8 +8,4 @@ extension URL {
   static var fosdemGithub: URL? {
     URL(string: "https://www.github.com/mttcrsp/fosdem")
   }
-
-  static var fosdemSite: URL? {
-    URL(string: "https://www.fosdem.org")
-  }
 }

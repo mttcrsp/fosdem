@@ -68,10 +68,6 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
     1
   }
 
-  func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt index: Int) -> String? {
-    nil
-  }
-
   func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
     tracks.count
   }

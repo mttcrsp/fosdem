@@ -32,8 +32,6 @@ final class MapViewController: UIViewController {
   private lazy var mapView = MKMapView()
   private lazy var controlsView = MapControlsView()
 
-  private weak var blueprintsViewController: UIViewController?
-
   override func viewDidLoad() {
     super.viewDidLoad()
 
