@@ -63,7 +63,9 @@ final class WelcomeViewController: UIViewController {
 
     view.addSubview(scrollView)
     view.accessibilityIdentifier = "welcome"
+    #if !targetEnvironment(macCatalyst)
     view.backgroundColor = .groupTableViewBackground
+    #endif
 
     NSLayoutConstraint.activate([
       messageLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 500),

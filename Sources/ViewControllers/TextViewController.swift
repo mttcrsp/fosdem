@@ -25,7 +25,9 @@ final class TextViewController: UIViewController {
     super.viewDidLoad()
     textView.isEditable = false
     textView.font = preferredFont
+    #if !targetEnvironment(macCatalyst)
     textView.backgroundColor = .groupTableViewBackground
+    #endif
   }
 
   override func viewDidLayoutSubviews() {

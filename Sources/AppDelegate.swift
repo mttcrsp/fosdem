@@ -50,7 +50,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   private func didChangePendingNetworkRequests() {
+    #if !targetEnvironment(macCatalyst)
     UIApplication.shared.isNetworkActivityIndicatorVisible = pendingNetworkRequests > 0
+    #endif
   }
 
   private func makeServices() throws -> Services {

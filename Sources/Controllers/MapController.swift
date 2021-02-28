@@ -68,7 +68,11 @@ final class MapController: MapContainerViewController {
   }
 
   private var authorizationStatus: CLAuthorizationStatus {
-    CLLocationManager.authorizationStatus()
+    #if targetEnvironment(macCatalyst)
+    return .denied
+    #else
+    return CLLocationManager.authorizationStatus()
+    #endif
   }
 
   private func didChangeVoiceOverStatus() {

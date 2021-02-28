@@ -118,7 +118,11 @@ private extension ApplicationController {
     searchController.tabBarItem.accessibilityIdentifier = "search"
     searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
     searchController.title = FOSLocalizedString("search.title")
+    #if targetEnvironment(macCatalyst)
+    searchController.preferredDisplayMode = .oneBesideSecondary
+    #else
     searchController.preferredDisplayMode = .allVisible
+    #endif
     searchController.preferredPrimaryColumnWidthFraction = 0.4
     searchController.maximumPrimaryColumnWidth = 375
     return searchController
@@ -147,7 +151,11 @@ private extension ApplicationController {
     moreController.tabBarItem.accessibilityIdentifier = "more"
     moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
     moreController.title = FOSLocalizedString("more.title")
+    #if targetEnvironment(macCatalyst)
+    moreController.preferredDisplayMode = .oneBesideSecondary
+    #else
     moreController.preferredDisplayMode = .allVisible
+    #endif
     moreController.preferredPrimaryColumnWidthFraction = 0.4
     moreController.maximumPrimaryColumnWidth = 375
     return moreController
