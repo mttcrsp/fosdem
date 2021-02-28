@@ -8,10 +8,6 @@
     "url": "https://github.com/peripheryapp/periphery"
   },
   {
-    "name": "PLCrashReporter",
-    "url": "https://github.com/microsoft/PLCrashReporter"
-  },
-  {
     "name": "SwiftFormat",
     "url": "https://github.com/nicklockwood/SwiftFormat"
   },
