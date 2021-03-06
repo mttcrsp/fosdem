@@ -10,7 +10,7 @@ protocol PersistenceServiceRead {
 }
 
 protocol PersistenceServiceMigration {
-  func perform(in database: Database) throws -> Void
+  func perform(in database: Database) throws
   var identifier: String { get }
 }
 
