@@ -107,7 +107,7 @@ extension CLAuthorizationStatus {
       return "location_available"
     case .denied, .restricted:
       return "location_unavailable"
-        @unknown default:
+    @unknown default:
       return "location_unavailable"
     }
   }
@@ -120,7 +120,7 @@ extension CLAuthorizationStatus {
       return UIImage.fos_systemImage(withName: "location.fill")
     case .denied, .restricted:
       return UIImage.fos_systemImage(withName: "location.slash")
-        @unknown default:
+    @unknown default:
       return UIImage.fos_systemImage(withName: "location.slash")
     }
   }

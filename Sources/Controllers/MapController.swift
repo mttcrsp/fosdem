@@ -275,7 +275,7 @@ private extension CLAuthorizationStatus {
       return .enable
     case .notDetermined:
       return nil
-        @unknown default:
+    @unknown default:
       return nil
     }
   }
