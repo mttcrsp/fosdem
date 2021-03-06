@@ -4,13 +4,13 @@ final class EventTableViewCell: UITableViewCell {
   private let eventView = EventView()
 
   var dataSource: EventViewDataSource? {
-    set { eventView.dataSource = newValue }
     get { eventView.dataSource }
+    set { eventView.dataSource = newValue }
   }
 
   var delegate: EventViewDelegate? {
-    set { eventView.delegate = newValue }
     get { eventView.delegate }
+    set { eventView.delegate = newValue }
   }
 
   var showsLivestream: Bool {

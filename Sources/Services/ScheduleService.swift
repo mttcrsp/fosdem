@@ -49,8 +49,8 @@ final class ScheduleService {
   }
 
   private var latestUpdate: Date {
-    set { defaults.latestScheduleUpdate = newValue }
     get { defaults.latestScheduleUpdate ?? .distantPast }
+    set { defaults.latestScheduleUpdate = newValue }
   }
 
   private var shouldPerformUpdate: Bool {
@@ -78,8 +78,8 @@ final class ScheduleService {
 
 private extension ScheduleServiceDefaults {
   var latestScheduleUpdate: Date? {
-    set { set(newValue, forKey: .latestScheduleUpdateKey) }
     get { value(forKey: .latestScheduleUpdateKey) as? Date }
+    set { set(newValue, forKey: .latestScheduleUpdateKey) }
   }
 }
 

@@ -61,8 +61,8 @@ final class LaunchService {
 
 extension LaunchServiceDefaults {
   var latestFosdemYear: Int? {
-    set { set(newValue?.description, forKey: .latestFosdemYearKey) }
     get { string(forKey: .latestFosdemYearKey).flatMap { string in Int(string) } }
+    set { set(newValue?.description, forKey: .latestFosdemYearKey) }
   }
 
   var latestBundleShortVersion: String? {

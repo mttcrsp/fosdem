@@ -106,26 +106,26 @@ final class PlaybackService {
 
 private extension PlaybackServiceDefaults {
   var watched: Set<Int> {
-    set {
-      let array = Array(newValue)
-      let arrayPlist = NSArray(array: array)
-      set(arrayPlist, forKey: .watchedKey)
-    }
     get {
       let object = value(forKey: .watchedKey)
       let array = object as? [Int] ?? []
       return Set(array)
     }
+    set {
+      let array = Array(newValue)
+      let arrayPlist = NSArray(array: array)
+      set(arrayPlist, forKey: .watchedKey)
+    }
   }
 
   var watching: [String: Double] {
-    set {
-      set(newValue, forKey: .watchingKey)
-    }
     get {
       let object = value(forKey: .watchingKey)
       let dictionary = object as? [String: Double] ?? [:]
       return dictionary
+    }
+    set {
+      set(newValue, forKey: .watchingKey)
     }
   }
 }
