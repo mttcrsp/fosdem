@@ -325,9 +325,9 @@ internal enum L10n {
     internal static let `continue` = L10n.tr("Localizable", "welcome.continue")
     /// FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels. In 2021, they will gather online.
     internal static let message = L10n.tr("Localizable", "welcome.message")
-    /// FOSDEM %d
-    internal static func title(_ p1: Int) -> String {
-      L10n.tr("Localizable", "welcome.title", p1)
+    /// FOSDEM %@
+    internal static func title(_ p1: Any) -> String {
+      L10n.tr("Localizable", "welcome.title", String(describing: p1))
     }
   }
 
