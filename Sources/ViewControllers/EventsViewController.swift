@@ -52,7 +52,7 @@ final class EventsViewController: UITableViewController {
     dataSource?.events(in: self) ?? []
   }
 
-  func reloadData(animatingDifferences: Bool = true) {
+  func reloadData(animatingDifferences _: Bool = true) {
     if isViewLoaded {
       tableView.reloadData()
     }
@@ -128,11 +128,11 @@ final class EventsViewController: UITableViewController {
     return view
   }
 
-  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
     1
   }
 
-  override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+  override func tableView(_: UITableView, commit _: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
     deleteDelegate?.eventsViewController(self, didDelete: event(forSection: indexPath.section))
   }
 
@@ -144,16 +144,16 @@ final class EventsViewController: UITableViewController {
     return cell
   }
 
-  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
     delegate?.eventsViewController(self, didSelect: event(forSection: indexPath.section))
   }
 
-  override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+  override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
     UISwipeActionsConfiguration(actions: actions(at: indexPath))
   }
 
   @available(iOS 13.0, *)
-  override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+  override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
     UIContextMenuConfiguration(actions: actions(at: indexPath))
   }
 

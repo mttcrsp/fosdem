@@ -1,4 +1,3 @@
---disable unusedArguments
 --header strip
 --ifdef no-indent
 --indent 2

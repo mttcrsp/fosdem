@@ -48,29 +48,29 @@ final class EventViewController: UITableViewController {
     }
   }
 
-  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
     event == nil ? 0 : 1
   }
 
-  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+  override func tableView(_: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
     eventCell ?? UITableViewCell()
   }
 }
 
 extension EventViewController: EventViewDelegate, EventViewDataSource {
-  func eventViewDidTapLivestream(_ eventView: EventView) {
+  func eventViewDidTapLivestream(_: EventView) {
     delegate?.eventViewControllerDidTapLivestream(self)
   }
 
-  func eventViewDidTapVideo(_ eventView: EventView) {
+  func eventViewDidTapVideo(_: EventView) {
     delegate?.eventViewControllerDidTapVideo(self)
   }
 
-  func eventView(_ eventView: EventView, didSelect attachment: Attachment) {
+  func eventView(_: EventView, didSelect attachment: Attachment) {
     delegate?.eventViewController(self, didSelect: attachment)
   }
 
-  func eventView(_ eventView: EventView, playbackPositionFor event: Event) -> PlaybackPosition {
+  func eventView(_: EventView, playbackPositionFor event: Event) -> PlaybackPosition {
     dataSource?.eventViewController(self, playbackPositionFor: event) ?? .beginning
   }
 }

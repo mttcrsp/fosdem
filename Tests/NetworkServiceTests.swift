@@ -114,7 +114,7 @@ final class NetworkServiceTests: XCTestCase {
       URL(string: "https://www.fosdem.org")!
     }
 
-    func decode(_ data: Data) throws {}
+    func decode(_: Data) throws {}
   }
 
   private struct AdvancedRequest: NetworkRequest {

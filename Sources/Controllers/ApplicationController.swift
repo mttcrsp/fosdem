@@ -10,7 +10,7 @@ final class ApplicationController: UIViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder: NSCoder) {
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -193,13 +193,13 @@ extension ApplicationController: UITabBarControllerDelegate {
     return true
   }
 
-  func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+  func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
     previouslySelectedViewController = String(describing: type(of: viewController))
   }
 }
 
 extension ApplicationController: AgendaControllerDelegate {
-  func agendaController(_ agendaController: AgendaController, didError error: Error) {
+  func agendaController(_ agendaController: AgendaController, didError _: Error) {
     let errorViewController = ErrorViewController()
     agendaController.addChild(errorViewController)
     agendaController.view.addSubview(errorViewController.view)
@@ -208,7 +208,7 @@ extension ApplicationController: AgendaControllerDelegate {
 }
 
 extension ApplicationController: MapControllerDelegate {
-  func mapController(_ mapController: MapController, didError error: Error) {
+  func mapController(_ mapController: MapController, didError _: Error) {
     let errorViewController = ErrorViewController()
     mapController.addChild(errorViewController)
     mapController.view.addSubview(errorViewController.view)
@@ -217,7 +217,7 @@ extension ApplicationController: MapControllerDelegate {
 }
 
 extension ApplicationController: UpdateServiceDelegate {
-  func updateServiceDidDetectUpdate(_ updateService: UpdateService) {
+  func updateServiceDidDetectUpdate(_: UpdateService) {
     DispatchQueue.main.async { [weak self] in
       if let self = self {
         let updateViewController = self.makeUpdateViewController()

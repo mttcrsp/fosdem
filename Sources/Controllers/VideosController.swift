@@ -22,7 +22,7 @@ final class VideosController: UIPageViewController {
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
   }
 
-  required init?(coder: NSCoder) {
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -138,24 +138,24 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
     }
   }
 
-  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
+  func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
 
-  func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
+  func eventsViewController(_: EventsViewController, didSelect event: Event) {
     let eventViewController = makeEventViewController(for: event)
     show(eventViewController, sender: nil)
   }
 }
 
 extension VideosController: EventsViewControllerDeleteDelegate {
-  func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event) {
+  func eventsViewController(_: EventsViewController, didDelete event: Event) {
     services.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
   }
 }
 
 extension VideosController: UIPageViewControllerDataSource {
-  func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+  func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
     switch viewController {
     case watchingViewController:
       return nil
@@ -166,7 +166,7 @@ extension VideosController: UIPageViewControllerDataSource {
     }
   }
 
-  func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+  func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
     switch viewController {
     case watchingViewController:
       return watchedViewController
@@ -179,7 +179,7 @@ extension VideosController: UIPageViewControllerDataSource {
 }
 
 extension VideosController: UIPageViewControllerDelegate {
-  func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+  func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted completed: Bool) {
     guard completed else { return }
 
     let currentViewController = pageViewController.viewControllers?.first

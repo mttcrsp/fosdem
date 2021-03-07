@@ -210,13 +210,13 @@ extension MapViewController: MKMapViewDelegate {
     return annotationView
   }
 
-  func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+  func mapView(_: MKMapView, didSelect view: MKAnnotationView) {
     if let building = view.annotation as? Building {
       selectedBuilding = building
     }
   }
 
-  func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+  func mapView(_: MKMapView, didDeselect view: MKAnnotationView) {
     if view.annotation is Building {
       selectedBuilding = nil
     }
@@ -224,11 +224,11 @@ extension MapViewController: MKMapViewDelegate {
 }
 
 extension MapViewController: MapControlsViewDelegate {
-  func controlsViewDidTapLocation(_ controlsView: MapControlsView) {
+  func controlsViewDidTapLocation(_: MapControlsView) {
     delegate?.mapViewControllerDidTapLocation(self)
   }
 
-  func controlsViewDidTapReset(_ controlsView: MapControlsView) {
+  func controlsViewDidTapReset(_: MapControlsView) {
     delegate?.mapViewControllerDidTapReset(self)
   }
 }

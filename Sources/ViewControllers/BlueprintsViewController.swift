@@ -39,7 +39,7 @@ final class BlueprintsViewController: UIPageViewController {
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [.interPageSpacing: 20])
   }
 
-  required init?(coder: NSCoder) {
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -159,7 +159,7 @@ final class BlueprintsViewController: UIPageViewController {
 }
 
 extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
-  func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+  func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
     guard let index = viewController.fos_index else { return nil }
 
     let indexBefore = index - 1
@@ -170,7 +170,7 @@ extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewCo
     }
   }
 
-  func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+  func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
     guard let index = viewController.fos_index else { return nil }
 
     let indexAfter = index + 1
@@ -181,7 +181,7 @@ extension BlueprintsViewController: UIPageViewControllerDataSource, UIPageViewCo
     }
   }
 
-  func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+  func pageViewController(_: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted completed: Bool) {
     if completed {
       didChangeVisibleBlueprint()
     }

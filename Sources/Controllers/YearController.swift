@@ -27,7 +27,7 @@ final class YearController: TracksViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder: NSCoder) {
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -55,7 +55,7 @@ final class YearController: TracksViewController {
     }
   }
 
-  private func tracksLoadingDidError(with error: Error) {
+  private func tracksLoadingDidError(with _: Error) {
     yearDelegate?.yearControllerDidError(self)
   }
 
@@ -66,15 +66,15 @@ final class YearController: TracksViewController {
 }
 
 extension YearController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-  func numberOfSections(in tracksViewController: TracksViewController) -> Int {
+  func numberOfSections(in _: TracksViewController) -> Int {
     1
   }
 
-  func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
+  func tracksViewController(_: TracksViewController, numberOfTracksIn _: Int) -> Int {
     tracks.count
   }
 
-  func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
     tracks[indexPath.row]
   }
 
@@ -118,7 +118,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
     }
   }
 
-  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
+  func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
 

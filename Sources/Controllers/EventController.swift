@@ -23,7 +23,7 @@ final class EventController: UIViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder: NSCoder) {
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -173,13 +173,13 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
     eventViewController.present(attachmentViewController, animated: true)
   }
 
-  func eventViewController(_ eventViewController: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
+  func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
     playbackService.playbackPosition(forEventWithIdentifier: event.id)
   }
 }
 
 extension EventController: AVPlayerViewControllerDelegate {
-  func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+  func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
     let event = self.event
 
     do {
@@ -208,7 +208,7 @@ extension EventController: AVPlayerViewControllerDelegate {
     }
   }
 
-  func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+  func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
     if let observer = timeObserver {
       playerViewController.player?.removeTimeObserver(observer)
       timeObserver = nil

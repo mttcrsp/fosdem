@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window?.rootViewController as? ApplicationController
   }
 
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+  func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     #if DEBUG
     if ProcessInfo.processInfo.isRunningUnitTests {
       return false
@@ -41,11 +41,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     return true
   }
 
-  func applicationDidBecomeActive(_ application: UIApplication) {
+  func applicationDidBecomeActive(_: UIApplication) {
     applicationController?.applicationDidBecomeActive()
   }
 
-  func applicationWillResignActive(_ application: UIApplication) {
+  func applicationWillResignActive(_: UIApplication) {
     applicationController?.applicationWillResignActive()
   }
 
@@ -69,13 +69,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: NetworkServiceDelegate {
-  func networkServiceDidBeginRequest(_ networkService: NetworkService) {
+  func networkServiceDidBeginRequest(_: NetworkService) {
     OperationQueue.main.addOperation { [weak self] in
       self?.pendingNetworkRequests += 1
     }
   }
 
-  func networkServiceDidEndRequest(_ networkService: NetworkService) {
+  func networkServiceDidEndRequest(_: NetworkService) {
     OperationQueue.main.addOperation { [weak self] in
       self?.pendingNetworkRequests -= 1
     }

@@ -97,15 +97,15 @@ class TracksViewController: UITableViewController {
     tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
   }
 
-  override func numberOfSections(in tableView: UITableView) -> Int {
+  override func numberOfSections(in _: UITableView) -> Int {
     dataSource?.numberOfSections(in: self) ?? 0
   }
 
-  override func sectionIndexTitles(for tableView: UITableView) -> [String]? {
+  override func sectionIndexTitles(for _: UITableView) -> [String]? {
     indexDataSource?.sectionIndexTitles(in: self)
   }
 
-  override func tableView(_ tableView: UITableView, sectionForSectionIndexTitle title: String, at index: Int) -> Int {
+  override func tableView(_: UITableView, sectionForSectionIndexTitle _: String, at index: Int) -> Int {
     // HACK: UITableView only supports using section index titles pointing
     // to the first element of a given section. However here I want the
     // indices to point to arbitrary index paths. In order to achieve this
@@ -144,7 +144,7 @@ class TracksViewController: UITableViewController {
     return view
   }
 
-  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
     dataSource?.tracksViewController(self, numberOfTracksIn: section) ?? 0
   }
 
@@ -156,18 +156,18 @@ class TracksViewController: UITableViewController {
     return cell
   }
 
-  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
     if let track = dataSource?.tracksViewController(self, trackAt: indexPath) {
       delegate?.tracksViewController(self, didSelect: track)
     }
   }
 
-  override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+  override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
     UISwipeActionsConfiguration(actions: actions(at: indexPath))
   }
 
   @available(iOS 13.0, *)
-  override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+  override func tableView(_: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point _: CGPoint) -> UIContextMenuConfiguration? {
     UIContextMenuConfiguration(actions: actions(at: indexPath))
   }
 

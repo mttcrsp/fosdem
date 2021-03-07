@@ -13,7 +13,7 @@ final class MoreController: UISplitViewController {
     super.init(nibName: nil, bundle: nil)
   }
 
-  required init?(coder: NSCoder) {
+  required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
@@ -94,7 +94,7 @@ extension MoreController: MoreViewControllerDelegate {
     moreViewController.showDetailViewController(navigationController, sender: nil)
   }
 
-  private func moreViewControllerDidSelectYears(_ moreViewController: MoreViewController) {
+  private func moreViewControllerDidSelectYears(_: MoreViewController) {
     services.yearsService.loadYears { years in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
@@ -115,7 +115,7 @@ extension MoreController: MoreViewControllerDelegate {
     }
   }
 
-  private func moreViewControllerDidSelectTransportation(_ moreViewController: MoreViewController) {
+  private func moreViewControllerDidSelectTransportation(_: MoreViewController) {
     let transportationViewController = makeTransportationViewController()
     let navigationController = UINavigationController(rootViewController: transportationViewController)
     showDetailViewController(navigationController)
@@ -171,11 +171,11 @@ extension MoreController: TransportationViewControllerDelegate {
 }
 
 extension MoreController: YearsViewControllerDataSource, YearsViewControllerDelegate {
-  func numberOfYears(in yearsViewController: YearsViewController) -> Int {
+  func numberOfYears(in _: YearsViewController) -> Int {
     years.count
   }
 
-  func yearsViewController(_ yearsViewController: YearsViewController, yearAt index: Int) -> String {
+  func yearsViewController(_: YearsViewController, yearAt index: Int) -> String {
     years[index]
   }
 
@@ -235,7 +235,7 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
 }
 
 extension MoreController: VideosControllerDelegate {
-  func videosController(_ videosController: VideosController, didError error: Error) {
+  func videosController(_ videosController: VideosController, didError _: Error) {
     let errorViewController = makeErrorViewController { [weak self] in
       self?.popToRootViewController()
     }

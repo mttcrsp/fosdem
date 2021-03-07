@@ -42,11 +42,11 @@ private struct YearsServiceBundleMock: YearsServiceBundle {
     self.urls = urls
   }
 
-  func url(forResource name: String?, withExtension ext: String?) -> URL? {
+  func url(forResource _: String?, withExtension _: String?) -> URL? {
     url
   }
 
-  func urls(forResourcesWithExtension ext: String?, subdirectory subpath: String?) -> [URL]? {
+  func urls(forResourcesWithExtension _: String?, subdirectory _: String?) -> [URL]? {
     urls
   }
 }

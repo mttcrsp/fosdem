@@ -19,7 +19,7 @@ final class PreloadServiceFileMock: PreloadServiceFile {
     self.urlResult = urlResult
   }
 
-  func fileExists(atPath path: String) -> Bool {
+  func fileExists(atPath _: String) -> Bool {
     fileExists
   }
 
@@ -46,7 +46,7 @@ final class PreloadServiceFileMock: PreloadServiceFile {
     }
   }
 
-  func url(for directory: FileManager.SearchPathDirectory, in domain: FileManager.SearchPathDomainMask, appropriateFor url: URL?, create shouldCreate: Bool) throws -> URL {
+  func url(for _: FileManager.SearchPathDirectory, in _: FileManager.SearchPathDomainMask, appropriateFor _: URL?, create _: Bool) throws -> URL {
     switch urlResult {
     case let .success(value):
       return value
