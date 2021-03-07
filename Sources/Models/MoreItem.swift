@@ -44,21 +44,21 @@ extension MoreItem {
   var icon: UIImage? {
     switch self {
     case .code:
-      return UIImage(named: "contribute")
+      return Asset.More.contribute.image
     case .legal:
-      return UIImage(named: "document")
+      return Asset.More.document.image
     case .years:
-      return UIImage(named: "years")
+      return Asset.More.years.image
     case .video:
-      return UIImage(named: "video")
+      return Asset.More.video.image
     case .history:
-      return UIImage(named: "history")
+      return Asset.More.history.image
     case .devrooms:
-      return UIImage(named: "devrooms")
+      return Asset.More.devrooms.image
     case .transportation:
-      return UIImage(named: "transportation")
+      return Asset.More.transportation.image
     case .acknowledgements:
-      return UIImage(named: "document")
+      return Asset.More.document.image
     #if DEBUG
     case .time:
       return nil

@@ -22,7 +22,7 @@ final class WelcomeViewController: UIViewController {
     return stackView
   }()
 
-  private let imageView = UIImageView(image: UIImage(named: "logo"))
+  private let imageView = UIImageView(image: Asset.Search.logo.image)
 
   private lazy var messageLabel: UILabel = {
     let messageLabel = UILabel()

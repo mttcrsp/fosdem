@@ -4,3 +4,11 @@ strings:
   outputs:
     - templateName: structured-swift5
       output: Sources/Generated/Strings+Generated.swift
+
+xcassets:
+  inputs:
+    - .
+  outputs:
+    - templateName: swift5
+      output: Sources/Generated/XCAssets+Generated.swift
+
