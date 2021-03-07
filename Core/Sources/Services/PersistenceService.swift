@@ -1,6 +1,6 @@
 import GRDB
 
-protocol PersistenceServiceWrite {
+public protocol PersistenceServiceWrite {
   func perform(in database: Database) throws
 }
 
@@ -14,8 +14,12 @@ protocol PersistenceServiceMigration {
   var identifier: String { get }
 }
 
-final class PersistenceService {
+public final class PersistenceService {
   private let database: DatabaseQueue
+
+  public convenience init(path: String?) throws {
+    try self.init(path: path, migrations: .allMigrations)
+  }
 
   init(path: String?, migrations: [PersistenceServiceMigration]) throws {
     if let path = path {
@@ -31,7 +35,7 @@ final class PersistenceService {
     try migrator.migrate(database)
   }
 
-  func performWriteSync(_ write: PersistenceServiceWrite) throws {
+  public func performWriteSync(_ write: PersistenceServiceWrite) throws {
     try database.write(write.perform)
   }
 

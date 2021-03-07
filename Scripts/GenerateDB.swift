@@ -1,3 +1,4 @@
+import Core
 import Foundation
 
 @main
@@ -21,7 +22,7 @@ struct GenerateDB {
       .appendingPathComponent("db")
       .appendingPathExtension("sqlite")
 
-    let persistenceService = try! PersistenceService(path: tmpFile.path, migrations: .allMigrations)
+    let persistenceService = try! PersistenceService(path: tmpFile.path)
     let persistenceRequest = ImportSchedule(schedule: try! result.get())
     try! persistenceService.performWriteSync(persistenceRequest)
 

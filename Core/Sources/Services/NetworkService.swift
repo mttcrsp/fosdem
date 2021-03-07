@@ -1,6 +1,6 @@
 import Foundation
 
-protocol NetworkRequest {
+public protocol NetworkRequest {
   associatedtype Model
 
   var url: URL { get }
@@ -11,11 +11,11 @@ protocol NetworkRequest {
   func decode(_ data: Data) throws -> Model
 }
 
-protocol NetworkServiceTask {
+public protocol NetworkServiceTask {
   func resume()
 }
 
-protocol NetworkServiceSession {
+public protocol NetworkServiceSession {
   func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
 }
 
@@ -24,17 +24,17 @@ protocol NetworkServiceDelegate: AnyObject {
   func networkServiceDidEndRequest(_ networkService: NetworkService)
 }
 
-final class NetworkService {
+public final class NetworkService {
   weak var delegate: NetworkServiceDelegate?
 
   private let session: NetworkServiceSession
 
-  init(session: NetworkServiceSession) {
+  public init(session: NetworkServiceSession) {
     self.session = session
   }
 
   @discardableResult
-  func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkServiceTask {
+  public func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkServiceTask {
     let task = session.dataTask(with: request.httpRequest) { [weak self] data, _, error in
       if let self = self {
         self.delegate?.networkServiceDidEndRequest(self)
@@ -61,15 +61,15 @@ final class NetworkService {
 }
 
 extension NetworkRequest {
-  var httpBody: Data? {
+  public var httpBody: Data? {
     nil
   }
 
-  var httpMethod: String {
+  public var httpMethod: String {
     "GET"
   }
 
-  var allHTTPHeaderFields: [String: String]? {
+  public var allHTTPHeaderFields: [String: String]? {
     nil
   }
 }
@@ -77,7 +77,7 @@ extension NetworkRequest {
 extension URLSessionDataTask: NetworkServiceTask {}
 
 extension URLSession: NetworkServiceSession {
-  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
+  public func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
     dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
   }
 }

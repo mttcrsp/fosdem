@@ -1,16 +1,20 @@
 import Foundation
 
-struct ScheduleRequest: NetworkRequest {
+public struct ScheduleRequest: NetworkRequest {
   let year: Int
 
-  var url: URL {
+  public init(year: Int) {
+    self.year = year
+  }
+
+  public var url: URL {
     URL(string: "https://fosdem.org/")!
       .appendingPathComponent(year.description)
       .appendingPathComponent("schedule")
       .appendingPathComponent("xml")
   }
 
-  func decode(_ data: Data) throws -> Schedule {
+  public func decode(_ data: Data) throws -> Schedule {
     let parser = ScheduleXMLParser(data: data)
 
     if parser.parse(), let schedule = parser.schedule {

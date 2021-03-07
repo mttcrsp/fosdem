@@ -55,8 +55,9 @@ targets:
         VERSIONING_SYSTEM: apple-generic
 
   Core:
-    platform: macOS
     type: framework
+    platform: macOS
+    deploymentTarget: '10.13'
     sources:
     - Core/Sources
     dependencies:
@@ -96,29 +97,10 @@ targets:
   GenerateDB:
     type: tool
     platform: macOS
-    deploymentTarget: '10.13'
+    deploymentTarget: '10.15'
     sources:
-    - Sources/Models/Conference.swift
-    - Sources/Models/Room.swift
-    - Sources/Models/Day.swift
-    - Sources/Models/Attachment.swift
-    - Sources/Models/Link.swift
-    - Sources/Models/ScheduleXMLParser.swift
-    - Sources/Models/Event.swift
-    - Sources/Models/Track.swift
-    - Sources/Models/Person.swift
-    - Sources/Models/Participation.swift
-    - Sources/Models/Schedule.swift
-    - Sources/Models/Queries/ImportSchedule.swift
-    - Sources/Models/Requests/ScheduleRequest.swift
-    - Sources/Models/Tables
-    - Sources/Models/Migrations
-    - Sources/Services/PersistenceService.swift
-    - Sources/Services/NetworkService.swift
-    - Sources/Extensions/DateComponentsFormatter+Extensions.swift
-    - Sources/Extensions/DateFormatter+Extensions.swift
     - Scripts/GenerateDB.swift
     dependencies:
-    - package: GRDB
+    - target: Core
     postbuildScripts:
     - script: swiftformat .
