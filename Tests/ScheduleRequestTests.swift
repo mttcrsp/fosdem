@@ -3,12 +3,9 @@ import Fosdem
 import XCTest
 
 final class ScheduleRequestTests: XCTestCase {
-  func testDecode() {
+  func testDecode() throws {
     let year = 2020
-
-    guard let data = BundleDataLoader().data(forResource: "\(year)", withExtension: "xml") else {
-      return XCTFail("Unable to load schedule data for '\(year)'")
-    }
+    let data = try XCTUnwrap(BundleDataLoader().data(forResource: "\(year)", withExtension: "xml"))
 
     let requestURL = URL(string: "https://fosdem.org/2020/schedule/xml")
     let request = ScheduleRequest(year: year)

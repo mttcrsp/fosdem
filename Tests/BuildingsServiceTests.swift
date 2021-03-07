@@ -3,12 +3,9 @@ import Fosdem
 import XCTest
 
 final class BuildingsServiceTests: XCTestCase {
-  func testLoadBuildings() {
+  func testLoadBuildings() throws {
     let building = "aw"
-
-    guard let data = BundleDataLoader().data(forResource: building, withExtension: "json") else {
-      return XCTFail("Unable to load data for building '\(building)'")
-    }
+    let data = try BundleDataLoader().data(forResource: building, withExtension: "json")
 
     let serviceBundle = BundleServiceMock(result: .success(data))
     let service = BuildingsService(bundleService: serviceBundle, queue: .main)

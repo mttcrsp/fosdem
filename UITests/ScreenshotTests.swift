@@ -2,9 +2,7 @@ import XCTest
 
 final class ScreenshotTests: XCTestCase {
   func testScreenshots() throws {
-    guard let device = ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] else {
-      return XCTFail("Failed to acquire device name")
-    }
+    let device = try XCTUnwrap(ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"])
 
     let app = XCUIApplication()
     app.launchEnvironment = [

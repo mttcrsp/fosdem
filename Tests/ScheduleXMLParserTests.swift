@@ -3,12 +3,9 @@ import Fosdem
 import XCTest
 
 final class ScheduleXMLParserTests: XCTestCase {
-  func testDecoding() {
+  func testDecoding() throws {
     for year in 2007 ... 2020 {
-      guard let data = BundleDataLoader().data(forResource: "\(year)", withExtension: "xml") else {
-        return XCTFail("Unable to load schedule data for '\(year)'")
-      }
-
+      let data = try XCTUnwrap(BundleDataLoader().data(forResource: "\(year)", withExtension: "xml"))
       let parser = ScheduleXMLParser(data: data)
 
       XCTAssert(parser.parse())

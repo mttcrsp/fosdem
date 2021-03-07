@@ -1,12 +1,11 @@
 import XCTest
 
 final class AgendaControllerTests: XCTestCase {
-  func testAppearance() {
+  func testAppearance() throws {
     let components1 = DateComponents(timeZone: TimeZone(identifier: "Europe/Brussels"), year: 2021, month: 2, day: 7, hour: 12, minute: 12)
     let components2 = DateComponents(timeZone: TimeZone(identifier: "Europe/Brussels"), year: 2021, month: 2, day: 7, hour: 13, minute: 19)
-    guard let interval1 = interval(for: components1), let interval2 = interval(for: components2) else {
-      return XCTFail("Failed to instantiate mock dates")
-    }
+    let interval1 = try XCTUnwrap(interval(for: components1))
+    let interval2 = try XCTUnwrap(interval(for: components2))
 
     let app = XCUIApplication()
     app.launchEnvironment = [
@@ -35,9 +34,8 @@ final class AgendaControllerTests: XCTestCase {
   func testSoon() throws {
     let components1 = DateComponents(timeZone: TimeZone(identifier: "Europe/Brussels"), year: 2050, month: 2, day: 7, hour: 13, minute: 19)
     let components2 = DateComponents(timeZone: TimeZone(identifier: "Europe/Brussels"), year: 2021, month: 2, day: 7, hour: 13, minute: 19)
-    guard let interval1 = interval(for: components1), let interval2 = interval(for: components2) else {
-      return XCTFail("Failed to instantiate mock dates")
-    }
+    let interval1 = try XCTUnwrap(interval(for: components1))
+    let interval2 = try XCTUnwrap(interval(for: components2))
 
     let app = XCUIApplication()
     let soonTable = app.tables["events"]

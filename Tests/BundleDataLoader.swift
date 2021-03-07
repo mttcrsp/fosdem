@@ -8,18 +8,9 @@ final class BundleDataLoader {
     self.bundle = bundle
   }
 
-  func data(forResource resource: String, withExtension ext: String) -> Data? {
-    guard let url = Bundle(for: Self.self).url(forResource: resource, withExtension: ext) else {
-      XCTFail("Unable to locate resource '\(resource)' with extension \(ext)")
-      return nil
-    }
-
-    guard let data = try? Data(contentsOf: url) else {
-      XCTFail("Unable to load data at url '\(url)'")
-      return nil
-    }
-
-    return data
+  func data(forResource resource: String, withExtension ext: String) throws -> Data {
+    let url = try XCTUnwrap(bundle.url(forResource: resource, withExtension: ext))
+    return try Data(contentsOf: url)
   }
 }
 

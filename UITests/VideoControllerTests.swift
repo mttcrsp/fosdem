@@ -1,10 +1,8 @@
 import XCTest
 
 final class VideoControllerTests: XCTestCase {
-  func testVideos() {
-    guard let data = BundleDataLoader().data(forResource: "test", withExtension: "mp4") else {
-      return XCTFail("Unable to load video")
-    }
+  func testVideos() throws {
+    let data = try XCTUnwrap(BundleDataLoader().data(forResource: "test", withExtension: "mp4"))
 
     let app = XCUIApplication()
     app.launchEnvironment = ["RESET_DEFAULTS": "1", "VIDEO": data.base64EncodedString()]

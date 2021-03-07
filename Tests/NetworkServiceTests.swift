@@ -29,7 +29,7 @@ final class NetworkServiceTests: XCTestCase {
     XCTAssertTrue(didExecuteCompletion)
   }
 
-  func testPerformAdvancedRequest() {
+  func testPerformAdvancedRequest() throws {
     let integer = 99
     let request = AdvancedRequest()
     let dataTask = NetworkServiceTaskMock()
@@ -54,18 +54,12 @@ final class NetworkServiceTests: XCTestCase {
     XCTAssertEqual(session.request?.httpMethod, request.httpMethod)
     XCTAssertEqual(session.request?.allHTTPHeaderFields, request.allHTTPHeaderFields)
 
-    guard let completionHandler = session.completionHandler else {
-      return XCTAssertNotNil(session.completionHandler)
-    }
+    let data = try JSONEncoder().encode(integer)
 
-    do {
-      let data = try JSONEncoder().encode(integer)
-      completionHandler(data, nil, nil)
+    let completionHandler = try XCTUnwrap(session.completionHandler)
+    completionHandler(data, nil, nil)
 
-      XCTAssertTrue(didExecuteCompletion)
-    } catch {
-      XCTFail(error.localizedDescription)
-    }
+    XCTAssertTrue(didExecuteCompletion)
   }
 
   func testPerformError() {
