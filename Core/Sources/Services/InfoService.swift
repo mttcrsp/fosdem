@@ -1,3 +1,5 @@
+import Foundation
+
 enum Info: String {
   case history, devrooms, transportation
   case bus, shuttle, train, car, plane, taxi
@@ -5,7 +7,7 @@ enum Info: String {
 }
 
 #if os(iOS)
-import Foundation
+import UIKit
 
 protocol InfoServiceBundle {
   func data(forResource name: String?, withExtension ext: String?) throws -> Data

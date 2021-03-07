@@ -32,7 +32,7 @@ targets:
         - name: UITests
           randomExecutionOrder: true
     dependencies:
-    - package: GRDB
+    - target: Core_iOS
     prebuildScripts:
     - script: swiftgen
     postbuildScripts:
@@ -54,8 +54,10 @@ targets:
 
   Core:
     type: framework
-    platform: macOS
-    deploymentTarget: '10.13'
+    platform: [iOS, macOS]
+    deploymentTarget:
+      iOS: 11.0
+      tvOS: 10.15
     sources:
     - Core/Sources
     dependencies:
@@ -67,12 +69,12 @@ targets:
   CoreTests:
     type: bundle.unit-test
     platform: macOS
-    deploymentTarget: '11.0'
+    deploymentTarget: '10.15'
     sources:
     - Core/Tests
     - Resources/Buildings
     dependencies:
-    - target: Core
+    - target: Core_macOS
     postbuildScripts:
     - script: swiftformat .
 
@@ -98,6 +100,6 @@ targets:
     sources:
     - Scripts/GenerateDB.swift
     dependencies:
-    - target: Core
+    - target: Core_macOS
     postbuildScripts:
     - script: swiftformat .
