@@ -29,8 +29,6 @@ targets:
         ENABLE_ONBOARDING: "1"
       gatherCoverageData: true
       testTargets:
-        - name: Tests
-          randomExecutionOrder: true
         - name: UITests
           randomExecutionOrder: true
     dependencies:
@@ -62,22 +60,21 @@ targets:
     - Core/Sources
     dependencies:
     - package: GRDB
+    testTargets:
+      - name: Tests
+        randomExecutionOrder: true
 
-  Tests:
+  CoreTests:
     type: bundle.unit-test
-    platform: iOS
+    platform: macOS
     deploymentTarget: '11.0'
     sources:
-    - Tests
+    - Core/Tests
     - Resources/Buildings
     dependencies:
-    - target: FOSDEM
+    - target: Core
     postbuildScripts:
     - script: swiftformat .
-    settings:
-      INFOPLIST_FILE: Tests/Resources/Info.plist
-      ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
-      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FOSDEM.app/FOSDEM"
 
   UITests:
     type: bundle.ui-testing
@@ -85,7 +82,7 @@ targets:
     deploymentTarget: '11.0'
     sources:
     - UITests
-    - Tests/BundleDataLoader.swift
+    - Core/Tests/BundleDataLoader.swift
     dependencies:
     - target: FOSDEM
     postbuildScripts:
