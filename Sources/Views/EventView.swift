@@ -77,7 +77,7 @@ final class EventView: UIStackView {
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
       let videoButton = RoundedButton()
-      videoButton.accessibilityLabel = FOSLocalizedString("event.video.accessibility")
+      videoButton.accessibilityLabel = L10n.Event.Video.Accessibility.begin
       videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
       videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
       self.videoButton = videoButton
@@ -92,7 +92,7 @@ final class EventView: UIStackView {
       let livestreamButton = RoundedButton()
       livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
       livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
-      livestreamButton.setTitle(FOSLocalizedString("event.livestream"), for: .normal)
+      livestreamButton.setTitle(L10n.Event.livestream, for: .normal)
       self.livestreamButton = livestreamButton
       addArrangedSubview(livestreamButton)
       setCustomSpacing(28, after: livestreamButton)
@@ -102,14 +102,14 @@ final class EventView: UIStackView {
 
     if !event.people.isEmpty, let people = event.formattedPeople {
       let peopleView = EventMetadataView()
-      peopleView.accessibilityLabel = FOSLocalizedString(format: "event.people", people)
+      peopleView.accessibilityLabel = L10n.Event.people(people)
       peopleView.image = .fos_systemImage(withName: "person.fill")
       peopleView.text = people
       addArrangedSubview(peopleView)
     }
 
     let roomView = EventMetadataView()
-    roomView.accessibilityLabel = FOSLocalizedString(format: "event.room", event.room)
+    roomView.accessibilityLabel = L10n.Event.room(event.room)
     roomView.image = .fos_systemImage(withName: "mappin.circle.fill")
     roomView.text = event.room
     addArrangedSubview(roomView)
@@ -152,7 +152,7 @@ final class EventView: UIStackView {
     if !attachments.isEmpty {
       let attachmentsLabel = UILabel()
       attachmentsLabel.font = .fos_preferredFont(forTextStyle: .headline)
-      attachmentsLabel.text = FOSLocalizedString("event.attachments")
+      attachmentsLabel.text = L10n.Event.attachments
       attachmentsLabel.adjustsFontForContentSizeCategory = true
       attachmentsLabel.numberOfLines = 0
       addArrangedSubview(attachmentsLabel)
@@ -197,22 +197,22 @@ private extension PlaybackPosition {
   var title: String {
     switch self {
     case .beginning:
-      return FOSLocalizedString("event.video.begin")
+      return L10n.Event.Video.begin
     case .end:
-      return FOSLocalizedString("event.video.end")
+      return L10n.Event.Video.end
     case .at:
-      return FOSLocalizedString("event.video.at")
+      return L10n.Event.Video.at
     }
   }
 
   var accessibilityLabel: String {
     switch self {
     case .beginning:
-      return FOSLocalizedString("event.video.accessibility.begin")
+      return L10n.Event.Video.Accessibility.begin
     case .end:
-      return FOSLocalizedString("event.video.accessibility.end")
+      return L10n.Event.Video.Accessibility.end
     case .at:
-      return FOSLocalizedString("event.video.accessibility.at")
+      return L10n.Event.Video.Accessibility.at
     }
   }
 

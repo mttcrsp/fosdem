@@ -51,7 +51,7 @@ private extension UITableViewCell {
     accessibilityIdentifier = year
     accessoryType = .disclosureIndicator
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
-    textLabel?.text = FOSLocalizedString(format: "years.year", year)
+    textLabel?.text = L10n.Years.year(year)
 
     if #available(iOS 13.0, *), let number = Int(year) {
       imageView?.image = UIImage(systemName: "\(number % 2000).circle.fill")

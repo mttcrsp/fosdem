@@ -179,13 +179,13 @@ class TracksViewController: UITableViewController {
     let track = dataSource.tracksViewController(self, trackAt: indexPath)
 
     if favoritesDataSource.tracksViewController(self, canFavorite: track) {
-      let title = FOSLocalizedString("favorite")
+      let title = L10n.favorite
       let image = UIImage.fos_systemImage(withName: "star.fill")
       return [Action(title: title, image: image) { [weak self] in
         self?.didFavorite(track)
       }]
     } else {
-      let title = FOSLocalizedString("unfavorite")
+      let title = L10n.unfavorite
       let image = UIImage.fos_systemImage(withName: "star.slash.fill")
       return [Action(title: title, image: image, style: .destructive) { [weak self] in
         self?.didUnfavorite(track)

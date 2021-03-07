@@ -247,10 +247,10 @@ private extension MapController {
   }
 
   func makeActionViewController(for action: CLAuthorizationStatus.Action) -> UIAlertController {
-    let dismissTitle = FOSLocalizedString("location.dismiss")
+    let dismissTitle = L10n.Location.dismiss
     let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
 
-    let confirmTitle = FOSLocalizedString("location.confirm")
+    let confirmTitle = L10n.Location.confirm
     let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
       self?.didTapLocationSettings()
     }
@@ -285,18 +285,18 @@ private extension CLAuthorizationStatus.Action {
   var title: String {
     switch self {
     case .enable:
-      return FOSLocalizedString("location.title.enable")
+      return L10n.Location.Title.enable
     case .disable:
-      return FOSLocalizedString("location.title.disable")
+      return L10n.Location.Title.disable
     }
   }
 
   var message: String {
     switch self {
     case .enable:
-      return FOSLocalizedString("location.message.enable")
+      return L10n.Location.Message.enable
     case .disable:
-      return FOSLocalizedString("location.message.disable")
+      return L10n.Location.Message.disable
     }
   }
 }

@@ -31,13 +31,13 @@ extension MoreSection {
   var title: String? {
     switch self {
     case .years:
-      return FOSLocalizedString("more.section.years")
+      return L10n.More.Section.years
     case .recent:
-      return FOSLocalizedString("more.section.recent")
+      return L10n.More.Section.recent
     case .about:
-      return FOSLocalizedString("more.section.about")
+      return L10n.More.Section.about
     case .other:
-      return FOSLocalizedString("more.section.other")
+      return L10n.More.Section.other
     #if DEBUG
     case .debug:
       return "Debug"

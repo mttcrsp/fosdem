@@ -39,16 +39,16 @@ final class VideosController: UIPageViewController {
     dataSource = self
     view.backgroundColor = .fos_systemBackground
 
-    let watchedTitle = NSLocalizedString("recent.video.watched", comment: "")
-    let watchingTitle = NSLocalizedString("recent.video.watching", comment: "")
+    let watchedTitle = L10n.Recent.Video.watched
+    let watchingTitle = L10n.Recent.Video.watching
 
     watchingViewController.title = watchingTitle
-    watchingViewController.emptyBackgroundTitle = FOSLocalizedString("recent.video.empty.title")
-    watchingViewController.emptyBackgroundMessage = FOSLocalizedString("recent.video.empty.watching")
+    watchingViewController.emptyBackgroundTitle = L10n.Recent.Video.Empty.title
+    watchingViewController.emptyBackgroundMessage = L10n.Recent.Video.Empty.watching
 
     watchedViewController.title = watchedTitle
-    watchedViewController.emptyBackgroundTitle = FOSLocalizedString("recent.video.empty.title")
-    watchedViewController.emptyBackgroundMessage = FOSLocalizedString("recent.video.empty.watched")
+    watchedViewController.emptyBackgroundTitle = L10n.Recent.Video.Empty.title
+    watchedViewController.emptyBackgroundMessage = L10n.Recent.Video.Empty.watched
 
     setViewController(watchingViewController, direction: .forward, animated: false)
 

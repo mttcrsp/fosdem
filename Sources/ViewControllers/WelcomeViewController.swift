@@ -36,7 +36,7 @@ final class WelcomeViewController: UIViewController {
   private lazy var continueButton: RoundedButton = {
     let continueButton = RoundedButton()
     continueButton.accessibilityIdentifier = "continue"
-    continueButton.setTitle(FOSLocalizedString("welcome.continue"), for: .normal)
+    continueButton.setTitle(L10n.Welcome.continue, for: .normal)
     continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
     return continueButton
   }()
@@ -119,10 +119,10 @@ final class WelcomeViewController: UIViewController {
   private func makeAttributedText() -> NSAttributedString {
     let titleFont: UIFont = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
     let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.fos_label]
-    let titleString = FOSLocalizedString(format: "welcome.title", year)
+    let titleString = L10n.Welcome.title(year)
     let messageFont: UIFont = .fos_preferredFont(forTextStyle: .title3, withSymbolicTraits: .traitItalic)
     let messageAttributes: [NSAttributedString.Key: Any] = [.font: messageFont, .foregroundColor: UIColor.fos_label]
-    let messageString = FOSLocalizedString("welcome.message")
+    let messageString = L10n.Welcome.message
 
     let attributedTitle = NSAttributedString(string: titleString, attributes: titleAttributes)
     let attributedMessage = NSAttributedString(string: messageString, attributes: messageAttributes)

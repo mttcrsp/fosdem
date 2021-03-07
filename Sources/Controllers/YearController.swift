@@ -141,7 +141,7 @@ extension YearController: UISearchResultsUpdating, EventsSearchController {
 private extension YearController {
   func makeSearchController() -> UISearchController {
     let searchController = UISearchController(searchResultsController: makeResultsViewController())
-    searchController.searchBar.placeholder = FOSLocalizedString("more.search.prompt")
+    searchController.searchBar.placeholder = L10n.More.Search.prompt
     searchController.searchResultsUpdater = self
     self.searchController = searchController
     return searchController

@@ -19,21 +19,21 @@ extension MoreItem {
   var title: String {
     switch self {
     case .code:
-      return FOSLocalizedString("code.title")
+      return L10n.Code.title
     case .legal:
-      return FOSLocalizedString("legal.title")
+      return L10n.Legal.title
     case .years:
-      return FOSLocalizedString("years.item")
+      return L10n.Years.item
     case .video:
-      return FOSLocalizedString("recent.video")
+      return L10n.Recent.video
     case .history:
-      return FOSLocalizedString("history.title")
+      return L10n.History.title
     case .devrooms:
-      return FOSLocalizedString("devrooms.title")
+      return L10n.Devrooms.title
     case .transportation:
-      return FOSLocalizedString("transportation.title")
+      return L10n.Transportation.title
     case .acknowledgements:
-      return FOSLocalizedString("acknowledgements.title")
+      return L10n.Acknowledgements.title
     #if DEBUG
     case .time:
       return "Override current time"

@@ -117,7 +117,7 @@ private extension ApplicationController {
     let searchController = SearchController(services: services)
     searchController.tabBarItem.accessibilityIdentifier = "search"
     searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
-    searchController.title = FOSLocalizedString("search.title")
+    searchController.title = L10n.Search.title
     #if targetEnvironment(macCatalyst)
     searchController.preferredDisplayMode = .oneBesideSecondary
     #else
@@ -132,7 +132,7 @@ private extension ApplicationController {
     let agendaController = AgendaController(services: services)
     agendaController.tabBarItem.accessibilityIdentifier = "agenda"
     agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
-    agendaController.title = FOSLocalizedString("agenda.title")
+    agendaController.title = L10n.Agenda.title
     agendaController.agendaDelegate = self
     return agendaController
   }
@@ -141,7 +141,7 @@ private extension ApplicationController {
     let mapController = MapController(services: services)
     mapController.tabBarItem.accessibilityIdentifier = "map"
     mapController.tabBarItem.image = .fos_systemImage(withName: "map")
-    mapController.title = FOSLocalizedString("map.title")
+    mapController.title = L10n.Map.title
     mapController.delegate = self
     return mapController
   }
@@ -150,7 +150,7 @@ private extension ApplicationController {
     let moreController = MoreController(services: services)
     moreController.tabBarItem.accessibilityIdentifier = "more"
     moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
-    moreController.title = FOSLocalizedString("more.title")
+    moreController.title = L10n.More.title
     #if targetEnvironment(macCatalyst)
     moreController.preferredDisplayMode = .oneBesideSecondary
     #else
@@ -255,10 +255,10 @@ private extension String {
 private extension UIAlertController.ConfirmConfiguration {
   static var update: UIAlertController.ConfirmConfiguration {
     UIAlertController.ConfirmConfiguration(
-      title: FOSLocalizedString("update.title"),
-      message: FOSLocalizedString("update.message"),
-      confirm: FOSLocalizedString("update.confirm"),
-      dismiss: FOSLocalizedString("update.dismiss")
+      title: L10n.Update.title,
+      message: L10n.Update.message,
+      confirm: L10n.Update.confirm,
+      dismiss: L10n.Update.dismiss
     )
   }
 }

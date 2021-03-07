@@ -65,9 +65,9 @@ private extension TransportationViewController.Section {
   var title: String {
     switch self {
     case .directions:
-      return FOSLocalizedString("transportation.section.directions")
+      return L10n.Transportation.Section.directions
     case .by:
-      return FOSLocalizedString("transportation.section.by")
+      return L10n.Transportation.Section.by
     }
   }
 
@@ -83,21 +83,21 @@ extension TransportationViewController.Item {
   var title: String {
     switch self {
     case .googleMaps:
-      return FOSLocalizedString("transportation.item.google")
+      return L10n.Transportation.Item.google
     case .appleMaps:
-      return FOSLocalizedString("transportation.item.apple")
+      return L10n.Transportation.Item.apple
     case .shuttle:
-      return FOSLocalizedString("transportation.item.shuttle")
+      return L10n.Transportation.Item.shuttle
     case .train:
-      return FOSLocalizedString("transportation.item.train")
+      return L10n.Transportation.Item.train
     case .plane:
-      return FOSLocalizedString("transportation.item.plane")
+      return L10n.Transportation.Item.plane
     case .taxi:
-      return FOSLocalizedString("transportation.item.taxi")
+      return L10n.Transportation.Item.taxi
     case .car:
-      return FOSLocalizedString("transportation.item.car")
+      return L10n.Transportation.Item.car
     case .bus:
-      return FOSLocalizedString("transportation.item.bus")
+      return L10n.Transportation.Item.bus
     }
   }
 

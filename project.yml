@@ -35,6 +35,8 @@ targets:
           randomExecutionOrder: true
     dependencies:
     - package: GRDB
+    prebuildScripts:
+    - script: swiftgen
     postbuildScripts:
     - script: swiftformat .
     settings:
@@ -105,7 +107,6 @@ targets:
     - Sources/Models/Migrations
     - Sources/Services/PersistenceService.swift
     - Sources/Services/NetworkService.swift
-    - Sources/Extensions/NSLocalizedString+Extensions.swift
     - Sources/Extensions/DateComponentsFormatter+Extensions.swift
     - Sources/Extensions/DateFormatter+Extensions.swift
     - Scripts/GenerateDB.swift

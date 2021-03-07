@@ -70,7 +70,7 @@ extension Event {
     case let (start?, nil):
       return start
     case let (start?, weekday?):
-      return FOSLocalizedString(format: "search.event.start", start, weekday)
+      return L10n.Search.Event.start(start, weekday)
     }
   }
 
@@ -109,12 +109,12 @@ extension Event {
     }
 
     if let weekday = formattedWeekday {
-      let string = FOSLocalizedString(format: "event.weekday", weekday)
+      let string = L10n.Event.weekday(weekday)
       items.append(string)
     }
 
     if let duration = formattedDuration {
-      let string = "(\(FOSLocalizedString(format: "event.duration", duration)))"
+      let string = "(\(L10n.Event.duration(duration)))"
       items.append(string)
     }
 

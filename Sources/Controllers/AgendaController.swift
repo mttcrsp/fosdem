@@ -275,15 +275,15 @@ private extension AgendaController {
   }
 
   func makeAgendaViewController() -> EventsViewController {
-    let soonTitle = FOSLocalizedString("agenda.soon")
+    let soonTitle = L10n.Agenda.soon
     let soonAction = #selector(didTapSoon)
     let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
     soonButton.accessibilityIdentifier = "soon"
 
     let agendaViewController = EventsViewController(style: .grouped)
-    agendaViewController.emptyBackgroundMessage = FOSLocalizedString("agenda.empty.message")
-    agendaViewController.emptyBackgroundTitle = FOSLocalizedString("agenda.empty.title")
-    agendaViewController.title = FOSLocalizedString("agenda.title")
+    agendaViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
+    agendaViewController.emptyBackgroundTitle = L10n.Agenda.Empty.title
+    agendaViewController.title = L10n.Agenda.title
     agendaViewController.navigationItem.largeTitleDisplayMode = .always
     agendaViewController.navigationItem.rightBarButtonItem = soonButton
     agendaViewController.favoritesDataSource = self
@@ -301,9 +301,9 @@ private extension AgendaController {
     dismissButton.accessibilityIdentifier = "dismiss"
 
     let soonViewController = EventsViewController(style: .grouped)
-    soonViewController.emptyBackgroundMessage = FOSLocalizedString("soon.empty.message")
-    soonViewController.emptyBackgroundTitle = FOSLocalizedString("soon.empty.title")
-    soonViewController.title = FOSLocalizedString("soon.title")
+    soonViewController.emptyBackgroundMessage = L10n.Soon.Empty.message
+    soonViewController.emptyBackgroundTitle = L10n.Soon.Empty.title
+    soonViewController.title = L10n.Soon.title
     soonViewController.navigationItem.rightBarButtonItem = dismissButton
     soonViewController.favoritesDataSource = self
     soonViewController.favoritesDelegate = self

@@ -21,9 +21,9 @@ extension TracksFilter {
   var title: String {
     switch self {
     case .all:
-      return FOSLocalizedString("search.filter.all")
+      return L10n.Search.Filter.all
     case let .day(day):
-      return FOSLocalizedString(format: "search.filter.day", day)
+      return L10n.Search.Filter.day(day)
     }
   }
 

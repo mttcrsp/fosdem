@@ -26,10 +26,10 @@ final class MapControlsView: UIView {
     locationButton.addTarget(self, action: #selector(didTapLocation), for: .touchUpInside)
 
     resetButton.accessibilityIdentifier = "reset"
-    resetButton.accessibilityLabel = FOSLocalizedString("map.reset")
+    resetButton.accessibilityLabel = L10n.Map.reset
     resetButton.addTarget(self, action: #selector(didTapReset), for: .touchUpInside)
     resetButton.image = UIImage.fos_systemImage(withName: "arrow.counterclockwise")
-    resetButton.title = FOSLocalizedString("map.reset")
+    resetButton.title = L10n.Map.reset
 
     let separatorView = UIView()
     separatorView.backgroundColor = .fos_separator
@@ -89,13 +89,13 @@ extension CLAuthorizationStatus {
   var title: String {
     switch self {
     case .notDetermined:
-      return FOSLocalizedString("map.location")
+      return L10n.Map.location
     case .authorizedWhenInUse, .authorizedAlways:
-      return FOSLocalizedString("map.location.disable")
+      return L10n.Map.Location.disable
     case .denied, .restricted:
-      return FOSLocalizedString("map.location.enable")
+      return L10n.Map.Location.enable
     @unknown default:
-      return FOSLocalizedString("map.location")
+      return L10n.Map.location
     }
   }
 

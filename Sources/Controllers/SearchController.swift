@@ -48,8 +48,8 @@ final class SearchController: UISplitViewController {
 
   private var favoriteTitle: String {
     isDisplayingFavoriteTrack
-      ? FOSLocalizedString("unfavorite")
-      : FOSLocalizedString("favorite")
+      ? L10n.unfavorite
+      : L10n.favorite
   }
 
   private var favoriteAccessibilityIdentifier: String {
@@ -152,7 +152,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 
   func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String? {
     if isFavoriteSection(section) {
-      return FOSLocalizedString("search.filter.favorites")
+      return L10n.Search.Filter.favorites
     } else {
       return selectedFilter.title
     }
@@ -334,14 +334,14 @@ extension SearchController: UISearchResultsUpdating, EventsSearchController {
 
 private extension SearchController {
   func makeTracksViewController() -> TracksViewController {
-    let filtersTitle = FOSLocalizedString("search.filter.title")
+    let filtersTitle = L10n.Search.Filter.title
     let filtersAction = #selector(didTapChangeFilter)
     let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
     filtersButton.accessibilityIdentifier = "filters"
     self.filtersButton = filtersButton
 
     let tracksViewController = TracksViewController(style: .fos_insetGrouped)
-    tracksViewController.title = FOSLocalizedString("search.title")
+    tracksViewController.title = L10n.Search.title
     tracksViewController.navigationItem.rightBarButtonItem = filtersButton
     tracksViewController.navigationItem.largeTitleDisplayMode = .always
     tracksViewController.addSearchViewController(makeSearchController())
@@ -367,7 +367,7 @@ private extension SearchController {
       alertController.addAction(action)
     }
 
-    let cancelTitle = FOSLocalizedString("search.filter.cancel")
+    let cancelTitle = L10n.Search.Filter.cancel
     let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
     alertController.addAction(cancelAction)
 
@@ -376,7 +376,7 @@ private extension SearchController {
 
   func makeSearchController() -> UISearchController {
     let searchController = UISearchController(searchResultsController: makeResultsViewController())
-    searchController.searchBar.placeholder = FOSLocalizedString("more.search.prompt")
+    searchController.searchBar.placeholder = L10n.More.Search.prompt
     searchController.searchResultsUpdater = self
     self.searchController = searchController
     return searchController
