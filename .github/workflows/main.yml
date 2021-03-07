@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Brew dependencies
-      run: brew install xcodegen swiftformat
+      run: brew install xcodegen swiftformat swiftgen
       env:
         HOMEBREW_NO_INSTALL_CLEANUP: 1
     - name: Install Rubygems dependencies
