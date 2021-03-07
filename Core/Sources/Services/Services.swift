@@ -10,7 +10,10 @@ final class Services {
   let favoritesService = FavoritesService()
   let acknowledgementsService = AcknowledgementsService()
 
+  #if os(iOS)
   private(set) lazy var infoService = InfoService(bundleService: bundleService)
+  #endif
+
   private(set) lazy var updateService = UpdateService(networkService: networkService)
   private(set) lazy var buildingsService = BuildingsService(bundleService: bundleService)
   private(set) lazy var tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)

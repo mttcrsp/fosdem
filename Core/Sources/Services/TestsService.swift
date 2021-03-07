@@ -1,5 +1,5 @@
 #if DEBUG
-import UIKit
+import Foundation
 
 final class TestsService {
   private var timer: Timer?

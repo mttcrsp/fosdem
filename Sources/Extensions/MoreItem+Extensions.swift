@@ -1,20 +1,5 @@
 import UIKit
 
-enum MoreItem: String, CaseIterable {
-  #if DEBUG
-  case time
-  #endif
-
-  case code
-  case legal
-  case years
-  case video
-  case history
-  case devrooms
-  case transportation
-  case acknowledgements
-}
-
 extension MoreItem {
   var title: String {
     switch self {
@@ -66,26 +51,20 @@ extension MoreItem {
     }
   }
 
-  var info: Info? {
+  var title: String? {
     switch self {
-    case .legal:
-      return .legal
-    case .history:
-      return .history
-    case .devrooms:
-      return .devrooms
-    case .transportation:
-      return .transportation
-    case .code, .years, .video, .acknowledgements:
-      return nil
+    case .years:
+      return L10n.More.Section.years
+    case .recent:
+      return L10n.More.Section.recent
+    case .about:
+      return L10n.More.Section.about
+    case .other:
+      return L10n.More.Section.other
     #if DEBUG
-    case .time:
-      return nil
+    case .debug:
+      return "Debug"
     #endif
     }
-  }
-
-  var accessibilityIdentifier: String {
-    rawValue
   }
 }

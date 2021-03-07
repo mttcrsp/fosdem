@@ -54,6 +54,14 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         VERSIONING_SYSTEM: apple-generic
 
+  Core:
+    platform: macOS
+    type: framework
+    sources:
+    - Core/Sources
+    dependencies:
+    - package: GRDB
+
   Tests:
     type: bundle.unit-test
     platform: iOS

@@ -27,21 +27,4 @@ extension MoreSection {
     #endif
     }
   }
-
-  var title: String? {
-    switch self {
-    case .years:
-      return L10n.More.Section.years
-    case .recent:
-      return L10n.More.Section.recent
-    case .about:
-      return L10n.More.Section.about
-    case .other:
-      return L10n.More.Section.other
-    #if DEBUG
-    case .debug:
-      return "Debug"
-    #endif
-    }
-  }
 }

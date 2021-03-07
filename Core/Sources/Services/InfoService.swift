@@ -1,10 +1,11 @@
-import UIKit
-
 enum Info: String {
   case history, devrooms, transportation
   case bus, shuttle, train, car, plane, taxi
   case legal
 }
+
+#if os(iOS)
+import Foundation
 
 protocol InfoServiceBundle {
   func data(forResource name: String?, withExtension ext: String?) throws -> Data
@@ -113,3 +114,4 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
 }
 
 extension BundleService: InfoServiceBundle {}
+#endif
