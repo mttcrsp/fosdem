@@ -1,7 +1,7 @@
 import CoreImage
 import UIKit
 
-extension UIImage {
+public extension UIImage {
   var inverted: UIImage? {
     guard let ciImage = CIImage(image: self) else { return nil }
 
@@ -18,7 +18,7 @@ extension UIImage {
   }
 }
 
-extension UIImage {
+public extension UIImage {
   static func fos_systemImage(withName name: String) -> UIImage? {
     if #available(iOS 13.0, *) {
       return UIImage(systemName: name)

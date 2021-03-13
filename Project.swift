@@ -33,6 +33,8 @@ let grdb = Package.remote(
 
 let l10n = Target.module(name: "L10n")
 
+let ui = Target.module(name: "UI", dependencies: [.target(name: l10n.name)])
+
 let app = Target(
   name: "FOSDEM",
   platform: .iOS,
@@ -118,5 +120,5 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   packages: [grdb],
-  targets: [app, appTests, appUITests, dbGenerator, l10n]
+  targets: [app, appTests, appUITests, dbGenerator, l10n, ui]
 )

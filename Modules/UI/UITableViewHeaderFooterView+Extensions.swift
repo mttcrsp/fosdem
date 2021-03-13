@@ -1,6 +1,6 @@
 import UIKit
 
-extension UITableViewHeaderFooterView {
+public extension UITableViewHeaderFooterView {
   static var reuseIdentifier: String {
     String(describing: self)
   }

@@ -1,24 +1,24 @@
 import UIKit
 
-final class LabelTableHeaderFooterView: UITableViewHeaderFooterView {
-  var text: String? {
+public final class LabelTableHeaderFooterView: UITableViewHeaderFooterView {
+  public var text: String? {
     get { label.text }
     set { label.text = newValue }
   }
 
-  var textColor: UIColor? {
+  public var textColor: UIColor? {
     get { label.textColor }
     set { label.textColor = newValue }
   }
 
-  var font: UIFont? {
+  public var font: UIFont? {
     get { label.font }
     set { label.font = newValue }
   }
 
   private let label = UILabel()
 
-  override init(reuseIdentifier: String?) {
+  override public init(reuseIdentifier: String?) {
     super.init(reuseIdentifier: reuseIdentifier)
     label.numberOfLines = 0
     label.textColor = .fos_secondaryLabel
@@ -37,7 +37,7 @@ final class LabelTableHeaderFooterView: UITableViewHeaderFooterView {
   }
 
   @available(*, unavailable)
-  required init?(coder _: NSCoder) {
+  public required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 }

@@ -1,4 +1,5 @@
 import L10n
+import UI
 import UIKit
 
 protocol EventViewDelegate: AnyObject {

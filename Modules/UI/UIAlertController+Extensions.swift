@@ -1,7 +1,7 @@
 import L10n
 import UIKit
 
-extension UIAlertController {
+public extension UIAlertController {
   static func makeErrorController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
     let title = L10n.Error.Alert.title
     let message = L10n.Error.Alert.message
@@ -15,12 +15,19 @@ extension UIAlertController {
   }
 }
 
-extension UIAlertController {
+public extension UIAlertController {
   struct ConfirmConfiguration {
-    let title: String
-    let message: String
-    let confirm: String
-    let dismiss: String
+    public let title: String
+    public let message: String
+    public let confirm: String
+    public let dismiss: String
+
+    public init(title: String, message: String, confirm: String, dismiss: String) {
+      self.title = title
+      self.message = message
+      self.confirm = confirm
+      self.dismiss = dismiss
+    }
   }
 
   static func makeConfirmController(with configuration: ConfirmConfiguration, dismissHandler: @escaping () -> Void = {}, confirmHandler: @escaping () -> Void) -> UIAlertController {

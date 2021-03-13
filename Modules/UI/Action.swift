@@ -1,16 +1,16 @@
 import UIKit
 
-struct Action {
-  enum Style {
+public struct Action {
+  public enum Style {
     case `default`, destructive
   }
 
-  let title: String
-  let image: UIImage?
-  let style: Style
-  let handler: () -> Void
+  public let title: String
+  public let image: UIImage?
+  public let style: Style
+  public let handler: () -> Void
 
-  init(title: String, image: UIImage? = nil, style: Style = .default, handler: @escaping () -> Void = {}) {
+  public init(title: String, image: UIImage? = nil, style: Style = .default, handler: @escaping () -> Void = {}) {
     self.title = title
     self.image = image
     self.style = style
@@ -72,7 +72,7 @@ private extension UIAction {
   }
 }
 
-extension UISwipeActionsConfiguration {
+public extension UISwipeActionsConfiguration {
   convenience init?(actions: [Action]) {
     guard !actions.isEmpty else { return nil }
     self.init(actions: actions.map(UIContextualAction.init))
@@ -80,7 +80,7 @@ extension UISwipeActionsConfiguration {
 }
 
 @available(iOS 13.0, *)
-extension UIContextMenuConfiguration {
+public extension UIContextMenuConfiguration {
   convenience init?(actions: [Action]) {
     guard !actions.isEmpty else { return nil }
 

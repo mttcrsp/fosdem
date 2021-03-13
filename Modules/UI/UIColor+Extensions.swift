@@ -1,6 +1,6 @@
 import UIKit
 
-extension UIColor {
+public extension UIColor {
   static var fos_systemBackground: UIColor {
     if #available(iOS 13.0, *) {
       return .systemBackground

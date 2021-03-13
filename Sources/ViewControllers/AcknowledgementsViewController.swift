@@ -1,3 +1,4 @@
+import UI
 import UIKit
 
 protocol AcknowledgementsViewControllerDataSource: AnyObject {

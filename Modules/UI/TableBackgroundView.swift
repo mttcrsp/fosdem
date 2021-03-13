@@ -1,12 +1,12 @@
 import UIKit
 
-final class TableBackgroundView: UIView {
-  var title: String? {
+public final class TableBackgroundView: UIView {
+  public var title: String? {
     get { titleLabel.text }
     set { titleLabel.text = newValue }
   }
 
-  var message: String? {
+  public var message: String? {
     get { messageLabel.text }
     set { messageLabel.text = newValue }
   }
@@ -14,7 +14,7 @@ final class TableBackgroundView: UIView {
   private let titleLabel = UILabel()
   private let messageLabel = UILabel()
 
-  override init(frame: CGRect) {
+  override public init(frame: CGRect) {
     super.init(frame: frame)
 
     for label in [titleLabel, messageLabel] {
@@ -44,7 +44,7 @@ final class TableBackgroundView: UIView {
   }
 
   @available(*, unavailable)
-  required init?(coder _: NSCoder) {
+  public required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 }
