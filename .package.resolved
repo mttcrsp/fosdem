@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "GRDB",
+        "repositoryURL": "https://github.com/mttcrsp/GRDB.swift",
+        "state": {
+          "branch": "master",
+          "revision": "8cbcac3bd015d0a279305c6202a89de3d0042d9c",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
