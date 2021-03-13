@@ -1,3 +1,4 @@
+import L10n
 import UIKit
 
 class BlueprintsEmptyViewController: UIViewController {

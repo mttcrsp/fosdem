@@ -1,4 +1,4 @@
-import Foundation
+import L10n
 
 enum MoreSection: CaseIterable {
   case years

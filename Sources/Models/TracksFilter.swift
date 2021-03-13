@@ -1,4 +1,4 @@
-import Foundation
+import L10n
 
 enum TracksFilter: Equatable, Hashable {
   case all, day(Int)

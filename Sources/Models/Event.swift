@@ -1,4 +1,5 @@
 import Foundation
+import L10n
 
 struct Event: Codable {
   let id: Int

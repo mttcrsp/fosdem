@@ -1,5 +1,26 @@
 import ProjectDescription
 
+enum Configuration {
+  static let bundleID = "com.mttcrsp.fosdem"
+  static let deploymentTarget = DeploymentTarget.iOS(targetVersion: "11.0", devices: [.iphone, .ipad])
+}
+
+extension Target {
+  static func module(name: String, dependencies: [TargetDependency] = []) -> Target {
+    Target(
+      name: name,
+      platform: .iOS,
+      product: .staticFramework,
+      bundleId: "\(Configuration.bundleID).\(name.lowercased())",
+      deploymentTarget: Configuration.deploymentTarget,
+      infoPlist: .default,
+      sources: ["Modules/\(name)/**/*"],
+      resources: ["Modules/\(name)/**/*"],
+      dependencies: dependencies
+    )
+  }
+}
+
 let swiftFormat = TargetAction.post(
   script: "swiftformat .",
   name: "SwiftFormat"
@@ -10,12 +31,14 @@ let grdb = Package.remote(
   requirement: .branch("master")
 )
 
+let l10n = Target.module(name: "L10n")
+
 let app = Target(
   name: "FOSDEM",
   platform: .iOS,
   product: .app,
-  bundleId: "com.mttcrsp.fosdem",
-  deploymentTarget: .iOS(targetVersion: "11.0", devices: [.iphone, .ipad]),
+  bundleId: Configuration.bundleID,
+  deploymentTarget: Configuration.deploymentTarget,
   infoPlist: .extendingDefault(with: [
     "CFBundleVersion": "1",
     "CFBundleShortVersionString": "1.2.0",
@@ -95,5 +118,5 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   packages: [grdb],
-  targets: [app, appTests, appUITests, dbGenerator]
+  targets: [app, appTests, appUITests, dbGenerator, l10n]
 )

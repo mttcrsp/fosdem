@@ -1,3 +1,4 @@
+import L10n
 import UIKit
 
 final class MoreController: UISplitViewController {

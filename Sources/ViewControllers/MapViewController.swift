@@ -1,4 +1,5 @@
 import CoreLocation
+import L10n
 import MapKit
 
 protocol MapViewControllerDelegate: AnyObject {
