@@ -6,7 +6,7 @@ enum Configuration {
 }
 
 extension Target {
-  static func module(name: String, dependencies: [TargetDependency] = []) -> Target {
+  static func module(name: String, sources: SourceFilesList? = nil, resources: ResourceFileElements? = nil, dependencies: [TargetDependency] = []) -> Target {
     Target(
       name: name,
       platform: .iOS,
@@ -14,8 +14,8 @@ extension Target {
       bundleId: "\(Configuration.bundleID).\(name.lowercased())",
       deploymentTarget: Configuration.deploymentTarget,
       infoPlist: .default,
-      sources: ["Modules/\(name)/**/*"],
-      resources: ["Modules/\(name)/**/*"],
+      sources: sources,
+      resources: resources,
       dependencies: dependencies
     )
   }
@@ -31,9 +31,22 @@ let grdb = Package.remote(
   requirement: .branch("master")
 )
 
-let l10n = Target.module(name: "L10n")
-let ui = Target.module(name: "UI", dependencies: [.target(name: l10n.name)])
-let schedule = Target.module(name: "Schedule")
+let l10n = Target.module(
+  name: "L10n",
+  sources: ["Modules/L10n/Sources/**/*"],
+  resources: ["Modules/L10n/Resources/**/*"]
+)
+
+let ui = Target.module(
+  name: "UI",
+  sources: ["Modules/UI/**/*"],
+  dependencies: [.target(name: l10n.name)]
+)
+
+let schedule = Target.module(
+  name: "Schedule",
+  sources: ["Modules/Schedule/**/*"]
+)
 
 let app = Target(
   name: "FOSDEM",
