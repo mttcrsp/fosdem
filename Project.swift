@@ -88,11 +88,11 @@ let dbGenerator = Target(
   infoPlist: .default,
   sources: [
     "Scripts/GenerateDB.swift",
+    "Sources/Models/**/*",
     "Sources/Services/NetworkService.swift",
     "Sources/Services/PersistenceService.swift",
     "Sources/Extensions/DateFormatter+Extensions.swift",
     "Sources/Extensions/DateComponentsFormatter+Extensions.swift",
-    .init("Sources/Models/**/*", excluding: "Sources/Models/Action.swift"),
   ],
   actions: [.swiftFormat],
   dependencies: [.package(product: "GRDB")]
