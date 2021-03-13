@@ -27,6 +27,7 @@ final class ScrollImageView: UIScrollView {
     addSubview(imageView)
   }
 
+  @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }

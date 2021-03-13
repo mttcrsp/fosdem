@@ -1,7 +1,7 @@
 import Foundation
 
 @main
-struct GenerateDB {
+enum GenerateDB {
   static let year = 2021
 
   static func main() {
