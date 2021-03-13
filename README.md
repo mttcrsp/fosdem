@@ -24,4 +24,4 @@ Contributions in the form of code, issues and feature requests are welcome! To g
 
 ## Acknowledgements
 
-Fosdem.app is powered by the following open source projects: [GRDB.swift](https://github.com/groue/GRDB.swift), [Periphery](https://github.com/peripheryapp/periphery), [SwiftFormat](https://github.com/nicklockwood/SwiftFormat), [SwiftGen](https://github.com/SwiftGen/SwiftGen), [XcodeGen](https://github.com/yonaskolb/XcodeGen), [xcparse](https://github.com/ChargePoint/xcparse).
+Fosdem.app is powered by the following open source projects: [GRDB.swift](https://github.com/groue/GRDB.swift), [Periphery](https://github.com/peripheryapp/periphery), [SwiftFormat](https://github.com/nicklockwood/SwiftFormat), [SwiftGen](https://github.com/SwiftGen/SwiftGen), [Tuist](https://github.com/tuist/tuist), [xcparse](https://github.com/ChargePoint/xcparse).

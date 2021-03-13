@@ -26,7 +26,7 @@ final class MoreControllerTests: XCTestCase {
       app.cells["acknowledgements"].tap()
       wait { app.cells.count > 0 }
 
-      app.staticTexts["XcodeGen"].tap()
+      app.staticTexts["Tuist"].tap()
       XCTAssert(safari.wait(for: .runningForeground, timeout: 10))
     }
   }

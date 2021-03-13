@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Make sure all depedencies were installed
-if ! hash xcodegen 2>/dev/null; then
-	echo "You need to install XcodeGen to continue
+if ! hash tuist 2>/dev/null; then
+	echo "You need to install Tuist to continue
 
-	https://github.com/yonaskolb/XcodeGen/#installing
+	https://github.com/tuist/tuist#install-%EF%B8%8F
 	"
 	exit 1
 fi
@@ -27,4 +27,4 @@ fi
 
 PROJECT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
-( cd $PROJECT_DIR; xcodegen &>/dev/null )
+( cd $PROJECT_DIR; tuist generate &>/dev/null )

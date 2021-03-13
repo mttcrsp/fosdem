@@ -11,14 +11,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install Tuist
+      run: bash <(curl -Ls https://install.tuist.io)
     - name: Install Brew dependencies
-      run: brew install xcodegen swiftformat swiftgen
+      run: brew install swiftformat swiftgen
       env:
         HOMEBREW_NO_INSTALL_CLEANUP: 1
     - name: Install Rubygems dependencies
       run: gem install xcpretty-travis-formatter
-    - name: Run Xcodegen
-      run: xcodegen
+    - name: Run Tuist
+      run: tuist generate
     - name: Run unit and UI tests
       run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' build test | xcpretty -f `xcpretty-travis-formatter`
     - name: Upload coverage to Codecov

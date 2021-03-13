@@ -16,8 +16,8 @@
     "url": "https://github.com/SwiftGen/SwiftGen"
   },
   {
-    "name": "XcodeGen",
-    "url": "https://github.com/yonaskolb/XcodeGen"
+    "name": "Tuist",
+    "url": "https://github.com/tuist/tuist"
   },
   {
     "name": "xcparse",
