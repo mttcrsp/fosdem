@@ -14,7 +14,7 @@ jobs:
     - name: Install Tuist
       run: bash <(curl -Ls https://install.tuist.io)
     - name: Install Brew dependencies
-      run: brew install swiftformat swiftgen
+      run: brew install swiftformat
       env:
         HOMEBREW_NO_INSTALL_CLEANUP: 1
     - name: Install Rubygems dependencies

@@ -12,10 +12,6 @@
     "url": "https://github.com/nicklockwood/SwiftFormat"
   },
   {
-    "name": "SwiftGen",
-    "url": "https://github.com/SwiftGen/SwiftGen"
-  },
-  {
     "name": "Tuist",
     "url": "https://github.com/tuist/tuist"
   },

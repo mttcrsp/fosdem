@@ -5,11 +5,6 @@ private extension TargetAction {
     script: "swiftformat .",
     name: "SwiftFormat"
   )
-
-  static let swiftGen = TargetAction.pre(
-    script: "swiftgen",
-    name: "SwiftGen"
-  )
 }
 
 let grdb = Package.remote(
@@ -44,7 +39,7 @@ let app = Target(
   ]),
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
-  actions: [.swiftFormat, .swiftGen],
+  actions: [.swiftFormat],
   dependencies: [.package(product: "GRDB")],
   settings: Settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",
@@ -62,7 +57,7 @@ let appTests = Target(
   infoPlist: .default,
   sources: ["Tests/**"],
   resources: ["Tests/Resources/**/*", "Resources/Buildings/**/*"],
-  actions: [.swiftFormat, .swiftGen],
+  actions: [.swiftFormat],
   dependencies: [.target(name: app.name)]
 )
 
@@ -75,7 +70,7 @@ let appUITests = Target(
   infoPlist: .default,
   sources: ["UITests/**/*", "Tests/BundleDataLoader.swift"],
   resources: ["UITests/Resources/**/*"],
-  actions: [.swiftFormat, .swiftGen],
+  actions: [.swiftFormat],
   dependencies: [.target(name: app.name)]
 )
 

@@ -17,14 +17,6 @@ if ! hash swiftformat 2>/dev/null; then
 	exit 1
 fi
 
-if ! hash swiftgen 2>/dev/null; then
-  echo "You need to install SwiftFormat to continue
-
-  https://github.com/nicklockwood/SwiftFormat#command-line-tool
-  "
-  exit 1
-fi
-
 PROJECT_DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 
 ( cd $PROJECT_DIR; tuist generate &>/dev/null )
