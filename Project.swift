@@ -1,11 +1,9 @@
 import ProjectDescription
 
-private extension TargetAction {
-  static let swiftFormat = TargetAction.post(
-    script: "swiftformat .",
-    name: "SwiftFormat"
-  )
-}
+let swiftFormat = TargetAction.post(
+  script: "swiftformat .",
+  name: "SwiftFormat"
+)
 
 let grdb = Package.remote(
   url: "https://github.com/mttcrsp/GRDB.swift",
@@ -39,7 +37,7 @@ let app = Target(
   ]),
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
-  actions: [.swiftFormat],
+  actions: [swiftFormat],
   dependencies: [.package(product: "GRDB")],
   settings: Settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",
@@ -57,7 +55,7 @@ let appTests = Target(
   infoPlist: .default,
   sources: ["Tests/**"],
   resources: ["Tests/Resources/**/*", "Resources/Buildings/**/*"],
-  actions: [.swiftFormat],
+  actions: [swiftFormat],
   dependencies: [.target(name: app.name)]
 )
 
@@ -70,7 +68,7 @@ let appUITests = Target(
   infoPlist: .default,
   sources: ["UITests/**/*", "Tests/BundleDataLoader.swift"],
   resources: ["UITests/Resources/**/*"],
-  actions: [.swiftFormat],
+  actions: [swiftFormat],
   dependencies: [.target(name: app.name)]
 )
 
@@ -89,7 +87,7 @@ let dbGenerator = Target(
     "Sources/Extensions/DateFormatter+Extensions.swift",
     "Sources/Extensions/DateComponentsFormatter+Extensions.swift",
   ],
-  actions: [.swiftFormat],
+  actions: [swiftFormat],
   dependencies: [.package(product: "GRDB")]
 )
 
