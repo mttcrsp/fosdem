@@ -1,4 +1,5 @@
 import GRDB
+import Schedule
 
 struct ImportSchedule: PersistenceServiceWrite {
   let schedule: Schedule

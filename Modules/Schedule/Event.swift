@@ -1,26 +1,42 @@
 import Foundation
 import L10n
 
-struct Event: Codable {
-  let id: Int
-  let room: String
-  let track: String
+public struct Event: Codable {
+  public let id: Int
+  public let room: String
+  public let track: String
 
-  let title: String
-  let summary: String?
-  let subtitle: String?
-  let abstract: String?
+  public let title: String
+  public let summary: String?
+  public let subtitle: String?
+  public let abstract: String?
 
-  let date: Date
-  let start: DateComponents
-  let duration: DateComponents
+  public let date: Date
+  public let start: DateComponents
+  public let duration: DateComponents
 
-  let links: [Link]
-  let people: [Person]
-  let attachments: [Attachment]
+  public let links: [Link]
+  public let people: [Person]
+  public let attachments: [Attachment]
+
+  public init(id: Int, room: String, track: String, title: String, summary: String?, subtitle: String?, abstract: String?, date: Date, start: DateComponents, duration: DateComponents, links: [Link], people: [Person], attachments: [Attachment]) {
+    self.id = id
+    self.room = room
+    self.track = track
+    self.title = title
+    self.summary = summary
+    self.subtitle = subtitle
+    self.abstract = abstract
+    self.date = date
+    self.start = start
+    self.duration = duration
+    self.links = links
+    self.people = people
+    self.attachments = attachments
+  }
 }
 
-extension Event {
+public extension Event {
   var video: Link? {
     links.first { link in link.url?.pathExtension == "mp4" }
   }
@@ -55,7 +71,7 @@ extension Event {
   }
 }
 
-extension Event {
+public extension Event {
   var formattedStart: String? {
     DateComponentsFormatter.time.string(from: start)
   }
@@ -63,29 +79,6 @@ extension Event {
   var formattedWeekday: String? {
     DateFormatter.weekday.string(from: date)
   }
-
-  var formattedStartWithWeekday: String? {
-    switch (formattedStart, formattedWeekday) {
-    case (nil, _):
-      return nil
-    case let (start?, nil):
-      return start
-    case let (start?, weekday?):
-      return L10n.Search.Event.start(start, weekday)
-    }
-  }
-
-  #if os(iOS)
-  var formattedAbstract: String? {
-    guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }
-
-    var string = attributedString.string
-    string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-    string = string.replacingOccurrences(of: "\t", with: " ")
-    string = string.replacingOccurrences(of: "\n", with: "\n\n")
-    return string
-  }
-  #endif
 
   var formattedSummary: String? {
     var string = summary
@@ -101,38 +94,14 @@ extension Event {
   var formattedDuration: String? {
     DateComponentsFormatter.duration.string(from: duration)
   }
-
-  var formattedDate: String? {
-    var items: [String] = []
-
-    if let start = formattedStart {
-      items.append(start)
-    }
-
-    if let weekday = formattedWeekday {
-      let string = L10n.Event.weekday(weekday)
-      items.append(string)
-    }
-
-    if let duration = formattedDuration {
-      let string = "(\(L10n.Event.duration(duration)))"
-      items.append(string)
-    }
-
-    if items.isEmpty {
-      return nil
-    } else {
-      return items.joined(separator: " ")
-    }
-  }
 }
 
 extension Event: Hashable, Equatable {
-  static func == (lhs: Event, rhs: Event) -> Bool {
+  public static func == (lhs: Event, rhs: Event) -> Bool {
     lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }

@@ -1,8 +1,9 @@
 import Foundation
 import GRDB
+import Schedule
 
 extension Event: PersistableRecord, FetchableRecord {
-  static var databaseTableName: String {
+  public static var databaseTableName: String {
     "events"
   }
 
@@ -14,7 +15,7 @@ extension Event: PersistableRecord, FetchableRecord {
     case id, room, track, date, start, duration, title, subtitle, abstract, summary, links, people, attachments
   }
 
-  init(row: Row) {
+  public init(row: Row) {
     let id = row[Columns.id] as Int
     let date = row[Columns.date] as Date
     let room = row[Columns.room] as String
@@ -34,7 +35,7 @@ extension Event: PersistableRecord, FetchableRecord {
     self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, date: date, start: start, duration: duration, links: links, people: people, attachments: attachments)
   }
 
-  func encode(to container: inout PersistenceContainer) {
+  public func encode(to container: inout PersistenceContainer) {
     container[Columns.id.rawValue] = id
     container[Columns.date.rawValue] = date
     container[Columns.room.rawValue] = room

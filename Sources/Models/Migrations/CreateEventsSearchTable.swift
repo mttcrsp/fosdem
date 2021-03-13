@@ -1,4 +1,5 @@
 import GRDB
+import Schedule
 
 struct CreateEventsSearchTable: PersistenceServiceMigration {
   let identifier = "create events search table"

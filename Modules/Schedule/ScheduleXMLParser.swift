@@ -1,6 +1,6 @@
 import Foundation
 
-final class ScheduleXMLParser: NSObject, XMLParserDelegate {
+public final class ScheduleXMLParser: NSObject, XMLParserDelegate {
   fileprivate struct EventState {
     var attachments: [Attachment] = [], people: [Person] = [], links: [Link] = []
   }
@@ -24,28 +24,28 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
   private var dayState = DayState()
   private var stack: [Element] = []
 
-  private(set) var schedule: Schedule?
-  private(set) var parseError: Swift.Error?
-  private(set) var validationError: Swift.Error?
+  public private(set) var schedule: Schedule?
+  public private(set) var parseError: Swift.Error?
+  public private(set) var validationError: Swift.Error?
 
   private let parser: XMLParser
 
-  init(data: Data) {
+  public init(data: Data) {
     parser = XMLParser(data: data)
     super.init()
     parser.delegate = self
   }
 
-  func parse() -> Bool {
+  public func parse() -> Bool {
     parser.parse()
     return schedule != nil
   }
 
-  func parser(_: XMLParser, didStartElement elementName: String, namespaceURI _: String?, qualifiedName _: String?, attributes attributeDict: [String: String] = [:]) {
+  public func parser(_: XMLParser, didStartElement elementName: String, namespaceURI _: String?, qualifiedName _: String?, attributes attributeDict: [String: String] = [:]) {
     stack.append((elementName, attributeDict))
   }
 
-  func parser(_: XMLParser, foundCharacters string: String) {
+  public func parser(_: XMLParser, foundCharacters string: String) {
     let value = string.trimmingCharacters(in: .whitespacesAndNewlines)
     if !value.isEmpty {
       var (name, attributes) = stack.removeLast()
@@ -54,7 +54,7 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     }
   }
 
-  func parser(_: XMLParser, didEndElement _: String, namespaceURI _: String?, qualifiedName _: String?) {
+  public func parser(_: XMLParser, didEndElement _: String, namespaceURI _: String?, qualifiedName _: String?) {
     let (name, attributes) = stack.removeLast()
 
     do {
@@ -87,11 +87,11 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
     }
   }
 
-  func parser(_: XMLParser, parseErrorOccurred parseError: Swift.Error) {
+  public func parser(_: XMLParser, parseErrorOccurred parseError: Swift.Error) {
     self.parseError = parseError
   }
 
-  func parser(_: XMLParser, validationErrorOccurred validationError: Swift.Error) {
+  public func parser(_: XMLParser, validationErrorOccurred validationError: Swift.Error) {
     self.validationError = validationError
   }
 

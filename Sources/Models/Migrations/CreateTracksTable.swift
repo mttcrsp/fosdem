@@ -1,4 +1,5 @@
 import GRDB
+import Schedule
 
 struct CreateTracksTable: PersistenceServiceMigration {
   let identifier = "create tracks table"

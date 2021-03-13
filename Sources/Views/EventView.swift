@@ -1,4 +1,5 @@
 import L10n
+import Schedule
 import UI
 import UIKit
 

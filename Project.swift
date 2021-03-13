@@ -32,8 +32,8 @@ let grdb = Package.remote(
 )
 
 let l10n = Target.module(name: "L10n")
-
 let ui = Target.module(name: "UI", dependencies: [.target(name: l10n.name)])
+let schedule = Target.module(name: "Schedule")
 
 let app = Target(
   name: "FOSDEM",
@@ -63,7 +63,12 @@ let app = Target(
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
   actions: [swiftFormat],
-  dependencies: [.package(product: "GRDB")],
+  dependencies: [
+    .package(product: "GRDB"),
+    .target(name: l10n.name),
+    .target(name: ui.name),
+    .target(name: schedule.name),
+  ],
   settings: Settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",
     "PRODUCT_MODULE_NAME": "Fosdem",
@@ -120,5 +125,12 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   packages: [grdb],
-  targets: [app, appTests, appUITests, dbGenerator, l10n, ui]
+  targets: [
+    // App
+    app, appTests, appUITests,
+    // Scripts
+    dbGenerator,
+    // Shared
+    l10n, ui, schedule,
+  ]
 )

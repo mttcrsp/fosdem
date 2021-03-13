@@ -1,4 +1,5 @@
 import Foundation
+import Schedule
 
 struct ScheduleRequest: NetworkRequest {
   let year: Int

@@ -1,5 +1,6 @@
 import Foundation
 import GRDB
+import Schedule
 
 struct EventsStartingIn30Minutes: PersistenceServiceRead {
   let now: Date

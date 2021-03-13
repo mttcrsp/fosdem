@@ -1,10 +1,15 @@
 import Foundation
 
-struct Link: Equatable, Codable {
-  let name: String, url: URL?
+public struct Link: Equatable, Codable {
+  public let name: String, url: URL?
+
+  public init(name: String, url: URL?) {
+    self.name = name
+    self.url = url
+  }
 }
 
-extension Link {
+public extension Link {
   var isLivestream: Bool {
     livestreamURL != nil
   }

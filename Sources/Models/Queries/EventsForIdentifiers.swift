@@ -1,4 +1,5 @@
 import GRDB
+import Schedule
 
 struct EventsForIdentifiers: PersistenceServiceRead {
   let identifiers: Set<Int>

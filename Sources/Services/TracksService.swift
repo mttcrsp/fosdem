@@ -1,4 +1,5 @@
 import Foundation
+import Schedule
 
 protocol TracksServiceDelegate: AnyObject {
   func tracksServiceDidUpdateTracks(_ tracksService: TracksService)

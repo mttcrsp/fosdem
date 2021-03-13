@@ -1,4 +1,5 @@
 import Foundation
+import Schedule
 
 protocol ScheduleServiceDefaults: AnyObject {
   func value(forKey key: String) -> Any?

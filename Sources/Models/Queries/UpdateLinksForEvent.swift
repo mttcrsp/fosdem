@@ -1,6 +1,7 @@
 #if DEBUG
 import Foundation
 import GRDB
+import Schedule
 
 struct UpdateLinksForEvent: PersistenceServiceWrite {
   let eventID: Int

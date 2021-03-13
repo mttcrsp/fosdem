@@ -1,6 +1,7 @@
 import AVKit
 import L10n
 import SafariServices
+import Schedule
 
 final class EventController: UIViewController {
   var showsFavoriteButton = true {

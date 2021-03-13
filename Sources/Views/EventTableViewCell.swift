@@ -1,3 +1,4 @@
+import Schedule
 import UIKit
 
 final class EventTableViewCell: UITableViewCell {

@@ -1,4 +1,5 @@
 import L10n
+import Schedule
 import UIKit
 
 final class SearchController: UISplitViewController {

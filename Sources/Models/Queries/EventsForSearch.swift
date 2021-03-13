@@ -1,5 +1,6 @@
 import Foundation
 import GRDB
+import Schedule
 
 struct EventsForSearch: PersistenceServiceRead {
   let query: String

@@ -1,3 +1,4 @@
+import Schedule
 import UIKit
 
 protocol EventViewControllerDelegate: AnyObject {

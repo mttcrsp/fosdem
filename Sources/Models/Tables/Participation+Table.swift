@@ -1,7 +1,8 @@
 import GRDB
+import Schedule
 
 extension Participation: PersistableRecord, FetchableRecord {
-  static var databaseTableName: String {
+  public static var databaseTableName: String {
     "participations"
   }
 
