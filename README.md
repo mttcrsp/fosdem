@@ -20,7 +20,7 @@ The app is compatible with iOS 11+ iPhone/iPad devices and provides support for 
 
 ## Contributing
 
-Contributions in the form of code, issues and feature requests are welcome! To get started with development make sure to run the [`bootstrap.sh`](https://github.com/mttcrsp/fosdem/blob/master/bootstrap.sh) script.
+Contributions in the form of code, issues and feature requests are welcome! To get started with development install [Tuist](https://tuist.io/docs/commands/up/) and execute `tuist up & tuist generate`.
 
 ## Acknowledgements
 
