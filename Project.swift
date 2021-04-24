@@ -1,5 +1,10 @@
 import ProjectDescription
 
+let mockolo = TargetAction.pre(
+  script: "./mockolo.sh",
+  name: "Mockolo"
+)
+
 let swiftFormat = TargetAction.post(
   script: "swiftformat .",
   name: "SwiftFormat"
@@ -37,7 +42,7 @@ let app = Target(
   ]),
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
-  actions: [swiftFormat],
+  actions: [mockolo, swiftFormat],
   dependencies: [.package(product: "GRDB")],
   settings: Settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",

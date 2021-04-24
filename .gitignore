@@ -2,6 +2,9 @@
 *.xcodeproj
 *.xcworkspace
 
+# Mockolo
+Tests/Mockolo.swift
+
 # Tuist derived files
 graph.dot
 Derived/
