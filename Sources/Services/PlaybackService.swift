@@ -6,6 +6,7 @@ enum PlaybackPosition: Equatable {
   case end
 }
 
+/// @mockable
 protocol PlaybackServiceDefaults: AnyObject {
   func value(forKey key: String) -> Any?
   func set(_ value: Any?, forKey defaultName: String)

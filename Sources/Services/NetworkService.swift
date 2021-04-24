@@ -11,10 +11,12 @@ protocol NetworkRequest {
   func decode(_ data: Data) throws -> Model
 }
 
+/// @mockable
 protocol NetworkServiceTask {
   func resume()
 }
 
+/// @mockable
 protocol NetworkServiceSession {
   func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
 }

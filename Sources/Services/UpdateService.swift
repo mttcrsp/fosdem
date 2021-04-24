@@ -1,10 +1,12 @@
 import Foundation
 
+/// @mockable
 protocol UpdateServiceNetwork {
   @discardableResult
   func perform(_ request: AppStoreSearchRequest, completion: @escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> NetworkServiceTask
 }
 
+/// @mockable
 protocol UpdateServiceBundle {
   var bundleIdentifier: String? { get }
   var bundleShortVersion: String? { get }

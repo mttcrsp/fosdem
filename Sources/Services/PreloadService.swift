@@ -1,5 +1,6 @@
 import Foundation
 
+/// @mockable
 protocol PreloadServiceFile {
   func fileExists(atPath path: String) -> Bool
   func copyItem(atPath srcPath: String, toPath dstPath: String) throws
@@ -7,6 +8,7 @@ protocol PreloadServiceFile {
   func removeItem(atPath path: String) throws
 }
 
+/// @mockable
 protocol PreloadServiceBundle {
   func path(forResource name: String?, ofType ext: String?) -> String?
 }

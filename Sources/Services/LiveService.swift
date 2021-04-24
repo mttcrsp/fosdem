@@ -1,9 +1,11 @@
 import Foundation
 
+/// @mockable
 protocol LiveServiceTimer {
   func invalidate()
 }
 
+/// @mockable
 protocol LiveServiceProvider {
   func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (LiveServiceTimer) -> Void) -> LiveServiceTimer
 }

@@ -1,15 +1,18 @@
 import Foundation
 
+/// @mockable
 protocol ScheduleServiceDefaults: AnyObject {
   func value(forKey key: String) -> Any?
   func set(_ value: Any?, forKey defaultName: String)
 }
 
+/// @mockable
 protocol ScheduleServiceNetwork {
   @discardableResult
   func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
 }
 
+/// @mockable
 protocol ScheduleServicePersistence {
   func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void)
 }

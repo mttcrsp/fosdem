@@ -1,5 +1,6 @@
 import Foundation
 
+/// @mockable
 protocol FavoritesServiceDefaults: AnyObject {
   func value(forKey key: String) -> Any?
   func set(_ value: Any?, forKey defaultName: String)

@@ -1,9 +1,11 @@
 import Foundation
 
+/// @mockable
 protocol AcknowledgementsServiceBundle {
   func url(forResource name: String?, withExtension ext: String?) -> URL?
 }
 
+/// @mockable
 protocol AcknowledgementsServiceDataProvider {
   func data(withContentsOf url: URL) throws -> Data
 }
