@@ -1,5 +1,6 @@
 import Foundation
 
+/// @mockable
 protocol BuildingsServiceBundle {
   func data(forResource name: String?, withExtension ext: String?) throws -> Data
 }

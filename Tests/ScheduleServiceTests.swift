@@ -6,7 +6,19 @@ final class ScheduleServiceTests: XCTestCase {
   func testUpdate() {
     let persistenceService = ScheduleServicePersistenceMock()
     let networkService = ScheduleServiceNetworkMock()
-    let defaults = ScheduleServiceDefaultsMock()
+    let defaults = makeDefaultsMock()
+
+    var networkCompletion: ((Result<Schedule, Error>) -> Void)?
+    var persistenceCompletion: ((Error?) -> Void)?
+
+    networkService.performHandler = { _, completion in
+      networkCompletion = completion
+      return NetworkServiceTaskMock()
+    }
+
+    persistenceService.performWriteHandler = { _, completion in
+      persistenceCompletion = completion
+    }
 
     let service = ScheduleService(
       fosdemYear: 2021,
@@ -17,23 +29,32 @@ final class ScheduleServiceTests: XCTestCase {
     )
 
     service.startUpdating()
-    XCTAssertNotNil(networkService.completion)
-    XCTAssertEqual(networkService.request?.url, URL(string: "https://fosdem.org/2021/schedule/xml"))
+    XCTAssertNotNil(networkCompletion)
+    XCTAssertEqual(networkService.performArgValues.first?.url, URL(string: "https://fosdem.org/2021/schedule/xml"))
 
-    networkService.completion?(.success(makeSchedule()))
-    XCTAssertNotNil(persistenceService.completion)
-    XCTAssert(persistenceService.write is ImportSchedule)
+    networkCompletion?(.success(makeSchedule()))
+    XCTAssertNotNil(persistenceCompletion)
+    XCTAssert(persistenceService.performWriteArgValues.first is ImportSchedule)
 
-    persistenceService.completion?(nil)
-    XCTAssertFalse(defaults.dictionary.isEmpty)
+    persistenceCompletion?(nil)
+    XCTAssertGreaterThan(defaults.setCallCount, 0)
 
     service.stopUpdating()
   }
 
   func testUpdateRepeats() {
-    let defaults = ScheduleServiceDefaultsMock()
-    let persistenceService = ScheduleServicePersistenceAutomaticMock()
-    let networkService = ScheduleServiceNetworkAutomaticMock(schedule: makeSchedule())
+    let persistenceService = ScheduleServicePersistenceMock()
+    let networkService = ScheduleServiceNetworkMock()
+    let defaults = makeDefaultsMock()
+
+    networkService.performHandler = { _, completion in
+      completion(.success(self.makeSchedule()))
+      return NetworkServiceTaskMock()
+    }
+
+    persistenceService.performWriteHandler = { _, completion in
+      completion(nil)
+    }
 
     let service = ScheduleService(
       fosdemYear: 2021,
@@ -46,8 +67,8 @@ final class ScheduleServiceTests: XCTestCase {
     service.startUpdating()
 
     let predicate = NSPredicate { _, _ in
-      networkService.numberOfInvocations == 3 &&
-        persistenceService.numberOfInvocations == 3
+      networkService.performCallCount == 3 &&
+        persistenceService.performWriteCallCount == 3
     }
     let expectation = XCTNSPredicateExpectation(predicate: predicate, object: nil)
     XCTWaiter().wait(for: [expectation], timeout: 2)
@@ -56,9 +77,21 @@ final class ScheduleServiceTests: XCTestCase {
   }
 
   func testUpdatePreventsUnnecessary() {
-    let defaults = ScheduleServiceDefaultsMock()
-    let networkService = ScheduleServiceNetworkMock()
     let persistenceService = ScheduleServicePersistenceMock()
+    let networkService = ScheduleServiceNetworkMock()
+    let defaults = makeDefaultsMock()
+
+    var networkCompletion: ((Result<Schedule, Error>) -> Void)?
+    var persistenceCompletion: ((Error?) -> Void)?
+
+    networkService.performHandler = { _, completion in
+      networkCompletion = completion
+      return NetworkServiceTaskMock()
+    }
+
+    persistenceService.performWriteHandler = { _, completion in
+      persistenceCompletion = completion
+    }
 
     let service = ScheduleService(
       fosdemYear: 2021,
@@ -69,25 +102,25 @@ final class ScheduleServiceTests: XCTestCase {
     )
 
     service.startUpdating()
-    networkService.completion?(.success(makeSchedule()))
-    persistenceService.completion?(nil)
+    networkCompletion?(.success(makeSchedule()))
+    persistenceCompletion?(nil)
     service.stopUpdating()
 
-    networkService.reset()
-    persistenceService.reset()
-
     service.startUpdating()
-    XCTAssertNil(networkService.request)
-    XCTAssertNil(networkService.completion)
-    XCTAssertNil(persistenceService.write)
-    XCTAssertNil(persistenceService.completion)
+    XCTAssertEqual(networkService.performCallCount, 1)
+    XCTAssertEqual(persistenceService.performWriteCallCount, 1)
     service.stopUpdating()
   }
 
   func testPreventsSimultaneous() {
-    let defaults = ScheduleServiceDefaultsMock()
     let persistenceService = ScheduleServicePersistenceMock()
-    let networkService = ScheduleServiceNetworkAutomaticMock(schedule: makeSchedule())
+    let networkService = ScheduleServiceNetworkMock()
+    let defaults = makeDefaultsMock()
+
+    networkService.performHandler = { _, completion in
+      completion(.success(self.makeSchedule()))
+      return NetworkServiceTaskMock()
+    }
 
     let service = ScheduleService(
       fosdemYear: 2021,
@@ -101,9 +134,17 @@ final class ScheduleServiceTests: XCTestCase {
     service.startUpdating()
     service.startUpdating()
 
-    XCTAssertEqual(networkService.numberOfInvocations, 1)
+    XCTAssertEqual(networkService.performCallCount, 1)
 
     service.stopUpdating()
+  }
+
+  private func makeDefaultsMock() -> ScheduleServiceDefaultsMock {
+    var dictionary: [String: Any] = [:]
+    let defaults = ScheduleServiceDefaultsMock()
+    defaults.setHandler = { value, key in dictionary[key] = value }
+    defaults.valueHandler = { key in dictionary[key] }
+    return defaults
   }
 
   private func makeSchedule() -> Schedule {

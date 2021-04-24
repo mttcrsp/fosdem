@@ -4,8 +4,19 @@ import XCTest
 
 final class LiveServiceTests: XCTestCase {
   func testAddObserver() {
+    var block: ((LiveServiceTimer) -> Void)?
+
     let timer = LiveServiceTimerMock()
-    let timerProvider = LiveServiceProviderMock(timer: timer)
+    timer.invalidateHandler = {
+      block = nil
+    }
+
+    let timerProvider = LiveServiceProviderMock()
+    timerProvider.scheduledTimerHandler = { _, _, receivedBlock in
+      block = receivedBlock
+      return timer
+    }
+
     let liveService = LiveService(timerProvider: timerProvider)
     liveService.startMonitoring()
 
@@ -14,16 +25,27 @@ final class LiveServiceTests: XCTestCase {
       invocationsCount += 1
     }
 
-    timerProvider.block?(timer)
-    timerProvider.block?(timer)
-    timerProvider.block?(timer)
+    block?(timer)
+    block?(timer)
+    block?(timer)
 
     XCTAssertEqual(invocationsCount, 3)
   }
 
   func testMonitoring() {
+    var block: ((LiveServiceTimer) -> Void)?
+
     let timer = LiveServiceTimerMock()
-    let timerProvider = LiveServiceProviderMock(timer: timer)
+    timer.invalidateHandler = {
+      block = nil
+    }
+
+    let timerProvider = LiveServiceProviderMock()
+    timerProvider.scheduledTimerHandler = { _, _, receivedBlock in
+      block = receivedBlock
+      return timer
+    }
+
     let liveService = LiveService(timerProvider: timerProvider)
 
     var invocationsCount = 0
@@ -32,15 +54,15 @@ final class LiveServiceTests: XCTestCase {
     }
 
     liveService.startMonitoring()
-    timerProvider.block?(timer)
+    block?(timer)
     XCTAssertEqual(invocationsCount, 1)
 
     liveService.stopMonitoring()
-    timerProvider.block?(timer)
+    block?(timer)
     XCTAssertEqual(invocationsCount, 1)
 
     liveService.startMonitoring()
-    timerProvider.block?(timer)
+    block?(timer)
     XCTAssertEqual(invocationsCount, 2)
   }
 }

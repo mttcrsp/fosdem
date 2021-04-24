@@ -3,30 +3,36 @@ import Fosdem
 import XCTest
 
 final class BundleServiceTests: XCTestCase {
-  func testData() {
-    XCTAssertNoThrow(try {
-      let bundleURL = URL(fileURLWithPath: "/fosdem")
-      let bundle = BundleServiceBundleMock(url: bundleURL)
+  func testData() throws {
+    let bundleURL = URL(fileURLWithPath: "/fosdem")
+    let bundle = BundleServiceBundleMock()
+    bundle.urlHandler = { _, _ in bundleURL }
 
-      let dataProviderData = Data("something".utf8)
-      let dataProvider = BundleServiceDataProviderMock(result: .success(dataProviderData))
+    let dataProviderData = Data("something".utf8)
+    let dataProvider = BundleServiceDataProviderMock()
+    dataProvider.dataHandler = { _ in dataProviderData }
 
-      let resource = "resource", ext = "json"
-      let service = BundleService(bundle: bundle, dataProvider: dataProvider)
-      let data = try service.data(forResource: resource, withExtension: ext)
+    let resource = "resource", ext = "json"
+    let service = BundleService(bundle: bundle, dataProvider: dataProvider)
+    let data = try service.data(forResource: resource, withExtension: ext)
 
-      XCTAssertEqual(data, dataProviderData)
-      XCTAssertEqual(bundle.ext, ext)
-      XCTAssertEqual(bundle.name, resource)
-      XCTAssertEqual(dataProvider.url, bundleURL)
-    }())
+    XCTAssertEqual(data, dataProviderData)
+    XCTAssertEqual(bundle.urlCallCount, 1)
+    XCTAssertEqual(bundle.urlArgValues.first?.1, ext)
+    XCTAssertEqual(bundle.urlArgValues.first?.0, resource)
+    XCTAssertEqual(dataProvider.dataCallCount, 1)
+    XCTAssertEqual(dataProvider.dataArgValues.first, bundleURL)
   }
 
   func testErrorData() {
     do {
-      let serviceBundle = BundleServiceBundleMock(url: nil)
-      let serviceDataProvider = BundleServiceDataProviderMock(result: .success(Data()))
-      let service = BundleService(bundle: serviceBundle, dataProvider: serviceDataProvider)
+      let bundle = BundleServiceBundleMock()
+      bundle.urlHandler = { _, _ in nil }
+
+      let dataProvider = BundleServiceDataProviderMock()
+      dataProvider.dataHandler = { _ in Data() }
+
+      let service = BundleService(bundle: bundle, dataProvider: dataProvider)
       _ = try service.data(forResource: "resource", withExtension: "ext")
       XCTFail("Unexpectedly succeeded in loading from bundle service")
     } catch {
@@ -40,9 +46,13 @@ final class BundleServiceTests: XCTestCase {
     let error1 = NSError(domain: "test", code: 1)
 
     do {
-      let serviceBundle = BundleServiceBundleMock(url: URL(fileURLWithPath: "/fosdem"))
-      let serviceDataProvider = BundleServiceDataProviderMock(result: .failure(error1))
-      let service = BundleService(bundle: serviceBundle, dataProvider: serviceDataProvider)
+      let bundle = BundleServiceBundleMock()
+      bundle.urlHandler = { _, _ in URL(fileURLWithPath: "/fosdem") }
+
+      let dataProvider = BundleServiceDataProviderMock()
+      dataProvider.dataHandler = { _ in throw error1 }
+
+      let service = BundleService(bundle: bundle, dataProvider: dataProvider)
       _ = try service.data(forResource: "resource", withExtension: "ext")
       XCTFail("Unexpectedly succeeded in loading from bundle service")
     } catch let error2 {

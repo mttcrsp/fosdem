@@ -4,7 +4,7 @@ import XCTest
 
 final class FavoritesServiceTests: XCTestCase {
   func testAddTrack() {
-    let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
+    let service = FavoritesService(userDefaults: makeDefaultsMock())
     service.addTrack(withIdentifier: "1")
     XCTAssertEqual(service.tracksIdentifiers, ["1"])
 
@@ -22,7 +22,7 @@ final class FavoritesServiceTests: XCTestCase {
   }
 
   func testRemoveTrack() {
-    let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
+    let service = FavoritesService(userDefaults: makeDefaultsMock())
     service.addTrack(withIdentifier: "1")
     service.addTrack(withIdentifier: "2")
     service.addTrack(withIdentifier: "3")
@@ -47,7 +47,7 @@ final class FavoritesServiceTests: XCTestCase {
   }
 
   func testAddEvent() {
-    let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
+    let service = FavoritesService(userDefaults: makeDefaultsMock())
     service.addEvent(withIdentifier: 1)
     XCTAssertEqual(service.eventsIdentifiers, [1])
 
@@ -65,7 +65,7 @@ final class FavoritesServiceTests: XCTestCase {
   }
 
   func testRemoveEvent() {
-    let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
+    let service = FavoritesService(userDefaults: makeDefaultsMock())
     service.addEvent(withIdentifier: 1)
     service.addEvent(withIdentifier: 2)
     service.addEvent(withIdentifier: 3)
@@ -97,7 +97,7 @@ final class FavoritesServiceTests: XCTestCase {
       expectation.expectedFulfillmentCount = 2
     }
 
-    let service = FavoritesService(userDefaults: FavoritesServiceDefaultsMock())
+    let service = FavoritesService(userDefaults: makeDefaultsMock())
     var tracksObservation: NSObjectProtocol? = service.addObserverForTracks { _ in tracksExpectation.fulfill() }
     var eventsObservation: NSObjectProtocol? = service.addObserverForEvents { _ in eventsExpectation.fulfill() }
 
@@ -118,5 +118,13 @@ final class FavoritesServiceTests: XCTestCase {
 
     tracksObservation = nil
     eventsObservation = nil
+  }
+
+  private func makeDefaultsMock() -> FavoritesServiceDefaultsMock {
+    var dictionary: [String: Any] = [:]
+    let defaults = FavoritesServiceDefaultsMock()
+    defaults.setHandler = { value, key in dictionary[key] = value }
+    defaults.valueHandler = { key in dictionary[key] }
+    return defaults
   }
 }

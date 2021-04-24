@@ -3,10 +3,19 @@ import Fosdem
 import XCTest
 
 final class NetworkServiceTests: XCTestCase {
+  private typealias Completion = (Data?, URLResponse?, Error?) -> Void
+
   func testPerformSimpleRequest() {
     let request = SimpleRequest()
     let dataTask = NetworkServiceTaskMock()
-    let session = NetworkServiceSessionMock(dataTask: dataTask)
+    let session = NetworkServiceSessionMock()
+
+    var completionHandler: Completion?
+    session.dataTaskHandler = { _, receivedCompletionHandler in
+      completionHandler = receivedCompletionHandler
+      return dataTask
+    }
+
     let service = NetworkService(session: session)
 
     var didExecuteCompletion = false
@@ -18,14 +27,14 @@ final class NetworkServiceTests: XCTestCase {
       }
     }
 
-    XCTAssertTrue(dataTask.didResume)
-    XCTAssertNil(session.request?.httpBody)
-    XCTAssertEqual(session.request?.url, request.url)
-    XCTAssertEqual(session.request?.httpMethod, "GET")
-    XCTAssertEqual(session.request?.allHTTPHeaderFields, [:])
-    XCTAssertNotNil(session.completionHandler)
+    XCTAssertEqual(dataTask.resumeCallCount, 1)
+    XCTAssertNil(session.dataTaskArgValues.first?.httpBody)
+    XCTAssertEqual(session.dataTaskArgValues.first?.url, request.url)
+    XCTAssertEqual(session.dataTaskArgValues.first?.httpMethod, "GET")
+    XCTAssertEqual(session.dataTaskArgValues.first?.allHTTPHeaderFields, [:])
 
-    session.completionHandler?(Data(), nil, nil)
+    completionHandler?(Data(), nil, nil)
+
     XCTAssertTrue(didExecuteCompletion)
   }
 
@@ -33,7 +42,14 @@ final class NetworkServiceTests: XCTestCase {
     let integer = 99
     let request = AdvancedRequest()
     let dataTask = NetworkServiceTaskMock()
-    let session = NetworkServiceSessionMock(dataTask: dataTask)
+    let session = NetworkServiceSessionMock()
+
+    var completionHandler: Completion?
+    session.dataTaskHandler = { _, receivedCompletionHandler in
+      completionHandler = receivedCompletionHandler
+      return dataTask
+    }
+
     let service = NetworkService(session: session)
 
     var didExecuteCompletion = false
@@ -48,16 +64,15 @@ final class NetworkServiceTests: XCTestCase {
       }
     }
 
-    XCTAssertTrue(dataTask.didResume)
-    XCTAssertEqual(session.request?.url, request.url)
-    XCTAssertEqual(session.request?.httpBody, request.httpBody)
-    XCTAssertEqual(session.request?.httpMethod, request.httpMethod)
-    XCTAssertEqual(session.request?.allHTTPHeaderFields, request.allHTTPHeaderFields)
+    XCTAssertEqual(dataTask.resumeCallCount, 1)
+    XCTAssertEqual(session.dataTaskArgValues.first?.url, request.url)
+    XCTAssertEqual(session.dataTaskArgValues.first?.httpBody, request.httpBody)
+    XCTAssertEqual(session.dataTaskArgValues.first?.httpMethod, request.httpMethod)
+    XCTAssertEqual(session.dataTaskArgValues.first?.allHTTPHeaderFields, request.allHTTPHeaderFields)
 
     let data = try JSONEncoder().encode(integer)
 
-    let completionHandler = try XCTUnwrap(session.completionHandler)
-    completionHandler(data, nil, nil)
+    completionHandler?(data, nil, nil)
 
     XCTAssertTrue(didExecuteCompletion)
   }
@@ -66,7 +81,14 @@ final class NetworkServiceTests: XCTestCase {
     let error = NSError(domain: "test", code: 1)
     let request = AdvancedRequest()
     let dataTask = NetworkServiceTaskMock()
-    let session = NetworkServiceSessionMock(dataTask: dataTask)
+    let session = NetworkServiceSessionMock()
+
+    var completionHandler: Completion?
+    session.dataTaskHandler = { _, receivedCompletionHandler in
+      completionHandler = receivedCompletionHandler
+      return dataTask
+    }
+
     let service = NetworkService(session: session)
 
     var didExecuteCompletion = false
@@ -81,7 +103,7 @@ final class NetworkServiceTests: XCTestCase {
       }
     }
 
-    session.completionHandler?(nil, nil, error)
+    completionHandler?(nil, nil, error)
 
     XCTAssertTrue(didExecuteCompletion)
   }
@@ -89,7 +111,14 @@ final class NetworkServiceTests: XCTestCase {
   func testPerformDecodingError() {
     let request = AdvancedRequest()
     let dataTask = NetworkServiceTaskMock()
-    let session = NetworkServiceSessionMock(dataTask: dataTask)
+    let session = NetworkServiceSessionMock()
+
+    var completionHandler: Completion?
+    session.dataTaskHandler = { _, receivedCompletionHandler in
+      completionHandler = receivedCompletionHandler
+      return dataTask
+    }
+
     let service = NetworkService(session: session)
 
     var didExecuteCompletion = false
@@ -104,7 +133,7 @@ final class NetworkServiceTests: XCTestCase {
       }
     }
 
-    session.completionHandler?(nil, nil, nil)
+    completionHandler?(nil, nil, nil)
 
     XCTAssertTrue(didExecuteCompletion)
   }

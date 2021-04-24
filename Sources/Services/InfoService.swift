@@ -6,6 +6,7 @@ enum Info: String {
   case legal
 }
 
+/// @mockable
 protocol InfoServiceBundle {
   func data(forResource name: String?, withExtension ext: String?) throws -> Data
 }

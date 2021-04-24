@@ -7,8 +7,10 @@ final class BuildingsServiceTests: XCTestCase {
     let building = "aw"
     let data = try BundleDataLoader().data(forResource: building, withExtension: "json")
 
-    let serviceBundle = BundleServiceMock(result: .success(data))
-    let service = BuildingsService(bundleService: serviceBundle, queue: .main)
+    let bundle = BuildingsServiceBundleMock()
+    bundle.dataHandler = { _, _ in data }
+
+    let service = BuildingsService(bundleService: bundle, queue: .main)
     let expectation = self.expectation(description: #function)
 
     service.loadBuildings { buildings, error in
@@ -22,8 +24,10 @@ final class BuildingsServiceTests: XCTestCase {
 
   func testLoadBuildingsMissingData() {
     let error = NSError(domain: "test", code: 1)
-    let serviceBundle = BundleServiceMock(result: .failure(error))
-    let service = BuildingsService(bundleService: serviceBundle, queue: .main)
+    let bundle = BuildingsServiceBundleMock()
+    bundle.dataHandler = { _, _ in throw error }
+
+    let service = BuildingsService(bundleService: bundle, queue: .main)
     let expectation = self.expectation(description: #function)
 
     service.loadBuildings { buildings, error in
