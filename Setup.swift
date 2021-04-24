@@ -1,5 +1,5 @@
 import ProjectDescription
 
 let setup = Setup([
-  .homebrew(packages: ["swiftformat"]),
+  .homebrew(packages: ["swiftformat", "mockolo"]),
 ])
