@@ -1,5 +1,7 @@
 ignore:
   - "Tests/"
+  - "SnapshotTests/"
+  - "UITests/"
 coverage:
   status:
     patch: off
