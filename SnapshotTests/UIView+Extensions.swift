@@ -5,6 +5,10 @@ extension UIView {
     findSubview(ofType: type, matching: { subview in subview.accessibilityIdentifier == accessibilityIdentifier })
   }
 
+  func findSubview<Subview: UIView>(ofType type: Subview.Type, accessibilityLabel: String) -> Subview? {
+    findSubview(ofType: type, matching: { subview in subview.accessibilityLabel == accessibilityLabel })
+  }
+
   func findSubview<Subview: UIView>(ofType _: Subview.Type, matching predicate: (Subview) -> Bool = { _ in true }) -> Subview? {
     var unvisited: Set<UIView> = [self]
 

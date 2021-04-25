@@ -1,6 +1,7 @@
 import CoreLocation
 import MapKit
 
+/// @mockable
 protocol MapViewControllerDelegate: AnyObject {
   func mapViewController(_ mapViewController: MapViewController, didSelect building: Building)
   func mapViewControllerDidDeselectBuilding(_ mapViewController: MapViewController)
