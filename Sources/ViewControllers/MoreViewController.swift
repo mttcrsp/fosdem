@@ -1,5 +1,6 @@
 import UIKit
 
+/// @mockable
 protocol MoreViewControllerDelegate: AnyObject {
   func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem)
 }
