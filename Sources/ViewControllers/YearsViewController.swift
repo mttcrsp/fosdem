@@ -2,11 +2,13 @@ import UIKit
 
 private typealias Year = String
 
+/// @mockable
 protocol YearsViewControllerDataSource: AnyObject {
   func numberOfYears(in yearsViewController: YearsViewController) -> Int
   func yearsViewController(_ yearsViewController: YearsViewController, yearAt index: Int) -> String
 }
 
+/// @mockable
 protocol YearsViewControllerDelegate: AnyObject {
   func yearsViewController(_ yearsViewController: YearsViewController, didSelect year: String)
 }
