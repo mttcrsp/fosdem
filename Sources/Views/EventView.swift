@@ -91,6 +91,7 @@ final class EventView: UIStackView {
     } else if showsLivestream {
       let livestreamAction = #selector(didTapLivestream)
       let livestreamButton = RoundedButton()
+      livestreamButton.accessibilityIdentifier = "livestream"
       livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
       livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
       livestreamButton.setTitle(L10n.Event.livestream, for: .normal)

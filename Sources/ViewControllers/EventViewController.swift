@@ -1,11 +1,13 @@
 import UIKit
 
+/// @mockable
 protocol EventViewControllerDelegate: AnyObject {
   func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
 
+/// @mockable
 protocol EventViewControllerDataSource: AnyObject {
   func eventViewController(_ eventViewController: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition
 }
