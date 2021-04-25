@@ -1,5 +1,6 @@
 import UIKit
 
+/// @mockable
 protocol TransportationViewControllerDelegate: AnyObject {
   func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item)
 }
