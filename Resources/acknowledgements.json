@@ -12,6 +12,10 @@
     "url": "https://github.com/peripheryapp/periphery"
   },
   {
+    "name": "SnapshotTesting",
+    "url": "https://github.com/pointfreeco/swift-snapshot-testing"
+  },
+  {
     "name": "SwiftFormat",
     "url": "https://github.com/nicklockwood/SwiftFormat"
   },

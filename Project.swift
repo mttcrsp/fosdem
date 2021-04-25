@@ -15,6 +15,11 @@ let grdb = Package.remote(
   requirement: .branch("master")
 )
 
+let snapshotTesting = Package.remote(
+  url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
+  requirement: .exact(.init(1, 8, 2))
+)
+
 let app = Target(
   name: "FOSDEM",
   platform: .iOS,
@@ -99,6 +104,6 @@ let dbGenerator = Target(
 let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
-  packages: [grdb],
   targets: [app, appTests, appUITests, dbGenerator]
+  packages: [grdb, snapshotTesting],
 )
