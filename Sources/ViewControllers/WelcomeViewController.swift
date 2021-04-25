@@ -1,5 +1,6 @@
 import UIKit
 
+/// @mockable
 protocol WelcomeViewControllerDelegate: AnyObject {
   func welcomeViewControllerDidTapContinue(_ welcomeViewController: WelcomeViewController)
 }
