@@ -1,29 +1,35 @@
 import UIKit
 
+/// @mockable
 protocol TracksViewControllerDataSource: AnyObject {
   func numberOfSections(in tracksViewController: TracksViewController) -> Int
   func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int
   func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track
 }
 
+/// @mockable
 protocol TracksViewControllerIndexDataSource: AnyObject {
   func sectionIndexTitles(in tracksViewController: TracksViewController) -> [String]
   func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String?
   func tracksViewController(_ tracksViewController: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String?
 }
 
+/// @mockable
 protocol TracksViewControllerFavoritesDataSource: AnyObject {
   func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool
 }
 
+/// @mockable
 protocol TracksViewControllerDelegate: AnyObject {
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track)
 }
 
+/// @mockable
 protocol TracksViewControllerIndexDelegate: AnyObject {
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect section: Int)
 }
 
+/// @mockable
 protocol TracksViewControllerFavoritesDelegate: AnyObject {
   func tracksViewController(_ tracksViewController: TracksViewController, didFavorite track: Track)
   func tracksViewController(_ tracksViewController: TracksViewController, didUnfavorite track: Track)
