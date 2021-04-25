@@ -1,6 +1,13 @@
 import UIKit
 
+/// @mockable
+protocol ErrorViewControllerDelegate: AnyObject {
+  func errorViewControllerDidTapAppStore(_ errorViewController: ErrorViewController)
+}
+
 final class ErrorViewController: UIViewController {
+  weak var delegate: ErrorViewControllerDelegate?
+
   var showsAppStoreButton: Bool {
     get { !actionButton.isHidden }
     set { actionButton.isHidden = !newValue }
@@ -27,6 +34,7 @@ final class ErrorViewController: UIViewController {
     messageLabel.text = L10n.Error.Functionality.message
 
     actionButton.isHidden = true
+    actionButton.accessibilityIdentifier = "appstore"
     actionButton.translatesAutoresizingMaskIntoConstraints = false
     actionButton.addTarget(self, action: #selector(didTapAction), for: .touchUpInside)
     actionButton.setTitle(L10n.Error.Functionality.action, for: .normal)
@@ -58,8 +66,6 @@ final class ErrorViewController: UIViewController {
   }
 
   @objc private func didTapAction() {
-    if let url = URL.fosdemAppStore {
-      UIApplication.shared.open(url)
-    }
+    delegate?.errorViewControllerDidTapAppStore(self)
   }
 }

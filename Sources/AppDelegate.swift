@@ -64,6 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func makeErrorViewController() -> ErrorViewController {
     let errorViewController = ErrorViewController()
     errorViewController.showsAppStoreButton = true
+    errorViewController.delegate = self
     return errorViewController
   }
 }
@@ -78,6 +79,14 @@ extension AppDelegate: NetworkServiceDelegate {
   func networkServiceDidEndRequest(_: NetworkService) {
     OperationQueue.main.addOperation { [weak self] in
       self?.pendingNetworkRequests -= 1
+    }
+  }
+}
+
+extension AppDelegate: ErrorViewControllerDelegate {
+  func errorViewControllerDidTapAppStore(_: ErrorViewController) {
+    if let url = URL.fosdemAppStore {
+      UIApplication.shared.open(url)
     }
   }
 }
