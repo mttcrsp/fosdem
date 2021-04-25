@@ -2,6 +2,9 @@
 *.xcodeproj
 *.xcworkspace
 
+# SnapshotTesting
+SnapshotTests/__Snapshots__
+
 # Mockolo
 Mocks/Mockolo.swift
 

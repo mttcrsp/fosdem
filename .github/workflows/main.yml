@@ -18,7 +18,7 @@ jobs:
         run: tuist up && tuist generate
         env:
           HOMEBREW_NO_INSTALL_CLEANUP: 1
-      - name: Run unit and UI tests
+      - name: Run unit, snapshot, and UI tests
         run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' build test | xcpretty -f `xcpretty-travis-formatter`
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1

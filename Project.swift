@@ -82,6 +82,21 @@ let appUITests = Target(
   dependencies: [.target(name: app.name)]
 )
 
+let appSnapshotTests = Target(
+  name: "SnapshotTests",
+  platform: app.platform,
+  product: .unitTests,
+  bundleId: "\(app.bundleId).snapshottests",
+  deploymentTarget: app.deploymentTarget,
+  infoPlist: .default,
+  sources: ["SnapshotTests/**", "Mocks/**"],
+  actions: [swiftFormat],
+  dependencies: [
+    .target(name: app.name),
+    .package(product: "SnapshotTesting"),
+  ]
+)
+
 let dbGenerator = Target(
   name: "GenerateDB",
   platform: .macOS,
@@ -104,6 +119,6 @@ let dbGenerator = Target(
 let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
-  targets: [app, appTests, appUITests, dbGenerator]
   packages: [grdb, snapshotTesting],
+  targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
