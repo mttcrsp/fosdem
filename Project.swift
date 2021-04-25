@@ -58,7 +58,7 @@ let appTests = Target(
   bundleId: "\(app.bundleId).tests",
   deploymentTarget: app.deploymentTarget,
   infoPlist: .default,
-  sources: ["Tests/**"],
+  sources: ["Tests/**", "Mocks/**"],
   resources: ["Tests/Resources/**/*", "Resources/Buildings/**/*"],
   actions: [swiftFormat],
   dependencies: [.target(name: app.name)]
