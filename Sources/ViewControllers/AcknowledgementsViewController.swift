@@ -1,9 +1,11 @@
 import UIKit
 
+/// @mockable
 protocol AcknowledgementsViewControllerDataSource: AnyObject {
   var acknowledgements: [Acknowledgement] { get }
 }
 
+/// @mockable
 protocol AcknowledgementsViewControllerDelegate: AnyObject {
   func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement)
 }
