@@ -115,7 +115,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
     let favoriteConfiguration = tableView.delegate?.tableView?(tableView, trailingSwipeActionsConfigurationForRowAt: favoriteIndexPath)
     let favoriteAction = try XCTUnwrap(favoriteConfiguration?.actions.first)
 
-    favoriteAction.handler(unfavoriteAction, UIView()) { _ in }
+    favoriteAction.handler(favoriteAction, UIView()) { _ in }
     XCTAssertEqual(
       favoritesDelegate.tracksViewControllerArgValues.map(\.1),
       [Track(name: "2", day: 1, date: date)]

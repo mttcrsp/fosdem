@@ -1,27 +1,33 @@
 import UIKit
 
+/// @mockable
 protocol EventsViewControllerDataSource: AnyObject {
   func events(in eventsViewController: EventsViewController) -> [Event]
   func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
 }
 
+/// @mockable
 protocol EventsViewControllerLiveDataSource: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool
 }
 
+/// @mockable
 protocol EventsViewControllerFavoritesDataSource: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool
 }
 
+/// @mockable
 protocol EventsViewControllerDelegate: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event)
 }
 
+/// @mockable
 protocol EventsViewControllerFavoritesDelegate: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, didFavorite event: Event)
   func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event)
 }
 
+/// @mockable
 protocol EventsViewControllerDeleteDelegate: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event)
 }
