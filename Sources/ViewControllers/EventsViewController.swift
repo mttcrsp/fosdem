@@ -52,7 +52,7 @@ final class EventsViewController: UITableViewController {
     dataSource?.events(in: self) ?? []
   }
 
-  func reloadData(animatingDifferences _: Bool = true) {
+  func reloadData() {
     if isViewLoaded {
       tableView.reloadData()
     }
