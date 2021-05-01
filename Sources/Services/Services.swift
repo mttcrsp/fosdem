@@ -10,6 +10,7 @@ final class Services {
   let favoritesService = FavoritesService()
   let acknowledgementsService = AcknowledgementsService()
 
+  private(set) lazy var navigationService = NavigationService(services: self)
   private(set) lazy var infoService = InfoService(bundleService: bundleService)
   private(set) lazy var updateService = UpdateService(networkService: networkService)
   private(set) lazy var buildingsService = BuildingsService(bundleService: bundleService)
@@ -147,5 +148,51 @@ private extension FavoritesService {
     }
   }
 }
+
+#endif
+
+protocol HasInfoService { var infoService: InfoService { get } }
+extension Services: HasInfoService {}
+
+protocol HasLiveService { var liveService: LiveService { get } }
+extension Services: HasLiveService {}
+
+protocol HasLaunchService { var launchService: LaunchService { get } }
+extension Services: HasLaunchService {}
+
+protocol HasYearsService { var yearsService: YearsService { get } }
+extension Services: HasYearsService {}
+
+protocol HasTracksService { var tracksService: TracksService { get } }
+extension Services: HasTracksService {}
+
+protocol HasUpdateService { var updateService: UpdateService { get } }
+extension Services: HasUpdateService {}
+
+protocol HasPlaybackService { var playbackService: PlaybackService { get } }
+extension Services: HasPlaybackService {}
+
+protocol HasScheduleService { var scheduleService: ScheduleService? { get } }
+extension Services: HasScheduleService {}
+
+protocol HasBuildingsService { var buildingsService: BuildingsService { get } }
+extension Services: HasBuildingsService {}
+
+protocol HasFavoritesService { var favoritesService: FavoritesService { get } }
+extension Services: HasFavoritesService {}
+
+protocol HasNavigationService { var navigationService: NavigationService { get } }
+extension Services: HasNavigationService {}
+
+protocol HasPersistenceService { var persistenceService: PersistenceService { get } }
+extension Services: HasPersistenceService {}
+
+protocol HasAcknowledgementsService { var acknowledgementsService: AcknowledgementsService { get } }
+extension Services: HasAcknowledgementsService {}
+
+#if DEBUG
+
+protocol HasDebugService { var debugService: DebugService { get } }
+extension Services: HasDebugService {}
 
 #endif

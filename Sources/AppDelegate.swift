@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let rootViewController: UIViewController
     do {
-      rootViewController = ApplicationController(services: try makeServices())
+      rootViewController = ApplicationController(dependencies: try makeServices())
     } catch {
       rootViewController = makeErrorViewController()
     }

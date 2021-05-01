@@ -1,15 +1,21 @@
 import UIKit
 
 final class MoreController: UISplitViewController {
+  #if DEBUG
+  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasDebugService
+  #else
+  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService
+  #endif
+
   private weak var moreViewController: MoreViewController?
 
   private(set) var acknowledgements: [Acknowledgement] = []
   private var years: [String] = []
 
-  private let services: Services
+  private let dependencies: Dependencies
 
-  init(services: Services) {
-    self.services = services
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -70,7 +76,7 @@ extension MoreController: MoreViewControllerDelegate {
       showDetailInfoViewController(for: item)
     #if DEBUG
     case .time:
-      let date = services.debugService.now
+      let date = dependencies.debugService.now
       let dateViewController = makeDateViewController(for: date)
       moreViewController.present(dateViewController, animated: true)
     #endif
@@ -79,7 +85,7 @@ extension MoreController: MoreViewControllerDelegate {
 
   private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
     do {
-      acknowledgements = try services.acknowledgementsService.loadAcknowledgements()
+      acknowledgements = try dependencies.acknowledgementsService.loadAcknowledgements()
       let acknowledgementsViewController = makeAcknowledgementsViewController()
       let navigationController = UINavigationController(rootViewController: acknowledgementsViewController)
       showDetailViewController(navigationController)
@@ -96,7 +102,7 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidSelectYears(_: MoreViewController) {
-    services.yearsService.loadYears { years in
+    dependencies.yearsService.loadYears { years in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
@@ -181,7 +187,7 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
   }
 
   func yearsViewController(_ yearsViewController: YearsViewController, didSelect year: String) {
-    services.yearsService.loadURL(forYear: year) { [weak self, weak yearsViewController] url in
+    dependencies.yearsService.loadURL(forYear: year) { [weak self, weak yearsViewController] url in
       guard let self = self, let yearsViewController = yearsViewController else { return }
 
       guard let url = url else {
@@ -217,8 +223,8 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
   }
 }
 
-extension MoreController: YearControllerDelegate {
-  func yearControllerDidError(_ yearController: YearController) {
+extension MoreController {
+  func yearController(_ yearController: UIViewController, didError _: Error) {
     let navigationController = yearController.navigationController
     navigationController?.popViewController(animated: true)
 
@@ -235,8 +241,8 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
   }
 }
 
-extension MoreController: VideosControllerDelegate {
-  func videosController(_ videosController: VideosController, didError _: Error) {
+extension MoreController {
+  func videosController(_ videosController: UIViewController, didError _: Error) {
     let errorViewController = makeErrorViewController { [weak self] in
       self?.popToRootViewController()
     }
@@ -248,7 +254,7 @@ extension MoreController: VideosControllerDelegate {
 extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
   func dateViewControllerDidChange(_ dateViewController: DateViewController) {
     let date = dateViewController.date
-    services.debugService.override(date)
+    dependencies.debugService.override(date)
   }
 }
 #endif
@@ -271,7 +277,7 @@ private extension MoreController {
   }
 
   private func makeInfoViewController(withTitle title: String, for info: Info, completion: @escaping (TextViewController?) -> Void) {
-    services.infoService.loadAttributedText(for: info) { attributedText in
+    dependencies.infoService.loadAttributedText(for: info) { attributedText in
       DispatchQueue.main.async {
         if let attributedText = attributedText {
           let textViewController = TextViewController()
@@ -301,14 +307,6 @@ private extension MoreController {
     return transportationViewController
   }
 
-  func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> YearController {
-    let yearController = YearController(year: year, yearPersistenceService: persistenceService, services: services)
-    yearController.navigationItem.largeTitleDisplayMode = .never
-    yearController.yearDelegate = self
-    yearController.title = year
-    return yearController
-  }
-
   func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
     let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
     acknowledgementsViewController.title = L10n.Acknowledgements.title
@@ -317,10 +315,16 @@ private extension MoreController {
     return acknowledgementsViewController
   }
 
-  private func makeVideosViewController() -> VideosController {
-    let videosViewController = VideosController(services: services)
-    videosViewController.videoDelegate = self
-    return videosViewController
+  func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> UIViewController {
+    dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: { [weak self] viewController, error in
+      self?.yearController(viewController, didError: error)
+    })
+  }
+
+  private func makeVideosViewController() -> UIViewController {
+    dependencies.navigationService.makeVideosViewController(didError: { [weak self] viewController, error in
+      self?.videosController(viewController, didError: error)
+    })
   }
 
   private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {

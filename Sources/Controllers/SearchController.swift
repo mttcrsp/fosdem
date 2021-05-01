@@ -1,6 +1,8 @@
 import UIKit
 
 final class SearchController: UISplitViewController {
+  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
+
   private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var eventsViewController: EventsViewController?
@@ -15,10 +17,10 @@ final class SearchController: UISplitViewController {
   private var selectedTrack: Track?
   private var observation: NSObjectProtocol?
 
-  private let services: Services
+  private let dependencies: Dependencies
 
-  init(services: Services) {
-    self.services = services
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -28,35 +30,23 @@ final class SearchController: UISplitViewController {
   }
 
   var persistenceService: PersistenceService {
-    services.persistenceService
-  }
-
-  private var tracksService: TracksService {
-    services.tracksService
-  }
-
-  private var favoritesService: FavoritesService {
-    services.favoritesService
+    dependencies.persistenceService
   }
 
   private var isDisplayingFavoriteTrack: Bool {
     if let selectedTrack = selectedTrack {
-      return favoritesService.contains(selectedTrack)
+      return dependencies.favoritesService.contains(selectedTrack)
     } else {
       return false
     }
   }
 
   private var favoriteTitle: String {
-    isDisplayingFavoriteTrack
-      ? L10n.unfavorite
-      : L10n.favorite
+    isDisplayingFavoriteTrack ? L10n.unfavorite : L10n.favorite
   }
 
   private var favoriteAccessibilityIdentifier: String {
-    isDisplayingFavoriteTrack
-      ? "unfavorite"
-      : "favorite"
+    isDisplayingFavoriteTrack ? "unfavorite" : "favorite"
   }
 
   func popToRootViewController() {
@@ -70,8 +60,8 @@ final class SearchController: UISplitViewController {
 
     delegate = self
 
-    tracksService.delegate = self
-    tracksService.loadTracks()
+    dependencies.tracksService.delegate = self
+    dependencies.tracksService.loadTracks()
 
     let tracksViewController = makeTracksViewController()
     let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
@@ -132,11 +122,11 @@ extension SearchController: TracksServiceDelegate {
 
 extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
   private var filteredTracks: [Track] {
-    tracksService.filteredTracks[selectedFilter] ?? []
+    dependencies.tracksService.filteredTracks[selectedFilter] ?? []
   }
 
   private var filteredFavoriteTracks: [Track] {
-    tracksService.filteredFavoriteTracks[selectedFilter] ?? []
+    dependencies.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
   }
 
   private var hasFavoriteTracks: Bool {
@@ -208,7 +198,8 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   @objc private func didTapChangeFilter() {
-    let filtersViewController = makeFiltersViewController(with: tracksService.filters, selectedFilter: selectedFilter)
+    let filters = dependencies.tracksService.filters
+    let filtersViewController = makeFiltersViewController(with: filters, selectedFilter: selectedFilter)
     tracksViewController?.present(filtersViewController, animated: true)
   }
 
@@ -220,7 +211,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 
 extension SearchController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
   func sectionIndexTitles(in _: TracksViewController) -> [String] {
-    if let sectionIndexTitles = tracksService.filteredIndexTitles[selectedFilter] {
+    if let sectionIndexTitles = dependencies.tracksService.filteredIndexTitles[selectedFilter] {
       return sectionIndexTitles.keys.sorted()
     } else {
       return []
@@ -231,7 +222,7 @@ extension SearchController: TracksViewControllerIndexDataSource, TracksViewContr
     let titles = sectionIndexTitles(in: tracksViewController)
     let title = titles[section]
 
-    if let index = tracksService.filteredIndexTitles[selectedFilter]?[title] {
+    if let index = dependencies.tracksService.filteredIndexTitles[selectedFilter]?[title] {
       let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
       tracksViewController.scrollToRow(at: indexPath, at: .top, animated: false)
     }
@@ -240,15 +231,15 @@ extension SearchController: TracksViewControllerIndexDataSource, TracksViewContr
 
 extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
   func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
-    !favoritesService.contains(track)
+    !dependencies.favoritesService.contains(track)
   }
 
   func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-    favoritesService.addTrack(withIdentifier: track.name)
+    dependencies.favoritesService.addTrack(withIdentifier: track.name)
   }
 
   func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-    favoritesService.removeTrack(withIdentifier: track.name)
+    dependencies.favoritesService.removeTrack(withIdentifier: track.name)
   }
 }
 
@@ -305,24 +296,24 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 
 extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    !favoritesService.contains(event)
+    !dependencies.favoritesService.contains(event)
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    favoritesService.addEvent(withIdentifier: event.id)
+    dependencies.favoritesService.addEvent(withIdentifier: event.id)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    favoritesService.removeEvent(withIdentifier: event.id)
+    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
   }
 
   @objc private func didToggleFavorite() {
     guard let selectedTrack = selectedTrack else { return }
 
-    if favoritesService.contains(selectedTrack) {
-      favoritesService.removeTrack(withIdentifier: selectedTrack.name)
+    if dependencies.favoritesService.contains(selectedTrack) {
+      dependencies.favoritesService.removeTrack(withIdentifier: selectedTrack.name)
     } else {
-      favoritesService.addTrack(withIdentifier: selectedTrack.name)
+      dependencies.favoritesService.addTrack(withIdentifier: selectedTrack.name)
     }
   }
 }
@@ -420,7 +411,7 @@ private extension SearchController {
       eventsViewController.navigationItem.largeTitleDisplayMode = .never
     }
 
-    observation = favoritesService.addObserverForTracks { [weak favoriteButton, weak self] _ in
+    observation = dependencies.favoritesService.addObserverForTracks { [weak favoriteButton, weak self] _ in
       favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
       favoriteButton?.title = self?.favoriteTitle
     }
@@ -429,11 +420,11 @@ private extension SearchController {
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    WelcomeViewController(year: services.yearsService.current)
+    WelcomeViewController(year: dependencies.yearsService.current)
   }
 
-  func makeEventViewController(for event: Event) -> EventController {
-    EventController(event: event, services: services)
+  func makeEventViewController(for event: Event) -> UIViewController {
+    dependencies.navigationService.makeEventViewController(for: event)
   }
 }
 

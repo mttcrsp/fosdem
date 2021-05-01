@@ -1,11 +1,9 @@
 import UIKit
 
-protocol YearControllerDelegate: AnyObject {
-  func yearControllerDidError(_ yearController: YearController)
-}
-
 final class YearController: TracksViewController {
-  weak var yearDelegate: YearControllerDelegate?
+  typealias Dependencies = HasNavigationService
+
+  var didError: ((YearController, Error) -> Void)?
 
   private(set) weak var resultsViewController: EventsViewController?
   private weak var eventsViewController: EventsViewController?
@@ -15,14 +13,14 @@ final class YearController: TracksViewController {
   private var events: [Event] = []
   var results: [Event] = []
 
-  private let services: Services
+  private let dependencies: Dependencies
   private let year: String
 
   let persistenceService: PersistenceService
 
-  init(year: String, yearPersistenceService: PersistenceService, services: Services) {
+  init(year: String, yearPersistenceService: PersistenceService, dependencies: Dependencies) {
     self.year = year
-    self.services = services
+    self.dependencies = dependencies
     persistenceService = yearPersistenceService
     super.init(nibName: nil, bundle: nil)
   }
@@ -56,8 +54,8 @@ final class YearController: TracksViewController {
     }
   }
 
-  private func tracksLoadingDidError(with _: Error) {
-    yearDelegate?.yearControllerDidError(self)
+  private func tracksLoadingDidError(with error: Error) {
+    didError?(self, error)
   }
 
   private func tracksLoadingDidFinish(with tracks: [Track]) {
@@ -98,7 +96,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
 
   private func eventsLoadingDidError(with error: Error) {
     assertionFailure(error.localizedDescription)
-    yearDelegate?.yearControllerDidError(self)
+    didError?(self, error)
   }
 
   private func eventsLoadingDidFinish(with events: [Event]) {
@@ -165,9 +163,7 @@ private extension YearController {
     return eventsViewController
   }
 
-  func makeEventViewController(for event: Event) -> EventController {
-    let eventViewController = EventController(event: event, services: services)
-    eventViewController.showsFavoriteButton = false
-    return eventViewController
+  func makeEventViewController(for event: Event) -> UIViewController {
+    dependencies.navigationService.makePastEventViewController(for: event)
   }
 }

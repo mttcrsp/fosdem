@@ -1,12 +1,10 @@
 import CoreLocation
 import UIKit
 
-protocol MapControllerDelegate: AnyObject {
-  func mapController(_ mapController: MapController, didError error: Error)
-}
-
 final class MapController: MapContainerViewController {
-  weak var delegate: MapControllerDelegate?
+  typealias Dependencies = HasBuildingsService
+
+  var didError: ((MapController, Error) -> Void)?
 
   private weak var mapViewController: MapViewController?
   private weak var embeddedBlueprintsViewController: BlueprintsViewController?
@@ -16,10 +14,11 @@ final class MapController: MapContainerViewController {
   private var observer: NSObjectProtocol?
 
   private let locationManager = CLLocationManager()
-  private let services: Services
 
-  init(services: Services) {
-    self.services = services
+  private let dependencies: Dependencies
+
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
 
     observer = notificationCenter.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
@@ -51,12 +50,12 @@ final class MapController: MapContainerViewController {
 
     locationManager.delegate = self
 
-    services.buildingsService.loadBuildings { buildings, error in
+    dependencies.buildingsService.loadBuildings { buildings, error in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
         if let error = error {
-          self.delegate?.mapController(self, didError: error)
+          self.didError?(self, error)
         } else {
           self.mapViewController?.buildings = buildings
         }

@@ -1,12 +1,14 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
+  typealias Dependencies = HasNavigationService & HasLaunchService & HasLiveService & HasUpdateService & HasScheduleService & HasYearsService
+
   private weak var tabsController: UITabBarController?
 
-  private let services: Services
+  private let dependencies: Dependencies
 
-  init(services: Services) {
-    self.services = services
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -38,7 +40,7 @@ final class ApplicationController: UIViewController {
     super.viewDidLoad()
 
     var viewControllers: [UIViewController] = [makeTabsController()]
-    if traitCollection.userInterfaceIdiom == .phone, services.launchService.didLaunchAfterInstall {
+    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall {
       viewControllers.append(makeWelcomeViewController())
     }
 
@@ -61,18 +63,18 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .fos_systemGroupedBackground
 
-    services.updateService.delegate = self
-    services.updateService.detectUpdates()
-    services.scheduleService?.startUpdating()
+    dependencies.updateService.delegate = self
+    dependencies.updateService.detectUpdates()
+    dependencies.scheduleService?.startUpdating()
   }
 
   func applicationDidBecomeActive() {
-    services.liveService.startMonitoring()
-    services.scheduleService?.startUpdating()
+    dependencies.liveService.startMonitoring()
+    dependencies.scheduleService?.startUpdating()
   }
 
   func applicationWillResignActive() {
-    services.liveService.stopMonitoring()
+    dependencies.liveService.stopMonitoring()
   }
 
   @objc private func didSelectPrevTab() {
@@ -114,56 +116,28 @@ private extension ApplicationController {
     return tabsController
   }
 
-  func makeSearchController() -> SearchController {
-    let searchController = SearchController(services: services)
-    searchController.tabBarItem.accessibilityIdentifier = "search"
-    searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
-    searchController.title = L10n.Search.title
-    #if targetEnvironment(macCatalyst)
-    searchController.preferredDisplayMode = .oneBesideSecondary
-    #else
-    searchController.preferredDisplayMode = .allVisible
-    #endif
-    searchController.preferredPrimaryColumnWidthFraction = 0.4
-    searchController.maximumPrimaryColumnWidth = 375
-    return searchController
+  func makeSearchController() -> UIViewController {
+    dependencies.navigationService.makeSearchViewController()
   }
 
-  func makeAgendaController() -> AgendaController {
-    let agendaController = AgendaController(services: services)
-    agendaController.tabBarItem.accessibilityIdentifier = "agenda"
-    agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
-    agendaController.title = L10n.Agenda.title
-    agendaController.agendaDelegate = self
-    return agendaController
+  func makeAgendaController() -> UIViewController {
+    dependencies.navigationService.makeAgendaViewController(didError: { [weak self] viewController, error in
+      self?.agendaController(viewController, didError: error)
+    })
   }
 
-  func makeMapController() -> MapController {
-    let mapController = MapController(services: services)
-    mapController.tabBarItem.accessibilityIdentifier = "map"
-    mapController.tabBarItem.image = .fos_systemImage(withName: "map")
-    mapController.title = L10n.Map.title
-    mapController.delegate = self
-    return mapController
+  func makeMapController() -> UIViewController {
+    dependencies.navigationService.makeMapViewController(didError: { [weak self] viewController, error in
+      self?.mapController(viewController, didError: error)
+    })
   }
 
-  func makeMoreController() -> MoreController {
-    let moreController = MoreController(services: services)
-    moreController.tabBarItem.accessibilityIdentifier = "more"
-    moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
-    moreController.title = L10n.More.title
-    #if targetEnvironment(macCatalyst)
-    moreController.preferredDisplayMode = .oneBesideSecondary
-    #else
-    moreController.preferredDisplayMode = .allVisible
-    #endif
-    moreController.preferredPrimaryColumnWidthFraction = 0.4
-    moreController.maximumPrimaryColumnWidth = 375
-    return moreController
+  func makeMoreController() -> UIViewController {
+    dependencies.navigationService.makeMoreViewController()
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    let welcomeViewController = WelcomeViewController(year: services.yearsService.current)
+    let welcomeViewController = WelcomeViewController(year: dependencies.yearsService.current)
     welcomeViewController.showsContinue = true
     welcomeViewController.delegate = self
     return welcomeViewController
@@ -199,8 +173,8 @@ extension ApplicationController: UITabBarControllerDelegate {
   }
 }
 
-extension ApplicationController: AgendaControllerDelegate {
-  func agendaController(_ agendaController: AgendaController, didError _: Error) {
+extension ApplicationController {
+  func agendaController(_ agendaController: UIViewController, didError _: Error) {
     let errorViewController = ErrorViewController()
     agendaController.addChild(errorViewController)
     agendaController.view.addSubview(errorViewController.view)
@@ -208,8 +182,8 @@ extension ApplicationController: AgendaControllerDelegate {
   }
 }
 
-extension ApplicationController: MapControllerDelegate {
-  func mapController(_ mapController: MapController, didError _: Error) {
+extension ApplicationController {
+  func mapController(_ mapController: UIViewController, didError _: Error) {
     let errorViewController = ErrorViewController()
     mapController.addChild(errorViewController)
     mapController.view.addSubview(errorViewController.view)

@@ -1,11 +1,9 @@
 import UIKit
 
-protocol VideosControllerDelegate: AnyObject {
-  func videosController(_ videosController: VideosController, didError error: Error)
-}
-
 final class VideosController: UIPageViewController {
-  weak var videoDelegate: VideosControllerDelegate?
+  typealias Dependencies = HasPlaybackService & HasPersistenceService & HasNavigationService
+
+  var didError: ((VideosController, Error) -> Void)?
 
   private lazy var watchingViewController = makeEventsViewController()
   private lazy var watchedViewController = makeEventsViewController()
@@ -15,10 +13,10 @@ final class VideosController: UIPageViewController {
   private var watchedEvents: [Event] = []
   private var observer: NSObjectProtocol?
 
-  private let services: Services
+  private let dependencies: Dependencies
 
-  init(services: Services) {
-    self.services = services
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
   }
 
@@ -29,7 +27,7 @@ final class VideosController: UIPageViewController {
 
   deinit {
     if let observer = observer {
-      services.playbackService.removeObserver(observer)
+      dependencies.playbackService.removeObserver(observer)
     }
   }
 
@@ -62,7 +60,7 @@ final class VideosController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
 
     reloadData()
-    observer = services.playbackService.addObserver { [weak self] in
+    observer = dependencies.playbackService.addObserver { [weak self] in
       self?.reloadData()
     }
   }
@@ -71,9 +69,9 @@ final class VideosController: UIPageViewController {
     let group = DispatchGroup()
     var groupError: Error?
 
-    let watchedIdentifiers = services.playbackService.watched
+    let watchedIdentifiers = dependencies.playbackService.watched
     let watchedOperation = EventsForIdentifiers(identifiers: watchedIdentifiers)
-    services.persistenceService.performRead(watchedOperation) { [weak self] result in
+    dependencies.persistenceService.performRead(watchedOperation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case let .failure(error):
@@ -87,9 +85,9 @@ final class VideosController: UIPageViewController {
     }
     group.enter()
 
-    let watchingIdentifiers = services.playbackService.watching
+    let watchingIdentifiers = dependencies.playbackService.watching
     let watchingOperation = EventsForIdentifiers(identifiers: watchingIdentifiers)
-    services.persistenceService.performRead(watchingOperation) { [weak self] result in
+    dependencies.persistenceService.performRead(watchingOperation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case let .failure(error):
@@ -105,7 +103,7 @@ final class VideosController: UIPageViewController {
 
     group.notify(queue: .main) { [weak self] in
       if let self = self, let error = groupError {
-        self.videoDelegate?.videosController(self, didError: error)
+        self.didError?(self, error)
       }
     }
   }
@@ -151,7 +149,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
 
 extension VideosController: EventsViewControllerDeleteDelegate {
   func eventsViewController(_: EventsViewController, didDelete event: Event) {
-    services.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
+    dependencies.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
   }
 }
 
@@ -208,7 +206,7 @@ private extension VideosController {
     return eventsViewController
   }
 
-  func makeEventViewController(for event: Event) -> EventController {
-    EventController(event: event, services: services)
+  func makeEventViewController(for event: Event) -> UIViewController {
+    dependencies.navigationService.makeEventViewController(for: event)
   }
 }
