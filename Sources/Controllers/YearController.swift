@@ -16,9 +16,9 @@ final class YearController: TracksViewController {
   private let dependencies: Dependencies
   private let year: String
 
-  let persistenceService: PersistenceService
+  let persistenceService: PersistenceServiceProtocol
 
-  init(year: String, yearPersistenceService: PersistenceService, dependencies: Dependencies) {
+  init(year: String, yearPersistenceService: PersistenceServiceProtocol, dependencies: Dependencies) {
     self.year = year
     self.dependencies = dependencies
     persistenceService = yearPersistenceService

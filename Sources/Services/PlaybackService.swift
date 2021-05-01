@@ -6,14 +6,6 @@ enum PlaybackPosition: Equatable {
   case end
 }
 
-/// @mockable
-protocol PlaybackServiceDefaults: AnyObject {
-  func value(forKey key: String) -> Any?
-  func set(_ value: Any?, forKey defaultName: String)
-}
-
-extension UserDefaults: PlaybackServiceDefaults {}
-
 final class PlaybackService {
   var watching: Set<Int> {
     Set(progress.keys.compactMap(Int.init))
@@ -139,3 +131,24 @@ private extension String {
 private extension Notification.Name {
   static var watchStatusChanged: Notification.Name { Notification.Name(#function) }
 }
+
+protocol PlaybackServiceProtocol {
+  var watching: Set<Int> { get }
+  var watched: Set<Int> { get }
+
+  func setPlaybackPosition(_ position: PlaybackPosition, forEventWithIdentifier identifier: Int)
+  func playbackPosition(forEventWithIdentifier identifier: Int) -> PlaybackPosition
+
+  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol
+  func removeObserver(_ observer: NSObjectProtocol)
+}
+
+extension PlaybackService: PlaybackServiceProtocol {}
+
+/// @mockable
+protocol PlaybackServiceDefaults: AnyObject {
+  func value(forKey key: String) -> Any?
+  func set(_ value: Any?, forKey defaultName: String)
+}
+
+extension UserDefaults: PlaybackServiceDefaults {}

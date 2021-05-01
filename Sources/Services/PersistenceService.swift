@@ -67,3 +67,14 @@ final class PersistenceService {
     }
   }
 }
+
+/// @mockable
+protocol PersistenceServiceProtocol {
+  func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void)
+  func performWriteSync(_ write: PersistenceServiceWrite) throws
+
+  func performRead<Read>(_ read: Read, completion: @escaping (Result<Read.Model, Error>) -> Void) where Read: PersistenceServiceRead
+  func performReadSync<Read>(_ read: Read) throws -> Read.Model where Read: PersistenceServiceRead
+}
+
+extension PersistenceService: PersistenceServiceProtocol {}

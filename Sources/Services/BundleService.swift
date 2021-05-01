@@ -1,15 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol BundleServiceBundle {
-  func url(forResource name: String?, withExtension ext: String?) -> URL?
-}
-
-/// @mockable
-protocol BundleServiceDataProvider {
-  func data(withContentsOf url: URL) throws -> Data
-}
-
 final class BundleService {
   enum Error: CustomNSError {
     case resourceNotFound
@@ -31,7 +21,17 @@ final class BundleService {
   }
 }
 
+/// @mockable
+protocol BundleServiceBundle {
+  func url(forResource name: String?, withExtension ext: String?) -> URL?
+}
+
 extension Bundle: BundleServiceBundle {}
+
+/// @mockable
+protocol BundleServiceDataProvider {
+  func data(withContentsOf url: URL) throws -> Data
+}
 
 final class BundleServiceData: BundleServiceDataProvider {
   func data(withContentsOf url: URL) throws -> Data {

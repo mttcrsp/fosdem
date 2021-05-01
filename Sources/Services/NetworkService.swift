@@ -11,16 +11,6 @@ protocol NetworkRequest {
   func decode(_ data: Data) throws -> Model
 }
 
-/// @mockable
-protocol NetworkServiceTask {
-  func resume()
-}
-
-/// @mockable
-protocol NetworkServiceSession {
-  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
-}
-
 protocol NetworkServiceDelegate: AnyObject {
   func networkServiceDidBeginRequest(_ networkService: NetworkService)
   func networkServiceDidEndRequest(_ networkService: NetworkService)
@@ -76,14 +66,6 @@ extension NetworkRequest {
   }
 }
 
-extension URLSessionDataTask: NetworkServiceTask {}
-
-extension URLSession: NetworkServiceSession {
-  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
-    dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
-  }
-}
-
 private extension NetworkRequest {
   var httpRequest: URLRequest {
     let request = NSMutableURLRequest(url: url)
@@ -91,5 +73,23 @@ private extension NetworkRequest {
     request.httpMethod = httpMethod
     request.httpBody = httpBody
     return request as URLRequest
+  }
+}
+
+/// @mockable
+protocol NetworkServiceTask {
+  func resume()
+}
+
+extension URLSessionDataTask: NetworkServiceTask {}
+
+/// @mockable
+protocol NetworkServiceSession {
+  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
+}
+
+extension URLSession: NetworkServiceSession {
+  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
+    dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
   }
 }

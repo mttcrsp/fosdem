@@ -1,10 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol BuildingsServiceBundle {
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data
-}
-
 final class BuildingsService {
   enum Error: CustomNSError {
     case missingData, partialData
@@ -43,6 +38,18 @@ final class BuildingsService {
       }
     }
   }
+}
+
+/// @mockable
+protocol BuildingsServiceProtocol {
+  func loadBuildings(completion: @escaping ([Building], BuildingsService.Error?) -> Void)
+}
+
+extension BuildingsService: BuildingsServiceProtocol {}
+
+/// @mockable
+protocol BuildingsServiceBundle {
+  func data(forResource name: String?, withExtension ext: String?) throws -> Data
 }
 
 extension BundleService: BuildingsServiceBundle {}

@@ -1,15 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol AcknowledgementsServiceBundle {
-  func url(forResource name: String?, withExtension ext: String?) -> URL?
-}
-
-/// @mockable
-protocol AcknowledgementsServiceDataProvider {
-  func data(withContentsOf url: URL) throws -> Data
-}
-
 final class AcknowledgementsService {
   enum Error: CustomNSError {
     case resourceNotFound
@@ -34,7 +24,24 @@ final class AcknowledgementsService {
   }
 }
 
+/// @mockable
+protocol AcknowledgementsServiceProtocol {
+  func loadAcknowledgements() throws -> [Acknowledgement]
+}
+
+extension AcknowledgementsService: AcknowledgementsServiceProtocol {}
+
+/// @mockable
+protocol AcknowledgementsServiceBundle {
+  func url(forResource name: String?, withExtension ext: String?) -> URL?
+}
+
 extension Bundle: AcknowledgementsServiceBundle {}
+
+/// @mockable
+protocol AcknowledgementsServiceDataProvider {
+  func data(withContentsOf url: URL) throws -> Data
+}
 
 final class AcknowledgementsServiceData: AcknowledgementsServiceDataProvider {
   func data(withContentsOf url: URL) throws -> Data {

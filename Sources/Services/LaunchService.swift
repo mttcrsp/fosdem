@@ -1,14 +1,5 @@
 import Foundation
 
-protocol LaunchServiceBundle {
-  var bundleShortVersion: String? { get }
-}
-
-protocol LaunchServiceDefaults: AnyObject {
-  func string(forKey key: String) -> String?
-  func set(_ value: Any?, forKey defaultName: String)
-}
-
 final class LaunchService {
   enum Error: CustomNSError {
     case versionDetectionFailed
@@ -76,6 +67,27 @@ private extension String {
   static var latestBundleShortVersionKey: String { "LATEST_BUNDLE_SHORT_VERSION" }
 }
 
+/// @mockable
+protocol LaunchServiceProtocol {
+  var didLaunchAfterUpdate: Bool { get }
+  var didLaunchAfterInstall: Bool { get }
+  var didLaunchAfterFosdemYearChange: Bool { get }
+
+  func detectStatus() throws
+  func markAsLaunched()
+}
+
+extension LaunchService: LaunchServiceProtocol {}
+
+protocol LaunchServiceBundle {
+  var bundleShortVersion: String? { get }
+}
+
 extension Bundle: LaunchServiceBundle {}
+
+protocol LaunchServiceDefaults: AnyObject {
+  func string(forKey key: String) -> String?
+  func set(_ value: Any?, forKey defaultName: String)
+}
 
 extension UserDefaults: LaunchServiceDefaults {}

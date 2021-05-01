@@ -3,7 +3,7 @@ import UIKit
 protocol EventsSearchController: UIViewController {
   var results: [Event] { get set }
   var resultsViewController: EventsViewController? { get }
-  var persistenceService: PersistenceService { get }
+  var persistenceService: PersistenceServiceProtocol { get }
 }
 
 extension EventsSearchController {

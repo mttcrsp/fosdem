@@ -1,20 +1,19 @@
 import Foundation
 
 final class Services {
-  let launchService: LaunchService
-  let persistenceService: PersistenceService
+  let launchService: LaunchServiceProtocol
 
-  let yearsService = YearsService()
   let bundleService = BundleService()
-  let playbackService = PlaybackService()
-  let favoritesService = FavoritesService()
-  let acknowledgementsService = AcknowledgementsService()
+  let playbackService: PlaybackServiceProtocol = PlaybackService()
+  let yearsService: YearsServiceProtocol = YearsService()
+  let favoritesService: FavoritesServiceProtocol = FavoritesService()
+  let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
 
-  private(set) lazy var navigationService = NavigationService(services: self)
-  private(set) lazy var infoService = InfoService(bundleService: bundleService)
-  private(set) lazy var updateService = UpdateService(networkService: networkService)
-  private(set) lazy var buildingsService = BuildingsService(bundleService: bundleService)
-  private(set) lazy var tracksService = TracksService(favoritesService: favoritesService, persistenceService: persistenceService)
+  private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
+  private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
+  private(set) lazy var updateService: UpdateServiceProtocol = UpdateService(networkService: networkService)
+  private(set) lazy var buildingsService: BuildingsServiceProtocol = BuildingsService(bundleService: bundleService)
+  private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
 
   private(set) lazy var networkService: NetworkService = {
     let session = URLSession.shared
@@ -28,8 +27,8 @@ final class Services {
   let testsService = TestsService()
   #endif
 
-  private(set) lazy var scheduleService: ScheduleService? = {
-    var scheduleService: ScheduleService? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: persistenceService)
+  private(set) lazy var scheduleService: ScheduleServiceProtocol? = {
+    var scheduleService: ScheduleService? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
     #if DEBUG
     if !testsService.shouldUpdateSchedule {
       scheduleService = nil
@@ -38,7 +37,7 @@ final class Services {
     return scheduleService
   }()
 
-  private(set) lazy var liveService: LiveService = {
+  private(set) lazy var liveService: LiveServiceProtocol = {
     var liveService = LiveService()
     #if DEBUG
     if let timeInterval = testsService.liveTimerInterval {
@@ -47,6 +46,8 @@ final class Services {
     #endif
     return liveService
   }()
+
+  private let _persistenceService: PersistenceService
 
   init() throws {
     launchService = LaunchService(fosdemYear: yearsService.current)
@@ -88,7 +89,7 @@ final class Services {
     }
     try preloadService.preloadDatabaseIfNeeded()
 
-    persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
+    _persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
 
     #if DEBUG
     if let identifiers = testsService.favoriteEventsIdentifiers {
@@ -126,8 +127,10 @@ final class Services {
   }
 }
 
+extension BundleService: InfoServiceBundle {}
+
 #if DEBUG
-private extension FavoritesService {
+private extension FavoritesServiceProtocol {
   func setTracksIdentifiers(_ newTracksIdentifiers: Set<String>) {
     for identifier in tracksIdentifiers {
       removeTrack(withIdentifier: identifier)
@@ -151,44 +154,48 @@ private extension FavoritesService {
 
 #endif
 
-protocol HasInfoService { var infoService: InfoService { get } }
+protocol HasInfoService { var infoService: InfoServiceProtocol { get } }
 extension Services: HasInfoService {}
 
-protocol HasLiveService { var liveService: LiveService { get } }
+protocol HasLiveService { var liveService: LiveServiceProtocol { get } }
 extension Services: HasLiveService {}
 
-protocol HasLaunchService { var launchService: LaunchService { get } }
+protocol HasLaunchService { var launchService: LaunchServiceProtocol { get } }
 extension Services: HasLaunchService {}
 
-protocol HasYearsService { var yearsService: YearsService { get } }
+protocol HasYearsService { var yearsService: YearsServiceProtocol { get } }
 extension Services: HasYearsService {}
 
-protocol HasTracksService { var tracksService: TracksService { get } }
+protocol HasTracksService { var tracksService: TracksServiceProtocol { get } }
 extension Services: HasTracksService {}
 
-protocol HasUpdateService { var updateService: UpdateService { get } }
+protocol HasUpdateService { var updateService: UpdateServiceProtocol { get } }
 extension Services: HasUpdateService {}
 
-protocol HasPlaybackService { var playbackService: PlaybackService { get } }
+protocol HasPlaybackService { var playbackService: PlaybackServiceProtocol { get } }
 extension Services: HasPlaybackService {}
 
-protocol HasScheduleService { var scheduleService: ScheduleService? { get } }
+protocol HasScheduleService { var scheduleService: ScheduleServiceProtocol? { get } }
 extension Services: HasScheduleService {}
 
-protocol HasBuildingsService { var buildingsService: BuildingsService { get } }
+protocol HasBuildingsService { var buildingsService: BuildingsServiceProtocol { get } }
 extension Services: HasBuildingsService {}
 
-protocol HasFavoritesService { var favoritesService: FavoritesService { get } }
+protocol HasFavoritesService { var favoritesService: FavoritesServiceProtocol { get } }
 extension Services: HasFavoritesService {}
 
-protocol HasNavigationService { var navigationService: NavigationService { get } }
+protocol HasNavigationService { var navigationService: NavigationServiceProtocol { get } }
 extension Services: HasNavigationService {}
 
-protocol HasPersistenceService { var persistenceService: PersistenceService { get } }
-extension Services: HasPersistenceService {}
-
-protocol HasAcknowledgementsService { var acknowledgementsService: AcknowledgementsService { get } }
+protocol HasAcknowledgementsService { var acknowledgementsService: AcknowledgementsServiceProtocol { get } }
 extension Services: HasAcknowledgementsService {}
+
+protocol HasPersistenceService { var persistenceService: PersistenceServiceProtocol { get } }
+extension Services: HasPersistenceService {
+  var persistenceService: PersistenceServiceProtocol {
+    _persistenceService
+  }
+}
 
 #if DEBUG
 

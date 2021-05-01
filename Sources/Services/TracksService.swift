@@ -21,10 +21,10 @@ final class TracksService {
   private(set) var filteredFavoriteTracks: [TracksFilter: [Track]] = [:]
   private(set) var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 
-  private let favoritesService: FavoritesService
+  private let favoritesService: FavoritesServiceProtocol
   private let persistenceService: PersistenceService
 
-  init(favoritesService: FavoritesService, persistenceService: PersistenceService) {
+  init(favoritesService: FavoritesServiceProtocol, persistenceService: PersistenceService) {
     self.persistenceService = persistenceService
     self.favoritesService = favoritesService
   }
@@ -110,3 +110,19 @@ final class TracksService {
     }
   }
 }
+
+/// @mockable
+protocol TracksServiceProtocol: AnyObject {
+  var delegate: TracksServiceDelegate? { get set }
+
+  var tracks: [Track] { get }
+
+  var filters: [TracksFilter] { get }
+  var filteredTracks: [TracksFilter: [Track]] { get }
+  var filteredFavoriteTracks: [TracksFilter: [Track]] { get }
+  var filteredIndexTitles: [TracksFilter: [String: Int]] { get }
+
+  func loadTracks()
+}
+
+extension TracksService: TracksServiceProtocol {}

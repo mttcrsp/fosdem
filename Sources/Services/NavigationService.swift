@@ -89,3 +89,19 @@ extension NavigationService {
     return yearController
   }
 }
+
+/// @mockable
+protocol NavigationServiceProtocol {
+  func makeSearchViewController() -> UIViewController
+  func makeAgendaViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  func makeMapViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  func makeMoreViewController() -> UIViewController
+
+  func makeEventViewController(for event: Event) -> UIViewController
+  func makePastEventViewController(for event: Event) -> UIViewController
+
+  func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  func makeYearsViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+}
+
+extension NavigationService: NavigationServiceProtocol {}

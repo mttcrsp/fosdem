@@ -29,7 +29,7 @@ final class SearchController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  var persistenceService: PersistenceService {
+  var persistenceService: PersistenceServiceProtocol {
     dependencies.persistenceService
   }
 

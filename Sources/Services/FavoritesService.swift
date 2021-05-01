@@ -1,13 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol FavoritesServiceDefaults: AnyObject {
-  func value(forKey key: String) -> Any?
-  func set(_ value: Any?, forKey defaultName: String)
-}
-
-extension UserDefaults: FavoritesServiceDefaults {}
-
 final class FavoritesService {
   private let userDefaults: FavoritesServiceDefaults
   private let notificationCenter = NotificationCenter()
@@ -136,3 +128,33 @@ private extension Notification.Name {
   static var favoriteTracksDidChange: Notification.Name { Notification.Name(#function) }
   static var favoriteEventsDidChange: Notification.Name { Notification.Name(#function) }
 }
+
+/// @mockable
+protocol FavoritesServiceProtocol {
+  var tracksIdentifiers: Set<String> { get set }
+  var eventsIdentifiers: Set<Int> { get set }
+
+  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol
+  func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol
+  func removeObserver(_ observer: NSObjectProtocol)
+
+  func addTrack(withIdentifier identifier: String)
+  func removeTrack(withIdentifier identifier: String)
+  func contains(_ track: Track) -> Bool
+
+  func addEvent(withIdentifier identifier: Int)
+  func removeEvent(withIdentifier identifier: Int)
+  func contains(_ event: Event) -> Bool
+
+  func removeAllTracksAndEvents()
+}
+
+extension FavoritesService: FavoritesServiceProtocol {}
+
+/// @mockable
+protocol FavoritesServiceDefaults: AnyObject {
+  func value(forKey key: String) -> Any?
+  func set(_ value: Any?, forKey defaultName: String)
+}
+
+extension UserDefaults: FavoritesServiceDefaults {}

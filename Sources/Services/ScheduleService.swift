@@ -1,22 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol ScheduleServiceDefaults: AnyObject {
-  func value(forKey key: String) -> Any?
-  func set(_ value: Any?, forKey defaultName: String)
-}
-
-/// @mockable
-protocol ScheduleServiceNetwork {
-  @discardableResult
-  func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
-}
-
-/// @mockable
-protocol ScheduleServicePersistence {
-  func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void)
-}
-
 final class ScheduleService {
   private var timer: Timer?
   private var isUpdating = false
@@ -90,8 +73,33 @@ private extension String {
   static var latestScheduleUpdateKey: String { #function }
 }
 
+/// @mockable
+protocol ScheduleServiceProtocol {
+  func startUpdating()
+  func stopUpdating()
+}
+
+extension ScheduleService: ScheduleServiceProtocol {}
+
+/// @mockable
+protocol ScheduleServiceDefaults: AnyObject {
+  func value(forKey key: String) -> Any?
+  func set(_ value: Any?, forKey defaultName: String)
+}
+
 extension UserDefaults: ScheduleServiceDefaults {}
 
+/// @mockable
+protocol ScheduleServiceNetwork {
+  @discardableResult
+  func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
+}
+
 extension NetworkService: ScheduleServiceNetwork {}
+
+/// @mockable
+protocol ScheduleServicePersistence {
+  func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void)
+}
 
 extension PersistenceService: ScheduleServicePersistence {}

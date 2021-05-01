@@ -6,11 +6,6 @@ enum Info: String {
   case legal
 }
 
-/// @mockable
-protocol InfoServiceBundle {
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data
-}
-
 final class InfoService {
   private let queue: DispatchQueue
   private let bundleService: InfoServiceBundle
@@ -113,4 +108,14 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
   }
 }
 
-extension BundleService: InfoServiceBundle {}
+/// @mockable
+protocol InfoServiceProtocol {
+  func loadAttributedText(for info: Info, completion: @escaping (NSAttributedString?) -> Void)
+}
+
+extension InfoService: InfoServiceProtocol {}
+
+/// @mockable
+protocol InfoServiceBundle {
+  func data(forResource name: String?, withExtension ext: String?) throws -> Data
+}

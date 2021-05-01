@@ -1,17 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol UpdateServiceNetwork {
-  @discardableResult
-  func perform(_ request: AppStoreSearchRequest, completion: @escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> NetworkServiceTask
-}
-
-/// @mockable
-protocol UpdateServiceBundle {
-  var bundleIdentifier: String? { get }
-  var bundleShortVersion: String? { get }
-}
-
 protocol UpdateServiceDelegate: AnyObject {
   func updateServiceDidDetectUpdate(_ updateService: UpdateService)
 }
@@ -51,6 +39,27 @@ final class UpdateService {
   }
 }
 
+/// @mockable
+protocol UpdateServiceProtocol: AnyObject {
+  var delegate: UpdateServiceDelegate? { get set }
+
+  func detectUpdates()
+}
+
+extension UpdateService: UpdateServiceProtocol {}
+
+/// @mockable
+protocol UpdateServiceBundle {
+  var bundleIdentifier: String? { get }
+  var bundleShortVersion: String? { get }
+}
+
 extension Bundle: UpdateServiceBundle {}
+
+/// @mockable
+protocol UpdateServiceNetwork {
+  @discardableResult
+  func perform(_ request: AppStoreSearchRequest, completion: @escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> NetworkServiceTask
+}
 
 extension NetworkService: UpdateServiceNetwork {}

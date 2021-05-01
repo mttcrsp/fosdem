@@ -1,12 +1,5 @@
 import Foundation
 
-protocol YearsServiceBundle {
-  func url(forResource name: String?, withExtension ext: String?) -> URL?
-  func urls(forResourcesWithExtension ext: String?, subdirectory subpath: String?) -> [URL]?
-}
-
-extension Bundle: YearsServiceBundle {}
-
 final class YearsService {
   let current = 2021
 
@@ -49,3 +42,19 @@ private extension String {
     "year"
   }
 }
+
+/// @mockable
+protocol YearsServiceProtocol {
+  var current: Int { get }
+  func loadYears(_ completion: @escaping ([String]) -> Void)
+  func loadURL(forYear year: String, completion: @escaping (URL?) -> Void)
+}
+
+extension YearsService: YearsServiceProtocol {}
+
+protocol YearsServiceBundle {
+  func url(forResource name: String?, withExtension ext: String?) -> URL?
+  func urls(forResourcesWithExtension ext: String?, subdirectory subpath: String?) -> [URL]?
+}
+
+extension Bundle: YearsServiceBundle {}

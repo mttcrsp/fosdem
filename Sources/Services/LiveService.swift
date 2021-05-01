@@ -1,15 +1,5 @@
 import Foundation
 
-/// @mockable
-protocol LiveServiceTimer {
-  func invalidate()
-}
-
-/// @mockable
-protocol LiveServiceProvider {
-  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (LiveServiceTimer) -> Void) -> LiveServiceTimer
-}
-
 final class LiveService {
   private var timer: LiveServiceTimer?
 
@@ -56,4 +46,23 @@ extension Timer: LiveServiceTimer {}
 
 private extension Notification.Name {
   static var timeDidChange: Notification.Name { Notification.Name(#function) }
+}
+
+/// @mockable
+protocol LiveServiceProtocol {
+  func startMonitoring()
+  func stopMonitoring()
+  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol
+}
+
+extension LiveService: LiveServiceProtocol {}
+
+/// @mockable
+protocol LiveServiceTimer {
+  func invalidate()
+}
+
+/// @mockable
+protocol LiveServiceProvider {
+  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (LiveServiceTimer) -> Void) -> LiveServiceTimer
 }
