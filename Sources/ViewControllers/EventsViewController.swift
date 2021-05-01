@@ -97,8 +97,8 @@ final class EventsViewController: UITableViewController {
   }
 
   func select(_ event: Event) {
-    if let row = events.firstIndex(of: event) {
-      let indexPath = IndexPath(row: row, section: 0)
+    if let section = events.firstIndex(of: event) {
+      let indexPath = IndexPath(row: 0, section: section)
       tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
     }
   }
