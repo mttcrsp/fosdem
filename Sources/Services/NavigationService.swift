@@ -89,11 +89,13 @@ extension NavigationService {
 
 extension NavigationService {
   func makeYearsViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping ErrorHandler) -> UIViewController {
-    let yearController = YearController(year: year, yearPersistenceService: persistenceService, dependencies: services)
-    yearController.navigationItem.largeTitleDisplayMode = .never
-    yearController.didError = didError
-    yearController.title = year
-    return yearController
+    let controller = YearController(year: year, yearPersistenceService: persistenceService, dependencies: services)
+    controller.didError = didError
+    controller.loadTracks()
+
+    let yearViewController = controller.makeYearViewController()
+    yearViewController.fos_controller = controller
+    return yearViewController
   }
 }
 
@@ -113,11 +115,11 @@ protocol NavigationServiceProtocol {
 
 extension NavigationService: NavigationServiceProtocol {}
 
-private extension EventViewController {
+private extension UIViewController {
   private static var controllerKey = 0
 
-  var fos_controller: EventController? {
-    get { objc_getAssociatedObject(self, &EventViewController.controllerKey) as? EventController }
-    set { objc_setAssociatedObject(self, &EventViewController.controllerKey, newValue as EventController?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+  var fos_controller: NSObject? {
+    get { objc_getAssociatedObject(self, &UIViewController.controllerKey) as? NSObject }
+    set { objc_setAssociatedObject(self, &UIViewController.controllerKey, newValue as NSObject?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
   }
 }

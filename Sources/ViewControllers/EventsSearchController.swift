@@ -1,6 +1,6 @@
 import UIKit
 
-protocol EventsSearchController: UIViewController {
+protocol EventsSearchController: AnyObject {
   var results: [Event] { get set }
   var resultsViewController: EventsViewController? { get }
   var persistenceService: PersistenceServiceProtocol { get }
