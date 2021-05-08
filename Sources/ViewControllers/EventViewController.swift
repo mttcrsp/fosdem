@@ -22,15 +22,18 @@ final class EventViewController: UITableViewController {
     didSet { eventChanged() }
   }
 
-  var showsLivestream = false
-
-  var showsFavoriteEvent = false {
-    didSet { showsFavoriteEventChanged() }
+  var showsLivestream: Bool {
+    get { eventCell.showsLivestream }
+    set { eventCell.showsLivestream = newValue }
   }
 
   var showsFavoriteButton: Bool {
     get { navigationItem.rightBarButtonItem != nil }
     set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil }
+  }
+
+  var showsFavoriteEvent = false {
+    didSet { showsFavoriteEventChanged() }
   }
 
   func reloadPlaybackPosition() {
@@ -41,7 +44,6 @@ final class EventViewController: UITableViewController {
     let cell = EventTableViewCell(isAdaptive: isAdaptive)
     cell.delegate = self
     cell.dataSource = self
-    cell.showsLivestream = showsLivestream
     return cell
   }()
 
