@@ -20,7 +20,10 @@ final class EventViewController: UITableViewController {
     didSet { eventChanged() }
   }
 
-  var showsLivestream = false
+  var showsLivestream: Bool {
+    get { eventCell.showsLivestream }
+    set { eventCell.showsLivestream = newValue }
+  }
 
   func reloadPlaybackPosition() {
     eventCell.reloadPlaybackPosition()
@@ -30,7 +33,6 @@ final class EventViewController: UITableViewController {
     let cell = EventTableViewCell(isAdaptive: isAdaptive)
     cell.delegate = self
     cell.dataSource = self
-    cell.showsLivestream = showsLivestream
     return cell
   }()
 
