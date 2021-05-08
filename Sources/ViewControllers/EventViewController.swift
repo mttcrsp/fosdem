@@ -3,6 +3,8 @@ import UIKit
 /// @mockable
 protocol EventViewControllerDelegate: AnyObject {
   func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
+  func eventViewControllerDidTapFavorite(_ eventViewController: EventViewController)
+  func eventViewControllerDidTapUnfavorite(_ eventViewController: EventViewController)
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
@@ -22,6 +24,15 @@ final class EventViewController: UITableViewController {
 
   var showsLivestream = false
 
+  var showsFavoriteEvent = false {
+    didSet { showsFavoriteEventChanged() }
+  }
+
+  var showsFavoriteButton: Bool {
+    get { navigationItem.rightBarButtonItem != nil }
+    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil }
+  }
+
   func reloadPlaybackPosition() {
     eventCell.reloadPlaybackPosition()
   }
@@ -32,6 +43,12 @@ final class EventViewController: UITableViewController {
     cell.dataSource = self
     cell.showsLivestream = showsLivestream
     return cell
+  }()
+
+  private lazy var favoriteButton: UIBarButtonItem = {
+    let button = UIBarButtonItem(title: favoriteButtonTitle, style: .plain, target: self, action: #selector(didTapFavorite))
+    button.accessibilityIdentifier = favoriteButtonIdentifier
+    return button
   }()
 
   override func viewDidLoad() {
@@ -62,13 +79,34 @@ final class EventViewController: UITableViewController {
     }
   }
 
+  private var favoriteButtonTitle: String {
+    showsFavoriteEvent ? L10n.Event.remove : L10n.Event.add
+  }
+
+  private var favoriteButtonIdentifier: String {
+    showsFavoriteEvent ? "unfavorite" : "favorite"
+  }
+
   private func eventChanged() {
     if isViewLoaded {
       tableView.reloadData()
     }
-    
+
     if let event = event {
       eventCell.configure(with: event)
+    }
+  }
+
+  private func showsFavoriteEventChanged() {
+    favoriteButton.title = favoriteButtonTitle
+    favoriteButton.accessibilityIdentifier = favoriteButtonIdentifier
+  }
+
+  @objc private func didTapFavorite() {
+    if showsFavoriteEvent {
+      delegate?.eventViewControllerDidTapUnfavorite(self)
+    } else {
+      delegate?.eventViewControllerDidTapFavorite(self)
     }
   }
 }

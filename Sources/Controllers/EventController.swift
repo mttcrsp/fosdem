@@ -62,22 +62,6 @@ final class EventController: UIViewController {
     .sharedInstance()
   }
 
-  private var isEventFavorite: Bool {
-    dependencies.favoritesService.contains(event)
-  }
-
-  private var favoriteTitle: String {
-    isEventFavorite
-      ? L10n.Event.remove
-      : L10n.Event.add
-  }
-
-  private var favoriteAccessibilityIdentifier: String {
-    isEventFavorite
-      ? "unfavorite"
-      : "favorite"
-  }
-
   private var now: Date {
     #if DEBUG
     return dependencies.debugService.now
@@ -112,47 +96,33 @@ final class EventController: UIViewController {
     eventViewController?.view.frame = view.bounds
   }
 
-  @objc private func didToggleFavorite() {
-    if isEventFavorite {
-      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
-    } else {
-      dependencies.favoritesService.addEvent(withIdentifier: event.id)
-    }
-  }
-
   private func didChangeShowsFavoriteButton() {
-    guard isViewLoaded else { return }
+    eventViewController?.showsFavoriteButton = showsFavoriteButton
 
     if showsFavoriteButton {
-      showFavoriteButton()
+      favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak self] _ in
+        if let self = self {
+          self.eventViewController?.showsFavoriteEvent = self.dependencies.favoritesService.contains(self.event)
+        }
+      }
     } else {
-      hideFavoriteButton()
+      if let observer = favoritesObserver {
+        dependencies.favoritesService.removeObserver(observer)
+        favoritesObserver = nil
+      }
     }
-  }
-
-  private func showFavoriteButton() {
-    let favoriteAction = #selector(didToggleFavorite)
-    let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
-    favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
-    navigationItem.rightBarButtonItem = favoriteButton
-
-    favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] _ in
-      favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
-      favoriteButton?.title = self?.favoriteTitle
-    }
-  }
-
-  private func hideFavoriteButton() {
-    if let observer = favoritesObserver {
-      dependencies.favoritesService.removeObserver(observer)
-      favoritesObserver = nil
-    }
-
-    navigationItem.rightBarButtonItem = nil
   }
 }
 
 extension EventController: EventViewControllerDelegate, EventViewControllerDataSource {
+  func eventViewControllerDidTapFavorite(_: EventViewController) {
+    dependencies.favoritesService.addEvent(withIdentifier: event.id)
+  }
+
+  func eventViewControllerDidTapUnfavorite(_: EventViewController) {
+    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+  }
+
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController) {
     if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
       let livestreamViewController = makeVideoViewController(for: url)
