@@ -1,14 +1,14 @@
 import AVKit
 import SafariServices
 
-final class EventController: UIViewController {
+final class EventController: NSObject {
   #if DEBUG
   typealias Dependencies = HasFavoritesService & HasPlaybackService & HasDebugService
   #else
   typealias Dependencies = HasFavoritesService & HasPlaybackService
   #endif
 
-  var showsFavoriteButton = true {
+  var showsFavoriteButton = false {
     didSet { didChangeShowsFavoriteButton() }
   }
 
@@ -26,7 +26,7 @@ final class EventController: UIViewController {
   init(event: Event, dependencies: Dependencies) {
     self.event = event
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
+    super.init()
   }
 
   @available(*, unavailable)
@@ -70,6 +70,10 @@ final class EventController: UIViewController {
     #endif
   }
 
+  private var isEventFavorite: Bool {
+    dependencies.favoritesService.contains(event)
+  }
+
   private var isEventToday: Bool {
     event.isSameDay(as: now)
   }
@@ -78,31 +82,13 @@ final class EventController: UIViewController {
     event.links.contains(where: \.isLivestream)
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    navigationItem.largeTitleDisplayMode = .never
-
-    let eventViewController = makeEventViewController(for: event)
-    addChild(eventViewController)
-    view.addSubview(eventViewController.view)
-    eventViewController.didMove(toParent: self)
-
-    didChangeShowsFavoriteButton()
-  }
-
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    eventViewController?.view.frame = view.bounds
-  }
-
   private func didChangeShowsFavoriteButton() {
     eventViewController?.showsFavoriteButton = showsFavoriteButton
 
     if showsFavoriteButton {
       favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak self] _ in
         if let self = self {
-          self.eventViewController?.showsFavoriteEvent = self.dependencies.favoritesService.contains(self.event)
+          self.eventViewController?.showsFavoriteEvent = self.isEventFavorite
         }
       }
     } else {
@@ -190,15 +176,17 @@ extension EventController: AVPlayerViewControllerDelegate {
   }
 }
 
-private extension EventController {
-  func makeEventViewController(for event: Event) -> EventViewController {
+extension EventController {
+  func makeEventViewController() -> EventViewController {
     var style: UITableView.Style = .plain
-    if #available(iOS 13.0, *), traitCollection.userInterfaceIdiom == .pad {
+    if #available(iOS 13.0, *), UIDevice.current.userInterfaceIdiom == .pad {
       style = .insetGrouped
     }
 
     let eventViewController = EventViewController(style: style)
     eventViewController.showsLivestream = hasLivestream && isEventToday
+    eventViewController.showsFavoriteButton = showsFavoriteButton
+    eventViewController.showsFavoriteEvent = isEventFavorite
     eventViewController.dataSource = self
     eventViewController.delegate = self
     eventViewController.event = event
@@ -206,7 +194,7 @@ private extension EventController {
     return eventViewController
   }
 
-  func makeVideoViewController(for url: URL) -> AVPlayerViewController {
+  private func makeVideoViewController(for url: URL) -> AVPlayerViewController {
     let videoViewController = AVPlayerViewController()
     videoViewController.exitsFullScreenWhenPlaybackEnds = true
     videoViewController.player = AVPlayer(url: url)

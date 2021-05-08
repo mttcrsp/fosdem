@@ -56,6 +56,8 @@ final class EventViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    navigationItem.largeTitleDisplayMode = .never
+
     tableView.separatorStyle = .none
     tableView.accessibilityIdentifier = "event"
 

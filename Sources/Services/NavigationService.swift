@@ -62,13 +62,20 @@ extension NavigationService {
 
 extension NavigationService {
   func makeEventViewController(for event: Event) -> UIViewController {
-    EventController(event: event, dependencies: services)
+    let controller = EventController(event: event, dependencies: services)
+    controller.showsFavoriteButton = true
+
+    let eventViewController = controller.makeEventViewController()
+    eventViewController.fos_controller = controller
+    return eventViewController
   }
 
   func makePastEventViewController(for event: Event) -> UIViewController {
-    let eventController = EventController(event: event, dependencies: services)
-    eventController.showsFavoriteButton = false
-    return eventController
+    let controller = EventController(event: event, dependencies: services)
+
+    let eventViewController = controller.makeEventViewController()
+    eventViewController.fos_controller = controller
+    return eventViewController
   }
 }
 
@@ -105,3 +112,12 @@ protocol NavigationServiceProtocol {
 }
 
 extension NavigationService: NavigationServiceProtocol {}
+
+private extension EventViewController {
+  private static var controllerKey = 0
+
+  var fos_controller: EventController? {
+    get { objc_getAssociatedObject(self, &EventViewController.controllerKey) as? EventController }
+    set { objc_setAssociatedObject(self, &EventViewController.controllerKey, newValue as EventController?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+  }
+}
