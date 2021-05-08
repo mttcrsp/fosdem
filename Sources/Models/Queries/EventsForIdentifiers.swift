@@ -1,6 +1,6 @@
 import GRDB
 
-struct EventsForIdentifiers: PersistenceServiceRead {
+struct EventsForIdentifiers: PersistenceServiceRead, Equatable {
   let identifiers: Set<Int>
 
   func perform(in database: Database) throws -> [Event] {

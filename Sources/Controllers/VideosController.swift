@@ -1,7 +1,7 @@
 import UIKit
 
 final class VideosController: UIPageViewController {
-  typealias Dependencies = HasPlaybackService & HasPersistenceService & HasNavigationService
+  typealias Dependencies = HasVideosService & HasPlaybackService & HasNavigationService
 
   var didError: ((VideosController, Error) -> Void)?
 
@@ -66,44 +66,17 @@ final class VideosController: UIPageViewController {
   }
 
   private func reloadData() {
-    let group = DispatchGroup()
-    var groupError: Error?
+    dependencies.videosService.loadVideos { [weak self] result in
+      guard let self = self else { return }
 
-    let watchedIdentifiers = dependencies.playbackService.watched
-    let watchedOperation = EventsForIdentifiers(identifiers: watchedIdentifiers)
-    dependencies.persistenceService.performRead(watchedOperation) { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case let .failure(error):
-          groupError = groupError ?? error
-        case let .success(events):
-          self?.watchedEvents = events
-          self?.watchedViewController.reloadData()
-        }
-        group.leave()
-      }
-    }
-    group.enter()
-
-    let watchingIdentifiers = dependencies.playbackService.watching
-    let watchingOperation = EventsForIdentifiers(identifiers: watchingIdentifiers)
-    dependencies.persistenceService.performRead(watchingOperation) { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case let .failure(error):
-          groupError = groupError ?? error
-        case let .success(events):
-          self?.watchingEvents = events
-          self?.watchingViewController.reloadData()
-        }
-        group.leave()
-      }
-    }
-    group.enter()
-
-    group.notify(queue: .main) { [weak self] in
-      if let self = self, let error = groupError {
+      switch result {
+      case let .failure(error):
         self.didError?(self, error)
+      case let .success(videos):
+        self.watchedEvents = videos.watched
+        self.watchingEvents = videos.watching
+        self.watchedViewController.reloadData()
+        self.watchingViewController.reloadData()
       }
     }
   }

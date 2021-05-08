@@ -132,6 +132,7 @@ private extension Notification.Name {
   static var watchStatusChanged: Notification.Name { Notification.Name(#function) }
 }
 
+/// @mockable
 protocol PlaybackServiceProtocol {
   var watching: Set<Int> { get }
   var watched: Set<Int> { get }

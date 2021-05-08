@@ -13,6 +13,7 @@ final class Services {
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
   private(set) lazy var updateService: UpdateServiceProtocol = UpdateService(networkService: networkService)
   private(set) lazy var buildingsService: BuildingsServiceProtocol = BuildingsService(bundleService: bundleService)
+  private(set) lazy var videosService: VideosServiceProtocol = VideosService(playbackService: playbackService, persistenceService: _persistenceService)
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
 
   private(set) lazy var networkService: NetworkService = {
@@ -160,17 +161,20 @@ extension Services: HasInfoService {}
 protocol HasLiveService { var liveService: LiveServiceProtocol { get } }
 extension Services: HasLiveService {}
 
-protocol HasLaunchService { var launchService: LaunchServiceProtocol { get } }
-extension Services: HasLaunchService {}
-
 protocol HasYearsService { var yearsService: YearsServiceProtocol { get } }
 extension Services: HasYearsService {}
+
+protocol HasLaunchService { var launchService: LaunchServiceProtocol { get } }
+extension Services: HasLaunchService {}
 
 protocol HasTracksService { var tracksService: TracksServiceProtocol { get } }
 extension Services: HasTracksService {}
 
 protocol HasUpdateService { var updateService: UpdateServiceProtocol { get } }
 extension Services: HasUpdateService {}
+
+protocol HasVideosService { var videosService: VideosServiceProtocol { get } }
+extension Services: HasVideosService {}
 
 protocol HasPlaybackService { var playbackService: PlaybackServiceProtocol { get } }
 extension Services: HasPlaybackService {}
