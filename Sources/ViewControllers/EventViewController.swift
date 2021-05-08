@@ -16,37 +16,33 @@ final class EventViewController: UITableViewController {
   weak var delegate: EventViewControllerDelegate?
   weak var dataSource: EventViewControllerDataSource?
 
-  var event: Event?
+  var event: Event? {
+    didSet { eventChanged() }
+  }
+
   var showsLivestream = false
 
-  private var eventCell: EventTableViewCell?
-
   func reloadPlaybackPosition() {
-    eventCell?.reloadPlaybackPosition()
+    eventCell.reloadPlaybackPosition()
   }
+
+  private lazy var eventCell: EventTableViewCell = {
+    let cell = EventTableViewCell(isAdaptive: isAdaptive)
+    cell.delegate = self
+    cell.dataSource = self
+    cell.showsLivestream = showsLivestream
+    return cell
+  }()
 
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    if let event = event {
-      tableView.separatorStyle = .none
-      tableView.accessibilityIdentifier = "event"
+    tableView.separatorStyle = .none
+    tableView.accessibilityIdentifier = "event"
 
-      var isAdaptive = true
-      if #available(iOS 13.0, *), tableView.style == .insetGrouped {
-        isAdaptive = false
-      }
-
-      if isAdaptive {
-        tableView.contentInset.top = 8
-        tableView.contentInset.bottom = 20
-      }
-
-      eventCell = EventTableViewCell(isAdaptive: isAdaptive)
-      eventCell?.delegate = self
-      eventCell?.dataSource = self
-      eventCell?.showsLivestream = showsLivestream
-      eventCell?.configure(with: event)
+    if isAdaptive {
+      tableView.contentInset.top = 8
+      tableView.contentInset.bottom = 20
     }
   }
 
@@ -55,7 +51,25 @@ final class EventViewController: UITableViewController {
   }
 
   override func tableView(_: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
-    eventCell ?? UITableViewCell()
+    eventCell
+  }
+
+  private var isAdaptive: Bool {
+    if #available(iOS 13.0, *), tableView.style == .insetGrouped {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  private func eventChanged() {
+    if isViewLoaded {
+      tableView.reloadData()
+    }
+    
+    if let event = event {
+      eventCell.configure(with: event)
+    }
   }
 }
 
