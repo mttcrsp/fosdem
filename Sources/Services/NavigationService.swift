@@ -46,17 +46,10 @@ extension NavigationService {
 
   func makeMoreViewController() -> UIViewController {
     let moreController = MoreController(dependencies: services)
-    moreController.tabBarItem.accessibilityIdentifier = "more"
-    moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
-    moreController.title = L10n.More.title
-    #if targetEnvironment(macCatalyst)
-    moreController.preferredDisplayMode = .oneBesideSecondary
-    #else
-    moreController.preferredDisplayMode = .allVisible
-    #endif
-    moreController.preferredPrimaryColumnWidthFraction = 0.4
-    moreController.maximumPrimaryColumnWidth = 375
-    return moreController
+
+    let containerViewController = moreController.makeMoreContainerViewController()
+    containerViewController.fos_controller = moreController
+    return containerViewController
   }
 }
 

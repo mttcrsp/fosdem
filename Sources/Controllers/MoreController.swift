@@ -1,22 +1,33 @@
 import UIKit
 
-final class MoreController: UISplitViewController {
+final class MoreController: NSObject {
   #if DEBUG
   typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasDebugService
   #else
   typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService
   #endif
 
+  private weak var containerViewController: UISplitViewController?
   private weak var moreViewController: MoreViewController?
 
   private(set) var acknowledgements: [Acknowledgement] = []
+  private var observer: NSObjectProtocol?
   private var years: [String] = []
 
+  private let notificationCenter = NotificationCenter.default
   private let dependencies: Dependencies
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
+    super.init()
+
+    observer = notificationCenter.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
+      guard let self = self, let containerViewController = self.containerViewController else { return }
+
+      if containerViewController.traitCollection.horizontalSizeClass == .regular, containerViewController.viewControllers.count < 2 {
+        self.showDetailInfoViewController(for: .history)
+      }
+    }
   }
 
   @available(*, unavailable)
@@ -24,36 +35,27 @@ final class MoreController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
+  deinit {
+    if let observer = observer {
+      notificationCenter.removeObserver(observer)
+    }
+  }
+
+  private var preferredDetailViewControllerStyle: UITableView.Style {
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      return .fos_insetGrouped
+    } else {
+      return .grouped
+    }
+  }
+
   func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      moreViewController?.navigationController?.popToRootViewController(animated: true)
+    if let moreViewController = moreViewController, moreViewController.traitCollection.horizontalSizeClass == .compact {
+      moreViewController.navigationController?.popToRootViewController(animated: true)
     }
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    let moreViewController = makeMoreViewController()
-    let moreNavigationController = UINavigationController(rootViewController: moreViewController)
-    moreNavigationController.navigationBar.prefersLargeTitles = true
-
-    viewControllers = [moreNavigationController]
-    if traitCollection.horizontalSizeClass == .regular {
-      showDetailInfoViewController(for: .history)
-    }
-  }
-
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    super.traitCollectionDidChange(previousTraitCollection)
-
-    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
-      if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
-        showDetailInfoViewController(for: .history)
-      }
-    }
-  }
-
-  private func showDetailViewController(_ detailViewController: UIViewController) {
+  func showDetailViewController(_ detailViewController: UIViewController) {
     moreViewController?.showDetailViewController(detailViewController, sender: nil)
     UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
   }
@@ -229,7 +231,7 @@ extension MoreController {
     navigationController?.popViewController(animated: true)
 
     let errorViewController = makeErrorViewController()
-    present(errorViewController, animated: true)
+    containerViewController?.present(errorViewController, animated: true)
   }
 }
 
@@ -259,21 +261,36 @@ extension MoreController: UIPopoverPresentationControllerDelegate, DateViewContr
 }
 #endif
 
-private extension MoreController {
-  private var preferredDetailViewControllerStyle: UITableView.Style {
-    if traitCollection.userInterfaceIdiom == .pad {
-      return .fos_insetGrouped
-    } else {
-      return .grouped
-    }
-  }
-
-  func makeMoreViewController() -> MoreViewController {
+extension MoreController {
+  func makeMoreContainerViewController() -> UISplitViewController {
     let moreViewController = MoreViewController(style: .grouped)
+    self.moreViewController = moreViewController
     moreViewController.title = L10n.More.title
     moreViewController.delegate = self
-    self.moreViewController = moreViewController
-    return moreViewController
+
+    let moreNavigationController = UINavigationController(rootViewController: moreViewController)
+    moreNavigationController.navigationBar.prefersLargeTitles = true
+
+    let containerViewController = UISplitViewController()
+    self.containerViewController = containerViewController
+    containerViewController.title = L10n.More.title
+    containerViewController.maximumPrimaryColumnWidth = 375
+    containerViewController.preferredPrimaryColumnWidthFraction = 0.4
+    containerViewController.tabBarItem.accessibilityIdentifier = "more"
+    containerViewController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
+    containerViewController.viewControllers = [moreNavigationController]
+
+    #if targetEnvironment(macCatalyst)
+    containerViewController.preferredDisplayMode = .oneBesideSecondary
+    #else
+    containerViewController.preferredDisplayMode = .allVisible
+    #endif
+
+    if moreViewController.traitCollection.horizontalSizeClass == .regular {
+      showDetailInfoViewController(for: .history)
+    }
+
+    return containerViewController
   }
 
   private func makeInfoViewController(withTitle title: String, for info: Info, completion: @escaping (TextViewController?) -> Void) {
@@ -292,7 +309,7 @@ private extension MoreController {
     }
   }
 
-  func makeYearsViewController() -> YearsViewController {
+  private func makeYearsViewController() -> YearsViewController {
     let yearsViewController = YearsViewController(style: preferredDetailViewControllerStyle)
     yearsViewController.title = L10n.Years.title
     yearsViewController.dataSource = self
@@ -307,7 +324,7 @@ private extension MoreController {
     return transportationViewController
   }
 
-  func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
+  private func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
     let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
     acknowledgementsViewController.title = L10n.Acknowledgements.title
     acknowledgementsViewController.dataSource = self
@@ -315,7 +332,7 @@ private extension MoreController {
     return acknowledgementsViewController
   }
 
-  func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> UIViewController {
+  private func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> UIViewController {
     dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: { [weak self] viewController, error in
       self?.yearController(viewController, didError: error)
     })
