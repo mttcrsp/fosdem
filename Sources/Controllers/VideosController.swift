@@ -115,7 +115,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
   }
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     show(eventViewController, sender: nil)
   }
 }
@@ -177,9 +177,5 @@ private extension VideosController {
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     return eventsViewController
-  }
-
-  func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(for: event)
   }
 }
