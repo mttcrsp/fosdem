@@ -68,7 +68,7 @@ final class EventViewController: UITableViewController {
     if isViewLoaded {
       tableView.reloadData()
     }
-    
+
     if let event = event {
       eventCell.configure(with: event)
     }

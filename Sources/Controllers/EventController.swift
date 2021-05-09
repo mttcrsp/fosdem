@@ -1,7 +1,7 @@
 import AVKit
 import SafariServices
 
-final class EventController: UIViewController {
+final class EventController: UIPageViewController {
   #if DEBUG
   typealias Dependencies = HasFavoritesService & HasPlaybackService & HasDebugService
   #else
@@ -26,7 +26,7 @@ final class EventController: UIViewController {
   init(event: Event, dependencies: Dependencies) {
     self.event = event
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
+    super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
   }
 
   @available(*, unavailable)
@@ -100,9 +100,7 @@ final class EventController: UIViewController {
     navigationItem.largeTitleDisplayMode = .never
 
     let eventViewController = makeEventViewController(for: event)
-    addChild(eventViewController)
-    view.addSubview(eventViewController.view)
-    eventViewController.didMove(toParent: self)
+    setViewControllers([eventViewController], direction: .forward, animated: false)
 
     didChangeShowsFavoriteButton()
   }
