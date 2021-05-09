@@ -1,7 +1,7 @@
 import UIKit
 
 final class SearchController: UISplitViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
+  typealias Dependencies = HasNavigationService & HasSchedulerService & HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
 
   private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
@@ -174,8 +174,8 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    persistenceService.performRead(EventsForTrack(track: track.name)) { [weak tracksViewController] result in
-      DispatchQueue.main.async { [weak self] in
+    persistenceService.performRead(EventsForTrack(track: track.name)) { [weak self, weak tracksViewController] result in
+      self?.dependencies.schedulerService.onMainQueue {
         guard let self = self, let tracksViewController = tracksViewController else { return }
 
         switch result {

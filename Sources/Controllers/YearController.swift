@@ -1,7 +1,7 @@
 import UIKit
 
 final class YearController: TracksViewController {
-  typealias Dependencies = HasNavigationService
+  typealias Dependencies = HasNavigationService & HasSchedulerService
 
   var didError: ((YearController, Error) -> Void)?
 
@@ -42,8 +42,8 @@ final class YearController: TracksViewController {
     definesPresentationContext = true
     addSearchViewController(makeSearchController())
 
-    persistenceService.performRead(AllTracksOrderedByName()) { result in
-      DispatchQueue.main.async { [weak self] in
+    persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
+      self?.dependencies.schedulerService.onMainQueue { [weak self] in
         switch result {
         case let .failure(error):
           self?.tracksLoadingDidError(with: error)
@@ -82,8 +82,8 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
     tracksViewController.show(eventsViewController, sender: nil)
 
     events = []
-    persistenceService.performRead(EventsForTrack(track: track.name)) { result in
-      DispatchQueue.main.async { [weak self] in
+    persistenceService.performRead(EventsForTrack(track: track.name)) { [weak self] result in
+      self?.dependencies.schedulerService.onMainQueue { [weak self] in
         switch result {
         case let .failure(error):
           self?.eventsLoadingDidError(with: error)
