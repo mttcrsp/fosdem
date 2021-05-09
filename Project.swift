@@ -15,6 +15,11 @@ let grdb = Package.remote(
   requirement: .branch("master")
 )
 
+let interposeKit = Package.remote(
+  url: "https://github.com/steipete/InterposeKit",
+  requirement: .exact(.init(0, 0, 2))
+)
+
 let snapshotTesting = Package.remote(
   url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
   requirement: .exact(.init(1, 8, 2))
@@ -93,6 +98,7 @@ let appSnapshotTests = Target(
   actions: [swiftFormat],
   dependencies: [
     .target(name: app.name),
+    .package(product: "InterposeKit"),
     .package(product: "SnapshotTesting"),
   ]
 )
@@ -119,6 +125,6 @@ let dbGenerator = Target(
 let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
-  packages: [grdb, snapshotTesting],
+  packages: [grdb, snapshotTesting, interposeKit],
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
