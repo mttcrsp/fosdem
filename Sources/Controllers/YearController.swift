@@ -131,6 +131,10 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
 }
 
 extension YearController: UISearchResultsUpdating, EventsSearchController {
+  var schedulerService: SchedulerServiceProtocol {
+    dependencies.schedulerService
+  }
+
   func updateSearchResults(for searchController: UISearchController) {
     didChangeQuery(searchController.searchBar.text ?? "")
   }
