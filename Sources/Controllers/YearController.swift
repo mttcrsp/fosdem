@@ -122,7 +122,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   }
 
   func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makePastEventViewController(for: event)
     show(eventViewController, sender: nil)
 
     if viewController == resultsViewController {
@@ -161,9 +161,5 @@ private extension YearController {
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
     return eventsViewController
-  }
-
-  func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makePastEventViewController(for: event)
   }
 }

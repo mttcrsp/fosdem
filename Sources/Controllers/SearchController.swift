@@ -278,14 +278,14 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
   }
 
   private func trackViewController(_ trackViewController: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     trackViewController.show(eventViewController, sender: nil)
   }
 
   private func resultsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     eventsViewController.deselectSelectedRow(animated: true)
 
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     tracksViewController?.showDetailViewController(eventViewController, sender: nil)
 
     if traitCollection.horizontalSizeClass == .regular {
@@ -421,10 +421,6 @@ private extension SearchController {
 
   func makeWelcomeViewController() -> WelcomeViewController {
     WelcomeViewController(year: type(of: dependencies.yearsService).current)
-  }
-
-  func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(for: event)
   }
 }
 
