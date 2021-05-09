@@ -215,14 +215,16 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     switch eventsViewController {
-    case agendaViewController where eventViewController?.fos_eventID != event.id:
-      let eventViewController = makeEventViewController(for: event)
-      eventsViewController.showDetailViewController(eventViewController, sender: nil)
-      UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
     case soonViewController:
       let eventViewController = makeSoonEventViewController(for: event)
       eventsViewController.show(eventViewController, sender: nil)
-    default:
+    case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
+      break
+    case agendaViewController:
+      let eventViewController = makeEventViewController(for: event)
+      eventsViewController.showDetailViewController(eventViewController, sender: nil)
+      UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
+   default:
       break
     }
   }
