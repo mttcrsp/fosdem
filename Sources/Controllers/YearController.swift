@@ -95,7 +95,6 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
   }
 
   private func eventsLoadingDidError(with error: Error) {
-    assertionFailure(error.localizedDescription)
     didError?(self, error)
   }
 
