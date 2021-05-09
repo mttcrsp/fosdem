@@ -3,6 +3,8 @@ import UIKit
 protocol EventsSearchController: UIViewController {
   var results: [Event] { get set }
   var resultsViewController: EventsViewController? { get }
+
+  var schedulerService: SchedulerServiceProtocol { get }
   var persistenceService: PersistenceServiceProtocol { get }
 }
 
@@ -17,7 +19,7 @@ extension EventsSearchController {
 
     let operation = EventsForSearch(query: query)
     persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async {
+      self?.schedulerService.onMainQueue {
         switch result {
         case .failure:
           self?.results = []

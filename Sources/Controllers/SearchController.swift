@@ -29,10 +29,6 @@ final class SearchController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  var persistenceService: PersistenceServiceProtocol {
-    dependencies.persistenceService
-  }
-
   private var isDisplayingFavoriteTrack: Bool {
     if let selectedTrack = selectedTrack {
       return dependencies.favoritesService.contains(selectedTrack)
@@ -319,6 +315,14 @@ extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewC
 }
 
 extension SearchController: UISearchResultsUpdating, EventsSearchController {
+  var schedulerService: SchedulerServiceProtocol {
+    dependencies.schedulerService
+  }
+
+  var persistenceService: PersistenceServiceProtocol {
+    dependencies.persistenceService
+  }
+
   func updateSearchResults(for searchController: UISearchController) {
     didChangeQuery(searchController.searchBar.text ?? "")
   }
