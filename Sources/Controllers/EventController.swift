@@ -19,13 +19,22 @@ final class EventController: UIPageViewController {
   private var finishObserver: NSObjectProtocol?
   private var timeObserver: Any?
 
+  private let notificationCenter: NotificationCenter
+  private let audioSession: AVAudioSessionProtocol
   private let dependencies: Dependencies
 
   let event: Event
 
-  init(event: Event, dependencies: Dependencies) {
+  init(
+    event: Event,
+    dependencies: Dependencies,
+    notificationCenter: NotificationCenter = .default,
+    audioSession: AVAudioSessionProtocol = AVAudioSession.sharedInstance()
+  ) {
     self.event = event
     self.dependencies = dependencies
+    self.audioSession = audioSession
+    self.notificationCenter = notificationCenter
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
   }
 
@@ -48,18 +57,10 @@ final class EventController: UIPageViewController {
     }
 
     do {
-      try session.setActive(false)
+      try audioSession.setActive(false, options: [])
     } catch {
       assertionFailure(error.localizedDescription)
     }
-  }
-
-  private var notificationCenter: NotificationCenter {
-    .default
-  }
-
-  private var session: AVAudioSession {
-    .sharedInstance()
   }
 
   private var isEventFavorite: Bool {
@@ -67,15 +68,11 @@ final class EventController: UIPageViewController {
   }
 
   private var favoriteTitle: String {
-    isEventFavorite
-      ? L10n.Event.remove
-      : L10n.Event.add
+    isEventFavorite ? L10n.Event.remove : L10n.Event.add
   }
 
   private var favoriteAccessibilityIdentifier: String {
-    isEventFavorite
-      ? "unfavorite"
-      : "favorite"
+    isEventFavorite ? "unfavorite" : "favorite"
   }
 
   private var now: Date {
@@ -180,8 +177,8 @@ extension EventController: AVPlayerViewControllerDelegate {
     let event = self.event
 
     do {
-      try session.setCategory(.playback)
-      try session.setActive(true)
+      try audioSession.setCategory(.playback)
+      try audioSession.setActive(true, options: [])
     } catch {
       assertionFailure(error.localizedDescription)
     }
