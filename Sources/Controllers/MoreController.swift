@@ -1,7 +1,7 @@
 import UIKit
 
 final class MoreController: UISplitViewController {
-  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasTimeService
+  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasTimeService & HasSchedulerService
 
   private weak var moreViewController: MoreViewController?
 
@@ -98,8 +98,8 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidSelectYears(_: MoreViewController) {
-    dependencies.yearsService.loadYears { years in
-      DispatchQueue.main.async { [weak self] in
+    dependencies.yearsService.loadYears { [weak self] years in
+      self?.dependencies.schedulerService.onMainQueue {
         guard let self = self else { return }
 
         self.years = years
@@ -201,7 +201,7 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
   }
 
   private func presentYearErrorViewController(from yearsViewController: YearsViewController) {
-    DispatchQueue.main.async { [weak self, weak yearsViewController] in
+    dependencies.schedulerService.onMainQueue { [weak self, weak yearsViewController] in
       guard let self = self else { return }
 
       let errorViewController = self.makeErrorViewController()
@@ -210,7 +210,7 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
   }
 
   private func showYearViewController(forYear year: String, with persistenceService: PersistenceService, from yearsViewController: YearsViewController) {
-    DispatchQueue.main.async { [weak self, weak yearsViewController] in
+    dependencies.schedulerService.onMainQueue { [weak self, weak yearsViewController] in
       guard let self = self else { return }
 
       let yearViewController = self.makeYearViewController(forYear: year, with: persistenceService)
@@ -272,8 +272,8 @@ private extension MoreController {
   }
 
   private func makeInfoViewController(withTitle title: String, for info: Info, completion: @escaping (TextViewController?) -> Void) {
-    dependencies.infoService.loadAttributedText(for: info) { attributedText in
-      DispatchQueue.main.async {
+    dependencies.infoService.loadAttributedText(for: info) { [weak self] attributedText in
+      self?.dependencies.schedulerService.onMainQueue {
         if let attributedText = attributedText {
           let textViewController = TextViewController()
           textViewController.accessibilityIdentifier = info.accessibilityIdentifier

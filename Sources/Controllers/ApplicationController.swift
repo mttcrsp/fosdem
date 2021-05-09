@@ -1,7 +1,7 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService
+  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService & HasSchedulerService
 
   private weak var tabsController: UITabBarController?
 
@@ -193,7 +193,7 @@ extension ApplicationController {
 
 extension ApplicationController: UpdateServiceDelegate {
   func updateServiceDidDetectUpdate(_: UpdateService) {
-    DispatchQueue.main.async { [weak self] in
+    dependencies.schedulerService.onMainQueue { [weak self] in
       if let self = self {
         let updateViewController = self.makeUpdateViewController()
         self.present(updateViewController, animated: true)

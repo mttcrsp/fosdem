@@ -2,7 +2,7 @@ import CoreLocation
 import UIKit
 
 final class MapController: MapContainerViewController {
-  typealias Dependencies = HasBuildingsService
+  typealias Dependencies = HasBuildingsService & HasSchedulerService
 
   var didError: ((MapController, Error) -> Void)?
 
@@ -51,8 +51,8 @@ final class MapController: MapContainerViewController {
 
     locationManager.delegate = self
 
-    dependencies.buildingsService.loadBuildings { buildings, error in
-      DispatchQueue.main.async { [weak self] in
+    dependencies.buildingsService.loadBuildings { [weak self] buildings, error in
+      self?.dependencies.schedulerService.onMainQueue {
         guard let self = self else { return }
 
         if let error = error {

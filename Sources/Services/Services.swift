@@ -4,9 +4,10 @@ class Services {
   let launchService: LaunchServiceProtocol
 
   let bundleService = BundleService()
-  let playbackService: PlaybackServiceProtocol = PlaybackService()
   let yearsService: YearsServiceProtocol = YearsService()
+  let playbackService: PlaybackServiceProtocol = PlaybackService()
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
+  let schedulerService: SchedulerServiceProtocol = SchedulerService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
 
   private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
@@ -104,6 +105,9 @@ extension Services: HasBuildingsService {}
 
 protocol HasFavoritesService { var favoritesService: FavoritesServiceProtocol { get } }
 extension Services: HasFavoritesService {}
+
+protocol HasSchedulerService { var schedulerService: SchedulerServiceProtocol { get } }
+extension Services: HasSchedulerService {}
 
 protocol HasNavigationService { var navigationService: NavigationServiceProtocol { get } }
 extension Services: HasNavigationService {}

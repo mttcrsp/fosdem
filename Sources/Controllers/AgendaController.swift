@@ -1,7 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService
+  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService & HasSchedulerService
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -75,8 +75,8 @@ final class AgendaController: UIViewController {
     }
 
     let operation = EventsForIdentifiers(identifiers: identifiers)
-    dependencies.persistenceService.performRead(operation) { result in
-      DispatchQueue.main.async { [weak self] in
+    dependencies.persistenceService.performRead(operation) { [weak self] result in
+      self?.dependencies.schedulerService.onMainQueue {
         switch result {
         case let .failure(error):
           self?.loadingDidFail(with: error)
@@ -123,17 +123,19 @@ final class AgendaController: UIViewController {
     let operation = EventsStartingIn30Minutes(now: dependencies.timeService.now)
     dependencies.persistenceService.performRead(operation) { result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        self?.dependencies.schedulerService.onMainQueue {
+          guard let self = self else { return }
 
-        switch result {
-        case .failure:
-          let errorViewController = UIAlertController.makeErrorController()
-          self.present(errorViewController, animated: true)
-        case let .success(events):
-          self.eventsStartingSoon = events
-          let soonViewController = self.makeSoonViewController()
-          let soonNavigationController = UINavigationController(rootViewController: soonViewController)
-          self.present(soonNavigationController, animated: true)
+          switch result {
+          case .failure:
+            let errorViewController = UIAlertController.makeErrorController()
+            self.present(errorViewController, animated: true)
+          case let .success(events):
+            self.eventsStartingSoon = events
+            let soonViewController = self.makeSoonViewController()
+            let soonNavigationController = UINavigationController(rootViewController: soonViewController)
+            self.present(soonNavigationController, animated: true)
+          }
         }
       }
     }
