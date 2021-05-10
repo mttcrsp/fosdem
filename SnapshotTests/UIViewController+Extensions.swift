@@ -36,4 +36,35 @@ extension UIViewController {
 
     return args
   }
+
+  final class ShowArguments {
+    var vc: UIViewController?
+    var sender: Any?
+
+    fileprivate var cleanup: (() -> Void)?
+    deinit { cleanup?() }
+  }
+
+  func fos_mockShow() throws -> ShowArguments {
+    let args = ShowArguments()
+
+    let result = try hook(#selector(UIViewController.show(_:sender:))) {
+      (
+        _: TypedHook<
+        @convention(c) (AnyObject, Selector, UIViewController, Any?) -> Void,
+        @convention(block) (AnyObject, UIViewController, Any?) -> Void
+        >
+      ) in { _, vc, sender in
+          args.vc = vc
+          args.sender = sender
+        }
+    }
+
+    args.cleanup = {
+      result.cleanup()
+      _ = try? result.revert()
+    }
+
+    return args
+  }
 }
