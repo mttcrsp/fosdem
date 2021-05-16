@@ -155,6 +155,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
     if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
       let livestreamViewController = makeVideoViewController(for: url)
       eventViewController.present(livestreamViewController, animated: true)
+      userActivity = PlayVideo(event: event, video: link).makeUserActivity()
     }
   }
 
@@ -162,12 +163,14 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
     if let video = event.video, let url = video.url {
       let videoViewController = makeVideoViewController(for: url)
       eventViewController.present(videoViewController, animated: true)
+      userActivity = PlayVideo(event: event, video: video).makeUserActivity()
     }
   }
 
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
     let attachmentViewController = makeAttachmentViewController(for: attachment)
     eventViewController.present(attachmentViewController, animated: true)
+    userActivity = ReadAttachment(event: event, attachment: attachment).makeUserActivity()
   }
 
   func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
@@ -206,6 +209,8 @@ extension EventController: AVPlayerViewControllerDelegate {
   }
 
   func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
+    userActivity = nil
+
     if let observer = timeObserver {
       playerViewController.player?.removeTimeObserver(observer)
       timeObserver = nil
@@ -215,6 +220,12 @@ extension EventController: AVPlayerViewControllerDelegate {
       notificationCenter.removeObserver(observer)
       finishObserver = nil
     }
+  }
+}
+
+extension EventController: SFSafariViewControllerDelegate {
+  func safariViewControllerDidFinish(_: SFSafariViewController) {
+    userActivity = nil
   }
 }
 
@@ -245,6 +256,8 @@ private extension EventController {
   }
 
   private func makeAttachmentViewController(for attachment: Attachment) -> SFSafariViewController {
-    SFSafariViewController(url: attachment.url)
+    let safariViewController = SFSafariViewController(url: attachment.url)
+    safariViewController.delegate = self
+    return safariViewController
   }
 }

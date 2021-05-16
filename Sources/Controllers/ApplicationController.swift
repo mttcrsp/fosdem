@@ -5,16 +5,24 @@ final class ApplicationController: UIViewController {
 
   private weak var tabsController: UITabBarController?
 
+  private let notificationCenter: NotificationCenter
   private let dependencies: Dependencies
 
-  init(dependencies: Dependencies) {
+  init(dependencies: Dependencies, notificationCenter: NotificationCenter = .default) {
+    self.notificationCenter = notificationCenter
     self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
+    notificationCenter.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+    notificationCenter.addObserver(self, selector: #selector(applicationWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+
+  deinit {
+    notificationCenter.removeObserver(self)
   }
 
   private var previouslySelectedViewController: String? {
@@ -68,12 +76,12 @@ final class ApplicationController: UIViewController {
     dependencies.scheduleService?.startUpdating()
   }
 
-  func applicationDidBecomeActive() {
+  @objc private func applicationDidBecomeActive() {
     dependencies.liveService.startMonitoring()
     dependencies.scheduleService?.startUpdating()
   }
 
-  func applicationWillResignActive() {
+  @objc private func applicationWillResignActive() {
     dependencies.liveService.stopMonitoring()
   }
 

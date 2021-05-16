@@ -6,7 +6,7 @@ protocol TransportationViewControllerDelegate: AnyObject {
 }
 
 final class TransportationViewController: UITableViewController {
-  enum Item: String {
+  enum Item: String, Codable {
     case appleMaps, googleMaps
     case bus, shuttle, train, car, plane, taxi
   }
@@ -18,6 +18,21 @@ final class TransportationViewController: UITableViewController {
   weak var delegate: TransportationViewControllerDelegate?
 
   private let sections = Section.allCases
+
+  private var selectedItem: Item? {
+    tableView.indexPathForSelectedRow.flatMap(item)
+  }
+
+  override var userActivity: NSUserActivity? {
+    set {}
+    get {
+      if let item = selectedItem, item.supportsStateRestoration {
+        return ReadTransportation(item: item).makeUserActivity()
+      } else {
+        return nil
+      }
+    }
+  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -129,6 +144,15 @@ private extension TransportationViewController.Item {
       return .disclosureIndicator
     case .appleMaps, .googleMaps:
       return .none
+    }
+  }
+
+  var supportsStateRestoration: Bool {
+    switch self {
+    case .bus, .shuttle, .train, .car, .plane, .taxi:
+      return true
+    case .appleMaps, .googleMaps:
+      return false
     }
   }
 
