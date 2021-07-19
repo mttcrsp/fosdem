@@ -1,6 +1,6 @@
 import Foundation
 
-final class Services {
+class Services {
   let launchService: LaunchServiceProtocol
 
   let bundleService = BundleService()
@@ -24,45 +24,25 @@ final class Services {
   }()
 
   #if DEBUG
-  let debugService = DebugService()
-  let testsService = TestsService()
+  lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
+  #else
+  private(set) lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
   #endif
 
-  private(set) lazy var scheduleService: ScheduleServiceProtocol? = {
-    var scheduleService: ScheduleService? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
-    #if DEBUG
-    if !testsService.shouldUpdateSchedule {
-      scheduleService = nil
-    }
-    #endif
-    return scheduleService
-  }()
+  #if DEBUG
+  lazy var liveService: LiveServiceProtocol = LiveService()
+  #else
+  private(set) lazy var liveService: LiveServiceProtocol = LiveService()
+  #endif
 
-  private(set) lazy var liveService: LiveServiceProtocol = {
-    var liveService = LiveService()
-    #if DEBUG
-    if let timeInterval = testsService.liveTimerInterval {
-      liveService = LiveService(timeInterval: timeInterval)
-    }
-    #endif
-    return liveService
-  }()
+  #if DEBUG
+  let debugService = DebugService()
+  #endif
 
   private let _persistenceService: PersistenceService
 
   init() throws {
     launchService = LaunchService(fosdemYear: yearsService.current)
-
-    #if DEBUG
-    if testsService.shouldResetDefaults, let name = Bundle.main.bundleIdentifier {
-      UserDefaults.standard.removePersistentDomain(forName: name)
-    }
-
-    if !testsService.shouldDiplayOnboarding {
-      launchService.markAsLaunched()
-    }
-    #endif
-
     try launchService.detectStatus()
 
     if launchService.didLaunchAfterFosdemYearChange {
@@ -91,69 +71,10 @@ final class Services {
     try preloadService.preloadDatabaseIfNeeded()
 
     _persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
-
-    #if DEBUG
-    if let identifiers = testsService.favoriteEventsIdentifiers {
-      favoritesService.setEventsIdentifiers(identifiers)
-    }
-
-    if let identifiers = testsService.favoriteTracksIdentifiers {
-      favoritesService.setTracksIdentifiers(identifiers)
-    }
-
-    if let date = testsService.date {
-      debugService.override(date)
-    }
-
-    if let dates = testsService.dates {
-      testsService.startTogglingDates(dates) { date in
-        self.debugService.override(date)
-      }
-    }
-
-    if let video = testsService.video {
-      do {
-        let directory = FileManager.default.temporaryDirectory
-        let url = directory.appendingPathComponent("test.mp4")
-        try video.write(to: url)
-
-        let links = [Link(name: "test", url: url)]
-        let write = UpdateLinksForEvent(eventID: 11717, links: links)
-        try persistenceService.performWriteSync(write)
-      } catch {
-        assertionFailure(error.localizedDescription)
-      }
-    }
-    #endif
   }
 }
 
 extension BundleService: InfoServiceBundle {}
-
-#if DEBUG
-private extension FavoritesServiceProtocol {
-  func setTracksIdentifiers(_ newTracksIdentifiers: Set<String>) {
-    for identifier in tracksIdentifiers {
-      removeTrack(withIdentifier: identifier)
-    }
-
-    for identifier in newTracksIdentifiers {
-      addTrack(withIdentifier: identifier)
-    }
-  }
-
-  func setEventsIdentifiers(_ newEventsIdentifiers: Set<Int>) {
-    for identifier in eventsIdentifiers {
-      removeEvent(withIdentifier: identifier)
-    }
-
-    for identifier in newEventsIdentifiers {
-      addEvent(withIdentifier: identifier)
-    }
-  }
-}
-
-#endif
 
 protocol HasInfoService { var infoService: InfoServiceProtocol { get } }
 extension Services: HasInfoService {}

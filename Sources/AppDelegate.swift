@@ -56,7 +56,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   private func makeServices() throws -> Services {
+    #if DEBUG
     let services = try Services()
+    #else
+    let services = try DebugServices()
+    #endif
     services.networkService.delegate = self
     return services
   }

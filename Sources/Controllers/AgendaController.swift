@@ -224,7 +224,7 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
       let eventViewController = makeEventViewController(for: event)
       eventsViewController.showDetailViewController(eventViewController, sender: nil)
       UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
-   default:
+    default:
       break
     }
   }
