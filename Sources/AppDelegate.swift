@@ -19,24 +19,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     #endif
 
-    let rootViewController: UIViewController
     do {
-      rootViewController = ApplicationController(dependencies: try makeServices())
+      let services = try makeServices()
+
+      let window = UIWindow()
+      window.tintColor = .fos_label
+      window.rootViewController = ApplicationController(dependencies: services)
+      window.makeKeyAndVisible()
+      self.window = window
+
+      #if ENABLE_UITUNNEL
+      let testsService = TestsService(services: services)
+      testsService.start()
+      testsService.registerCustomCommands()
+      testsService.speedUpAnimations(in: window)
+      #endif
     } catch {
-      rootViewController = makeErrorViewController()
+      window = UIWindow()
+      window?.tintColor = .fos_label
+      window?.rootViewController = makeErrorViewController()
+      window?.makeKeyAndVisible()
     }
-
-    let window = UIWindow()
-    window.tintColor = .fos_label
-    window.rootViewController = rootViewController
-    window.makeKeyAndVisible()
-    self.window = window
-
-    #if DEBUG
-    if ProcessInfo.processInfo.isRunningUITests {
-      window.layer.speed = 100
-    }
-    #endif
 
     return true
   }

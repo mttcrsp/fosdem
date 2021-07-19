@@ -1,3 +1,4 @@
+import SBTUITestTunnelClient
 import XCTest
 
 final class AppliationControllerTests: XCTestCase {
@@ -14,5 +15,12 @@ final class AppliationControllerTests: XCTestCase {
     app.launchEnvironment = ["ENABLE_ONBOARDING": "1"]
     app.launch()
     XCTAssert(app.searchButton.exists)
+  }
+
+  func testSomething() {
+    app.launchTunnel(withOptions: [SBTUITunneledApplicationLaunchOptionResetFilesystem])
+    app.performCustomCommandNamed("ENABLE_ONBOARDING", object: nil)
+
+    XCTAssert(app.buttons["Search"].exists)
   }
 }

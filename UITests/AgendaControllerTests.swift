@@ -7,13 +7,10 @@ final class AgendaControllerTests: XCTestCase {
     let interval1 = try XCTUnwrap(interval(for: components1))
     let interval2 = try XCTUnwrap(interval(for: components2))
 
-    let app = XCUIApplication()
-    app.launchEnvironment = [
-      "LIVE_INTERVAL": "1",
-      "LIVE_DATES": "\(interval1),\(interval2)",
-      "FAVORITE_EVENTS": "11317,11621",
-    ]
-    app.launch()
+    app.launchTunnel()
+    app.performCustomCommandNamed("SET_FAVORITE_EVENTS", object: [11317, 11621])
+    app.performCustomCommandNamed("TOGGLE_DATES_OVERRIDE", object: "\(interval1),\(interval2)")
+    app.performCustomCommandNamed("SET_LIVE_UPDATES_INTERVAL", object: 1 as TimeInterval)
     app.agendaButton.tap()
 
     runActivity(named: "Captions") {
@@ -37,34 +34,34 @@ final class AgendaControllerTests: XCTestCase {
     let interval1 = try XCTUnwrap(interval(for: components1))
     let interval2 = try XCTUnwrap(interval(for: components2))
 
-    let app = XCUIApplication()
     let soonTable = app.tables["events"]
     let soonCell = soonTable.cells.firstMatch
     let soonButton = app.buttons["soon"]
     let doneButton = app.buttons["dismiss"]
 
     runActivity(named: "Content unavailable") {
-      app.launchEnvironment = ["SOON_DATE": "\(interval1)"]
-      app.launch()
+      app.launchTunnel()
+      app.performCustomCommandNamed("OVERRIDE_DATE", object: interval1)
       app.agendaButton.tap()
       soonButton.tap()
-      wait { app.emptyStaticText.exists }
+      wait { self.app.emptyStaticText.exists }
     }
 
     runActivity(named: "Content available") {
       app.terminate()
-      app.launchEnvironment = ["RESET_DEFAULTS": "1", "SOON_DATE": "\(interval2)"]
-      app.launch()
+      app.launchTunnel()
+      app.performCustomCommandNamed("RESET_DEFAULTS", object: nil)
+      app.performCustomCommandNamed("OVERRIDE_DATE", object: interval2)
       app.agendaButton.tap()
       soonButton.tap()
-      wait { app.staticTexts["13:20 - L.lightningtalks"].exists }
-      wait { app.staticTexts["Etebase - Your End-to-End Encrypted Backend"].exists }
+      wait { self.app.staticTexts["13:20 - L.lightningtalks"].exists }
+      wait { self.app.staticTexts["Etebase - Your End-to-End Encrypted Backend"].exists }
       XCTAssertEqual(app.tables.firstMatch.cells.count, 23)
     }
 
     runActivity(named: "Open event") {
       soonCell.tap()
-      wait { app.eventTable.exists }
+      wait { self.app.eventTable.exists }
     }
 
     runActivity(named: "Favorite") {

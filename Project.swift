@@ -20,6 +20,11 @@ let snapshotTesting = Package.remote(
   requirement: .exact(.init(1, 8, 2))
 )
 
+let sbtUITestTunnel = Package.remote(
+  url: "https://github.com/Subito-it/SBTUITestTunnel.git",
+  requirement: .exact(.init(7, 0, 0))
+)
+
 let app = Target(
   name: "FOSDEM",
   platform: .iOS,
@@ -48,11 +53,21 @@ let app = Target(
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
   actions: [mockolo, swiftFormat],
-  dependencies: [.package(product: "GRDB")],
-  settings: Settings(base: [
-    "DEVELOPMENT_TEAM": "3CM92FF2C5",
-    "PRODUCT_MODULE_NAME": "Fosdem",
-  ]),
+  dependencies: [
+    .package(product: "GRDB"),
+    .package(product: "GCDWebServer"),
+    .package(product: "SBTUITestTunnelServer"),
+    .sdk(name: "MobileCoreServices.framework", status: .required),
+  ],
+  settings: Settings(
+    base: [
+      "DEVELOPMENT_TEAM": "3CM92FF2C5",
+      "PRODUCT_MODULE_NAME": "Fosdem",
+    ],
+    debug: Configuration(settings: [
+      "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "$(inherited) ENABLE_UITUNNEL",
+    ])
+  ),
   environment: ["ENABLE_SCHEDULE_UPDATES": "1", "ENABLE_ONBOARDING": "1"]
 )
 
@@ -79,7 +94,10 @@ let appUITests = Target(
   sources: ["UITests/**/*", "Tests/BundleDataLoader.swift"],
   resources: ["UITests/Resources/**/*"],
   actions: [swiftFormat],
-  dependencies: [.target(name: app.name)]
+  dependencies: [
+    .target(name: app.name),
+    .package(product: "SBTUITestTunnelClient"),
+  ]
 )
 
 let appSnapshotTests = Target(
@@ -119,6 +137,6 @@ let dbGenerator = Target(
 let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
-  packages: [grdb, snapshotTesting],
+  packages: [grdb, snapshotTesting, sbtUITestTunnel],
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )

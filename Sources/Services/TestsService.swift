@@ -1,87 +1,186 @@
-#if DEBUG
-import UIKit
+#if ENABLE_UITUNNEL
+import SBTUITestTunnelServer
+
+private protocol TestsServiceCommand {
+  static var name: String { get }
+  static func perform(with services: Services, object: NSObject?)
+}
 
 final class TestsService {
-  private var timer: Timer?
+  private let commands: [TestsServiceCommand.Type] = [
+    EnableOnboarding.self,
+    EnableScheduleUpdates.self,
+    OverrideDate.self,
+    OverrideEventVideo.self,
+    ResetDefaults.self,
+    SetFavoritesEvents.self,
+    SetFavoritesTracks.self,
+    SetLiveUpdatesInterval.self,
+    ToggleDatesOverride.self,
+  ]
 
-  private var environment: [String: String] {
-    ProcessInfo.processInfo.environment
+  private let services: Services
+
+  init(services: Services) {
+    self.services = services
   }
 
-  var shouldResetDefaults: Bool {
-    environment["RESET_DEFAULTS"] != nil
+  func start() {
+    SBTUITestTunnelServer.takeOff()
   }
 
-  var shouldUpdateSchedule: Bool {
-    environment["ENABLE_SCHEDULE_UPDATES"] != nil
-  }
-
-  var shouldDiplayOnboarding: Bool {
-    environment["ENABLE_ONBOARDING"] != nil
-  }
-
-  var liveTimerInterval: TimeInterval? {
-    if let string = environment["LIVE_INTERVAL"] {
-      return TimeInterval(string)
-    } else {
-      return nil
+  func registerCustomCommands() {
+    for command in commands {
+      SBTUITestTunnelServer.registerCustomCommandNamed(command.name) { object in
+        DispatchQueue.main.sync {
+          command.perform(with: self.services, object: object)
+        }
+        return nil
+      }
     }
   }
 
-  var favoriteTracksIdentifiers: Set<String>? {
-    if let value = environment["FAVORITE_TRACKS"] {
-      return Set(value.components(separatedBy: ","))
+  func speedUpAnimations(in window: UIWindow) {
+    window.layer.speed = 100
+  }
+}
+
+private struct EnableOnboarding: TestsServiceCommand {
+  static let name = "ENABLE_ONBOARDING"
+  static func perform(with services: Services, object _: NSObject?) {
+    services.launchService.markAsLaunched()
+  }
+}
+
+private struct ResetDefaults: TestsServiceCommand {
+  static let name = "RESET_DEFAULTS"
+  static func perform(with _: Services, object _: NSObject?) {
+    if let name = Bundle.main.bundleIdentifier {
+      UserDefaults.standard.removePersistentDomain(forName: name)
     } else {
-      return nil
+      assertionFailure("Unable to determine main bundle identifier")
     }
   }
+}
 
-  var favoriteEventsIdentifiers: Set<Int>? {
-    if let value = environment["FAVORITE_EVENTS"] {
-      return Set(value.components(separatedBy: ",").compactMap(Int.init))
+private struct SetFavoritesEvents: TestsServiceCommand {
+  static let name = "SET_FAVORITE_EVENTS"
+  static func perform(with services: Services, object: NSObject?) {
+    if let identifiers = object as? [Int] {
+      services.favoritesService.setEventsIdentifiers(Set(identifiers))
     } else {
-      return nil
+      assertionFailure("Unexpected input to SET_FAVORITE_EVENTS command \(object as Any)")
     }
   }
+}
 
-  var video: Data? {
-    if let base64 = environment["VIDEO"] {
-      return Data(base64Encoded: base64)
+private struct SetFavoritesTracks: TestsServiceCommand {
+  static let name = "SET_FAVORITE_TRACKS"
+  static func perform(with services: Services, object: NSObject?) {
+    if let identifiers = object as? [String] {
+      services.favoritesService.setTracksIdentifiers(Set(identifiers))
     } else {
-      return nil
+      assertionFailure("Unexpected input to SET_FAVORITE_TRACKS command \(object as Any)")
     }
   }
+}
 
-  var date: Date? {
-    if let string = environment["SOON_DATE"], let value = Double(string) {
-      return Date(timeIntervalSince1970: value)
+private struct OverrideDate: TestsServiceCommand {
+  static let name = "OVERRIDE_DATE" // SOON_DATE
+  static func perform(with services: Services, object: NSObject?) {
+    if let value = object as? Double {
+      services.debugService.override(Date(timeIntervalSince1970: value))
     } else {
-      return nil
+      assertionFailure("Unexpected input to SOON_DATE command \(object as Any)")
     }
   }
+}
 
-  var dates: (Date, Date)? {
-    guard let string = environment["LIVE_DATES"] else {
-      return nil
+private struct ToggleDatesOverride: TestsServiceCommand {
+  private static var timer: Timer?
+
+  static let name = "TOGGLE_DATES_OVERRIDE"
+  static func perform(with services: Services, object: NSObject?) {
+    guard let string = object as? String else {
+      return assertionFailure("Unexpected input to TOGGLE_DATES_OVERRIDE command \(object as Any)")
     }
 
     let components = string.components(separatedBy: ",")
     guard components.count == 2, let value1 = Double(components[0]), let value2 = Double(components[1]) else {
-      return nil
+      return assertionFailure("Unexpected input to TOGGLE_DATES_OVERRIDE command \(object as Any)")
     }
 
     let date1 = Date(timeIntervalSince1970: value1)
     let date2 = Date(timeIntervalSince1970: value2)
-    return (date1, date2)
-  }
-
-  func startTogglingDates(_ dates: (Date, Date), handler: @escaping (Date) -> Void) {
-    let (date1, date2) = dates
-
     var flag = true
     timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
-      handler(flag ? date1 : date2)
+      services.debugService.override(flag ? date1 : date2)
       flag.toggle()
+    }
+  }
+}
+
+private struct EnableScheduleUpdates: TestsServiceCommand {
+  static let name = "ENABLE_SCHEDULE_UPDATES"
+  static func perform(with services: Services, object: NSObject?) {
+    if object != nil {
+      services.scheduleService = nil
+    } else {
+      assertionFailure("Unexpected input to ENABLE_SCHEDULE_UPDATES command \(object as Any)")
+    }
+  }
+}
+
+private struct SetLiveUpdatesInterval: TestsServiceCommand {
+  static let name = "SET_LIVE_UPDATES_INTERVAL" // LIVE_INTERVAL
+  static func perform(with services: Services, object: NSObject?) {
+    if let timeInterval = object as? TimeInterval {
+      services.liveService = LiveService(timeInterval: timeInterval)
+    } else {
+      assertionFailure("Unexpected input to LIVE_INTERVAL command \(object as Any)")
+    }
+  }
+}
+
+private struct OverrideEventVideo: TestsServiceCommand {
+  static let name = "OVERRIDE_EVENT_VIDEO" // VIDEO
+  static func perform(with services: Services, object: NSObject?) {
+    guard let video = object as? Data else {
+      return assertionFailure("Unexpected input to LIVE_INTERVAL command \(object as Any)")
+    }
+
+    do {
+      let directory = FileManager.default.temporaryDirectory
+      let url = directory.appendingPathComponent("test.mp4")
+      try video.write(to: url)
+
+      let links = [Link(name: "test", url: url)]
+      let write = UpdateLinksForEvent(eventID: 11717, links: links)
+      try services.persistenceService.performWriteSync(write)
+    } catch {
+      assertionFailure(error.localizedDescription)
+    }
+  }
+}
+
+private extension FavoritesServiceProtocol {
+  func setTracksIdentifiers(_ newTracksIdentifiers: Set<String>) {
+    for identifier in tracksIdentifiers {
+      removeTrack(withIdentifier: identifier)
+    }
+
+    for identifier in newTracksIdentifiers {
+      addTrack(withIdentifier: identifier)
+    }
+  }
+
+  func setEventsIdentifiers(_ newEventsIdentifiers: Set<Int>) {
+    for identifier in eventsIdentifiers {
+      removeEvent(withIdentifier: identifier)
+    }
+
+    for identifier in newEventsIdentifiers {
+      addEvent(withIdentifier: identifier)
     }
   }
 }
