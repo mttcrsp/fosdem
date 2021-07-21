@@ -5,7 +5,7 @@ final class VideoControllerTests: XCTestCase {
     let data = try XCTUnwrap(BundleDataLoader().data(forResource: "test", withExtension: "mp4"))
 
     let app = XCUIApplication()
-    app.launchEnvironment = ["RESET_DEFAULTS": "1", "VIDEO": data.base64EncodedString()]
+    app.launchEnvironment = ["RESET_DEFAULTS": "1", "OVERRIDE_VIDEO": data.base64EncodedString()]
     app.launch()
 
     // WORKAROUND: UISegmented control does not support custom accessibility

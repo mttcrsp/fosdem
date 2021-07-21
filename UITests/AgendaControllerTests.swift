@@ -9,9 +9,9 @@ final class AgendaControllerTests: XCTestCase {
 
     let app = XCUIApplication()
     app.launchEnvironment = [
-      "LIVE_INTERVAL": "1",
-      "LIVE_DATES": "\(interval1),\(interval2)",
-      "FAVORITE_EVENTS": "11317,11621",
+      "OVERRIDE_TIME_SERVICE_INTERVAL": "1",
+      "OVERRIDE_NOWS": "\(interval1),\(interval2)",
+      "SET_FAVORITE_EVENTS": "11317,11621",
     ]
     app.launch()
     app.agendaButton.tap()
@@ -44,7 +44,7 @@ final class AgendaControllerTests: XCTestCase {
     let doneButton = app.buttons["dismiss"]
 
     runActivity(named: "Content unavailable") {
-      app.launchEnvironment = ["SOON_DATE": "\(interval1)"]
+      app.launchEnvironment = ["OVERRIDE_NOW": "\(interval1)"]
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
@@ -53,7 +53,7 @@ final class AgendaControllerTests: XCTestCase {
 
     runActivity(named: "Content available") {
       app.terminate()
-      app.launchEnvironment = ["RESET_DEFAULTS": "1", "SOON_DATE": "\(interval2)"]
+      app.launchEnvironment = ["RESET_DEFAULTS": "1", "OVERRIDE_NOW": "\(interval2)"]
       app.launch()
       app.agendaButton.tap()
       soonButton.tap()
@@ -84,7 +84,7 @@ final class AgendaControllerTests: XCTestCase {
 
   func testFavorites() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "11317,11621"]
+    app.launchEnvironment = ["SET_FAVORITE_EVENTS": "11317,11621"]
     app.launch()
     app.agendaButton.tap()
 
@@ -128,7 +128,7 @@ final class AgendaControllerTests: XCTestCase {
     defer { XCUIDevice.shared.orientation = .portrait }
 
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "11317"]
+    app.launchEnvironment = ["SET_FAVORITE_EVENTS": "11317"]
     app.launch()
 
     runActivity(named: "Handle expanded launch") {
@@ -158,7 +158,7 @@ final class AgendaControllerTests: XCTestCase {
 
   func testPopToRoot() {
     let app = XCUIApplication()
-    app.launchEnvironment = ["FAVORITE_EVENTS": "11317"]
+    app.launchEnvironment = ["SET_FAVORITE_EVENTS": "11317"]
     app.launch()
     app.agendaButton.tap()
     wait { app.agendaTable.exists }

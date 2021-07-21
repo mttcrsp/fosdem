@@ -6,8 +6,8 @@ final class ScreenshotTests: XCTestCase {
 
     let app = XCUIApplication()
     app.launchEnvironment = [
-      "FAVORITE_EVENTS": "10746,9662,9743,9457,10213,9189",
-      "FAVORITE_TRACKS": "LLVM,Containers",
+      "SET_FAVORITE_EVENTS": "10746,9662,9743,9457,10213,9189",
+      "SET_FAVORITE_TRACKS": "LLVM,Containers",
     ]
     app.launch()
 

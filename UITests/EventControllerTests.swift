@@ -35,7 +35,7 @@ final class EventControllerTests: XCTestCase {
     let data = try XCTUnwrap(BundleDataLoader().data(forResource: "test", withExtension: "mp4"))
 
     let app = XCUIApplication()
-    app.launchEnvironment = ["RESET_DEFAULTS": "1", "VIDEO": data.base64EncodedString()]
+    app.launchEnvironment = ["RESET_DEFAULTS": "1", "OVERRIDE_VIDEO": data.base64EncodedString()]
     app.launch()
 
     let doneButton = app.buttons["Done"]
