@@ -75,7 +75,9 @@ let appUITests = Target(
   product: .uiTests,
   bundleId: "\(app.bundleId).uitests",
   deploymentTarget: app.deploymentTarget,
-  infoPlist: .default,
+  infoPlist: .extendingDefault(with: [
+    "NSPrincipalClass": "FOSTestObservationCenter",
+  ]),
   sources: ["UITests/**/*", "Tests/BundleDataLoader.swift"],
   resources: ["UITests/Resources/**/*"],
   actions: [swiftFormat],
