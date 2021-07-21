@@ -1,7 +1,7 @@
 import Foundation
 
 final class YearsService {
-  let current = 2021
+  static let current = 2021
 
   private let queue: DispatchQueue
   private let bundle: YearsServiceBundle
@@ -45,7 +45,7 @@ private extension String {
 
 /// @mockable
 protocol YearsServiceProtocol {
-  var current: Int { get }
+  static var current: Int { get }
   func loadYears(_ completion: @escaping ([String]) -> Void)
   func loadURL(forYear year: String, completion: @escaping (URL?) -> Void)
 }

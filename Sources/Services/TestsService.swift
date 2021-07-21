@@ -4,6 +4,7 @@ import UIKit
 final class TestsService {
   private let preInitCommands: [PreInitCommand.Type] = [
     ResetDefaults.self,
+    PreventOnboarding.self,
   ]
 
   private let postInitCommands: [PostInitCommand.Type] = [
@@ -11,7 +12,6 @@ final class TestsService {
     OverrideDates.self,
     OverrideTimeServiceInterval.self,
     OverrideVideo.self,
-    PreventOnboarding.self,
     PreventScheduleUpdates.self,
     SetFavoriteEvents.self,
     SetFavoriteTracks.self,
@@ -47,14 +47,17 @@ private protocol PostInitCommand {
 private struct ResetDefaults: PreInitCommand {
   static func perform(with environment: [String: String]) {
     guard let name = Bundle.main.bundleIdentifier, environment["RESET_DEFAULTS"] != nil else { return }
-    UserDefaults.standard.removePersistentDomain(forName: name)
+    let defaults = UserDefaults.standard
+    defaults.removePersistentDomain(forName: name)
   }
 }
 
-private struct PreventOnboarding: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
-    guard environment["ENABLE_ONBOARDING"] != nil else { return }
-    services.launchService.markAsLaunched()
+private struct PreventOnboarding: PreInitCommand {
+  static func perform(with environment: [String: String]) {
+    guard environment["ENABLE_ONBOARDING"] == nil else { return }
+    let defaults = UserDefaults.standard
+    defaults.set(YearsService.current, forKey: LaunchService.latestFosdemYearKey)
+    defaults.set(Bundle.main.bundleShortVersion, forKey: LaunchService.latestBundleShortVersionKey)
   }
 }
 

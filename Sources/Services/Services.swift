@@ -24,7 +24,7 @@ class Services {
   }()
 
   #if DEBUG
-  lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
+  lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
   #else
   private(set) lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
   #endif
@@ -38,7 +38,7 @@ class Services {
   private let _persistenceService: PersistenceService
 
   init() throws {
-    launchService = LaunchService(fosdemYear: yearsService.current)
+    launchService = LaunchService(fosdemYear: YearsService.current)
     try launchService.detectStatus()
 
     if launchService.didLaunchAfterFosdemYearChange {

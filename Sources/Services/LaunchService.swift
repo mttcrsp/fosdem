@@ -5,6 +5,9 @@ final class LaunchService {
     case versionDetectionFailed
   }
 
+  static let latestFosdemYearKey = "LATEST_FOSDEM_YEAR"
+  static let latestBundleShortVersionKey = "LATEST_BUNDLE_SHORT_VERSION"
+
   private(set) var didLaunchAfterUpdate = false
   private(set) var didLaunchAfterInstall = false
   private(set) var didLaunchAfterFosdemYearChange = false
@@ -52,19 +55,14 @@ final class LaunchService {
 
 extension LaunchServiceDefaults {
   var latestFosdemYear: Int? {
-    get { string(forKey: .latestFosdemYearKey).flatMap { string in Int(string) } }
-    set { set(newValue?.description, forKey: .latestFosdemYearKey) }
+    get { string(forKey: LaunchService.latestFosdemYearKey).flatMap { string in Int(string) } }
+    set { set(newValue?.description, forKey: LaunchService.latestFosdemYearKey) }
   }
 
   var latestBundleShortVersion: String? {
-    get { string(forKey: .latestBundleShortVersionKey) }
-    set { set(newValue, forKey: .latestBundleShortVersionKey) }
+    get { string(forKey: LaunchService.latestBundleShortVersionKey) }
+    set { set(newValue, forKey: LaunchService.latestBundleShortVersionKey) }
   }
-}
-
-private extension String {
-  static var latestFosdemYearKey: String { "LATEST_FOSDEM_YEAR" }
-  static var latestBundleShortVersionKey: String { "LATEST_BUNDLE_SHORT_VERSION" }
 }
 
 /// @mockable

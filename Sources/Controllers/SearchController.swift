@@ -420,7 +420,7 @@ private extension SearchController {
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    WelcomeViewController(year: dependencies.yearsService.current)
+    WelcomeViewController(year: type(of: dependencies.yearsService).current)
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {

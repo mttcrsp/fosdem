@@ -137,7 +137,7 @@ private extension ApplicationController {
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    let welcomeViewController = WelcomeViewController(year: dependencies.yearsService.current)
+    let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsService).current)
     welcomeViewController.showsContinue = true
     welcomeViewController.delegate = self
     return welcomeViewController
