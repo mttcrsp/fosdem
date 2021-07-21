@@ -2,11 +2,7 @@ import AVKit
 import SafariServices
 
 final class EventController: UIPageViewController {
-  #if DEBUG
-  typealias Dependencies = HasFavoritesService & HasPlaybackService & HasDebugService
-  #else
-  typealias Dependencies = HasFavoritesService & HasPlaybackService
-  #endif
+  typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService
 
   var showsFavoriteButton = true {
     didSet { didChangeShowsFavoriteButton() }
@@ -67,27 +63,15 @@ final class EventController: UIPageViewController {
   }
 
   private var favoriteTitle: String {
-    isEventFavorite
-      ? L10n.Event.remove
-      : L10n.Event.add
+    isEventFavorite ? L10n.Event.remove : L10n.Event.add
   }
 
   private var favoriteAccessibilityIdentifier: String {
-    isEventFavorite
-      ? "unfavorite"
-      : "favorite"
-  }
-
-  private var now: Date {
-    #if DEBUG
-    return dependencies.debugService.now
-    #else
-    return Date()
-    #endif
+    isEventFavorite ? "unfavorite" : "favorite"
   }
 
   private var isEventToday: Bool {
-    event.isSameDay(as: now)
+    event.isSameDay(as: dependencies.timeService.now)
   }
 
   private var hasLivestream: Bool {

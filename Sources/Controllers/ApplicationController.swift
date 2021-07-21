@@ -1,7 +1,7 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasLaunchService & HasLiveService & HasUpdateService & HasScheduleService & HasYearsService
+  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService
 
   private weak var tabsController: UITabBarController?
 
@@ -69,12 +69,12 @@ final class ApplicationController: UIViewController {
   }
 
   func applicationDidBecomeActive() {
-    dependencies.liveService.startMonitoring()
+    dependencies.timeService.startMonitoring()
     dependencies.scheduleService?.startUpdating()
   }
 
   func applicationWillResignActive() {
-    dependencies.liveService.stopMonitoring()
+    dependencies.timeService.stopMonitoring()
   }
 
   @objc private func didSelectPrevTab() {

@@ -84,14 +84,14 @@ private struct SetFavoriteTracks: TestsServicePostInitCommand {
 private struct OverrideDate: TestsServicePostInitCommand {
   static func perform(with services: Services, environment: [String: String]) {
     guard let value = environment["SOON_DATE"], let interval = Double(value) else { return }
-    services.debugService.override(Date(timeIntervalSince1970: interval))
+    services.timeService.now = Date(timeIntervalSince1970: interval)
   }
 }
 
 private struct SetLiveTimerInterval: TestsServicePostInitCommand {
   static func perform(with services: Services, environment: [String: String]) {
     guard let value = environment["LIVE_INTERVAL"], let interval = TimeInterval(value) else { return }
-    services.liveService = LiveService(timeInterval: interval)
+    services.timeService = TimeService(timeInterval: interval)
   }
 }
 
@@ -108,7 +108,7 @@ private struct OverrideDates: TestsServicePostInitCommand {
 
     var flag = true
     timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
-      services.debugService.override(flag ? date1 : date2)
+      services.timeService.now = flag ? date1 : date2
       flag.toggle()
     }
   }

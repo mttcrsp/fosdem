@@ -1,11 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  #if DEBUG
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasLiveService & HasDebugService
-  #else
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasLiveService
-  #endif
+  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -37,14 +33,6 @@ final class AgendaController: UIViewController {
     eventViewController == nil
   }
 
-  private var now: Date {
-    #if DEBUG
-    return dependencies.debugService.now
-    #else
-    return Date()
-    #endif
-  }
-
   func popToRootViewController() {
     if traitCollection.horizontalSizeClass == .compact {
       agendaViewController?.navigationController?.popToRootViewController(animated: true)
@@ -59,7 +47,7 @@ final class AgendaController: UIViewController {
       dependencies.favoritesService.addObserverForEvents { [weak self] identifier in
         self?.reloadFavoriteEvents(forUpdateToEventWithIdentifier: identifier)
       },
-      dependencies.liveService.addObserver { [weak self] in
+      dependencies.timeService.addObserver { [weak self] in
         self?.reloadLiveStatus()
       },
     ]
@@ -132,7 +120,7 @@ final class AgendaController: UIViewController {
   }
 
   @objc private func didTapSoon() {
-    let operation = EventsStartingIn30Minutes(now: now)
+    let operation = EventsStartingIn30Minutes(now: dependencies.timeService.now)
     dependencies.persistenceService.performRead(operation) { result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
@@ -246,7 +234,7 @@ extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewC
 
 extension AgendaController: EventsViewControllerLiveDataSource {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: now)
+    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeService.now)
   }
 }
 

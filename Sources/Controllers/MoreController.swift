@@ -1,11 +1,7 @@
 import UIKit
 
 final class MoreController: UISplitViewController {
-  #if DEBUG
-  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasDebugService
-  #else
-  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService
-  #endif
+  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasTimeService
 
   private weak var moreViewController: MoreViewController?
 
@@ -76,7 +72,7 @@ extension MoreController: MoreViewControllerDelegate {
       showDetailInfoViewController(for: item)
     #if DEBUG
     case .time:
-      let date = dependencies.debugService.now
+      let date = dependencies.timeService.now
       let dateViewController = makeDateViewController(for: date)
       moreViewController.present(dateViewController, animated: true)
     #endif
@@ -253,8 +249,7 @@ extension MoreController {
 #if DEBUG
 extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
   func dateViewControllerDidChange(_ dateViewController: DateViewController) {
-    let date = dateViewController.date
-    dependencies.debugService.override(date)
+    dependencies.timeService.now = dateViewController.date
   }
 }
 #endif

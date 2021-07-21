@@ -2,26 +2,26 @@
 import Fosdem
 import XCTest
 
-final class LiveServiceTests: XCTestCase {
+final class TimeServiceTests: XCTestCase {
   func testAddObserver() {
-    var block: ((LiveServiceTimer) -> Void)?
+    var block: ((TimeServiceTimer) -> Void)?
 
-    let timer = LiveServiceTimerMock()
+    let timer = TimeServiceTimerMock()
     timer.invalidateHandler = {
       block = nil
     }
 
-    let timerProvider = LiveServiceProviderMock()
+    let timerProvider = TimeServiceProviderMock()
     timerProvider.scheduledTimerHandler = { _, _, receivedBlock in
       block = receivedBlock
       return timer
     }
 
-    let liveService = LiveService(timerProvider: timerProvider)
-    liveService.startMonitoring()
+    let timeService = TimeService(timerProvider: timerProvider)
+    timeService.startMonitoring()
 
     var invocationsCount = 0
-    _ = liveService.addObserver {
+    _ = timeService.addObserver {
       invocationsCount += 1
     }
 
@@ -33,35 +33,35 @@ final class LiveServiceTests: XCTestCase {
   }
 
   func testMonitoring() {
-    var block: ((LiveServiceTimer) -> Void)?
+    var block: ((TimeServiceTimer) -> Void)?
 
-    let timer = LiveServiceTimerMock()
+    let timer = TimeServiceTimerMock()
     timer.invalidateHandler = {
       block = nil
     }
 
-    let timerProvider = LiveServiceProviderMock()
+    let timerProvider = TimeServiceProviderMock()
     timerProvider.scheduledTimerHandler = { _, _, receivedBlock in
       block = receivedBlock
       return timer
     }
 
-    let liveService = LiveService(timerProvider: timerProvider)
+    let timeService = TimeService(timerProvider: timerProvider)
 
     var invocationsCount = 0
-    _ = liveService.addObserver {
+    _ = timeService.addObserver {
       invocationsCount += 1
     }
 
-    liveService.startMonitoring()
+    timeService.startMonitoring()
     block?(timer)
     XCTAssertEqual(invocationsCount, 1)
 
-    liveService.stopMonitoring()
+    timeService.stopMonitoring()
     block?(timer)
     XCTAssertEqual(invocationsCount, 1)
 
-    liveService.startMonitoring()
+    timeService.startMonitoring()
     block?(timer)
     XCTAssertEqual(invocationsCount, 2)
   }

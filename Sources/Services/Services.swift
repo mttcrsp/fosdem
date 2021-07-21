@@ -30,13 +30,9 @@ class Services {
   #endif
 
   #if DEBUG
-  lazy var liveService: LiveServiceProtocol = LiveService()
+  lazy var timeService: TimeServiceProtocol = TimeService()
   #else
-  private(set) lazy var liveService: LiveServiceProtocol = LiveService()
-  #endif
-
-  #if DEBUG
-  let debugService = DebugService()
+  private(set) lazy var timeService: TimeServiceProtocol = TimeService()
   #endif
 
   private let _persistenceService: PersistenceService
@@ -79,8 +75,8 @@ extension BundleService: InfoServiceBundle {}
 protocol HasInfoService { var infoService: InfoServiceProtocol { get } }
 extension Services: HasInfoService {}
 
-protocol HasLiveService { var liveService: LiveServiceProtocol { get } }
-extension Services: HasLiveService {}
+protocol HasTimeService { var timeService: TimeServiceProtocol { get } }
+extension Services: HasTimeService {}
 
 protocol HasYearsService { var yearsService: YearsServiceProtocol { get } }
 extension Services: HasYearsService {}
@@ -121,10 +117,3 @@ extension Services: HasPersistenceService {
     _persistenceService
   }
 }
-
-#if DEBUG
-
-protocol HasDebugService { var debugService: DebugService { get } }
-extension Services: HasDebugService {}
-
-#endif
