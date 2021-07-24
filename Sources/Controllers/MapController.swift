@@ -13,6 +13,7 @@ final class MapController: MapContainerViewController {
   private var transition: FullscreenBlueprintsDismissalTransition?
   private var observer: NSObjectProtocol?
 
+  private let notificationCenter = NotificationCenter.default
   private let locationManager = CLLocationManager()
 
   private let dependencies: Dependencies
@@ -61,10 +62,6 @@ final class MapController: MapContainerViewController {
         }
       }
     }
-  }
-
-  private var notificationCenter: NotificationCenter {
-    .default
   }
 
   private var authorizationStatus: CLAuthorizationStatus {
