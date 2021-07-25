@@ -5,6 +5,7 @@ final class TestsService {
   private let preInitCommands: [PreInitCommand.Type] = [
     ResetDefaults.self,
     PreventOnboarding.self,
+    SpeedUpAnimations.self,
   ]
 
   private let postInitCommands: [PostInitCommand.Type] = [
@@ -58,6 +59,14 @@ private struct PreventOnboarding: PreInitCommand {
     let defaults = UserDefaults.standard
     defaults.set(YearsService.current, forKey: LaunchService.latestFosdemYearKey)
     defaults.set(Bundle.main.bundleShortVersion, forKey: LaunchService.latestBundleShortVersionKey)
+  }
+}
+
+private struct SpeedUpAnimations: PreInitCommand {
+  static func perform(with _: [String: String]) {
+    for window in UIApplication.shared.windows {
+      window.layer.speed = 100
+    }
   }
 }
 

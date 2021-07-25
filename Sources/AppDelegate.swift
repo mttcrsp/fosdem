@@ -32,12 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window.makeKeyAndVisible()
     self.window = window
 
-    #if DEBUG
-    if ProcessInfo.processInfo.isRunningUITests {
-      window.layer.speed = 100
-    }
-    #endif
-
     return true
   }
 
