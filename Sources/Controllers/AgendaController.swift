@@ -1,7 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService
+  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService & HasSoonService
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -120,8 +120,7 @@ final class AgendaController: UIViewController {
   }
 
   @objc private func didTapSoon() {
-    let operation = EventsStartingIn30Minutes(now: dependencies.timeService.now)
-    dependencies.persistenceService.performRead(operation) { result in
+    dependencies.soonService.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 

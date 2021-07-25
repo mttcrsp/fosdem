@@ -4,8 +4,8 @@ class Services {
   let launchService: LaunchServiceProtocol
 
   let bundleService = BundleService()
-  let playbackService: PlaybackServiceProtocol = PlaybackService()
   let yearsService: YearsServiceProtocol = YearsService()
+  let playbackService: PlaybackServiceProtocol = PlaybackService()
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
 
@@ -13,6 +13,7 @@ class Services {
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
   private(set) lazy var updateService: UpdateServiceProtocol = UpdateService(networkService: networkService)
   private(set) lazy var buildingsService: BuildingsServiceProtocol = BuildingsService(bundleService: bundleService)
+  private(set) lazy var soonService: SoonServiceProtocol = SoonService(timeService: timeService, persistenceService: _persistenceService)
   private(set) lazy var videosService: VideosServiceProtocol = VideosService(playbackService: playbackService, persistenceService: _persistenceService)
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
 
@@ -74,6 +75,9 @@ extension BundleService: InfoServiceBundle {}
 
 protocol HasInfoService { var infoService: InfoServiceProtocol { get } }
 extension Services: HasInfoService {}
+
+protocol HasSoonService { var soonService: SoonServiceProtocol { get } }
+extension Services: HasSoonService {}
 
 protocol HasTimeService { var timeService: TimeServiceProtocol { get } }
 extension Services: HasTimeService {}
