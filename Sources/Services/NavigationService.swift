@@ -100,6 +100,12 @@ extension NavigationService {
   }
 }
 
+extension NavigationService {
+  func makeTransportationViewController() -> UIViewController {
+    TransportationController(dependencies: services)
+  }
+}
+
 /// @mockable
 protocol NavigationServiceProtocol {
   func makeSearchViewController() -> UIViewController
@@ -110,6 +116,7 @@ protocol NavigationServiceProtocol {
   func makeEventViewController(for event: Event) -> UIViewController
   func makePastEventViewController(for event: Event) -> UIViewController
 
+  func makeTransportationViewController() -> UIViewController
   func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeYearsViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
