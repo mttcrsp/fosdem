@@ -147,7 +147,7 @@ extension MoreController: MoreViewControllerDelegate {
 }
 
 extension MoreController: TransportationViewControllerDelegate {
-  func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item) {
+  func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationItem) {
     switch item {
     case .appleMaps:
       UIApplication.shared.open(.ulbAppleMaps) { [weak transportationViewController] _ in

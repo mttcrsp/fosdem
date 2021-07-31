@@ -1,19 +1,22 @@
 import UIKit
 
+enum TransportationItem: String {
+  case appleMaps, googleMaps
+  case bus, shuttle, train, car, plane, taxi
+}
+
+enum TransportationSection: CaseIterable {
+  case directions, by
+}
+
 /// @mockable
 protocol TransportationViewControllerDelegate: AnyObject {
-  func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationViewController.Item)
+  func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationItem)
 }
 
 final class TransportationViewController: UITableViewController {
-  enum Item: String {
-    case appleMaps, googleMaps
-    case bus, shuttle, train, car, plane, taxi
-  }
-
-  enum Section: CaseIterable {
-    case directions, by
-  }
+  private typealias Item = TransportationItem
+  private typealias Section = TransportationSection
 
   weak var delegate: TransportationViewControllerDelegate?
 
@@ -54,7 +57,7 @@ final class TransportationViewController: UITableViewController {
 }
 
 private extension UITableViewCell {
-  func configure(with item: TransportationViewController.Item) {
+  func configure(with item: TransportationItem) {
     textLabel?.text = item.title
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     accessibilityIdentifier = item.accessibilityIdentifier
@@ -62,7 +65,7 @@ private extension UITableViewCell {
   }
 }
 
-private extension TransportationViewController.Section {
+private extension TransportationSection {
   var title: String {
     switch self {
     case .directions:
@@ -72,7 +75,7 @@ private extension TransportationViewController.Section {
     }
   }
 
-  var items: [TransportationViewController.Item] {
+  var items: [TransportationItem] {
     switch self {
     case .directions: return [.appleMaps, .googleMaps]
     case .by: return [.bus, .shuttle, .train, .car, .plane, .taxi]
@@ -80,7 +83,7 @@ private extension TransportationViewController.Section {
   }
 }
 
-extension TransportationViewController.Item {
+extension TransportationItem {
   var title: String {
     switch self {
     case .googleMaps:
@@ -122,7 +125,7 @@ extension TransportationViewController.Item {
   }
 }
 
-private extension TransportationViewController.Item {
+private extension TransportationItem {
   var accessoryType: UITableViewCell.AccessoryType {
     switch self {
     case .bus, .shuttle, .train, .car, .plane, .taxi:
