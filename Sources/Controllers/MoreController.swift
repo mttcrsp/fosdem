@@ -158,38 +158,28 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
     dependencies.yearsService.loadURL(forYear: year) { [weak self, weak yearsViewController] url in
       guard let self = self, let yearsViewController = yearsViewController else { return }
 
-      guard let url = url else {
-        return self.presentYearErrorViewController(from: yearsViewController)
+      guard let url = url, let persistenceService = try? PersistenceService(path: url.path, migrations: .allMigrations) else {
+        return DispatchQueue.main.async { [weak self] in
+          self?.presentYearErrorViewController(from: yearsViewController)
+        }
       }
 
-      do {
-        let persistenceService = try PersistenceService(path: url.path, migrations: .allMigrations)
-        self.showYearViewController(forYear: year, with: persistenceService, from: yearsViewController)
-      } catch {
-        assertionFailure(error.localizedDescription)
-        self.presentYearErrorViewController(from: yearsViewController)
+      DispatchQueue.main.async { [weak self] in
+        self?.showYearViewController(forYear: year, with: persistenceService, from: yearsViewController)
       }
     }
   }
 
   private func presentYearErrorViewController(from yearsViewController: YearsViewController) {
-    DispatchQueue.main.async { [weak self, weak yearsViewController] in
-      guard let self = self else { return }
-
-      let errorViewController = self.makeErrorViewController()
-      yearsViewController?.present(errorViewController, animated: true)
-    }
+    let errorViewController = makeErrorViewController()
+    yearsViewController.present(errorViewController, animated: true)
   }
 
   private func showYearViewController(forYear year: String, with persistenceService: PersistenceService, from yearsViewController: YearsViewController) {
-    DispatchQueue.main.async { [weak self, weak yearsViewController] in
-      guard let self = self else { return }
-
-      let yearViewController = self.makeYearViewController(forYear: year, with: persistenceService, didError: { [weak self] _, _ in
-        self?.moreViewControllerDidFailPresentation()
-      })
-      yearsViewController?.show(yearViewController, sender: nil)
-    }
+    let yearViewController = makeYearViewController(forYear: year, with: persistenceService, didError: { [weak self] _, _ in
+      self?.moreViewControllerDidFailPresentation()
+    })
+    yearsViewController.show(yearViewController, sender: nil)
   }
 }
 
