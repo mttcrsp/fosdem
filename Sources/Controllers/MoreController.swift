@@ -1,7 +1,7 @@
 import UIKit
 
 final class MoreController: UISplitViewController {
-  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasInfoService & HasTimeService
+  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasTimeService
 
   private weak var moreViewController: MoreViewController?
 
@@ -92,7 +92,10 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidSelectVideo(_ moreViewController: MoreViewController) {
-    let videosViewController = makeVideosViewController()
+    let videosViewController = makeVideosViewController(didError: { [weak self] _, _ in
+      self?.moreViewControllerDidFailPresentation()
+    })
+
     let navigationController = UINavigationController(rootViewController: videosViewController)
     moreViewController.showDetailViewController(navigationController, sender: nil)
   }
@@ -124,22 +127,22 @@ extension MoreController: MoreViewControllerDelegate {
     showDetailViewController(navigationController)
   }
 
+  private func moreViewControllerDidFailPresentation() {
+    popToRootViewController()
+    moreViewController?.present(makeErrorViewController(), animated: true)
+  }
+
   private func showDetailInfoViewController(for item: MoreItem) {
     guard let info = item.info else {
       return assertionFailure("Failed to determine info model for more item '\(item)'")
     }
 
-    makeInfoViewController(withTitle: item.title, for: info) { [weak self, weak moreViewController] infoViewController in
-      guard let self = self else { return }
+    let infoViewController = makeInfoViewController(withTitle: item.title, info: info, didError: { [weak self] _, _ in
+      self?.moreViewControllerDidFailPresentation()
+    })
 
-      if let infoViewController = infoViewController {
-        let navigationController = UINavigationController(rootViewController: infoViewController)
-        self.showDetailViewController(navigationController)
-      } else {
-        let errorViewController = self.makeErrorViewController()
-        moreViewController?.present(errorViewController, animated: true)
-      }
-    }
+    let navigationController = UINavigationController(rootViewController: infoViewController)
+    showDetailViewController(navigationController)
   }
 }
 
@@ -159,17 +162,17 @@ extension MoreController: TransportationViewControllerDelegate {
         return assertionFailure("Failed to determine info model for transportation item '\(item)'")
       }
 
-      makeInfoViewController(withTitle: item.title, for: info) { [weak self, weak transportationViewController] infoViewController in
-        guard let self = self else { return }
-
-        if let infoViewController = infoViewController {
-          transportationViewController?.show(infoViewController, sender: nil)
-        } else {
-          let errorViewController = self.makeErrorViewController()
-          transportationViewController?.present(errorViewController, animated: true)
-        }
-      }
+      let infoViewController = makeInfoViewController(withTitle: item.title, info: info, didError: { [weak self] _, _ in
+        self?.transportationViewControllerDidFailPresentation(transportationViewController)
+      })
+      transportationViewController.show(infoViewController, sender: nil)
     }
+  }
+
+  func transportationViewControllerDidFailPresentation(_ transportationViewController: TransportationViewController) {
+    let errorViewController = makeErrorViewController()
+    transportationViewController.navigationController?.popViewController(animated: true)
+    transportationViewController.present(errorViewController, animated: true)
   }
 }
 
@@ -213,19 +216,11 @@ extension MoreController: YearsViewControllerDataSource, YearsViewControllerDele
     DispatchQueue.main.async { [weak self, weak yearsViewController] in
       guard let self = self else { return }
 
-      let yearViewController = self.makeYearViewController(forYear: year, with: persistenceService)
+      let yearViewController = self.makeYearViewController(forYear: year, with: persistenceService, didError: { [weak self] _, _ in
+        self?.moreViewControllerDidFailPresentation()
+      })
       yearsViewController?.show(yearViewController, sender: nil)
     }
-  }
-}
-
-extension MoreController {
-  func yearController(_ yearController: UIViewController, didError _: Error) {
-    let navigationController = yearController.navigationController
-    navigationController?.popViewController(animated: true)
-
-    let errorViewController = makeErrorViewController()
-    present(errorViewController, animated: true)
   }
 }
 
@@ -234,15 +229,6 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
     UIApplication.shared.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
       acknowledgementsViewController?.deselectSelectedRow(animated: true)
     }
-  }
-}
-
-extension MoreController {
-  func videosController(_ videosController: UIViewController, didError _: Error) {
-    let errorViewController = makeErrorViewController { [weak self] in
-      self?.popToRootViewController()
-    }
-    videosController.present(errorViewController, animated: true)
   }
 }
 
@@ -271,22 +257,6 @@ private extension MoreController {
     return moreViewController
   }
 
-  private func makeInfoViewController(withTitle title: String, for info: Info, completion: @escaping (TextViewController?) -> Void) {
-    dependencies.infoService.loadAttributedText(for: info) { attributedText in
-      DispatchQueue.main.async {
-        if let attributedText = attributedText {
-          let textViewController = TextViewController()
-          textViewController.accessibilityIdentifier = info.accessibilityIdentifier
-          textViewController.attributedText = attributedText
-          textViewController.title = title
-          completion(textViewController)
-        } else {
-          completion(nil)
-        }
-      }
-    }
-  }
-
   func makeYearsViewController() -> YearsViewController {
     let yearsViewController = YearsViewController(style: preferredDetailViewControllerStyle)
     yearsViewController.title = L10n.Years.title
@@ -310,16 +280,16 @@ private extension MoreController {
     return acknowledgementsViewController
   }
 
-  func makeYearViewController(forYear year: String, with persistenceService: PersistenceService) -> UIViewController {
-    dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: { [weak self] viewController, error in
-      self?.yearController(viewController, didError: error)
-    })
+  private func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
+    dependencies.navigationService.makeVideosViewController(didError: didError)
   }
 
-  private func makeVideosViewController() -> UIViewController {
-    dependencies.navigationService.makeVideosViewController(didError: { [weak self] viewController, error in
-      self?.videosController(viewController, didError: error)
-    })
+  private func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
+    dependencies.navigationService.makeInfoViewController(withTitle: title, info: info, didError: didError)
+  }
+
+  func makeYearViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
+    dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: didError)
   }
 
   private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {

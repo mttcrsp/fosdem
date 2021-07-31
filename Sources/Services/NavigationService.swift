@@ -90,6 +90,16 @@ extension NavigationService {
   }
 }
 
+extension NavigationService {
+  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping ErrorHandler) -> UIViewController {
+    let infoController = InfoController(info: info, dependencies: services)
+    infoController.accessibilityIdentifier = info.accessibilityIdentifier
+    infoController.didError = didError
+    infoController.title = title
+    return infoController
+  }
+}
+
 /// @mockable
 protocol NavigationServiceProtocol {
   func makeSearchViewController() -> UIViewController
@@ -101,6 +111,7 @@ protocol NavigationServiceProtocol {
   func makePastEventViewController(for event: Event) -> UIViewController
 
   func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeYearsViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
 }
 

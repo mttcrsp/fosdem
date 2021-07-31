@@ -1,6 +1,6 @@
 import UIKit
 
-final class TextViewController: UIViewController {
+class TextViewController: UIViewController {
   var attributedText: NSAttributedString? {
     get { textView.attributedText }
     set { textView.attributedText = newValue }
