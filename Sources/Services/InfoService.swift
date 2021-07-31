@@ -15,7 +15,7 @@ final class InfoService {
     self.queue = queue
   }
 
-  func loadAttributedText(for info: Info, completion: @escaping (NSAttributedString?) -> Void) {
+  func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Error>) -> Void) {
     queue.async { [weak self] in
       do {
         guard let self = self else { return }
@@ -55,10 +55,9 @@ final class InfoService {
           attributedText.addAttribute(.font, value: bodyFont, range: range)
         }
 
-        completion(attributedText)
+        completion(.success(attributedText))
       } catch {
-        assertionFailure(error.localizedDescription)
-        completion(nil)
+        completion(.failure(error))
       }
     }
   }
@@ -110,7 +109,7 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
 
 /// @mockable
 protocol InfoServiceProtocol {
-  func loadAttributedText(for info: Info, completion: @escaping (NSAttributedString?) -> Void)
+  func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Error>) -> Void)
 }
 
 extension InfoService: InfoServiceProtocol {}

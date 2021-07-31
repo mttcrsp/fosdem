@@ -13,8 +13,8 @@ final class InfoServiceTests: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     let service = InfoService(queue: .main, bundleService: bundle)
-    service.loadAttributedText(for: .bus) { attributedText in
-      guard let attributedText = attributedText else {
+    service.loadAttributedText(for: .bus) { result in
+      guard case let .success(attributedText) = result else {
         return XCTFail("Unexpectedly returned nil while loading attributed text")
       }
 
