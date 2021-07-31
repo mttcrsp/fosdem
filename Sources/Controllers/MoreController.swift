@@ -35,7 +35,7 @@ final class MoreController: UISplitViewController {
 
     viewControllers = [moreNavigationController]
     if traitCollection.horizontalSizeClass == .regular {
-      showDetailInfoViewController(for: .history)
+      self.moreViewController(moreViewController, didSelectInfoItem: .history)
     }
   }
 
@@ -44,7 +44,9 @@ final class MoreController: UISplitViewController {
 
     if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
       if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
-        showDetailInfoViewController(for: .history)
+        if let moreViewController = moreViewController {
+          self.moreViewController(moreViewController, didSelectInfoItem: .history)
+        }
       }
     }
   }
@@ -69,7 +71,7 @@ extension MoreController: MoreViewControllerDelegate {
     case .acknowledgements:
       moreViewControllerDidSelectAcknowledgements(moreViewController)
     case .history, .legal, .devrooms:
-      showDetailInfoViewController(for: item)
+      self.moreViewController(moreViewController, didSelectInfoItem: item)
     #if DEBUG
     case .time:
       let date = dependencies.timeService.now
@@ -126,12 +128,7 @@ extension MoreController: MoreViewControllerDelegate {
     showDetailViewController(transportationViewController)
   }
 
-  private func moreViewControllerDidFailPresentation() {
-    popToRootViewController()
-    moreViewController?.present(makeErrorViewController(), animated: true)
-  }
-
-  private func showDetailInfoViewController(for item: MoreItem) {
+  private func moreViewController(_: MoreViewController, didSelectInfoItem item: MoreItem) {
     guard let info = item.info else {
       return assertionFailure("Failed to determine info model for more item '\(item)'")
     }
@@ -142,6 +139,11 @@ extension MoreController: MoreViewControllerDelegate {
 
     let navigationController = UINavigationController(rootViewController: infoViewController)
     showDetailViewController(navigationController)
+  }
+
+  private func moreViewControllerDidFailPresentation() {
+    popToRootViewController()
+    moreViewController?.present(makeErrorViewController(), animated: true)
   }
 }
 
