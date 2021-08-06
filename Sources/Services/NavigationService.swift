@@ -103,10 +103,13 @@ extension NavigationService {
 extension NavigationService {
   func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping ErrorHandler) -> UIViewController {
     let infoController = InfoController(info: info, dependencies: services)
-    infoController.accessibilityIdentifier = info.accessibilityIdentifier
+    let infoViewController = infoController.makeInfoViewController()
+    infoViewController.fos_controller = infoController
+    infoViewController.accessibilityIdentifier = info.accessibilityIdentifier
+    infoViewController.title = title
     infoController.didError = didError
-    infoController.title = title
-    return infoController
+    infoController.loadInfo()
+    return infoViewController
   }
 }
 

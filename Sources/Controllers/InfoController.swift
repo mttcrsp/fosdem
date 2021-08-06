@@ -1,9 +1,11 @@
 import UIKit
 
-final class InfoController: TextViewController {
+final class InfoController {
   typealias Dependencies = HasInfoService
 
-  var didError: ((InfoController, Error) -> Void)?
+  var didError: ((UIViewController, Error) -> Void)?
+
+  private weak var infoViewController: TextViewController?
 
   private let dependencies: Dependencies
   private let info: Info
@@ -11,7 +13,6 @@ final class InfoController: TextViewController {
   init(info: Info, dependencies: Dependencies) {
     self.info = info
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
   }
 
   @available(*, unavailable)
@@ -19,20 +20,24 @@ final class InfoController: TextViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
+  func loadInfo() {
     dependencies.infoService.loadAttributedText(for: info) { result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        guard let self = self, let infoViewController = self.infoViewController else { return }
 
         switch result {
         case let .success(attributedText):
-          self.attributedText = attributedText
+          infoViewController.attributedText = attributedText
         case let .failure(error):
-          self.didError?(self, error)
+          self.didError?(infoViewController, error)
         }
       }
     }
+  }
+
+  func makeInfoViewController() -> TextViewController {
+    let infoViewController = TextViewController()
+    self.infoViewController = infoViewController
+    return infoViewController
   }
 }
