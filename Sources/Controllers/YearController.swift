@@ -1,12 +1,13 @@
 import UIKit
 
-final class YearController: TracksViewController {
+final class YearController: NSObject {
   typealias Dependencies = HasNavigationService
 
-  var didError: ((YearController, Error) -> Void)?
+  var didError: ((UIViewController, Error) -> Void)?
 
   private(set) weak var resultsViewController: EventsViewController?
   private weak var eventsViewController: EventsViewController?
+  private weak var yearViewController: TracksViewController?
   private var searchController: UISearchController?
 
   private var tracks: [Track] = []
@@ -22,7 +23,7 @@ final class YearController: TracksViewController {
     self.year = year
     self.dependencies = dependencies
     persistenceService = yearPersistenceService
-    super.init(nibName: nil, bundle: nil)
+    super.init()
   }
 
   @available(*, unavailable)
@@ -30,18 +31,7 @@ final class YearController: TracksViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    #if !targetEnvironment(macCatalyst)
-    view.backgroundColor = .groupTableViewBackground
-    #endif
-
-    delegate = self
-    dataSource = self
-    definesPresentationContext = true
-    addSearchViewController(makeSearchController())
-
+  func loadData() {
     persistenceService.performRead(AllTracksOrderedByName()) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
@@ -55,12 +45,14 @@ final class YearController: TracksViewController {
   }
 
   private func tracksLoadingDidError(with error: Error) {
-    didError?(self, error)
+    if let yearViewController = yearViewController {
+      didError?(yearViewController, error)
+    }
   }
 
   private func tracksLoadingDidFinish(with tracks: [Track]) {
     self.tracks = tracks
-    reloadData()
+    yearViewController?.reloadData()
   }
 }
 
@@ -95,8 +87,9 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
   }
 
   private func eventsLoadingDidError(with error: Error) {
-    assertionFailure(error.localizedDescription)
-    didError?(self, error)
+    if let yearViewController = yearViewController {
+      didError?(yearViewController, error)
+    }
   }
 
   private func eventsLoadingDidFinish(with events: [Event]) {
@@ -123,7 +116,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
 
   func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
     let eventViewController = makeEventViewController(for: event)
-    show(eventViewController, sender: nil)
+    yearViewController?.show(eventViewController, sender: nil)
 
     if viewController == resultsViewController {
       viewController.deselectSelectedRow(animated: true)
@@ -137,8 +130,23 @@ extension YearController: UISearchResultsUpdating, EventsSearchController {
   }
 }
 
-private extension YearController {
-  func makeSearchController() -> UISearchController {
+extension YearController {
+  func makeYearViewController() -> TracksViewController {
+    let yearViewController = TracksViewController()
+    self.yearViewController = yearViewController
+    yearViewController.addSearchViewController(makeSearchController())
+    yearViewController.definesPresentationContext = true
+    yearViewController.dataSource = self
+    yearViewController.delegate = self
+
+    #if !targetEnvironment(macCatalyst)
+    yearViewController.view.backgroundColor = .groupTableViewBackground
+    #endif
+
+    return yearViewController
+  }
+
+  private func makeSearchController() -> UISearchController {
     let searchController = UISearchController(searchResultsController: makeResultsViewController())
     searchController.searchBar.placeholder = L10n.More.Search.prompt
     searchController.searchResultsUpdater = self
@@ -146,7 +154,7 @@ private extension YearController {
     return searchController
   }
 
-  func makeResultsViewController() -> EventsViewController {
+  private func makeResultsViewController() -> EventsViewController {
     let resultsViewController = EventsViewController(style: .grouped)
     resultsViewController.dataSource = self
     resultsViewController.delegate = self
@@ -154,7 +162,7 @@ private extension YearController {
     return resultsViewController
   }
 
-  func makeEventsViewController(for track: Track) -> EventsViewController {
+  private func makeEventsViewController(for track: Track) -> EventsViewController {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.title = track.name
     eventsViewController.dataSource = self
