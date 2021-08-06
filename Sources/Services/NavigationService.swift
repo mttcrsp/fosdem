@@ -37,11 +37,14 @@ extension NavigationService {
 
   func makeMapViewController(didError: @escaping ErrorHandler) -> UIViewController {
     let mapController = MapController(dependencies: services)
-    mapController.tabBarItem.accessibilityIdentifier = "map"
-    mapController.tabBarItem.image = .fos_systemImage(withName: "map")
-    mapController.title = L10n.Map.title
     mapController.didError = didError
-    return mapController
+
+    let containerViewController = mapController.makeMapContainerViewController()
+    containerViewController.tabBarItem.accessibilityIdentifier = "map"
+    containerViewController.tabBarItem.image = .fos_systemImage(withName: "map")
+    containerViewController.fos_controller = mapController
+    containerViewController.title = L10n.Map.title
+    return containerViewController
   }
 
   func makeMoreViewController() -> UIViewController {

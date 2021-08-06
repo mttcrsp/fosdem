@@ -1,23 +1,23 @@
 import UIKit
 
-protocol MapContainerViewControllerDelegate: AnyObject {
-  func containerViewController(_ containerViewController: MapContainerViewController, rectFor detailViewController: UIViewController) -> CGRect
-  func containerViewController(_ containerViewController: MapContainerViewController, scrollDirectionFor detailViewController: UIViewController) -> MapContainerViewController.ScrollDirection
-  func containerViewController(_ containerViewController: MapContainerViewController, didShow detailViewController: UIViewController)
-  func containerViewController(_ containerViewController: MapContainerViewController, didHide detailViewController: UIViewController)
+protocol ContainerViewControllerDelegate: AnyObject {
+  func containerViewController(_ containerViewController: ContainerViewController, rectFor detailViewController: UIViewController) -> CGRect
+  func containerViewController(_ containerViewController: ContainerViewController, scrollDirectionFor detailViewController: UIViewController) -> ContainerViewController.ScrollDirection
+  func containerViewController(_ containerViewController: ContainerViewController, didShow detailViewController: UIViewController)
+  func containerViewController(_ containerViewController: ContainerViewController, didHide detailViewController: UIViewController)
 }
 
-extension MapContainerViewControllerDelegate {
-  func containerViewController(_: MapContainerViewController, didShow _: UIViewController) {}
-  func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {}
+extension ContainerViewControllerDelegate {
+  func containerViewController(_: ContainerViewController, didShow _: UIViewController) {}
+  func containerViewController(_: ContainerViewController, didHide _: UIViewController) {}
 }
 
-class MapContainerViewController: UIViewController {
+class ContainerViewController: UIViewController {
   enum ScrollDirection {
     case horizontal, vertical
   }
 
-  weak var containerDelegate: MapContainerViewControllerDelegate?
+  weak var containerDelegate: ContainerViewControllerDelegate?
 
   weak var masterViewController: UIViewController? {
     didSet { didChangeMasterViewController(from: oldValue, to: masterViewController) }
@@ -85,7 +85,7 @@ class MapContainerViewController: UIViewController {
     guard let detailViewController = detailViewController else { return }
 
     guard let delegate = containerDelegate else {
-      return assertionFailure("Unable to perform layout of the detail view controller for \(self) because no \(\MapContainerViewController.containerDelegate) was set.")
+      return assertionFailure("Unable to perform layout of the detail view controller for \(self) because no \(\ContainerViewController.containerDelegate) was set.")
     }
 
     let scrollDirection = delegate.containerViewController(self, scrollDirectionFor: detailViewController)
@@ -195,7 +195,7 @@ class MapContainerViewController: UIViewController {
   }
 }
 
-extension MapContainerViewController: UIScrollViewDelegate {
+extension ContainerViewController: UIScrollViewDelegate {
   func scrollViewWillEndDragging(_: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
     guard let detailViewController = detailViewController else { return }
 

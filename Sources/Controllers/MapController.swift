@@ -1,12 +1,15 @@
 import CoreLocation
 import UIKit
 
-final class MapController: MapContainerViewController {
+final class MapContainerViewController: ContainerViewController {}
+
+final class MapController: NSObject {
   typealias Dependencies = HasBuildingsService
 
-  var didError: ((MapController, Error) -> Void)?
+  var didError: ((UIViewController, Error) -> Void)?
 
   private weak var mapViewController: MapViewController?
+  private weak var mapContainerViewController: ContainerViewController?
   private weak var embeddedBlueprintsViewController: BlueprintsViewController?
   private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
 
@@ -15,12 +18,27 @@ final class MapController: MapContainerViewController {
 
   private let notificationCenter = NotificationCenter.default
   private let locationManager = CLLocationManager()
-
   private let dependencies: Dependencies
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
+    super.init()
+
+    locationManager.delegate = self
+
+    dependencies.buildingsService.loadBuildings { buildings, error in
+      DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
+
+        if let error = error {
+          if let mapContainerViewController = self.mapContainerViewController {
+            self.didError?(mapContainerViewController, error)
+          }
+        } else {
+          self.mapViewController?.buildings = buildings
+        }
+      }
+    }
 
     observer = notificationCenter.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
       self?.didChangeVoiceOverStatus()
@@ -38,32 +56,6 @@ final class MapController: MapContainerViewController {
     }
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    containerDelegate = self
-
-    let blueprintsViewController = makeEmbeddedBlueprintsViewController()
-    let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
-
-    masterViewController = makeMapViewController()
-    detailViewController = blueprintsNavigationController
-
-    locationManager.delegate = self
-
-    dependencies.buildingsService.loadBuildings { buildings, error in
-      DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
-
-        if let error = error {
-          self.didError?(self, error)
-        } else {
-          self.mapViewController?.buildings = buildings
-        }
-      }
-    }
-  }
-
   private var authorizationStatus: CLAuthorizationStatus {
     #if targetEnvironment(macCatalyst)
     return .denied
@@ -73,7 +65,7 @@ final class MapController: MapContainerViewController {
   }
 
   private func didChangeVoiceOverStatus() {
-    if isViewLoaded, UIAccessibility.isVoiceOverRunning {
+    if UIAccessibility.isVoiceOverRunning {
       mapViewController?.deselectSelectedAnnotation()
       mapViewController?.resetCamera(animated: true)
     }
@@ -86,22 +78,26 @@ final class MapController: MapContainerViewController {
   }
 }
 
-extension MapController: MapContainerViewControllerDelegate {
+extension MapController: ContainerViewControllerDelegate {
   private enum Layout {
     case pad, phonePortrait, phoneLandscape
   }
 
   private var preferredLayout: Layout {
-    if traitCollection.fos_hasRegularSizeClasses {
+    guard let mapContainerViewController = mapContainerViewController else {
+      return .phonePortrait
+    }
+
+    if mapContainerViewController.traitCollection.fos_hasRegularSizeClasses {
       return .pad
-    } else if view.bounds.height > view.bounds.width {
+    } else if mapContainerViewController.view.bounds.height > mapContainerViewController.view.bounds.width {
       return .phonePortrait
     } else {
       return .phoneLandscape
     }
   }
 
-  func containerViewController(_: MapContainerViewController, scrollDirectionFor _: UIViewController) -> MapContainerViewController.ScrollDirection {
+  func containerViewController(_: ContainerViewController, scrollDirectionFor _: UIViewController) -> ContainerViewController.ScrollDirection {
     switch preferredLayout {
     case .phonePortrait:
       return .vertical
@@ -110,7 +106,9 @@ extension MapController: MapContainerViewControllerDelegate {
     }
   }
 
-  func containerViewController(_: MapContainerViewController, rectFor _: UIViewController) -> CGRect {
+  func containerViewController(_ containerViewController: ContainerViewController, rectFor _: UIViewController) -> CGRect {
+    guard let view = containerViewController.view else { return .zero }
+
     var rect = CGRect()
     switch preferredLayout {
     case .pad:
@@ -131,7 +129,7 @@ extension MapController: MapContainerViewControllerDelegate {
     return rect
   }
 
-  func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {
+  func containerViewController(_: ContainerViewController, didHide _: UIViewController) {
     mapViewController?.deselectSelectedAnnotation()
   }
 }
@@ -139,9 +137,9 @@ extension MapController: MapContainerViewControllerDelegate {
 extension MapController: MapViewControllerDelegate {
   func mapViewController(_ mapViewController: MapViewController, didSelect building: Building) {
     embeddedBlueprintsViewController?.building = building
-    setDetailViewControllerVisible(true, animated: true)
+    mapContainerViewController?.setDetailViewControllerVisible(true, animated: true)
 
-    let detailSize = detailViewController?.view.frame.size ?? .zero
+    let detailSize = mapContainerViewController?.detailViewController?.view.frame.size ?? .zero
 
     var center = mapViewController.convertToMapPoint(building.coordinate)
     switch preferredLayout {
@@ -158,7 +156,7 @@ extension MapController: MapViewControllerDelegate {
   }
 
   func mapViewControllerDidDeselectBuilding(_: MapViewController) {
-    setDetailViewControllerVisible(false, animated: true)
+    mapContainerViewController?.setDetailViewControllerVisible(false, animated: true)
   }
 
   func mapViewControllerDidTapLocation(_ mapViewController: MapViewController) {
@@ -218,8 +216,20 @@ extension MapController: CLLocationManagerDelegate {
   }
 }
 
-private extension MapController {
-  func makeMapViewController() -> MapViewController {
+extension MapController {
+  func makeMapContainerViewController() -> ContainerViewController {
+    let blueprintsViewController = makeEmbeddedBlueprintsViewController()
+    let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
+
+    let containerViewController = ContainerViewController()
+    mapContainerViewController = containerViewController
+    containerViewController.containerDelegate = self
+    containerViewController.masterViewController = makeMapViewController()
+    containerViewController.detailViewController = blueprintsNavigationController
+    return containerViewController
+  }
+
+  private func makeMapViewController() -> MapViewController {
     let mapViewController = MapViewController()
     mapViewController.delegate = self
     mapViewController.setAuthorizationStatus(authorizationStatus)
@@ -227,14 +237,14 @@ private extension MapController {
     return mapViewController
   }
 
-  func makeEmbeddedBlueprintsViewController() -> BlueprintsViewController {
+  private func makeEmbeddedBlueprintsViewController() -> BlueprintsViewController {
     let blueprintsViewController = BlueprintsViewController(style: .embedded)
     blueprintsViewController.blueprintsDelegate = self
     embeddedBlueprintsViewController = blueprintsViewController
     return blueprintsViewController
   }
 
-  func makeFullscreeBlueprintsViewController(for building: Building, showing blueprint: Blueprint) -> BlueprintsViewController {
+  private func makeFullscreeBlueprintsViewController(for building: Building, showing blueprint: Blueprint) -> BlueprintsViewController {
     let blueprintsViewController = BlueprintsViewController(style: .fullscreen)
     blueprintsViewController.building = building
     blueprintsViewController.blueprintsDelegate = self
@@ -243,7 +253,7 @@ private extension MapController {
     return blueprintsViewController
   }
 
-  func makeActionViewController(for action: CLAuthorizationStatus.Action) -> UIAlertController {
+  private func makeActionViewController(for action: CLAuthorizationStatus.Action) -> UIAlertController {
     let dismissTitle = L10n.Location.dismiss
     let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
 
