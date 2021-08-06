@@ -115,7 +115,10 @@ extension NavigationService {
 
 extension NavigationService {
   func makeTransportationViewController() -> UIViewController {
-    TransportationController(dependencies: services)
+    let transportationController = TransportationController(dependencies: services)
+    let transportationViewController = transportationController.makeTransportationViewController()
+    transportationViewController.fos_controller = transportationController
+    return transportationViewController
   }
 }
 

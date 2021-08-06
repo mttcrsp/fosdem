@@ -1,27 +1,17 @@
 import UIKit
 
-final class TransportationController: UINavigationController {
+final class TransportationController {
   typealias Dependencies = HasNavigationService
 
   private let dependencies: Dependencies
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
-    viewControllers = [makeTransportationViewController()]
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  private var preferredDetailViewControllerStyle: UITableView.Style {
-    if traitCollection.userInterfaceIdiom == .pad {
-      return .fos_insetGrouped
-    } else {
-      return .grouped
-    }
   }
 }
 
@@ -55,15 +45,22 @@ extension TransportationController: TransportationViewControllerDelegate {
   }
 }
 
-private extension TransportationController {
-  func makeTransportationViewController() -> TransportationViewController {
-    let transportationViewController = TransportationViewController(style: preferredDetailViewControllerStyle)
+extension TransportationController {
+  func makeTransportationViewController() -> UINavigationController {
+    let style: UITableView.Style
+    if UIDevice.current.userInterfaceIdiom == .phone {
+      style = .grouped
+    } else {
+      style = .fos_insetGrouped
+    }
+
+    let transportationViewController = TransportationViewController(style: style)
     transportationViewController.title = L10n.Transportation.title
     transportationViewController.delegate = self
-    return transportationViewController
+    return UINavigationController(rootViewController: transportationViewController)
   }
 
-  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
+  private func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
     dependencies.navigationService.makeInfoViewController(withTitle: title, info: info, didError: didError)
   }
 
