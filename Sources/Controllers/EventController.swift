@@ -1,12 +1,8 @@
 import AVKit
 import SafariServices
 
-final class EventController: UIPageViewController {
+final class EventController: NSObject {
   typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService
-
-  var showsFavoriteButton = true {
-    didSet { didChangeShowsFavoriteButton() }
-  }
 
   private weak var videoViewController: AVPlayerViewController?
   private weak var eventViewController: EventViewController?
@@ -20,9 +16,9 @@ final class EventController: UIPageViewController {
   let event: Event
 
   init(event: Event, dependencies: Dependencies) {
-    self.event = event
     self.dependencies = dependencies
-    super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    self.event = event
+    super.init()
   }
 
   @available(*, unavailable)
@@ -77,24 +73,10 @@ final class EventController: UIPageViewController {
   private var hasLivestream: Bool {
     event.links.contains(where: \.isLivestream)
   }
+}
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    navigationItem.largeTitleDisplayMode = .never
-
-    let eventViewController = makeEventViewController(for: event)
-    setViewControllers([eventViewController], direction: .forward, animated: false)
-
-    didChangeShowsFavoriteButton()
-  }
-
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    eventViewController?.view.frame = view.bounds
-  }
-
-  @objc private func didToggleFavorite() {
+extension EventController: EventViewControllerDelegate, EventViewControllerDataSource {
+  @objc private func eventViewControllerDidToggleFavorite() {
     if isEventFavorite {
       dependencies.favoritesService.removeEvent(withIdentifier: event.id)
     } else {
@@ -102,39 +84,6 @@ final class EventController: UIPageViewController {
     }
   }
 
-  private func didChangeShowsFavoriteButton() {
-    guard isViewLoaded else { return }
-
-    if showsFavoriteButton {
-      showFavoriteButton()
-    } else {
-      hideFavoriteButton()
-    }
-  }
-
-  private func showFavoriteButton() {
-    let favoriteAction = #selector(didToggleFavorite)
-    let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
-    favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
-    navigationItem.rightBarButtonItem = favoriteButton
-
-    favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] _ in
-      favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
-      favoriteButton?.title = self?.favoriteTitle
-    }
-  }
-
-  private func hideFavoriteButton() {
-    if let observer = favoritesObserver {
-      dependencies.favoritesService.removeObserver(observer)
-      favoritesObserver = nil
-    }
-
-    navigationItem.rightBarButtonItem = nil
-  }
-}
-
-extension EventController: EventViewControllerDelegate, EventViewControllerDataSource {
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController) {
     if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
       let livestreamViewController = makeVideoViewController(for: url)
@@ -202,23 +151,41 @@ extension EventController: AVPlayerViewControllerDelegate {
   }
 }
 
-private extension EventController {
-  func makeEventViewController(for event: Event) -> EventViewController {
+extension EventController {
+  struct Configuration {
+    let showsFavoriteButton: Bool
+  }
+
+  func makeEventViewController(with configuration: Configuration) -> EventViewController {
     var style: UITableView.Style = .plain
-    if #available(iOS 13.0, *), traitCollection.userInterfaceIdiom == .pad {
+    if #available(iOS 13.0, *), UIDevice.current.userInterfaceIdiom == .pad {
       style = .insetGrouped
     }
 
     let eventViewController = EventViewController(style: style)
+    self.eventViewController = eventViewController
     eventViewController.showsLivestream = hasLivestream && isEventToday
+    eventViewController.navigationItem.largeTitleDisplayMode = .never
     eventViewController.dataSource = self
     eventViewController.delegate = self
     eventViewController.event = event
-    self.eventViewController = eventViewController
+
+    if configuration.showsFavoriteButton {
+      let favoriteAction = #selector(eventViewControllerDidToggleFavorite)
+      let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
+      favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
+      eventViewController.navigationItem.rightBarButtonItem = favoriteButton
+
+      favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] _ in
+        favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
+        favoriteButton?.title = self?.favoriteTitle
+      }
+    }
+
     return eventViewController
   }
 
-  func makeVideoViewController(for url: URL) -> AVPlayerViewController {
+  private func makeVideoViewController(for url: URL) -> AVPlayerViewController {
     let videoViewController = AVPlayerViewController()
     videoViewController.exitsFullScreenWhenPlaybackEnds = true
     videoViewController.player = AVPlayer(url: url)

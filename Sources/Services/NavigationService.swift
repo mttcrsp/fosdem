@@ -62,13 +62,20 @@ extension NavigationService {
 
 extension NavigationService {
   func makeEventViewController(for event: Event) -> UIViewController {
-    EventController(event: event, dependencies: services)
+    let configuration = EventController.Configuration(showsFavoriteButton: true)
+    return makeEventViewController(for: event, configuration: configuration)
   }
 
   func makePastEventViewController(for event: Event) -> UIViewController {
+    let configuration = EventController.Configuration(showsFavoriteButton: false)
+    return makeEventViewController(for: event, configuration: configuration)
+  }
+
+  private func makeEventViewController(for event: Event, configuration: EventController.Configuration) -> UIViewController {
     let eventController = EventController(event: event, dependencies: services)
-    eventController.showsFavoriteButton = false
-    return eventController
+    let eventViewController = eventController.makeEventViewController(with: configuration)
+    eventViewController.fos_controller = eventController
+    return eventViewController
   }
 }
 
@@ -103,6 +110,15 @@ extension NavigationService {
 extension NavigationService {
   func makeTransportationViewController() -> UIViewController {
     TransportationController(dependencies: services)
+  }
+}
+
+private extension UIViewController {
+  private static var controllerKey = 0
+
+  var fos_controller: AnyObject? {
+    get { objc_getAssociatedObject(self, &UIViewController.controllerKey) as AnyObject? }
+    set { objc_setAssociatedObject(self, &UIViewController.controllerKey, newValue as AnyObject?, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
   }
 }
 
