@@ -85,8 +85,11 @@ extension NavigationService {
 extension NavigationService {
   func makeVideosViewController(didError: @escaping ErrorHandler) -> UIViewController {
     let videosController = VideosController(dependencies: services)
+    let videosViewController = videosController.makeVideosViewController()
+    videosViewController.fos_controller = videosController
     videosController.didError = didError
-    return videosController
+    videosController.reloadData()
+    return videosViewController
   }
 }
 

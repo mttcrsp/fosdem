@@ -1,13 +1,40 @@
 import UIKit
 
-final class VideosController: UIPageViewController {
+final class VideosController: NSObject {
   typealias Dependencies = HasVideosService & HasPlaybackService & HasNavigationService
 
-  var didError: ((VideosController, Error) -> Void)?
+  var didError: ((UIViewController, Error) -> Void)?
 
-  private lazy var watchingViewController = makeEventsViewController()
-  private lazy var watchedViewController = makeEventsViewController()
-  private lazy var segmentedControl = UISegmentedControl()
+  private weak var videosViewController: UIPageViewController?
+
+  private let watchingTitle = L10n.Recent.Video.watching
+  private let watchedTitle = L10n.Recent.Video.watched
+
+  private lazy var watchingViewController: EventsViewController = {
+    let watchingViewController = makeEventsViewController()
+    watchingViewController.title = watchingTitle
+    watchingViewController.emptyBackgroundTitle = L10n.Recent.Video.Empty.title
+    watchingViewController.emptyBackgroundMessage = L10n.Recent.Video.Empty.watching
+    return watchingViewController
+  }()
+
+  private lazy var watchedViewController: EventsViewController = {
+    let watchedViewController = makeEventsViewController()
+    watchedViewController.title = watchedTitle
+    watchedViewController.emptyBackgroundTitle = L10n.Recent.Video.Empty.title
+    watchedViewController.emptyBackgroundMessage = L10n.Recent.Video.Empty.watched
+    return watchedViewController
+  }()
+
+  private lazy var segmentedControl: UISegmentedControl = {
+    let segmentedAction = #selector(didChangeSegment(_:))
+    let segmentedControl = UISegmentedControl()
+    segmentedControl.addTarget(self, action: segmentedAction, for: .valueChanged)
+    segmentedControl.insertSegment(withTitle: watchingTitle, at: 0, animated: false)
+    segmentedControl.insertSegment(withTitle: watchedTitle, at: 1, animated: false)
+    segmentedControl.selectedSegmentIndex = 0
+    return segmentedControl
+  }()
 
   private var watchingEvents: [Event] = []
   private var watchedEvents: [Event] = []
@@ -17,7 +44,11 @@ final class VideosController: UIPageViewController {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    super.init()
+
+    observer = dependencies.playbackService.addObserver { [weak self] in
+      self?.reloadData()
+    }
   }
 
   @available(*, unavailable)
@@ -31,47 +62,18 @@ final class VideosController: UIPageViewController {
     }
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    delegate = self
-    dataSource = self
-    view.backgroundColor = .fos_systemBackground
-
-    let watchedTitle = L10n.Recent.Video.watched
-    let watchingTitle = L10n.Recent.Video.watching
-
-    watchingViewController.title = watchingTitle
-    watchingViewController.emptyBackgroundTitle = L10n.Recent.Video.Empty.title
-    watchingViewController.emptyBackgroundMessage = L10n.Recent.Video.Empty.watching
-
-    watchedViewController.title = watchedTitle
-    watchedViewController.emptyBackgroundTitle = L10n.Recent.Video.Empty.title
-    watchedViewController.emptyBackgroundMessage = L10n.Recent.Video.Empty.watched
-
-    setViewController(watchingViewController, direction: .forward, animated: false)
-
-    let segmentedAction = #selector(didChangeSegment(_:))
-    segmentedControl.addTarget(self, action: segmentedAction, for: .valueChanged)
-    segmentedControl.insertSegment(withTitle: watchingTitle, at: 0, animated: false)
-    segmentedControl.insertSegment(withTitle: watchedTitle, at: 1, animated: false)
-    segmentedControl.selectedSegmentIndex = 0
-    navigationItem.titleView = segmentedControl
-    navigationItem.largeTitleDisplayMode = .never
-
-    reloadData()
-    observer = dependencies.playbackService.addObserver { [weak self] in
-      self?.reloadData()
-    }
+  private func setViewController(_ childViewController: UIViewController, direction: UIPageViewController.NavigationDirection, animated: Bool) {
+    videosViewController?.setViewControllers([childViewController], direction: direction, animated: animated)
+    videosViewController?.navigationItem.setRightBarButton(childViewController.editButtonItem, animated: animated)
   }
 
-  private func reloadData() {
+  func reloadData() {
     dependencies.videosService.loadVideos { [weak self] result in
-      guard let self = self else { return }
+      guard let self = self, let videosViewController = self.videosViewController else { return }
 
       switch result {
       case let .failure(error):
-        self.didError?(self, error)
+        self.didError?(videosViewController, error)
       case let .success(videos):
         self.watchedEvents = videos.watched
         self.watchingEvents = videos.watching
@@ -90,11 +92,6 @@ final class VideosController: UIPageViewController {
     default:
       break
     }
-  }
-
-  private func setViewController(_ childViewController: UIViewController, direction: UIPageViewController.NavigationDirection, animated: Bool) {
-    setViewControllers([childViewController], direction: direction, animated: animated)
-    navigationItem.setRightBarButton(childViewController.editButtonItem, animated: animated)
   }
 }
 
@@ -116,7 +113,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
     let eventViewController = makeEventViewController(for: event)
-    show(eventViewController, sender: nil)
+    videosViewController?.show(eventViewController, sender: nil)
   }
 }
 
@@ -165,12 +162,24 @@ extension VideosController: UIPageViewControllerDelegate {
       break
     }
 
-    navigationItem.setRightBarButton(currentViewController?.editButtonItem, animated: true)
+    videosViewController?.navigationItem.setRightBarButton(currentViewController?.editButtonItem, animated: true)
   }
 }
 
-private extension VideosController {
-  func makeEventsViewController() -> EventsViewController {
+extension VideosController {
+  func makeVideosViewController() -> UIPageViewController {
+    let videosViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    self.videosViewController = videosViewController
+    videosViewController.navigationItem.largeTitleDisplayMode = .never
+    videosViewController.navigationItem.titleView = segmentedControl
+    videosViewController.view.backgroundColor = .fos_systemBackground
+    videosViewController.dataSource = self
+    videosViewController.delegate = self
+    setViewController(watchingViewController, direction: .forward, animated: false)
+    return videosViewController
+  }
+
+  private func makeEventsViewController() -> EventsViewController {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.navigationItem.largeTitleDisplayMode = .never
     eventsViewController.deleteDelegate = self
@@ -179,7 +188,7 @@ private extension VideosController {
     return eventsViewController
   }
 
-  func makeEventViewController(for event: Event) -> UIViewController {
+  private func makeEventViewController(for event: Event) -> UIViewController {
     dependencies.navigationService.makeEventViewController(for: event)
   }
 }
