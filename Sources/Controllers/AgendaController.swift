@@ -1,17 +1,14 @@
 import UIKit
 
-final class AgendaController: UIViewController {
+final class AgendaController {
   typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService & HasSoonService
 
-  var didError: ((AgendaController, Error) -> Void)?
+  var didError: ((UIViewController, Error) -> Void)?
 
-  private weak var agendaViewController: EventsViewController?
+  private weak var agendaChildViewController: EventsViewController?
+  private weak var parentViewController: ParentViewController?
   private weak var soonViewController: EventsViewController?
   private weak var eventViewController: UIViewController?
-
-  private weak var rootViewController: UIViewController? {
-    didSet { didChangeRootViewController(from: oldValue, to: rootViewController) }
-  }
 
   private var observations: [NSObjectProtocol] = []
   private var eventsStartingSoon: [Event] = []
@@ -21,7 +18,15 @@ final class AgendaController: UIViewController {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
+
+    observations = [
+      dependencies.favoritesService.addObserverForEvents { [weak self] identifier in
+        self?.reloadFavoriteEvents(forUpdateToEventWithIdentifier: identifier)
+      },
+      dependencies.timeService.addObserver { [weak self] in
+        self?.reloadLiveStatus()
+      },
+    ]
   }
 
   @available(*, unavailable)
@@ -33,45 +38,25 @@ final class AgendaController: UIViewController {
     eventViewController == nil
   }
 
-  func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      agendaViewController?.navigationController?.popToRootViewController(animated: true)
-    }
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
+  func reloadData() {
     reloadFavoriteEvents()
-    observations = [
-      dependencies.favoritesService.addObserverForEvents { [weak self] identifier in
-        self?.reloadFavoriteEvents(forUpdateToEventWithIdentifier: identifier)
-      },
-      dependencies.timeService.addObserver { [weak self] in
-        self?.reloadLiveStatus()
-      },
-    ]
-  }
-
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    super.traitCollectionDidChange(previousTraitCollection)
-
-    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
-      preselectFirstEvent()
-    }
+    reloadFavoriteEvents()
   }
 
   private func reloadLiveStatus() {
-    agendaViewController?.reloadLiveStatus()
+    agendaChildViewController?.reloadLiveStatus()
   }
 
   private func reloadFavoriteEvents(forUpdateToEventWithIdentifier identifier: Int? = nil) {
+    guard let parentViewController = parentViewController else { return }
+
     let identifiers = dependencies.favoritesService.eventsIdentifiers
 
+    let rootViewController = parentViewController.childViewController
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
-      rootViewController = makeAgendaNavigationController()
+      parentViewController.setChild(makeAgendaNavigationController())
     } else if !identifiers.isEmpty, !(rootViewController is UISplitViewController) {
-      rootViewController = makeAgendaSplitViewController()
+      parentViewController.setChild(makeAgendaSplitViewController())
     }
 
     let operation = EventsForIdentifiers(identifiers: identifiers)
@@ -88,7 +73,9 @@ final class AgendaController: UIViewController {
   }
 
   private func loadingDidFail(with error: Error) {
-    didError?(self, error)
+    if let parentViewController = parentViewController {
+      didError?(parentViewController, error)
+    }
   }
 
   private func loadingDidSucceed(with events: [Event], updatedEventIdentifier: Int?) {
@@ -96,17 +83,17 @@ final class AgendaController: UIViewController {
       let oldEvents = self.events
       let newEvents = events
 
-      agendaViewController?.beginUpdates()
+      agendaChildViewController?.beginUpdates()
       self.events = newEvents
       if let index = newEvents.firstIndex(where: { event in event.id == id }) {
-        agendaViewController?.insertEvent(at: index)
+        agendaChildViewController?.insertEvent(at: index)
       } else if let index = oldEvents.firstIndex(where: { event in event.id == id }) {
-        agendaViewController?.deleteEvent(at: index)
+        agendaChildViewController?.deleteEvent(at: index)
       }
-      agendaViewController?.endUpdates()
+      agendaChildViewController?.endUpdates()
     } else {
       self.events = events
-      agendaViewController?.reloadData()
+      agendaChildViewController?.reloadData()
     }
 
     var didDeleteSelectedEvent = false
@@ -122,17 +109,17 @@ final class AgendaController: UIViewController {
   @objc private func didTapSoon() {
     dependencies.soonService.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        guard let self = self, let parentViewController = self.parentViewController else { return }
 
         switch result {
         case .failure:
           let errorViewController = UIAlertController.makeErrorController()
-          self.present(errorViewController, animated: true)
+          parentViewController.present(errorViewController, animated: true)
         case let .success(events):
           self.eventsStartingSoon = events
           let soonViewController = self.makeSoonViewController()
           let soonNavigationController = UINavigationController(rootViewController: soonViewController)
-          self.present(soonNavigationController, animated: true)
+          parentViewController.present(soonNavigationController, animated: true)
         }
       }
     }
@@ -142,33 +129,19 @@ final class AgendaController: UIViewController {
     soonViewController?.dismiss(animated: true)
   }
 
-  private func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
-    if let viewController = oldViewController {
-      viewController.willMove(toParent: nil)
-      viewController.view.removeFromSuperview()
-      viewController.removeFromParent()
-    }
-
-    if let viewController = newViewController {
-      addChild(viewController)
-      view.addSubview(viewController.view)
-      viewController.view.translatesAutoresizingMaskIntoConstraints = false
-      viewController.didMove(toParent: self)
-
-      NSLayoutConstraint.activate([
-        viewController.view.topAnchor.constraint(equalTo: view.topAnchor),
-        viewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        viewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-        viewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-      ])
+  private func preselectFirstEvent() {
+    if let event = events.first, parentViewController?.traitCollection.horizontalSizeClass == .regular {
+      let eventViewController = makeEventViewController(for: event)
+      agendaChildViewController?.showDetailViewController(eventViewController, sender: nil)
+      agendaChildViewController?.select(event)
     }
   }
+}
 
-  private func preselectFirstEvent() {
-    if let event = events.first, traitCollection.horizontalSizeClass == .regular {
-      let eventViewController = makeEventViewController(for: event)
-      agendaViewController?.showDetailViewController(eventViewController, sender: nil)
-      agendaViewController?.select(event)
+extension AgendaController: ParentViewControllerDelegate {
+  func parentViewController(_ parentViewController: UIViewController, didChangeTraitCollectionFrom previousTraitCollection: UITraitCollection?) {
+    if parentViewController.traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
+      preselectFirstEvent()
     }
   }
 }
@@ -176,7 +149,7 @@ final class AgendaController: UIViewController {
 extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
-    case agendaViewController:
+    case agendaChildViewController:
       return events
     case soonViewController:
       return eventsStartingSoon
@@ -189,7 +162,7 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
     let items: [String?]
 
     switch eventsViewController {
-    case agendaViewController:
+    case agendaChildViewController:
       items = [event.formattedStart, event.room, event.track]
     case soonViewController:
       items = [event.formattedStart, event.room]
@@ -205,9 +178,9 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
     case soonViewController:
       let eventViewController = makeSoonEventViewController(for: event)
       eventsViewController.show(eventViewController, sender: nil)
-    case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
+    case agendaChildViewController where eventViewController?.fos_eventID == event.id && parentViewController?.traitCollection.horizontalSizeClass == .regular:
       break
-    case agendaViewController:
+    case agendaChildViewController:
       let eventViewController = makeEventViewController(for: event)
       eventsViewController.showDetailViewController(eventViewController, sender: nil)
       UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
@@ -233,12 +206,19 @@ extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewC
 
 extension AgendaController: EventsViewControllerLiveDataSource {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeService.now)
+    eventsViewController == agendaChildViewController && event.isLive(at: dependencies.timeService.now)
   }
 }
 
-private extension AgendaController {
-  func makeAgendaSplitViewController() -> UISplitViewController {
+extension AgendaController {
+  func makeAgendaViewController() -> ParentViewController {
+    let parentViewController = ParentViewController()
+    self.parentViewController = parentViewController
+    parentViewController.delegate = self
+    return parentViewController
+  }
+
+  private func makeAgendaSplitViewController() -> UISplitViewController {
     let agendaSplitViewController = UISplitViewController()
     agendaSplitViewController.viewControllers = [makeAgendaNavigationController()]
     agendaSplitViewController.preferredPrimaryColumnWidthFraction = 0.4
@@ -251,35 +231,35 @@ private extension AgendaController {
     return agendaSplitViewController
   }
 
-  func makeAgendaNavigationController() -> UINavigationController {
-    let agendaViewController = makeAgendaViewController()
+  private func makeAgendaNavigationController() -> UINavigationController {
+    let agendaViewController = makeAgendaChildViewController()
     let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
     agendaNavigationController.navigationBar.prefersLargeTitles = true
     return agendaNavigationController
   }
 
-  func makeAgendaViewController() -> EventsViewController {
+  private func makeAgendaChildViewController() -> EventsViewController {
     let soonTitle = L10n.Agenda.soon
     let soonAction = #selector(didTapSoon)
     let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
     soonButton.accessibilityIdentifier = "soon"
 
-    let agendaViewController = EventsViewController(style: .grouped)
-    agendaViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
-    agendaViewController.emptyBackgroundTitle = L10n.Agenda.Empty.title
-    agendaViewController.title = L10n.Agenda.title
-    agendaViewController.navigationItem.largeTitleDisplayMode = .always
-    agendaViewController.navigationItem.rightBarButtonItem = soonButton
-    agendaViewController.favoritesDataSource = self
-    agendaViewController.favoritesDelegate = self
-    agendaViewController.liveDataSource = self
-    agendaViewController.dataSource = self
-    agendaViewController.delegate = self
-    self.agendaViewController = agendaViewController
-    return agendaViewController
+    let agendaChildViewController = EventsViewController(style: .grouped)
+    agendaChildViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
+    agendaChildViewController.emptyBackgroundTitle = L10n.Agenda.Empty.title
+    agendaChildViewController.title = L10n.Agenda.title
+    agendaChildViewController.navigationItem.largeTitleDisplayMode = .always
+    agendaChildViewController.navigationItem.rightBarButtonItem = soonButton
+    agendaChildViewController.favoritesDataSource = self
+    agendaChildViewController.favoritesDelegate = self
+    agendaChildViewController.liveDataSource = self
+    agendaChildViewController.dataSource = self
+    agendaChildViewController.delegate = self
+    self.agendaChildViewController = agendaChildViewController
+    return agendaChildViewController
   }
 
-  func makeSoonViewController() -> EventsViewController {
+  private func makeSoonViewController() -> EventsViewController {
     let dismissAction = #selector(didTapDismiss)
     let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
     dismissButton.accessibilityIdentifier = "dismiss"
@@ -297,14 +277,14 @@ private extension AgendaController {
     return soonViewController
   }
 
-  func makeEventViewController(for event: Event) -> UIViewController {
+  private func makeEventViewController(for event: Event) -> UIViewController {
     let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
     return eventViewController
   }
 
-  func makeSoonEventViewController(for event: Event) -> UIViewController {
+  private func makeSoonEventViewController(for event: Event) -> UIViewController {
     let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     eventViewController.fos_eventID = event.id
     return eventViewController

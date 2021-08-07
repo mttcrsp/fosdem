@@ -156,8 +156,6 @@ extension ApplicationController: UITabBarControllerDelegate {
       switch viewController {
       case let viewController as SearchController:
         viewController.popToRootViewController()
-      case let viewController as AgendaController:
-        viewController.popToRootViewController()
       case let viewController as MoreController:
         viewController.popToRootViewController()
       default:

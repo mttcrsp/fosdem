@@ -28,11 +28,14 @@ extension NavigationService {
 
   func makeAgendaViewController(didError: @escaping ErrorHandler) -> UIViewController {
     let agendaController = AgendaController(dependencies: services)
-    agendaController.tabBarItem.accessibilityIdentifier = "agenda"
-    agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
-    agendaController.title = L10n.Agenda.title
+    let agendaViewController = agendaController.makeAgendaViewController()
+    agendaViewController.tabBarItem.image = .fos_systemImage(withName: "calendar")
+    agendaViewController.tabBarItem.accessibilityIdentifier = "agenda"
+    agendaViewController.title = L10n.Agenda.title
+    agendaViewController.fos_controller = agendaController
     agendaController.didError = didError
-    return agendaController
+    agendaController.reloadData()
+    return agendaViewController
   }
 
   func makeMapViewController(didError: @escaping ErrorHandler) -> UIViewController {
