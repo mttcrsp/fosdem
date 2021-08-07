@@ -78,7 +78,12 @@ let appUITests = Target(
   infoPlist: .extendingDefault(with: [
     "NSPrincipalClass": "FOSTestObservationCenter",
   ]),
-  sources: ["UITests/**/*", "Tests/BundleDataLoader.swift"],
+  sources: [
+    "UITests/**/*",
+    "Tests/BundleDataLoader.swift",
+    "Tests/XCTestCase+Extensions.swift",
+    "Tests/XCTNSPredicateExpectation+Extensions.swift",
+  ],
   resources: ["UITests/Resources/**/*"],
   actions: [swiftFormat],
   dependencies: [.target(name: app.name)]
