@@ -1,8 +1,9 @@
 import UIKit
 
-final class MoreController: UISplitViewController {
+final class MoreController: NSObject {
   typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasTimeService
 
+  private weak var moreSplitViewController: UISplitViewController?
   private weak var moreViewController: MoreViewController?
 
   private(set) var acknowledgements: [Acknowledgement] = []
@@ -12,7 +13,6 @@ final class MoreController: UISplitViewController {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
   }
 
   @available(*, unavailable)
@@ -20,40 +20,21 @@ final class MoreController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      moreViewController?.navigationController?.popToRootViewController(animated: true)
-    }
+  private func showDetailViewController(_ detailViewController: UIViewController) {
+    moreViewController?.showDetailViewController(detailViewController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
   }
+}
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    let moreViewController = makeMoreViewController()
-    let moreNavigationController = UINavigationController(rootViewController: moreViewController)
-    moreNavigationController.navigationBar.prefersLargeTitles = true
-
-    viewControllers = [moreNavigationController]
-    if traitCollection.horizontalSizeClass == .regular {
-      self.moreViewController(moreViewController, didSelectInfoItem: .history)
-    }
-  }
-
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    super.traitCollectionDidChange(previousTraitCollection)
-
-    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
-      if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
+extension MoreController: MoreSplitViewControllerDelegate {
+  func splitViewController(_ splitViewController: MoreSplitViewController, didChangeTraitCollectionFrom previousTraitCollection: UITraitCollection?) {
+    if splitViewController.traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
+      if splitViewController.traitCollection.horizontalSizeClass == .regular, splitViewController.viewControllers.count < 2 {
         if let moreViewController = moreViewController {
           self.moreViewController(moreViewController, didSelectInfoItem: .history)
         }
       }
     }
-  }
-
-  private func showDetailViewController(_ detailViewController: UIViewController) {
-    moreViewController?.showDetailViewController(detailViewController, sender: nil)
-    UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
   }
 }
 
@@ -142,7 +123,9 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidFailPresentation() {
-    popToRootViewController()
+    if moreSplitViewController?.traitCollection.horizontalSizeClass == .compact {
+      moreViewController?.navigationController?.popToRootViewController(animated: true)
+    }
     moreViewController?.present(makeErrorViewController(), animated: true)
   }
 }
@@ -201,16 +184,33 @@ extension MoreController: UIPopoverPresentationControllerDelegate, DateViewContr
 }
 #endif
 
-private extension MoreController {
+extension MoreController {
   private var preferredDetailViewControllerStyle: UITableView.Style {
-    if traitCollection.userInterfaceIdiom == .pad {
-      return .fos_insetGrouped
-    } else {
+    if UIDevice.current.userInterfaceIdiom == .phone {
       return .grouped
+    } else {
+      return .fos_insetGrouped
     }
   }
 
-  func makeMoreViewController() -> MoreViewController {
+  func makeMoreSplitViewController() -> UISplitViewController {
+    let moreViewController = makeMoreViewController()
+    let moreNavigationController = UINavigationController(rootViewController: moreViewController)
+    moreNavigationController.navigationBar.prefersLargeTitles = true
+
+    let moreSplitViewController = MoreSplitViewController()
+    self.moreSplitViewController = moreSplitViewController
+    moreSplitViewController.moreDelegate = self
+    moreSplitViewController.viewControllers = [moreNavigationController]
+
+    if moreSplitViewController.traitCollection.horizontalSizeClass == .regular {
+      self.moreViewController(moreViewController, didSelectInfoItem: .history)
+    }
+
+    return moreSplitViewController
+  }
+
+  private func makeMoreViewController() -> MoreViewController {
     let moreViewController = MoreViewController(style: .grouped)
     moreViewController.title = L10n.More.title
     moreViewController.delegate = self
@@ -218,7 +218,7 @@ private extension MoreController {
     return moreViewController
   }
 
-  func makeYearsViewController() -> YearsViewController {
+  private func makeYearsViewController() -> YearsViewController {
     let yearsViewController = YearsViewController(style: preferredDetailViewControllerStyle)
     yearsViewController.title = L10n.Years.title
     yearsViewController.dataSource = self
@@ -226,7 +226,7 @@ private extension MoreController {
     return yearsViewController
   }
 
-  func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
+  private func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
     let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
     acknowledgementsViewController.title = L10n.Acknowledgements.title
     acknowledgementsViewController.dataSource = self
@@ -246,7 +246,7 @@ private extension MoreController {
     dependencies.navigationService.makeInfoViewController(withTitle: title, info: info, didError: didError)
   }
 
-  func makeYearViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
+  private func makeYearViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
     dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: didError)
   }
 

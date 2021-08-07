@@ -52,17 +52,21 @@ extension NavigationService {
 
   func makeMoreViewController() -> UIViewController {
     let moreController = MoreController(dependencies: services)
-    moreController.tabBarItem.accessibilityIdentifier = "more"
-    moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
-    moreController.title = L10n.More.title
+    let moreViewController = moreController.makeMoreSplitViewController()
+    moreViewController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
+    moreViewController.tabBarItem.accessibilityIdentifier = "more"
+    moreViewController.preferredPrimaryColumnWidthFraction = 0.4
+    moreViewController.maximumPrimaryColumnWidth = 375
+    moreViewController.title = L10n.More.title
+    moreViewController.fos_controller = moreController
+
     #if targetEnvironment(macCatalyst)
-    moreController.preferredDisplayMode = .oneBesideSecondary
+    moreViewController.preferredDisplayMode = .oneBesideSecondary
     #else
-    moreController.preferredDisplayMode = .allVisible
+    moreViewController.preferredDisplayMode = .allVisible
     #endif
-    moreController.preferredPrimaryColumnWidthFraction = 0.4
-    moreController.maximumPrimaryColumnWidth = 375
-    return moreController
+
+    return moreViewController
   }
 }
 
