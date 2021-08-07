@@ -6,6 +6,7 @@ final class ApplicationController: NSObject {
   private weak var applicationViewController: ApplicationViewController?
   private weak var tabsController: UITabBarController?
 
+  private let defaults = UserDefaults.standard
   private let dependencies: Dependencies
 
   init(dependencies: Dependencies) {
@@ -17,11 +18,6 @@ final class ApplicationController: NSObject {
     dependencies.scheduleService?.startUpdating()
   }
 
-  private var previouslySelectedViewController: String? {
-    get { UserDefaults.standard.selectedViewController }
-    set { UserDefaults.standard.selectedViewController = newValue }
-  }
-
   func applicationDidBecomeActive() {
     dependencies.timeService.startMonitoring()
     dependencies.scheduleService?.startUpdating()
@@ -29,6 +25,11 @@ final class ApplicationController: NSObject {
 
   func applicationWillResignActive() {
     dependencies.timeService.stopMonitoring()
+  }
+
+  private var previouslySelectedViewController: String? {
+    get { defaults.selectedViewController }
+    set { defaults.selectedViewController = newValue }
   }
 
   private func didTapUpdate() {
@@ -40,19 +41,11 @@ final class ApplicationController: NSObject {
 
 extension ApplicationController: ApplicationViewControllerDelegate {
   func applicationViewControllerDidSelectPrev(_: ApplicationViewController) {
-    if let tabsController = tabsController {
-      let count = tabsController.children.count
-      let index = tabsController.selectedIndex
-      tabsController.selectedIndex = ((index - 1) + count) % count
-    }
+    tabsController?.selectPreviousViewController()
   }
 
   func applicationViewControllerDidSelectNext(_: ApplicationViewController) {
-    if let tabsController = tabsController {
-      let count = tabsController.children.count
-      let index = tabsController.selectedIndex
-      tabsController.selectedIndex = ((index + 1) + count) % count
-    }
+    tabsController?.selectNextViewController()
   }
 }
 
@@ -163,17 +156,6 @@ extension ApplicationController: WelcomeViewControllerDelegate {
   }
 }
 
-private extension UserDefaults {
-  var selectedViewController: String? {
-    get { string(forKey: .selectedViewControllerKey) }
-    set { set(newValue, forKey: .selectedViewControllerKey) }
-  }
-}
-
-private extension String {
-  static var selectedViewControllerKey: String { #function }
-}
-
 private extension UIAlertController.ConfirmConfiguration {
   static var update: UIAlertController.ConfirmConfiguration {
     UIAlertController.ConfirmConfiguration(
@@ -183,4 +165,25 @@ private extension UIAlertController.ConfirmConfiguration {
       dismiss: L10n.Update.dismiss
     )
   }
+}
+
+private extension UITabBarController {
+  func selectNextViewController() {
+    selectedIndex = ((selectedIndex - 1) + children.count) % children.count
+  }
+
+  func selectPreviousViewController() {
+    selectedIndex = ((selectedIndex + 1) + children.count) % children.count
+  }
+}
+
+private extension UserDefaults {
+  var selectedViewController: String? {
+    get { string(forKey: .selectedViewControllerKey) }
+    set { set(newValue, forKey: .selectedViewControllerKey) }
+  }
+}
+
+private extension String {
+  static var selectedViewControllerKey: String { #function }
 }
