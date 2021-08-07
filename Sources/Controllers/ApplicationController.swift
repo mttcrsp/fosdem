@@ -1,15 +1,20 @@
 import UIKit
 
-final class ApplicationController: UIViewController {
+final class ApplicationController: NSObject {
   typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService
 
+  private weak var applicationViewController: ApplicationViewController?
   private weak var tabsController: UITabBarController?
 
   private let dependencies: Dependencies
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
+    super.init()
+
+    dependencies.updateService.delegate = self
+    dependencies.updateService.detectUpdates()
+    dependencies.scheduleService?.startUpdating()
   }
 
   @available(*, unavailable)
@@ -22,52 +27,6 @@ final class ApplicationController: UIViewController {
     set { UserDefaults.standard.selectedViewController = newValue }
   }
 
-  override var canBecomeFirstResponder: Bool {
-    true
-  }
-
-  override var keyCommands: [UIKeyCommand]? {
-    let prevModifierFlags: UIKeyModifierFlags = [.alternate, .shift]
-    let nextModifierFlags: UIKeyModifierFlags = [.alternate]
-    let prevAction = #selector(didSelectPrevTab)
-    let nextAction = #selector(didSelectNextTab)
-    let prevCommand = UIKeyCommand(input: "\t", modifierFlags: prevModifierFlags, action: prevAction)
-    let nextCommand = UIKeyCommand(input: "\t", modifierFlags: nextModifierFlags, action: nextAction)
-    return [prevCommand, nextCommand]
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    var viewControllers: [UIViewController] = [makeTabsController()]
-    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall {
-      viewControllers.append(makeWelcomeViewController())
-    }
-
-    var constraints: [NSLayoutConstraint] = []
-    for viewController in viewControllers {
-      addChild(viewController)
-      view.addSubview(viewController.view)
-      viewController.view.translatesAutoresizingMaskIntoConstraints = false
-      viewController.didMove(toParent: self)
-
-      constraints.append(contentsOf: [
-        viewController.view.topAnchor.constraint(equalTo: view.topAnchor),
-        viewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        viewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-        viewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-      ])
-    }
-
-    NSLayoutConstraint.activate(constraints)
-
-    view.backgroundColor = .fos_systemGroupedBackground
-
-    dependencies.updateService.delegate = self
-    dependencies.updateService.detectUpdates()
-    dependencies.scheduleService?.startUpdating()
-  }
-
   func applicationDidBecomeActive() {
     dependencies.timeService.startMonitoring()
     dependencies.scheduleService?.startUpdating()
@@ -77,18 +36,6 @@ final class ApplicationController: UIViewController {
     dependencies.timeService.stopMonitoring()
   }
 
-  @objc private func didSelectPrevTab() {
-    if let rootTabBarController = tabsController {
-      rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex - 1) + children.count) % children.count
-    }
-  }
-
-  @objc private func didSelectNextTab() {
-    if let rootTabBarController = tabsController {
-      rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex + 1) + children.count) % children.count
-    }
-  }
-
   private func didTapUpdate() {
     if let url = URL.fosdemAppStore {
       UIApplication.shared.open(url)
@@ -96,8 +43,38 @@ final class ApplicationController: UIViewController {
   }
 }
 
-private extension ApplicationController {
-  func makeTabsController() -> UITabBarController {
+extension ApplicationController: ApplicationViewControllerDelegate {
+  func applicationViewControllerDidSelectPrev(_: ApplicationViewController) {
+    if let tabsController = tabsController {
+      let count = tabsController.children.count
+      let index = tabsController.selectedIndex
+      tabsController.selectedIndex = ((index - 1) + count) % count
+    }
+  }
+
+  func applicationViewControllerDidSelectNext(_: ApplicationViewController) {
+    if let tabsController = tabsController {
+      let count = tabsController.children.count
+      let index = tabsController.selectedIndex
+      tabsController.selectedIndex = ((index + 1) + count) % count
+    }
+  }
+}
+
+extension ApplicationController {
+  func makeApplicationViewController() -> ApplicationViewController {
+    let applicationViewController: ApplicationViewController
+    if UIDevice.current.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall {
+      applicationViewController = ApplicationViewController(topViewController: makeWelcomeViewController(), bottomViewController: makeTabsController())
+    } else {
+      applicationViewController = ApplicationViewController(topViewController: makeTabsController())
+    }
+
+    self.applicationViewController = applicationViewController
+    return applicationViewController
+  }
+
+  private func makeTabsController() -> UITabBarController {
     let tabsController = UITabBarController()
     tabsController.delegate = self
 
@@ -116,34 +93,34 @@ private extension ApplicationController {
     return tabsController
   }
 
-  func makeSearchController() -> UIViewController {
+  private func makeSearchController() -> UIViewController {
     dependencies.navigationService.makeSearchViewController()
   }
 
-  func makeAgendaController() -> UIViewController {
+  private func makeAgendaController() -> UIViewController {
     dependencies.navigationService.makeAgendaViewController(didError: { [weak self] viewController, error in
       self?.agendaController(viewController, didError: error)
     })
   }
 
-  func makeMapController() -> UIViewController {
+  private func makeMapController() -> UIViewController {
     dependencies.navigationService.makeMapViewController(didError: { [weak self] viewController, error in
       self?.mapController(viewController, didError: error)
     })
   }
 
-  func makeMoreController() -> UIViewController {
+  private func makeMoreController() -> UIViewController {
     dependencies.navigationService.makeMoreViewController()
   }
 
-  func makeWelcomeViewController() -> WelcomeViewController {
+  private func makeWelcomeViewController() -> WelcomeViewController {
     let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsService).current)
     welcomeViewController.showsContinue = true
     welcomeViewController.delegate = self
     return welcomeViewController
   }
 
-  func makeUpdateViewController() -> UIAlertController {
+  private func makeUpdateViewController() -> UIAlertController {
     UIAlertController.makeConfirmController(with: .update) { [weak self] in
       self?.didTapUpdate()
     }
@@ -177,25 +154,17 @@ extension ApplicationController {
 extension ApplicationController: UpdateServiceDelegate {
   func updateServiceDidDetectUpdate(_: UpdateService) {
     DispatchQueue.main.async { [weak self] in
-      if let self = self {
+      if let self = self, let applicationViewController = self.applicationViewController {
         let updateViewController = self.makeUpdateViewController()
-        self.present(updateViewController, animated: true)
+        applicationViewController.present(updateViewController, animated: true)
       }
     }
   }
 }
 
 extension ApplicationController: WelcomeViewControllerDelegate {
-  func welcomeViewControllerDidTapContinue(_ welcomeViewController: WelcomeViewController) {
-    tabsController?.view.transform = .init(translationX: 0, y: 60)
-    welcomeViewController.willMove(toParent: nil)
-    UIView.animate(withDuration: 0.2) {
-      self.tabsController?.view.transform = .identity
-      welcomeViewController.view.alpha = 0
-    } completion: { _ in
-      welcomeViewController.view.removeFromSuperview()
-      welcomeViewController.removeFromParent()
-    }
+  func welcomeViewControllerDidTapContinue(_: WelcomeViewController) {
+    applicationViewController?.showBottomViewController()
   }
 }
 

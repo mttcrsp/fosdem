@@ -4,12 +4,10 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
+  private var applicationController: ApplicationController?
+
   private var pendingNetworkRequests = 0 {
     didSet { didChangePendingNetworkRequests() }
-  }
-
-  private var applicationController: ApplicationController? {
-    window?.rootViewController as? ApplicationController
   }
 
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
@@ -21,7 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let rootViewController: UIViewController
     do {
-      rootViewController = ApplicationController(dependencies: try makeServices())
+      let applicationController = ApplicationController(dependencies: try makeServices())
+      self.applicationController = applicationController
+      rootViewController = applicationController.makeApplicationViewController()
     } catch {
       rootViewController = makeErrorViewController()
     }
