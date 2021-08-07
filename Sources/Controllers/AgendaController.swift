@@ -5,8 +5,8 @@ final class AgendaController {
 
   var didError: ((UIViewController, Error) -> Void)?
 
+  private weak var agendaParentViewController: ParentViewController?
   private weak var agendaChildViewController: EventsViewController?
-  private weak var parentViewController: ParentViewController?
   private weak var soonViewController: EventsViewController?
   private weak var eventViewController: UIViewController?
 
@@ -43,7 +43,7 @@ final class AgendaController {
   }
 
   private func reloadFavoriteEvents(forUpdateToEventWithIdentifier identifier: Int? = nil) {
-    guard let parentViewController = parentViewController else { return }
+    guard let parentViewController = agendaParentViewController else { return }
 
     let identifiers = dependencies.favoritesService.eventsIdentifiers
 
@@ -68,7 +68,7 @@ final class AgendaController {
   }
 
   private func loadingDidFail(with error: Error) {
-    if let parentViewController = parentViewController {
+    if let parentViewController = agendaParentViewController {
       didError?(parentViewController, error)
     }
   }
@@ -104,7 +104,7 @@ final class AgendaController {
   @objc private func didTapSoon() {
     dependencies.soonService.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self, let parentViewController = self.parentViewController else { return }
+        guard let self = self, let parentViewController = self.agendaParentViewController else { return }
 
         switch result {
         case .failure:
@@ -125,7 +125,7 @@ final class AgendaController {
   }
 
   private func preselectFirstEvent() {
-    if let event = events.first, parentViewController?.traitCollection.horizontalSizeClass == .regular {
+    if let event = events.first, agendaParentViewController?.traitCollection.horizontalSizeClass == .regular {
       let eventViewController = makeEventViewController(for: event)
       agendaChildViewController?.showDetailViewController(eventViewController, sender: nil)
       agendaChildViewController?.select(event)
@@ -173,7 +173,7 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
     case soonViewController:
       let eventViewController = makeSoonEventViewController(for: event)
       eventsViewController.show(eventViewController, sender: nil)
-    case agendaChildViewController where eventViewController?.fos_eventID == event.id && parentViewController?.traitCollection.horizontalSizeClass == .regular:
+    case agendaChildViewController where eventViewController?.fos_eventID == event.id && agendaParentViewController?.traitCollection.horizontalSizeClass == .regular:
       break
     case agendaChildViewController:
       let eventViewController = makeEventViewController(for: event)
@@ -208,7 +208,7 @@ extension AgendaController: EventsViewControllerLiveDataSource {
 extension AgendaController {
   func makeAgendaViewController() -> ParentViewController {
     let parentViewController = ParentViewController()
-    self.parentViewController = parentViewController
+    agendaParentViewController = parentViewController
     parentViewController.delegate = self
     return parentViewController
   }
