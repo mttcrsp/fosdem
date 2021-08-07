@@ -17,11 +17,6 @@ final class ApplicationController: NSObject {
     dependencies.scheduleService?.startUpdating()
   }
 
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   private var previouslySelectedViewController: String? {
     get { UserDefaults.standard.selectedViewController }
     set { UserDefaults.standard.selectedViewController = newValue }

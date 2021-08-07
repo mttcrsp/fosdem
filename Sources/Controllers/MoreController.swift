@@ -13,11 +13,7 @@ final class MoreController: NSObject {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
+    super.init()
   }
 
   private func showDetailViewController(_ detailViewController: UIViewController) {

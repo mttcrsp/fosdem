@@ -21,11 +21,6 @@ final class EventController: NSObject {
     super.init()
   }
 
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   deinit {
     if let observer = favoritesObserver {
       dependencies.favoritesService.removeObserver(observer)

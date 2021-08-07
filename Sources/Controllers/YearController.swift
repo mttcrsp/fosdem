@@ -26,11 +26,6 @@ final class YearController: NSObject {
     super.init()
   }
 
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   func loadData() {
     persistenceService.performRead(AllTracksOrderedByName()) { result in
       DispatchQueue.main.async { [weak self] in

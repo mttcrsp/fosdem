@@ -15,11 +15,6 @@ final class InfoController {
     self.dependencies = dependencies
   }
 
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   func loadInfo() {
     dependencies.infoService.loadAttributedText(for: info) { result in
       DispatchQueue.main.async { [weak self] in

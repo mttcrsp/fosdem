@@ -45,11 +45,6 @@ final class MapController: NSObject {
     }
   }
 
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   deinit {
     if let observer = observer {
       notificationCenter.removeObserver(observer)
