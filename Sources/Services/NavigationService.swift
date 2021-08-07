@@ -13,17 +13,22 @@ final class NavigationService {
 extension NavigationService {
   func makeSearchViewController() -> UIViewController {
     let searchController = SearchController(dependencies: services)
-    searchController.tabBarItem.accessibilityIdentifier = "search"
-    searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
-    searchController.title = L10n.Search.title
+    let searchViewController = searchController.makeSearchViewController()
+    searchViewController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
+    searchViewController.tabBarItem.accessibilityIdentifier = "search"
+    searchViewController.preferredPrimaryColumnWidthFraction = 0.4
+    searchViewController.maximumPrimaryColumnWidth = 375
+    searchViewController.title = L10n.Search.title
+    searchViewController.fos_controller = searchController
+    searchController.loadData()
+
     #if targetEnvironment(macCatalyst)
-    searchController.preferredDisplayMode = .oneBesideSecondary
+    searchViewController.preferredDisplayMode = .oneBesideSecondary
     #else
-    searchController.preferredDisplayMode = .allVisible
+    searchViewController.preferredDisplayMode = .allVisible
     #endif
-    searchController.preferredPrimaryColumnWidthFraction = 0.4
-    searchController.maximumPrimaryColumnWidth = 375
-    return searchController
+
+    return searchViewController
   }
 
   func makeAgendaViewController(didError: @escaping ErrorHandler) -> UIViewController {

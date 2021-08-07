@@ -1,9 +1,10 @@
 import UIKit
 
-final class SearchController: UISplitViewController {
+final class SearchController: NSObject {
   typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
 
   private(set) weak var resultsViewController: EventsViewController?
+  private weak var searchViewController: UISplitViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var eventsViewController: EventsViewController?
   private weak var searchController: UISearchController?
@@ -21,7 +22,6 @@ final class SearchController: UISplitViewController {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
   }
 
   @available(*, unavailable)
@@ -49,31 +49,14 @@ final class SearchController: UISplitViewController {
     isDisplayingFavoriteTrack ? "unfavorite" : "favorite"
   }
 
-  func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      tracksViewController?.navigationController?.popToRootViewController(animated: true)
-    }
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    delegate = self
-
+  func loadData() {
     dependencies.tracksService.delegate = self
     dependencies.tracksService.loadTracks()
-
-    let tracksViewController = makeTracksViewController()
-    let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
-    tracksNavigationController.navigationBar.prefersLargeTitles = true
-
-    viewControllers = [tracksNavigationController]
-    if traitCollection.horizontalSizeClass == .regular {
-      viewControllers.append(makeWelcomeViewController())
-    }
   }
 
   private func prefersLargeTitleForDetailViewController(withTitle title: String) -> Bool {
+    guard let view = searchViewController?.view else { return false }
+
     let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
     let attributes = [NSAttributedString.Key.font: font]
     let attributedString = NSAttributedString(string: title, attributes: attributes)
@@ -288,7 +271,7 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
     let eventViewController = makeEventViewController(for: event)
     tracksViewController?.showDetailViewController(eventViewController, sender: nil)
 
-    if traitCollection.horizontalSizeClass == .regular {
+    if searchViewController?.traitCollection.horizontalSizeClass == .regular {
       searchController?.searchBar.endEditing(true)
     }
   }
@@ -324,8 +307,25 @@ extension SearchController: UISearchResultsUpdating, EventsSearchController {
   }
 }
 
-private extension SearchController {
-  func makeTracksViewController() -> TracksViewController {
+extension SearchController {
+  func makeSearchViewController() -> UISplitViewController {
+    let tracksViewController = makeTracksViewController()
+    let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
+    tracksNavigationController.navigationBar.prefersLargeTitles = true
+
+    let searchViewController = UISplitViewController()
+    searchViewController.viewControllers = [tracksNavigationController]
+    searchViewController.delegate = self
+    self.searchViewController = searchViewController
+
+    if searchViewController.traitCollection.horizontalSizeClass == .regular {
+      searchViewController.viewControllers.append(makeWelcomeViewController())
+    }
+
+    return searchViewController
+  }
+
+  private func makeTracksViewController() -> TracksViewController {
     let filtersTitle = L10n.Search.Filter.title
     let filtersAction = #selector(didTapChangeFilter)
     let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
@@ -348,7 +348,7 @@ private extension SearchController {
     return tracksViewController
   }
 
-  func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
+  private func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
     let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
     alertController.popoverPresentationController?.barButtonItem = filtersButton
     alertController.view.accessibilityIdentifier = "filters"
@@ -366,7 +366,7 @@ private extension SearchController {
     return alertController
   }
 
-  func makeSearchController() -> UISearchController {
+  private func makeSearchController() -> UISearchController {
     let searchController = UISearchController(searchResultsController: makeResultsViewController())
     searchController.searchBar.placeholder = L10n.More.Search.prompt
     searchController.searchResultsUpdater = self
@@ -374,7 +374,7 @@ private extension SearchController {
     return searchController
   }
 
-  func makeResultsViewController() -> EventsViewController {
+  private func makeResultsViewController() -> EventsViewController {
     let resultsViewController = EventsViewController(style: .grouped)
     resultsViewController.favoritesDataSource = self
     resultsViewController.favoritesDelegate = self
@@ -384,16 +384,16 @@ private extension SearchController {
     return resultsViewController
   }
 
-  func makeEventsViewController(for track: Track) -> EventsViewController {
+  private func makeEventsViewController(for track: Track) -> EventsViewController {
     let favoriteAction = #selector(didToggleFavorite)
     let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
     favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
 
     let style: UITableView.Style
-    if traitCollection.userInterfaceIdiom == .pad {
-      style = .fos_insetGrouped
-    } else {
+    if UIDevice.current.userInterfaceIdiom == .phone {
       style = .grouped
+    } else {
+      style = .fos_insetGrouped
     }
 
     let eventsViewController = EventsViewController(style: style)
@@ -419,11 +419,11 @@ private extension SearchController {
     return eventsViewController
   }
 
-  func makeWelcomeViewController() -> WelcomeViewController {
+  private func makeWelcomeViewController() -> WelcomeViewController {
     WelcomeViewController(year: type(of: dependencies.yearsService).current)
   }
 
-  func makeEventViewController(for event: Event) -> UIViewController {
+  private func makeEventViewController(for event: Event) -> UIViewController {
     dependencies.navigationService.makeEventViewController(for: event)
   }
 }
