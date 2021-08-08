@@ -16,12 +16,10 @@ final class UpdateServiceTests: XCTestCase {
       return NetworkServiceTaskMock()
     }
 
-    let delegate = Delegate()
+    var didDetectUpdates = false
     let service = UpdateService(networkService: networkService, bundle: bundle)
-    service.delegate = delegate
-    service.detectUpdates()
-
-    XCTAssertTrue(delegate.didUpdate)
+    service.detectUpdates { didDetectUpdates = true }
+    XCTAssertTrue(didDetectUpdates)
   }
 
   func testDetectUpdatesNoUpdate() {
@@ -37,12 +35,10 @@ final class UpdateServiceTests: XCTestCase {
       return NetworkServiceTaskMock()
     }
 
-    let delegate = Delegate()
+    var didDetectUpdates = false
     let service = UpdateService(networkService: networkService, bundle: bundle)
-    service.delegate = delegate
-    service.detectUpdates()
-
-    XCTAssertFalse(delegate.didUpdate)
+    service.detectUpdates { didDetectUpdates = true }
+    XCTAssertFalse(didDetectUpdates)
   }
 
   func testDetectUpdatesNetworkError() {
@@ -56,19 +52,9 @@ final class UpdateServiceTests: XCTestCase {
       return NetworkServiceTaskMock()
     }
 
-    let delegate = Delegate()
+    var didDetectUpdates = false
     let service = UpdateService(networkService: networkService, bundle: bundle)
-    service.delegate = delegate
-    service.detectUpdates()
-
-    XCTAssertFalse(delegate.didUpdate)
-  }
-
-  private final class Delegate: UpdateServiceDelegate {
-    var didUpdate = false
-
-    func updateServiceDidDetectUpdate(_: UpdateService) {
-      didUpdate = true
-    }
+    service.detectUpdates { didDetectUpdates = true }
+    XCTAssertFalse(didDetectUpdates)
   }
 }

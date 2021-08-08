@@ -63,9 +63,15 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .fos_systemGroupedBackground
 
-    dependencies.updateService.delegate = self
-    dependencies.updateService.detectUpdates()
     dependencies.scheduleService?.startUpdating()
+    dependencies.updateService.detectUpdates {
+      DispatchQueue.main.async { [weak self] in
+        if let self = self {
+          let updateViewController = self.makeUpdateViewController()
+          self.present(updateViewController, animated: true)
+        }
+      }
+    }
   }
 
   func applicationDidBecomeActive() {
@@ -188,17 +194,6 @@ extension ApplicationController {
     mapController.addChild(errorViewController)
     mapController.view.addSubview(errorViewController.view)
     errorViewController.didMove(toParent: mapController)
-  }
-}
-
-extension ApplicationController: UpdateServiceDelegate {
-  func updateServiceDidDetectUpdate(_: UpdateService) {
-    DispatchQueue.main.async { [weak self] in
-      if let self = self {
-        let updateViewController = self.makeUpdateViewController()
-        self.present(updateViewController, animated: true)
-      }
-    }
   }
 }
 

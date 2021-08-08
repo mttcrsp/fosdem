@@ -1,12 +1,6 @@
 import Foundation
 
-protocol UpdateServiceDelegate: AnyObject {
-  func updateServiceDidDetectUpdate(_ updateService: UpdateService)
-}
-
 final class UpdateService {
-  weak var delegate: UpdateServiceDelegate?
-
   private let bundle: UpdateServiceBundle
   private let networkService: UpdateServiceNetwork
 
@@ -15,7 +9,7 @@ final class UpdateService {
     self.bundle = bundle
   }
 
-  func detectUpdates() {
+  func detectUpdates(completion: @escaping () -> Void) {
     guard let bundleIdentifier = bundle.bundleIdentifier else {
       return assertionFailure("Failed to acquire bundle identifier from bundle \(bundle)")
     }
@@ -25,15 +19,15 @@ final class UpdateService {
     }
 
     let request = AppStoreSearchRequest()
-    networkService.perform(request) { [weak self] result in
-      guard let self = self, case let .success(response) = result else { return }
+    networkService.perform(request) { result in
+      guard case let .success(response) = result else { return }
 
       guard let result = response.results.first(where: { result in result.bundleIdentifier == bundleIdentifier }) else {
         return assertionFailure("AppStore search request did not return any application with identifier \(bundleIdentifier)")
       }
 
       if result.version.compare(bundleShortVersion, options: .numeric) == .orderedDescending {
-        self.delegate?.updateServiceDidDetectUpdate(self)
+        completion()
       }
     }
   }
@@ -41,9 +35,7 @@ final class UpdateService {
 
 /// @mockable
 protocol UpdateServiceProtocol: AnyObject {
-  var delegate: UpdateServiceDelegate? { get set }
-
-  func detectUpdates()
+  func detectUpdates(completion: @escaping () -> Void)
 }
 
 extension UpdateService: UpdateServiceProtocol {}
