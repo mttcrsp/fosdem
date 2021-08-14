@@ -15,7 +15,11 @@ struct ScheduleRequest: NetworkRequest {
   }
 
   func decode(_ data: Data?, response: HTTPURLResponse?) throws -> Schedule {
-    let parser = ScheduleXMLParser(data: data ?? Data())
+    guard let data = data, response?.statusCode != 404 else {
+      throw Error.notFound
+    }
+
+    let parser = ScheduleXMLParser(data: data)
 
     if parser.parse(), let schedule = parser.schedule {
       return schedule
