@@ -5,7 +5,7 @@ struct AppStoreSearchRequest: NetworkRequest {
     URL(string: "https://itunes.apple.com/us/search?term=fosdem&media=software&entity=software")!
   }
 
-  func decode(_ data: Data) throws -> AppStoreSearchResponse {
-    try JSONDecoder().decode(AppStoreSearchResponse.self, from: data)
+  func decode(_ data: Data?, response _: HTTPURLResponse?) throws -> AppStoreSearchResponse {
+    try JSONDecoder().decode(AppStoreSearchResponse.self, from: data ?? Data())
   }
 }

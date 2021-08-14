@@ -12,6 +12,6 @@ final class AppStoreSearchRequestTests: XCTestCase {
     XCTAssertEqual(request.url, requestURL)
 
     let data = try BundleDataLoader().data(forResource: "results", withExtension: "json")
-    XCTAssertEqual(try request.decode(data), response)
+    XCTAssertEqual(try request.decode(data, response: nil), response)
   }
 }

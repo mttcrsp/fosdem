@@ -33,13 +33,12 @@ final class NetworkServiceTests: XCTestCase {
     XCTAssertEqual(session.dataTaskArgValues.first?.httpMethod, "GET")
     XCTAssertEqual(session.dataTaskArgValues.first?.allHTTPHeaderFields, [:])
 
-    completionHandler?(Data(), nil, nil)
+    completionHandler?(Data(), HTTPURLResponse(), nil)
 
     XCTAssertTrue(didExecuteCompletion)
   }
 
   func testPerformAdvancedRequest() throws {
-    let integer = 99
     let request = AdvancedRequest()
     let dataTask = NetworkServiceTaskMock()
     let session = NetworkServiceSessionMock()
@@ -50,6 +49,8 @@ final class NetworkServiceTests: XCTestCase {
       return dataTask
     }
 
+    let data = Data("something".utf8)
+    let response = HTTPURLResponse(url: request.url, statusCode: 200, httpVersion: nil, headerFields: nil)
     let service = NetworkService(session: session)
 
     var didExecuteCompletion = false
@@ -58,7 +59,8 @@ final class NetworkServiceTests: XCTestCase {
 
       switch result {
       case let .success(value):
-        XCTAssertEqual(value, integer)
+        XCTAssertEqual(value.0, data)
+        XCTAssertEqual(value.1, response)
       case let .failure(error):
         XCTFail(error.localizedDescription)
       }
@@ -70,9 +72,7 @@ final class NetworkServiceTests: XCTestCase {
     XCTAssertEqual(session.dataTaskArgValues.first?.httpMethod, request.httpMethod)
     XCTAssertEqual(session.dataTaskArgValues.first?.allHTTPHeaderFields, request.allHTTPHeaderFields)
 
-    let data = try JSONEncoder().encode(integer)
-
-    completionHandler?(data, nil, nil)
+    completionHandler?(data, response, nil)
 
     XCTAssertTrue(didExecuteCompletion)
   }
@@ -109,7 +109,8 @@ final class NetworkServiceTests: XCTestCase {
   }
 
   func testPerformDecodingError() {
-    let request = AdvancedRequest()
+    let error = NSError(domain: "test", code: 1)
+    let request = ThrowingRequest(error: error)
     let dataTask = NetworkServiceTaskMock()
     let session = NetworkServiceSessionMock()
 
@@ -128,43 +129,39 @@ final class NetworkServiceTests: XCTestCase {
       switch result {
       case .success:
         XCTFail("Request unexpectedly succeeded")
-      case let .failure(error):
-        XCTAssert(error is DecodingError)
+      case let .failure(receivedError as NSError):
+        XCTAssertEqual(error, receivedError)
       }
     }
 
-    completionHandler?(nil, nil, nil)
+    completionHandler?(Data(), HTTPURLResponse(), nil)
 
     XCTAssertTrue(didExecuteCompletion)
   }
 
   private struct SimpleRequest: NetworkRequest {
-    var url: URL {
-      URL(string: "https://www.fosdem.org")!
-    }
+    let url = URL(string: "https://www.fosdem.org")!
 
-    func decode(_: Data) throws {}
+    func decode(_: Data?, response _: HTTPURLResponse?) throws {}
   }
 
   private struct AdvancedRequest: NetworkRequest {
-    var url: URL {
-      URL(string: "https://www.fosdem.org")!
-    }
+    let url = URL(string: "https://www.fosdem.org")!
+    let httpMethod = "POST"
+    let httpBody = Data(base64Encoded: "fosdem")
+    let allHTTPHeaderFields: [String: String]? = ["Content-Type": "application/json"]
 
-    var httpMethod: String {
-      "POST"
+    func decode(_ data: Data?, response: HTTPURLResponse?) throws -> (Data?, HTTPURLResponse?) {
+      (data, response)
     }
+  }
 
-    var httpBody: Data? {
-      Data(base64Encoded: "fosdem")
-    }
+  private struct ThrowingRequest: NetworkRequest {
+    let url = URL(string: "https://www.fosdem.org")!
+    let error: NSError
 
-    var allHTTPHeaderFields: [String: String]? {
-      ["Content-Type": "application/json"]
-    }
-
-    func decode(_ data: Data) throws -> Int {
-      try JSONDecoder().decode(Int.self, from: data)
+    func decode(_: Data?, response _: HTTPURLResponse?) throws {
+      throw error
     }
   }
 }

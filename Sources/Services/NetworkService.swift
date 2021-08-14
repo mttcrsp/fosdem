@@ -8,7 +8,7 @@ protocol NetworkRequest {
   var httpMethod: String { get }
   var allHTTPHeaderFields: [String: String]? { get }
 
-  func decode(_ data: Data) throws -> Model
+  func decode(_ data: Data?, response: HTTPURLResponse?) throws -> Model
 }
 
 protocol NetworkServiceDelegate: AnyObject {
@@ -27,7 +27,7 @@ final class NetworkService {
 
   @discardableResult
   func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkServiceTask {
-    let task = session.dataTask(with: request.httpRequest) { [weak self] data, _, error in
+    let task = session.dataTask(with: request.httpRequest) { [weak self] data, response, error in
       if let self = self {
         self.delegate?.networkServiceDidEndRequest(self)
       }
@@ -37,8 +37,7 @@ final class NetworkService {
       }
 
       do {
-        let data = data ?? Data()
-        let model = try request.decode(data)
+        let model = try request.decode(data, response: response as? HTTPURLResponse)
         completion(.success(model))
       } catch {
         completion(.failure(error))
@@ -78,6 +77,7 @@ private extension NetworkRequest {
 
 /// @mockable
 protocol NetworkServiceTask {
+  func cancel()
   func resume()
 }
 
