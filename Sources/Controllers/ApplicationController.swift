@@ -150,9 +150,12 @@ private extension ApplicationController {
   }
 
   func makeUpdateViewController() -> UIAlertController {
-    UIAlertController.makeConfirmController(with: .update) { [weak self] in
-      self?.didTapUpdate()
-    }
+    let dismissAction = UIAlertAction(title: L10n.Update.dismiss, style: .cancel)
+    let confirmAction = UIAlertAction(title: L10n.Update.confirm, style: .default) { [weak self] _ in self?.didTapUpdate() }
+    let alertController = UIAlertController(title: L10n.Update.title, message: L10n.Update.message, preferredStyle: .alert)
+    alertController.addAction(confirmAction)
+    alertController.addAction(dismissAction)
+    return alertController
   }
 }
 
@@ -220,15 +223,4 @@ private extension UserDefaults {
 
 private extension String {
   static var selectedViewControllerKey: String { #function }
-}
-
-private extension UIAlertController.ConfirmConfiguration {
-  static var update: UIAlertController.ConfirmConfiguration {
-    UIAlertController.ConfirmConfiguration(
-      title: L10n.Update.title,
-      message: L10n.Update.message,
-      confirm: L10n.Update.confirm,
-      dismiss: L10n.Update.dismiss
-    )
-  }
 }
