@@ -41,6 +41,9 @@ let app = Target(
     "UIBackgroundModes": .array(["audio"]),
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UILaunchStoryboardName": .string("LaunchScreen"),
+    "NSAppTransportSecurity": .dictionary([
+      "NSAllowsArbitraryLoads": .boolean(true),
+    ]),
     "NSLocationWhenInUseUsageDescription": "The app uses your location data to display your current position within a map. Location data is never recorded and will never leave the app.",
     "UISupportedInterfaceOrientations~ipad": .array([
       "UIInterfaceOrientationPortrait",
