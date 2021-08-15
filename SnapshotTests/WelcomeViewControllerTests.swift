@@ -11,6 +11,9 @@ final class WelcomeViewControllerTests: XCTestCase {
 
     welcomeViewController.showsContinue = true
     assertSnapshot(matching: welcomeViewController, as: .image(on: .iPhone8Plus))
+
+    welcomeViewController.showsContinue = false
+    assertSnapshot(matching: welcomeViewController, as: .image(on: .iPhone8Plus))
   }
 
   func testEvents() throws {
