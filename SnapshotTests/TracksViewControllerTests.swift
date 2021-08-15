@@ -132,13 +132,12 @@ final class TracksViewControllerTestsTests: XCTestCase {
 
     let tracksViewController = TracksViewController(style: .fos_insetGrouped)
     tracksViewController.dataSource = dataSource
-
-    let tableView = try XCTUnwrap(tracksViewController.tableView)
-    XCTAssertEqual(tableView.numberOfRows(inSection: 0), 1)
+    tracksViewController.reloadData()
+    assertSnapshot(matching: tracksViewController, as: .image(on: .iPhone8Plus))
 
     dataSource.tracksViewControllerHandler = { _, _ in 2 }
-    tableView.reloadData()
-    XCTAssertEqual(tableView.numberOfRows(inSection: 0), 2)
+    tracksViewController.reloadData()
+    assertSnapshot(matching: tracksViewController, as: .image(on: .iPhone8Plus))
   }
 
   func testUpdates() throws {
