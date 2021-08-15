@@ -81,11 +81,11 @@ extension NavigationService {
 }
 
 extension NavigationService {
-  func makeYearsViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping ErrorHandler) -> UIViewController {
-    let yearController = YearController(year: year, yearPersistenceService: persistenceService, dependencies: services)
+  func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping ErrorHandler) -> UIViewController {
+    let yearController = YearController(year: year, persistenceService: persistenceService, dependencies: services)
     yearController.navigationItem.largeTitleDisplayMode = .never
+    yearController.title = year.description
     yearController.didError = didError
-    yearController.title = year
     return yearController
   }
 }
@@ -119,7 +119,7 @@ protocol NavigationServiceProtocol {
   func makeTransportationViewController() -> UIViewController
   func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
-  func makeYearsViewController(forYear year: String, with persistenceService: PersistenceService, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
 }
 
 extension NavigationService: NavigationServiceProtocol {}

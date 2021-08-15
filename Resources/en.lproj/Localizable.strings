@@ -191,11 +191,19 @@
 /// MARK: - Years
 
 // Link to a screen containing links to schedule of previous years of the conference
-"years.item" = "From 2007 to 2021";
+"years.item" = "From %@ to %@";
 // Title for a screen containing links to schedule of previous years of the conference
 "years.title" = "Previous years";
 // A link to schedule for a given year
 "years.year" = "FOSDEM %@";
+// An announcement that communicates that download started
+"years.progress" = "Loading in progress";
+// Title for an alert reporting that the schedule for a given year is not available
+"years.unavailable.title" = "Year unavailable";
+// Message for an alert reporting that the schedule for a given year is not available
+"years.unavailable.message" = "Data for this year is not available anymore";
+// A button that dismisses an alert reporting that the schedule for a given year is not available
+"years.unavailable.dismiss" = "Ok";
 
 /// MARK: - DevRooms
 

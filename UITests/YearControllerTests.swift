@@ -13,7 +13,8 @@ final class YearControllerTests: XCTestCase {
   }
 
   func testTracks() {
-    app.cells["Ada"].tap()
+    wait { self.app.trackCell.exists }
+    app.trackCell.tap()
     app.staticTexts["Welcome to the Ada DevRoom"].tap()
     app.backButton.tap()
     app.backButton.tap()
@@ -23,6 +24,7 @@ final class YearControllerTests: XCTestCase {
     let cancelButton = app.navigationBars.buttons.firstMatch
     let searchField = app.searchFields.firstMatch
 
+    wait { searchField.exists }
     searchField.tap()
     searchField.typeText("FOSDEM")
     app.staticTexts["Welcome to FOSDEM 2019"].tap()
@@ -39,5 +41,9 @@ private extension XCUIApplication {
 
   var yearCell: XCUIElement {
     cells["2019"]
+  }
+
+  var trackCell: XCUIElement {
+    cells["Ada"]
   }
 }

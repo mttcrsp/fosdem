@@ -97,10 +97,10 @@ final class MoreControllerTests: XCTestCase {
     let app = XCUIApplication()
     app.launch()
     app.moreButton.tap()
-    app.cells["years"].tap()
-    app.cells["2019"].tap()
+    app.cells["transportation"].tap()
+    app.cells["car"].tap()
     app.moreButton.tap()
-    XCTAssert(app.cells["years"].exists)
+    XCTAssert(app.cells["transportation"].exists)
   }
 }
 

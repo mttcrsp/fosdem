@@ -4,13 +4,13 @@ class Services {
   let launchService: LaunchServiceProtocol
 
   let bundleService = BundleService()
-  let yearsService: YearsServiceProtocol = YearsService()
   let playbackService: PlaybackServiceProtocol = PlaybackService()
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
 
   private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
+  private(set) lazy var yearsService: YearsServiceProtocol = YearsService(networkService: networkService)
   private(set) lazy var updateService: UpdateServiceProtocol = UpdateService(networkService: networkService)
   private(set) lazy var buildingsService: BuildingsServiceProtocol = BuildingsService(bundleService: bundleService)
   private(set) lazy var soonService: SoonServiceProtocol = SoonService(timeService: timeService, persistenceService: _persistenceService)

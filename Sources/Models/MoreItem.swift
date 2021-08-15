@@ -22,8 +22,6 @@ extension MoreItem {
       return L10n.Code.title
     case .legal:
       return L10n.Legal.title
-    case .years:
-      return L10n.Years.item
     case .video:
       return L10n.Recent.video
     case .history:
@@ -34,6 +32,10 @@ extension MoreItem {
       return L10n.Transportation.title
     case .acknowledgements:
       return L10n.Acknowledgements.title
+    case .years:
+      let lowerBound = YearsService.all.lowerBound
+      let upperBound = YearsService.all.upperBound
+      return L10n.Years.item(lowerBound, upperBound)
     #if DEBUG
     case .time:
       return "Override current time"

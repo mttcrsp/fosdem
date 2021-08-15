@@ -1,60 +1,118 @@
 import Foundation
 
 final class YearsService {
-  static let current = 2021
-
-  private let queue: DispatchQueue
-  private let bundle: YearsServiceBundle
-
-  init(bundle: YearsServiceBundle = Bundle.main, queue: DispatchQueue = .global()) {
-    self.queue = queue
-    self.bundle = bundle
+  enum Error: CustomNSError {
+    case documentDirectoryNotFound
+    case yearNotAvailable
   }
 
-  func loadYears(_ completion: @escaping ([String]) -> Void) {
-    queue.async { [weak self] in
+  static let current = 2021
+  static let all = 2012 ... 2020
+
+  private let fileManager: YearsServiceFile
+  private let networkService: YearsServiceNetwork
+  private let persistenceServiceBuilder: YearsServicePersistenceBuilder
+
+  init(networkService: YearsServiceNetwork, persistenceServiceBuilder: YearsServicePersistenceBuilder = PersistenceServiceBuilder(), fileManager: YearsServiceFile = FileManager.default) {
+    self.fileManager = fileManager
+    self.networkService = networkService
+    self.persistenceServiceBuilder = persistenceServiceBuilder
+  }
+
+  func downloadYear(_ year: Int, completion: @escaping (Swift.Error?) -> Void) -> NetworkServiceTask {
+    let request = ScheduleRequest(year: year)
+    return networkService.perform(request) { [weak self] result in
       guard let self = self else { return }
 
-      let urls = self.bundle.urls(forResourcesWithExtension: .databaseExtension, subdirectory: nil) ?? []
+      switch result {
+      case .failure(ScheduleRequest.Error.notFound):
+        completion(Error.yearNotAvailable)
+      case let .failure(error):
+        completion(error)
+      case let .success(schedule):
+        do {
+          let yearsDirectory = try self.yearsDirectory()
+          try self.fileManager.createDirectory(at: yearsDirectory, withIntermediateDirectories: true, attributes: nil)
 
-      var years = urls.map { url -> String in
-        let fileName = url.lastPathComponent
-        let fileExtension = String.databaseExtension
-        return fileName.replacingOccurrences(of: ".\(fileExtension)", with: "")
+          let yearPath = try self.path(forYear: year)
+          self.fileManager.createFile(atPath: yearPath, contents: nil, attributes: nil)
+
+          let operation = ImportSchedule(schedule: schedule)
+          let persistenceService = try self.makePersistenceService(forYear: year)
+          persistenceService.performWrite(operation, completion: completion)
+        } catch {
+          completion(error)
+        }
       }
-
-      years.sort(by: >)
-      completion(years)
     }
   }
 
-  func loadURL(forYear year: String, completion: @escaping (URL?) -> Void) {
-    queue.async { [weak self] in
-      if let self = self {
-        completion(self.bundle.url(forResource: year, withExtension: .databaseExtension))
-      }
+  func isYearDownloaded(_ year: Int) -> Bool {
+    if let path = try? path(forYear: year) {
+      return fileManager.fileExists(atPath: path)
+    } else {
+      return false
     }
   }
-}
 
-private extension String {
-  static var databaseExtension: String {
-    "year"
+  func makePersistenceService(forYear year: Int) throws -> PersistenceServiceProtocol {
+    try persistenceServiceBuilder.makePersistenceService(withPath: try path(forYear: year))
+  }
+
+  private func yearsDirectory() throws -> URL {
+    try documentDirectory().appendingPathComponent("years")
+  }
+
+  private func path(forYear year: Int) throws -> String {
+    try documentDirectory().appendingPathComponent(year.description).appendingPathExtension("sqlite").path
+  }
+
+  private func documentDirectory() throws -> URL {
+    if let url = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+      return url
+    } else {
+      throw Error.documentDirectoryNotFound
+    }
   }
 }
 
 /// @mockable
 protocol YearsServiceProtocol {
   static var current: Int { get }
-  func loadYears(_ completion: @escaping ([String]) -> Void)
-  func loadURL(forYear year: String, completion: @escaping (URL?) -> Void)
+  static var all: ClosedRange<Int> { get }
+  func isYearDownloaded(_ year: Int) -> Bool
+  func downloadYear(_ year: Int, completion: @escaping (Error?) -> Void) -> NetworkServiceTask
+  func makePersistenceService(forYear year: Int) throws -> PersistenceServiceProtocol
 }
 
 extension YearsService: YearsServiceProtocol {}
 
-protocol YearsServiceBundle {
-  func url(forResource name: String?, withExtension ext: String?) -> URL?
-  func urls(forResourcesWithExtension ext: String?, subdirectory subpath: String?) -> [URL]?
+/// @mockable
+protocol YearsServiceNetwork {
+  @discardableResult
+  func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
 }
 
-extension Bundle: YearsServiceBundle {}
+extension NetworkService: YearsServiceNetwork {}
+
+/// @mockable
+protocol YearsServicePersistenceBuilder {
+  func makePersistenceService(withPath path: String) throws -> PersistenceServiceProtocol
+}
+
+private class PersistenceServiceBuilder: YearsServicePersistenceBuilder {
+  func makePersistenceService(withPath path: String) throws -> PersistenceServiceProtocol {
+    try PersistenceService(path: path, migrations: .allMigrations)
+  }
+}
+
+/// @mockable
+protocol YearsServiceFile {
+  @discardableResult
+  func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey: Any]?) -> Bool
+  func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey: Any]?) throws
+  func urls(for directory: FileManager.SearchPathDirectory, in domainMask: FileManager.SearchPathDomainMask) -> [URL]
+  func fileExists(atPath path: String) -> Bool
+}
+
+extension FileManager: YearsServiceFile {}

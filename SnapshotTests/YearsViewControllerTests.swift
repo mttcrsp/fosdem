@@ -6,8 +6,9 @@ import XCTest
 final class YearsViewControllerTests: XCTestCase {
   private let dataSource: YearsViewControllerDataSourceMock = {
     let dataSource = YearsViewControllerDataSourceMock()
-    dataSource.numberOfYearsHandler = { _ in 2 }
-    dataSource.yearsViewControllerHandler = { _, index in index.description }
+    dataSource.yearsViewControllerHandler = { _, index in index }
+    dataSource.yearsViewControllerDownloadStateAtHandler = { _, index in YearDownloadState.allCases[index] }
+    dataSource.numberOfYearsHandler = { _ in YearDownloadState.allCases.count }
     return dataSource
   }()
 
@@ -31,6 +32,6 @@ final class YearsViewControllerTests: XCTestCase {
 
     XCTAssertEqual(delegate.yearsViewControllerCallCount, 1)
     XCTAssertEqual(delegate.yearsViewControllerArgValues.first?.0, yearsViewController)
-    XCTAssertEqual(delegate.yearsViewControllerArgValues.first?.1, "1")
+    XCTAssertEqual(delegate.yearsViewControllerArgValues.first?.1, 1)
   }
 }
