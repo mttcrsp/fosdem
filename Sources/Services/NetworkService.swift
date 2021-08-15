@@ -32,7 +32,9 @@ final class NetworkService {
         self.delegate?.networkServiceDidEndRequest(self)
       }
 
-      if let error = error {
+      if let error = error as? URLError, error.code == .cancelled {
+        return // Do nothing
+      } else if let error = error {
         return completion(.failure(error))
       }
 
