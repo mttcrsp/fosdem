@@ -1,3 +1,5 @@
+#!/bin/sh
+
 declare -a devices=( \
   "iPhone 8" \
   "iPhone 8 Plus" \

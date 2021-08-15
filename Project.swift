@@ -1,7 +1,16 @@
+import Foundation
 import ProjectDescription
 
+let isCI: Bool = {
+  if let path = ProcessInfo.processInfo.environment["DYLD_LIBRARY_PATH"], path.contains("/Users/runner") {
+    return true
+  } else {
+    return false
+  }
+}()
+
 let mockolo = TargetAction.pre(
-  script: "./mockolo.sh",
+  script: "./run-mockolo",
   name: "Mockolo"
 )
 
@@ -47,7 +56,7 @@ let app = Target(
   ]),
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
-  actions: [mockolo, swiftFormat],
+  actions: isCI ? [] : [mockolo, swiftFormat],
   dependencies: [.package(product: "GRDB")],
   settings: Settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",

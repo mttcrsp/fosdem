@@ -1,0 +1,12 @@
+#!/bin/sh
+
+mkdir -p Mocks
+
+if test -f "./mockolo"
+then
+  echo "Using local installation"
+  ./mockolo -s Sources/ -d Mocks/Mockolo.swift -i Fosdem --mock-final --enable-args-history
+else
+  echo "Using global installation"
+  mockolo -s Sources/ -d Mocks/Mockolo.swift -i Fosdem --mock-final --enable-args-history
+fi

@@ -12,14 +12,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install Tuist
         run: bash <(curl -Ls https://install.tuist.io)
-      - name: Install Rubygems dependencies
-        run: gem install xcpretty-travis-formatter
       - name: Run Tuist
         run: tuist up && tuist generate
-        env:
-          HOMEBREW_NO_INSTALL_CLEANUP: 1
       - name: Run unit, snapshot, and UI tests
-        run: xcodebuild -scheme FOSDEM -sdk iphonesimulator -destination 'name=iPhone 8 Plus' build test | xcpretty -f `xcpretty-travis-formatter`
+        run: tuist test -d 'iPhone 8 Plus'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
