@@ -18,7 +18,7 @@ protocol YearsViewControllerDelegate: AnyObject {
   func yearsViewController(_ yearsViewController: YearsViewController, didSelectYearAt index: Int)
 }
 
-final class YearsViewController: UITableViewController {
+class YearsViewController: UITableViewController {
   weak var dataSource: YearsViewControllerDataSource?
   weak var delegate: YearsViewControllerDelegate?
 
