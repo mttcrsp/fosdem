@@ -72,7 +72,7 @@ private struct SpeedUpAnimations: PreInitCommand {
 
 private struct PreventScheduleUpdates: PostInitCommand {
   static func perform(with services: Services, environment: [String: String]) {
-    guard environment["ENABLE_SCHEDULE_UPDATES"] != nil else { return }
+    guard environment["ENABLE_SCHEDULE_UPDATES"] == nil else { return }
     services.scheduleService = nil
   }
 }
