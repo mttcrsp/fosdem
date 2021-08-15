@@ -252,9 +252,15 @@
 "error.functionality.message" = "Try again later or check the AppStore for updates.";
 // A button that will open the Appstore page for the app
 "error.functionality.action" = "Open AppStore";
-// Title for an alert reporting that an error occurred
-"error.alert.title" = "An error occurred";
-// Message for an alert reporting that an error occurred
-"error.alert.message" = "Something went wrong. Try againg later or check the AppStore for updates.";
+// Title for an alert reporting that an unknown error occurred
+"error.unknown.title" = "An error occurred";
+// Message for an alert reporting that an unknown error occurred
+"error.unknown.message" = "Something went wrong. Try againg later or check the AppStore for updates.";
+// Title for an alert reporting that an action failed because there's no internet connection available
+"error.internet.title" = "Loading error";
+// Message for an alert reporting that an action failed because there's no internet connection available
+"error.internet.message" = "The internet connection appears to be offline.";
 // A button that dismiss an error alert
 "error.dismiss" = "Ok";
+// A button that retries the action that failed
+"error.retry" = "Try again";
