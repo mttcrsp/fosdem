@@ -77,13 +77,21 @@ private extension UITableViewCell {
   func setDownloadState(_ state: YearDownloadState) {
     switch state {
     case .inProgress:
-      let indicatorView = UIActivityIndicatorView(style: .gray)
+      let indicatorView = UIActivityIndicatorView(style: preferredIndicatorStyle)
       indicatorView.startAnimating()
       accessoryView = indicatorView
       accessoryType = .none
     case .available, .completed:
       accessoryView = nil
       accessoryType = .disclosureIndicator
+    }
+  }
+
+  private var preferredIndicatorStyle: UIActivityIndicatorView.Style {
+    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle == .dark {
+      return .white
+    } else {
+      return .gray
     }
   }
 }
