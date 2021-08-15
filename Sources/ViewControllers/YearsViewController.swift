@@ -22,9 +22,16 @@ class YearsViewController: UITableViewController {
   weak var dataSource: YearsViewControllerDataSource?
   weak var delegate: YearsViewControllerDelegate?
 
-  func reloadRow(at index: Int) {
-    let indexPaths = [IndexPath(row: index, section: 0)]
-    tableView.reloadRows(at: indexPaths, with: .none)
+  var allowsSelection: Bool {
+    get { tableView.allowsSelection }
+    set { tableView.allowsSelection = newValue }
+  }
+
+  func reloadDownloadState(at index: Int) {
+    let indexPath = IndexPath(row: index, section: 0)
+    if let cell = tableView.cellForRow(at: indexPath), let state = downloadState(at: indexPath) {
+      cell.setDownloadState(state)
+    }
   }
 
   override func viewDidLoad() {

@@ -5,39 +5,45 @@ final class YearsController: YearsViewController {
 
   var didError: ((UIViewController, Error) -> Void)?
 
-  private(set) var yearsPendingTasks: [Year: NetworkServiceTask] = [:]
+  private var pendingYear: Year?
+  private var pendingTask: NetworkServiceTask?
 
   private let dependencies: Dependencies
 
   init(style: UITableView.Style, dependencies: Dependencies) {
     self.dependencies = dependencies
     super.init(style: style)
+  }
 
-    delegate = self
-    dataSource = self
-    title = L10n.Years.title
+  deinit {
+    pendingTask?.cancel()
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    delegate = self
+    dataSource = self
+    title = L10n.Years.title
+  }
 }
 
 private extension YearsController {
+  func makeYearViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol) -> UIViewController {
+    dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: { [weak self] viewController, error in
+      self?.didError?(viewController, error)
+    })
+  }
+
   func makeYearUnavailableViewController() -> UIAlertController {
     let title = L10n.Years.Unavailable.title, message = L10n.Years.Unavailable.message
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
     alertController.addAction(.init(title: L10n.Years.Unavailable.dismiss, style: .default))
     return alertController
-  }
-
-  func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
-    UIAlertController.makeErrorController(withHandler: handler)
-  }
-
-  func makeYearViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
-    dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: didError)
   }
 }
 
@@ -47,7 +53,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
   }
 
   private func downloadState(for year: Year) -> YearDownloadState {
-    if yearsPendingTasks[year] != nil {
+    if pendingYear == year {
       return .inProgress
     } else if dependencies.yearsService.isYearDownloaded(year) {
       return .completed
@@ -71,67 +77,71 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
   func yearsViewController(_ yearsViewController: YearsViewController, didSelectYearAt index: Int) {
     let year = years[index]
 
-    let onYearDownloadFailure: (Error) -> Void = { [weak self, weak yearsViewController] error in
+    let onRetry: () -> Void = { [weak self, weak yearsViewController] in
       if let self = self, let yearsViewController = yearsViewController {
-        self.yearsViewController(yearsViewController, loadingDidFailWith: error)
+        self.yearsViewController(yearsViewController, didSelectYearAt: index)
       }
     }
-
-    let onYearDownloadSuccess = { [weak self, weak yearsViewController] in
+    let onFailure: (Error) -> Void = { [weak self, weak yearsViewController] error in
       if let self = self, let yearsViewController = yearsViewController {
-        self.yearsViewController(yearsViewController, loadingDidSucceedFor: year)
+        self.yearsViewController(yearsViewController, loadingDidFailWith: error, retryHandler: onRetry)
       }
     }
-
-    let cancelTask = { [weak self, weak yearsViewController] in
-      self?.yearsPendingTasks[year]?.cancel()
-      self?.yearsPendingTasks[year] = nil
-      yearsViewController?.reloadRow(at: index)
-    }
-
-    let onYearDownloaded: (Error?) -> Void = { error in
-      DispatchQueue.main.async {
-        cancelTask()
-        if let error = error {
-          onYearDownloadFailure(error)
-        } else {
-          onYearDownloadSuccess()
-        }
+    let onSuccess: () -> Void = { [weak self, weak yearsViewController] in
+      if let self = self, let yearsViewController = yearsViewController {
+        self.yearsViewController(yearsViewController, loadingDidSucceedFor: year, retryHandler: onRetry)
       }
     }
 
     switch downloadState(for: year) {
-    case .completed:
-      onYearDownloadSuccess()
     case .inProgress:
-      cancelTask()
+      break
+    case .completed:
+      onSuccess()
     case .available:
-      UIAccessibility.post(notification: .announcement, argument: L10n.Years.progress)
-      yearsPendingTasks[year] = dependencies.yearsService.downloadYear(year, completion: onYearDownloaded)
-      yearsViewController.reloadRow(at: index)
+      let task = dependencies.yearsService.downloadYear(year) { [weak self, weak yearsViewController] error in
+        DispatchQueue.main.async {
+          if let error = error {
+            onFailure(error)
+          } else {
+            onSuccess()
+          }
+
+          self?.pendingYear = nil
+          self?.pendingTask = nil
+          yearsViewController?.allowsSelection = true
+          yearsViewController?.reloadDownloadState(at: index)
+        }
+      }
+
+      pendingYear = year
+      pendingTask = task
+      yearsViewController.allowsSelection = false
+      yearsViewController.reloadDownloadState(at: index)
+      yearsViewController.deselectSelectedRow(animated: true)
     }
   }
 
-  func yearsViewController(_ yearsViewController: YearsViewController, loadingDidSucceedFor year: Int) {
+  func yearsViewController(_ yearsViewController: YearsViewController, loadingDidSucceedFor year: Int, retryHandler: @escaping () -> Void) {
     do {
-      let didError: (UIViewController, Error) -> Void = { [weak self] viewController, error in
-        self?.didError?(viewController, error)
-      }
       let persistenceService = try dependencies.yearsService.makePersistenceService(forYear: year)
-      let yearViewController = makeYearViewController(forYear: year, with: persistenceService, didError: didError)
+      let yearViewController = makeYearViewController(forYear: year, with: persistenceService)
       yearsViewController.show(yearViewController, sender: nil)
     } catch {
-      self.yearsViewController(yearsViewController, loadingDidFailWith: error)
+      self.yearsViewController(yearsViewController, loadingDidFailWith: error, retryHandler: retryHandler)
     }
   }
 
-  func yearsViewController(_ yearsViewController: YearsViewController, loadingDidFailWith error: Error) {
+  func yearsViewController(_ yearsViewController: YearsViewController, loadingDidFailWith error: Error, retryHandler: @escaping () -> Void) {
     switch error {
     case let error as YearsService.Error where error == .yearNotAvailable:
-      let unavailableViewController = makeYearUnavailableViewController()
-      yearsViewController.present(unavailableViewController, animated: true)
+      let errorViewController = makeYearUnavailableViewController()
+      yearsViewController.present(errorViewController, animated: true)
+    case let error as URLError where error.code == .notConnectedToInternet:
+      let errorViewController = UIAlertController.makeNoInternetController(withRetryHandler: retryHandler)
+      yearsViewController.present(errorViewController, animated: true)
     default:
-      let errorViewController = makeErrorViewController()
+      let errorViewController = UIAlertController.makeErrorController()
       yearsViewController.present(errorViewController, animated: true)
     }
   }
