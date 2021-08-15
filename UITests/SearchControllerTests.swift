@@ -81,7 +81,7 @@ final class SearchControllerTests: XCTestCase {
       XCTAssertEqual(app.trackTable.cells.count, 8)
     }
 
-    let tracksCount = 111
+    let tracksCount = 109
 
     runActivity(named: "Unfavorite from track") {
       unfavoriteTrackButton.tap()
@@ -163,7 +163,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 0).tap() // day 1
       XCTAssertTrue(day1Header.exists)
       XCTAssertFalse(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 72)
+      XCTAssertEqual(app.tracksTable.cells.count, 65)
     }
 
     runActivity(named: "Select day 2") {
@@ -171,7 +171,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 1).tap() // day 2
       XCTAssertTrue(day2Header.exists)
       XCTAssertTrue(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 40)
+      XCTAssertEqual(app.tracksTable.cells.count, 45)
     }
 
     runActivity(named: "Select all") {
@@ -179,7 +179,7 @@ final class SearchControllerTests: XCTestCase {
       filterButtons.element(boundBy: 0).tap() // all
       XCTAssertTrue(allHeader.exists)
       XCTAssertTrue(favoritesHeader.exists)
-      XCTAssertEqual(app.tracksTable.cells.count, 112)
+      XCTAssertEqual(app.tracksTable.cells.count, 110)
     }
   }
 
