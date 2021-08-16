@@ -23,6 +23,14 @@ final class EventViewControllerTests: XCTestCase {
     dataSource.eventViewControllerHandler = { _, _ in .end }
     eventViewController.reloadPlaybackPosition()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
+
+    if #available(iOS 13.0, *) {
+      let eventViewController = EventViewController(style: .insetGrouped)
+      eventViewController.event = try .withVideo()
+      eventViewController.dataSource = dataSource
+      eventViewController.view.tintColor = .fos_label
+      assertSnapshot(matching: eventViewController, as: .image(size: size))
+    }
   }
 
   func testEvents() throws {
@@ -48,6 +56,7 @@ final class EventViewControllerTests: XCTestCase {
     eventViewController.showsLivestream = true
     eventViewController.event = try .withLivestream()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
+    XCTAssertTrue(eventViewController.showsLivestream)
 
     let livestreamButton = eventViewController.view.findSubview(ofType: RoundedButton.self, accessibilityIdentifier: "livestream")
     livestreamButton?.sendActions(for: .touchUpInside)
