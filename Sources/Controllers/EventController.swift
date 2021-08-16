@@ -1,27 +1,36 @@
 import AVKit
-import SafariServices
 
 final class EventController: UIPageViewController {
-  typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService
+  typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService & HasNavigationService
+  typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
 
   var showsFavoriteButton = true {
     didSet { didChangeShowsFavoriteButton() }
   }
 
-  private weak var videoViewController: AVPlayerViewController?
+  private weak var playerViewController: PlayerViewController?
   private weak var eventViewController: EventViewController?
 
   private var favoritesObserver: NSObjectProtocol?
   private var finishObserver: NSObjectProtocol?
   private var timeObserver: Any?
 
+  private let notificationCenter: NotificationCenter
+  private let audioSession: AVAudioSessionProtocol
   private let dependencies: Dependencies
 
   let event: Event
 
-  init(event: Event, dependencies: Dependencies) {
+  init(
+    event: Event,
+    dependencies: Dependencies,
+    notificationCenter: NotificationCenter = .default,
+    audioSession: AVAudioSessionProtocol = AVAudioSession.sharedInstance()
+  ) {
     self.event = event
     self.dependencies = dependencies
+    self.audioSession = audioSession
+    self.notificationCenter = notificationCenter
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
   }
 
@@ -36,7 +45,7 @@ final class EventController: UIPageViewController {
     }
 
     if let observer = timeObserver {
-      videoViewController?.player?.removeTimeObserver(observer)
+      playerViewController?.player?.removeTimeObserver(observer)
     }
 
     if let observer = finishObserver {
@@ -44,18 +53,10 @@ final class EventController: UIPageViewController {
     }
 
     do {
-      try session.setActive(false)
+      try audioSession.setActive(false, options: [])
     } catch {
       assertionFailure(error.localizedDescription)
     }
-  }
-
-  private var notificationCenter: NotificationCenter {
-    .default
-  }
-
-  private var session: AVAudioSession {
-    .sharedInstance()
   }
 
   private var isEventFavorite: Bool {
@@ -164,8 +165,8 @@ extension EventController: AVPlayerViewControllerDelegate {
     let event = self.event
 
     do {
-      try session.setCategory(.playback)
-      try session.setActive(true)
+      try audioSession.setCategory(.playback)
+      try audioSession.setActive(true, options: [])
     } catch {
       assertionFailure(error.localizedDescription)
     }
@@ -218,17 +219,17 @@ private extension EventController {
     return eventViewController
   }
 
-  func makeVideoViewController(for url: URL) -> AVPlayerViewController {
-    let videoViewController = AVPlayerViewController()
-    videoViewController.exitsFullScreenWhenPlaybackEnds = true
-    videoViewController.player = AVPlayer(url: url)
-    videoViewController.player?.play()
-    videoViewController.delegate = self
-    self.videoViewController = videoViewController
-    return videoViewController
+  func makeVideoViewController(for url: URL) -> PlayerViewController {
+    let playerViewController = dependencies.navigationService.makePlayerViewController()
+    playerViewController.exitsFullScreenWhenPlaybackEnds = true
+    playerViewController.player = AVPlayer(url: url)
+    playerViewController.player?.play()
+    playerViewController.delegate = self
+    self.playerViewController = playerViewController
+    return playerViewController
   }
 
-  private func makeAttachmentViewController(for attachment: Attachment) -> SFSafariViewController {
-    SFSafariViewController(url: attachment.url)
+  private func makeAttachmentViewController(for attachment: Attachment) -> UIViewController {
+    dependencies.navigationService.makeSafariViewController(with: attachment.url)
   }
 }
