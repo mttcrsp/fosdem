@@ -27,7 +27,7 @@ class Services {
   #if DEBUG
   lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
   #else
-  private(set) lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: yearsService.current, networkService: networkService, persistenceService: _persistenceService)
+  private(set) lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
   #endif
 
   #if DEBUG
