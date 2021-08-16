@@ -1,6 +1,6 @@
 import AVKit
 
-final class EventController: UIPageViewController {
+final class EventController: UIViewController {
   typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService & HasNavigationService
   typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
 
@@ -31,7 +31,7 @@ final class EventController: UIPageViewController {
     self.dependencies = dependencies
     self.audioSession = audioSession
     self.notificationCenter = notificationCenter
-    super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    super.init(nibName: nil, bundle: nil)
   }
 
   @available(*, unavailable)
@@ -85,7 +85,9 @@ final class EventController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
 
     let eventViewController = makeEventViewController(for: event)
-    setViewControllers([eventViewController], direction: .forward, animated: false)
+    addChild(eventViewController)
+    view.addSubview(eventViewController.view)
+    eventViewController.didMove(toParent: self)
 
     didChangeShowsFavoriteButton()
   }
