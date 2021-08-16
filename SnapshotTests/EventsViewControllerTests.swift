@@ -14,11 +14,16 @@ final class EventsViewControllerTests: XCTestCase {
   }
 
   func testAppearance() throws {
+    let title = [String](repeating: "title", count: 10).joined(separator: " ")
+    let message = [String](repeating: "message", count: 10).joined(separator: " ")
+
     let eventsViewController = EventsViewController(style: .fos_insetGrouped)
     eventsViewController.view.tintColor = .fos_label
-    eventsViewController.emptyBackgroundTitle = [String](repeating: "title", count: 10).joined(separator: " ")
-    eventsViewController.emptyBackgroundMessage = [String](repeating: "message", count: 10).joined(separator: " ")
+    eventsViewController.emptyBackgroundTitle = title
+    eventsViewController.emptyBackgroundMessage = message
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
+    XCTAssertEqual(eventsViewController.emptyBackgroundTitle, title)
+    XCTAssertEqual(eventsViewController.emptyBackgroundMessage, message)
 
     let dataSource = try makeDataSource()
     eventsViewController.dataSource = dataSource
