@@ -1,5 +1,6 @@
 import UIKit
 
+/// @mockable
 protocol BlueprintsViewControllerDelegate: AnyObject {
   func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController)
   func blueprintsViewController(_ blueprintsViewController: BlueprintsViewController, didSelect blueprint: Blueprint)
