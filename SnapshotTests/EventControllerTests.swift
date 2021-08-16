@@ -38,6 +38,8 @@ final class EventControllerTests: XCTestCase {
 
   func testAppearance() throws {
     var eventController = EventController(event: try .withVideo(), dependencies: Dependencies())
+    try eventController.setVerticalScrollIndicatorHidden(true)
+
     let navigationController = UINavigationController(rootViewController: eventController)
     assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
@@ -48,10 +50,14 @@ final class EventControllerTests: XCTestCase {
     assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
     eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
+    try eventController.setVerticalScrollIndicatorHidden(true)
+
     navigationController.viewControllers = [eventController]
     assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
     eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
+    try eventController.setVerticalScrollIndicatorHidden(true)
+
     navigationController.viewControllers = [eventController]
     assertSnapshot(matching: navigationController, as: .image(on: .iPadPro11))
   }
@@ -70,6 +76,8 @@ final class EventControllerTests: XCTestCase {
 
     try autoreleasepool {
       let eventController: EventController! = EventController(event: try .withVideo(), dependencies: dependencies)
+      try eventController.setVerticalScrollIndicatorHidden(true)
+
       let navigationController = UINavigationController(rootViewController: eventController)
       assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
       XCTAssertEqual(favoritesService.addObserverForEventsCallCount, 1)
@@ -98,6 +106,7 @@ final class EventControllerTests: XCTestCase {
     dependencies.favoritesService = favoritesService
 
     let eventController = EventController(event: try .withVideo(), dependencies: dependencies)
+    try eventController.setVerticalScrollIndicatorHidden(true)
     assertSnapshot(matching: eventController, as: .image(on: .iPhone8Plus))
 
     let eventID = eventController.event.id
@@ -117,7 +126,10 @@ final class EventControllerTests: XCTestCase {
 
   func testEvents() throws {
     var eventViewController = EventViewController()
+    eventViewController.tableView.showsVerticalScrollIndicator = false
+
     var eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
+    try eventController.setVerticalScrollIndicatorHidden(true)
     assertSnapshot(matching: eventViewController, as: .window {
       eventController.eventViewController(eventViewController, didSelect: eventController.event.attachments[0])
     })
@@ -126,6 +138,8 @@ final class EventControllerTests: XCTestCase {
     XCTAssertEqual(safariViewController.url?.absoluteString, "https://fosdem.org/2021/schedule/event/gowebrtc/attachments/slides/4583/export/events/attachments/gowebrtc/slides/4583/Slides.pdf")
 
     eventViewController = EventViewController()
+    eventViewController.tableView.showsVerticalScrollIndicator = false
+
     eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
     assertSnapshot(matching: eventViewController, as: .window {
       eventController.eventViewControllerDidTapLivestream(eventViewController)
@@ -136,6 +150,8 @@ final class EventControllerTests: XCTestCase {
     XCTAssertEqual(livestream.url.absoluteString, "https://stream.fosdem.org/dgo.m3u8")
 
     eventViewController = EventViewController()
+    eventViewController.tableView.showsVerticalScrollIndicator = false
+
     eventController = EventController(event: try .withVideo(), dependencies: Dependencies())
     assertSnapshot(matching: eventViewController, as: .window {
       eventController.eventViewControllerDidTapVideo(eventViewController)
@@ -241,6 +257,7 @@ final class EventControllerTests: XCTestCase {
 
     let event = try Event.withVideo()
     let eventController = EventController(event: event, dependencies: dependencies, notificationCenter: notificationCenter)
+    try eventController.setVerticalScrollIndicatorHidden(true)
     assertSnapshot(matching: eventController, as: .image(on: .iPhone8Plus))
 
     let eventViewController = EventViewController()
@@ -385,5 +402,12 @@ private final class SafariViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .green
+  }
+}
+
+private extension EventController {
+  func setVerticalScrollIndicatorHidden(_ hidden: Bool) throws {
+    let tableView = try XCTUnwrap(try view.findSubview(ofType: UITableView.self))
+    tableView.showsVerticalScrollIndicator = !hidden
   }
 }
