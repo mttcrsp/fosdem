@@ -1,4 +1,5 @@
-import UIKit
+import AVKit
+import SafariServices
 
 final class NavigationService {
   typealias ErrorHandler = (UIViewController, Error) -> Void
@@ -107,6 +108,18 @@ extension NavigationService {
 }
 
 extension NavigationService {
+  typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
+
+  func makePlayerViewController() -> PlayerViewController {
+    AVPlayerViewController()
+  }
+
+  func makeSafariViewController(with url: URL) -> UIViewController {
+    SFSafariViewController(url: url)
+  }
+}
+
+extension NavigationService {
   func makeTransportationViewController() -> UIViewController {
     TransportationController(dependencies: services)
   }
@@ -128,6 +141,17 @@ protocol NavigationServiceProtocol {
 
   func makeYearsViewController(withStyle style: UITableView.Style, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+
+  func makePlayerViewController() -> NavigationService.PlayerViewController
+  func makeSafariViewController(with url: URL) -> UIViewController
 }
 
 extension NavigationService: NavigationServiceProtocol {}
+
+protocol AVPlayerViewControllerProtocol: AnyObject {
+  var delegate: AVPlayerViewControllerDelegate? { get set }
+  var exitsFullScreenWhenPlaybackEnds: Bool { get set }
+  var player: AVPlayer? { get set }
+}
+
+extension AVPlayerViewController: AVPlayerViewControllerProtocol {}
