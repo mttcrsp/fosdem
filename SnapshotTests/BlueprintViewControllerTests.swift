@@ -11,8 +11,16 @@ final class BlueprintViewControllerTests: XCTestCase {
     blueprintViewController.blueprint = building.blueprints[0]
     assertSnapshot(matching: blueprintViewController, as: .image(on: .iPhone8Plus))
 
+    blueprintViewController.blueprint = nil
+    assertSnapshot(matching: blueprintViewController, as: .image(on: .iPhone8Plus))
+
     blueprintViewController.blueprint = building.blueprints[1]
     assertSnapshot(matching: blueprintViewController, as: .image(on: .iPhone8Plus))
+
+    if #available(iOS 13.0, *) {
+      blueprintViewController.overrideUserInterfaceStyle = .dark
+      assertSnapshot(matching: blueprintViewController, as: .image(on: .iPhone8Plus))
+    }
   }
 
   @available(iOS 12.0, *)
@@ -24,8 +32,16 @@ final class BlueprintViewControllerTests: XCTestCase {
     let size = CGSize(width: 300, height: 200)
     assertSnapshot(matching: blueprintViewController, as: .image(size: size))
 
+    blueprintViewController.blueprint = nil
+    assertSnapshot(matching: blueprintViewController, as: .image(size: size))
+
     blueprintViewController.blueprint = building.blueprints[1]
     assertSnapshot(matching: blueprintViewController, as: .image(size: size))
+
+    if #available(iOS 13.0, *) {
+      blueprintViewController.overrideUserInterfaceStyle = .dark
+      assertSnapshot(matching: blueprintViewController, as: .image(size: size))
+    }
   }
 
   func testEmpty() {
