@@ -1,5 +1,6 @@
 import UIKit
 
+/// @mockable
 protocol MapContainerViewControllerDelegate: AnyObject {
   func containerViewController(_ containerViewController: MapContainerViewController, rectFor detailViewController: UIViewController) -> CGRect
   func containerViewController(_ containerViewController: MapContainerViewController, scrollDirectionFor detailViewController: UIViewController) -> MapContainerViewController.ScrollDirection
@@ -7,6 +8,7 @@ protocol MapContainerViewControllerDelegate: AnyObject {
   func containerViewController(_ containerViewController: MapContainerViewController, didHide detailViewController: UIViewController)
 }
 
+/// @mockable
 extension MapContainerViewControllerDelegate {
   func containerViewController(_: MapContainerViewController, didShow _: UIViewController) {}
   func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {}
