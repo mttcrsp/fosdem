@@ -11,6 +11,7 @@ final class ErrorViewControllerTests: XCTestCase {
 
     errorViewController.showsAppStoreButton = true
     assertSnapshot(matching: errorViewController, as: .image(on: .iPhone8Plus))
+    XCTAssertTrue(errorViewController.showsAppStoreButton)
   }
 
   func testEvents() {
