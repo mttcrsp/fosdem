@@ -72,7 +72,9 @@ protocol LaunchServiceProtocol {
   var didLaunchAfterFosdemYearChange: Bool { get }
 
   func detectStatus() throws
+  #if DEBUG
   func markAsLaunched()
+  #endif
 }
 
 extension LaunchService: LaunchServiceProtocol {}
