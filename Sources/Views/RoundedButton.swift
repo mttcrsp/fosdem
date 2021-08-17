@@ -7,39 +7,54 @@ final class RoundedButton: UIButton {
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    commonInit()
+
+    if #available(iOS 15.0, *) {
+      configuration = UIButton.Configuration.filled()
+      configuration?.cornerStyle = .small
+      configuration?.buttonSize = .large
+      configuration?.titleTextAttributesTransformer = .init { configuration in
+        var configuration = configuration
+        configuration.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
+        return configuration
+      }
+    } else {
+      layer.cornerRadius = 4
+      layer.masksToBounds = true
+
+      imageView?.tintColor = .fos_systemBackground
+      setTitleColor(.fos_systemBackground, for: .normal)
+      setBackgroundImage(makeNormalImage(), for: .normal)
+      setBackgroundImage(makeHighlightedImage(), for: .highlighted)
+
+      contentEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+      titleLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
+    }
   }
 
-  required init?(coder: NSCoder) {
-    super.init(coder: coder)
-    commonInit()
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
+}
 
-  private func commonInit() {
-    layer.cornerRadius = 4
-    layer.masksToBounds = true
-
-    imageView?.tintColor = .fos_systemBackground
-    setTitleColor(.fos_systemBackground, for: .normal)
-    setBackgroundImage(makeNormalImage(), for: .normal)
-    setBackgroundImage(makeHighlightedImage(), for: .highlighted)
-
-    contentEdgeInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
-    titleLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
-  }
-
+extension RoundedButton {
   override func tintColorDidChange() {
     super.tintColorDidChange()
-    setBackgroundImage(makeNormalImage(), for: .normal)
-    setBackgroundImage(makeHighlightedImage(), for: .highlighted)
+
+    if #available(iOS 15.0, *) {} else {
+      setBackgroundImage(makeNormalImage(), for: .normal)
+      setBackgroundImage(makeHighlightedImage(), for: .highlighted)
+    }
   }
 
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
-    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
-      setBackgroundImage(makeNormalImage(), for: .normal)
-      setBackgroundImage(makeHighlightedImage(), for: .highlighted)
+    if #available(iOS 15.0, *) {} else {
+      if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+        setBackgroundImage(makeNormalImage(), for: .normal)
+        setBackgroundImage(makeHighlightedImage(), for: .highlighted)
+      }
     }
   }
 

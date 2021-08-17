@@ -16,8 +16,8 @@ final class EventView: UIStackView {
     didSet { reloadPlaybackPosition() }
   }
 
-  private weak var videoButton: RoundedButton?
-  private weak var livestreamButton: RoundedButton?
+  private weak var videoButton: UIButton?
+  private weak var livestreamButton: UIButton?
 
   var event: Event? {
     didSet { didChangeEvent() }
