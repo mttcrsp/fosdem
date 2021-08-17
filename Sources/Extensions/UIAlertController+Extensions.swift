@@ -20,6 +20,7 @@ extension UIAlertController {
 
     let title = L10n.Error.Internet.title, message = L10n.Error.Internet.message
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    alertController.addAction(retryAction)
     alertController.addAction(dismissAction)
     return alertController
   }
