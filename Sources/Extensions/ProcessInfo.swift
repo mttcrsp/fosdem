@@ -3,7 +3,7 @@ import Foundation
 
 extension ProcessInfo {
   var isRunningUnitTests: Bool {
-    arguments.contains("-ApplePersistenceIgnoreState")
+    environment["XCTestBundlePath"] != nil
   }
 }
 #endif

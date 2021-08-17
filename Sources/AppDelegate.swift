@@ -1,6 +1,5 @@
 import UIKit
 
-@UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
@@ -13,12 +12,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-    #if DEBUG
-    if ProcessInfo.processInfo.isRunningUnitTests {
-      return false
-    }
-    #endif
-
     let rootViewController: UIViewController
     do {
       rootViewController = ApplicationController(dependencies: try makeServices())
