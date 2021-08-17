@@ -151,5 +151,6 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   packages: [grdb, snapshotTesting],
+  settings: Settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": .string("YES")]),
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
