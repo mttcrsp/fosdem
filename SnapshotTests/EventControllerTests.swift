@@ -125,40 +125,6 @@ final class EventControllerTests: XCTestCase {
     XCTAssertEqual(favoritesService.removeEventArgValues, [eventID])
   }
 
-  func testEvents() throws {
-    var eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
-    _ = eventController.view
-    var eventViewController = try XCTUnwrap(eventController.findChild(ofType: EventViewController.self))
-    assertSnapshot(matching: eventController, as: .presentingViewController {
-      eventController.eventViewController(eventViewController, didSelect: eventController.event.attachments[0])
-    })
-
-    let safariViewController = try XCTUnwrap(eventViewController.presentedViewController as? SafariViewController)
-    XCTAssertEqual(safariViewController.url?.absoluteString, "https://fosdem.org/2021/schedule/event/gowebrtc/attachments/slides/4583/export/events/attachments/gowebrtc/slides/4583/Slides.pdf")
-
-    eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
-    _ = eventController.view
-    eventViewController = try XCTUnwrap(eventController.findChild(ofType: EventViewController.self))
-    assertSnapshot(matching: eventController, as: .presentingViewController {
-      eventController.eventViewControllerDidTapLivestream(eventViewController)
-    })
-
-    let livestreamViewController = try XCTUnwrap(eventViewController.presentedViewController as? PlayerViewController)
-    let livestream = try XCTUnwrap(livestreamViewController.player?.currentItem?.asset as? AVURLAsset)
-    XCTAssertEqual(livestream.url.absoluteString, "https://stream.fosdem.org/dgo.m3u8")
-
-    eventController = EventController(event: try .withVideo(), dependencies: Dependencies())
-    _ = eventController.view
-    eventViewController = try XCTUnwrap(eventController.findChild(ofType: EventViewController.self))
-    assertSnapshot(matching: eventController, as: .presentingViewController {
-      eventController.eventViewControllerDidTapVideo(eventViewController)
-    })
-
-    let videoViewController = try XCTUnwrap(eventViewController.presentedViewController as? PlayerViewController)
-    let video = try XCTUnwrap(videoViewController.player?.currentItem?.asset as? AVURLAsset)
-    XCTAssertEqual(video.url.absoluteString, "https://video.fosdem.org/2021/D.go/gowithoutwires.mp4")
-  }
-
   func testAudioSessionHandling() throws {
     let audioSession = AVAudioSessionProtocolMock()
 
