@@ -8,20 +8,21 @@ final class TransportationController: UINavigationController {
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
-    viewControllers = [makeTransportationViewController()]
+
+    var style = UITableView.Style.fos_insetGrouped
+    if traitCollection.userInterfaceIdiom == .phone {
+      style = .grouped
+    }
+
+    let transportationViewController = TransportationViewController(style: style)
+    transportationViewController.title = L10n.Transportation.title
+    transportationViewController.delegate = self
+    viewControllers = [transportationViewController]
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  private var preferredDetailViewControllerStyle: UITableView.Style {
-    if traitCollection.userInterfaceIdiom == .pad {
-      return .fos_insetGrouped
-    } else {
-      return .grouped
-    }
   }
 }
 
@@ -29,46 +30,31 @@ extension TransportationController: TransportationViewControllerDelegate {
   func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationItem) {
     switch item {
     case .appleMaps:
-      UIApplication.shared.open(.ulbAppleMaps) { [weak transportationViewController] _ in
-        transportationViewController?.deselectSelectedRow(animated: true)
-      }
+      self.transportationViewController(transportationViewController, didSelect: .ulbAppleMaps)
     case .googleMaps:
-      UIApplication.shared.open(.ulbGoogleMaps) { [weak transportationViewController] _ in
-        transportationViewController?.deselectSelectedRow(animated: true)
-      }
+      self.transportationViewController(transportationViewController, didSelect: .ulbGoogleMaps)
     case .bus, .car, .taxi, .plane, .train, .shuttle:
-      guard let info = item.info else {
-        return assertionFailure("Failed to determine info model for transportation item '\(item)'")
+      if let info = item.info {
+        let infoViewController = dependencies.navigationService.makeInfoViewController(withTitle: item.title, info: info, didError: { [weak self] _, _ in
+          self?.transportationViewControllerDidFailPresentation(transportationViewController)
+        })
+        transportationViewController.show(infoViewController, sender: nil)
+      } else {
+        assertionFailure("Failed to determine info model for transportation item '\(item)'")
       }
-
-      let infoViewController = makeInfoViewController(withTitle: item.title, info: info, didError: { [weak self] _, _ in
-        self?.transportationViewControllerDidFailPresentation(transportationViewController)
-      })
-      transportationViewController.show(infoViewController, sender: nil)
     }
   }
 
-  func transportationViewControllerDidFailPresentation(_ transportationViewController: TransportationViewController) {
-    let errorViewController = makeErrorViewController()
+  private func transportationViewController(_ transportationViewController: TransportationViewController, didSelect directionsURL: URL) {
+    UIApplication.shared.open(directionsURL) { [weak transportationViewController] _ in
+      transportationViewController?.deselectSelectedRow(animated: true)
+    }
+  }
+
+  private func transportationViewControllerDidFailPresentation(_ transportationViewController: TransportationViewController) {
+    let errorViewController = UIAlertController.makeErrorController()
     transportationViewController.navigationController?.popViewController(animated: true)
     transportationViewController.present(errorViewController, animated: true)
-  }
-}
-
-private extension TransportationController {
-  func makeTransportationViewController() -> TransportationViewController {
-    let transportationViewController = TransportationViewController(style: preferredDetailViewControllerStyle)
-    transportationViewController.title = L10n.Transportation.title
-    transportationViewController.delegate = self
-    return transportationViewController
-  }
-
-  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
-    dependencies.navigationService.makeInfoViewController(withTitle: title, info: info, didError: didError)
-  }
-
-  private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
-    UIAlertController.makeErrorController(withHandler: handler)
   }
 }
 
