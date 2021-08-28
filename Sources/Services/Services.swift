@@ -4,6 +4,7 @@ class Services {
   let launchService: LaunchServiceProtocol
 
   let bundleService = BundleService()
+  let openService: OpenServiceProtocol = OpenService()
   let playbackService: PlaybackServiceProtocol = PlaybackService()
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
@@ -72,6 +73,9 @@ class Services {
 }
 
 extension BundleService: InfoServiceBundle {}
+
+protocol HasOpenService { var openService: OpenServiceProtocol { get }}
+extension Services: HasOpenService {}
 
 protocol HasInfoService { var infoService: InfoServiceProtocol { get } }
 extension Services: HasInfoService {}
