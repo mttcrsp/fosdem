@@ -1,7 +1,7 @@
 import UIKit
 
 final class MoreController: UISplitViewController {
-  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasTimeService
+  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasTimeService & HasOpenService
 
   private weak var moreViewController: MoreViewController?
 
@@ -112,7 +112,7 @@ extension MoreController: MoreViewControllerDelegate {
 
   private func moreViewControllerDidSelectCode(_ moreViewController: MoreViewController) {
     if let url = URL.fosdemGithub {
-      UIApplication.shared.open(url) { [weak moreViewController] _ in
+      dependencies.openService.open(url) { [weak moreViewController] _ in
         moreViewController?.deselectSelectedRow(animated: true)
       }
     }
@@ -144,7 +144,7 @@ extension MoreController: MoreViewControllerDelegate {
 
 extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
   func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
-    UIApplication.shared.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
+    dependencies.openService.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
       acknowledgementsViewController?.deselectSelectedRow(animated: true)
     }
   }

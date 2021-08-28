@@ -1,7 +1,7 @@
 import UIKit
 
 final class TransportationController: UINavigationController {
-  typealias Dependencies = HasNavigationService
+  typealias Dependencies = HasNavigationService & HasOpenService
 
   private let dependencies: Dependencies
 
@@ -46,7 +46,7 @@ extension TransportationController: TransportationViewControllerDelegate {
   }
 
   private func transportationViewController(_ transportationViewController: TransportationViewController, didSelect directionsURL: URL) {
-    UIApplication.shared.open(directionsURL) { [weak transportationViewController] _ in
+    dependencies.openService.open(directionsURL) { [weak transportationViewController] _ in
       transportationViewController?.deselectSelectedRow(animated: true)
     }
   }

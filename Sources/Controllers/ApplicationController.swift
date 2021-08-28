@@ -1,7 +1,7 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService
+  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService & HasOpenService
 
   private weak var tabsController: UITabBarController?
 
@@ -97,7 +97,7 @@ final class ApplicationController: UIViewController {
 
   private func didTapUpdate() {
     if let url = URL.fosdemAppStore {
-      UIApplication.shared.open(url)
+      dependencies.openService.open(url, completion: nil)
     }
   }
 }

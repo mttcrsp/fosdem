@@ -2,7 +2,7 @@ import CoreLocation
 import UIKit
 
 final class MapController: MapContainerViewController {
-  typealias Dependencies = HasBuildingsService
+  typealias Dependencies = HasBuildingsService & HasOpenService
 
   var didError: ((MapController, Error) -> Void)?
 
@@ -81,7 +81,7 @@ final class MapController: MapContainerViewController {
 
   private func didTapLocationSettings() {
     if let url = URL(string: UIApplication.openSettingsURLString) {
-      UIApplication.shared.open(url)
+      dependencies.openService.open(url, completion: nil)
     }
   }
 }
