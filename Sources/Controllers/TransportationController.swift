@@ -1,6 +1,6 @@
 import UIKit
 
-final class TransportationController: UINavigationController {
+class TransportationController: UINavigationController {
   typealias Dependencies = HasNavigationService & HasOpenService
 
   private let dependencies: Dependencies
@@ -53,7 +53,7 @@ extension TransportationController: TransportationViewControllerDelegate {
 
   private func transportationViewControllerDidFailPresentation(_ transportationViewController: TransportationViewController) {
     let errorViewController = UIAlertController.makeErrorController()
-    transportationViewController.navigationController?.popViewController(animated: true)
+    popViewController(animated: true)
     transportationViewController.present(errorViewController, animated: true)
   }
 }
