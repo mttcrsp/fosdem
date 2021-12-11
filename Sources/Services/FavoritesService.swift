@@ -158,3 +158,7 @@ protocol FavoritesServiceDefaults: AnyObject {
 }
 
 extension UserDefaults: FavoritesServiceDefaults {}
+
+protocol HasFavoritesService {
+  var favoritesService: FavoritesServiceProtocol { get }
+}

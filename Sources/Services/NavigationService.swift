@@ -155,3 +155,7 @@ protocol AVPlayerViewControllerProtocol: AnyObject {
 }
 
 extension AVPlayerViewController: AVPlayerViewControllerProtocol {}
+
+protocol HasNavigationService {
+  var navigationService: NavigationServiceProtocol { get }
+}

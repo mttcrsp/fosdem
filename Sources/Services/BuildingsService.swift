@@ -53,3 +53,7 @@ protocol BuildingsServiceBundle {
 }
 
 extension BundleService: BuildingsServiceBundle {}
+
+protocol HasBuildingsService {
+  var buildingsService: BuildingsServiceProtocol { get }
+}

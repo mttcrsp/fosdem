@@ -85,3 +85,7 @@ protocol TimeServiceTimer {
 protocol TimeServiceProvider {
   func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (TimeServiceTimer) -> Void) -> TimeServiceTimer
 }
+
+protocol HasTimeService {
+  var timeService: TimeServiceProtocol { get }
+}

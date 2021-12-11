@@ -126,3 +126,7 @@ protocol TracksServiceProtocol: AnyObject {
 }
 
 extension TracksService: TracksServiceProtocol {}
+
+protocol HasTracksService {
+  var tracksService: TracksServiceProtocol { get }
+}

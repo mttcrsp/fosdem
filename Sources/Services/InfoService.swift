@@ -118,3 +118,7 @@ extension InfoService: InfoServiceProtocol {}
 protocol InfoServiceBundle {
   func data(forResource name: String?, withExtension ext: String?) throws -> Data
 }
+
+protocol HasInfoService {
+  var infoService: InfoServiceProtocol { get }
+}

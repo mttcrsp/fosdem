@@ -78,3 +78,7 @@ protocol PersistenceServiceProtocol {
 }
 
 extension PersistenceService: PersistenceServiceProtocol {}
+
+protocol HasPersistenceService {
+  var persistenceService: PersistenceServiceProtocol { get }
+}

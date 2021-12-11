@@ -116,3 +116,7 @@ protocol YearsServiceFile {
 }
 
 extension FileManager: YearsServiceFile {}
+
+protocol HasYearsService {
+  var yearsService: YearsServiceProtocol { get }
+}

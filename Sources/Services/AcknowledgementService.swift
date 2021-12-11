@@ -48,3 +48,7 @@ final class AcknowledgementsServiceData: AcknowledgementsServiceDataProvider {
     try Data(contentsOf: url)
   }
 }
+
+protocol HasAcknowledgementsService {
+  var acknowledgementsService: AcknowledgementsServiceProtocol { get }
+}

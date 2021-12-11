@@ -72,56 +72,12 @@ class Services {
   }
 }
 
-extension BundleService: InfoServiceBundle {}
+extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasNavigationService, HasAcknowledgementsService {}
 
-protocol HasOpenService { var openService: OpenServiceProtocol { get }}
-extension Services: HasOpenService {}
-
-protocol HasInfoService { var infoService: InfoServiceProtocol { get } }
-extension Services: HasInfoService {}
-
-protocol HasSoonService { var soonService: SoonServiceProtocol { get } }
-extension Services: HasSoonService {}
-
-protocol HasTimeService { var timeService: TimeServiceProtocol { get } }
-extension Services: HasTimeService {}
-
-protocol HasYearsService { var yearsService: YearsServiceProtocol { get } }
-extension Services: HasYearsService {}
-
-protocol HasLaunchService { var launchService: LaunchServiceProtocol { get } }
-extension Services: HasLaunchService {}
-
-protocol HasTracksService { var tracksService: TracksServiceProtocol { get } }
-extension Services: HasTracksService {}
-
-protocol HasUpdateService { var updateService: UpdateServiceProtocol { get } }
-extension Services: HasUpdateService {}
-
-protocol HasVideosService { var videosService: VideosServiceProtocol { get } }
-extension Services: HasVideosService {}
-
-protocol HasPlaybackService { var playbackService: PlaybackServiceProtocol { get } }
-extension Services: HasPlaybackService {}
-
-protocol HasScheduleService { var scheduleService: ScheduleServiceProtocol? { get } }
-extension Services: HasScheduleService {}
-
-protocol HasBuildingsService { var buildingsService: BuildingsServiceProtocol { get } }
-extension Services: HasBuildingsService {}
-
-protocol HasFavoritesService { var favoritesService: FavoritesServiceProtocol { get } }
-extension Services: HasFavoritesService {}
-
-protocol HasNavigationService { var navigationService: NavigationServiceProtocol { get } }
-extension Services: HasNavigationService {}
-
-protocol HasAcknowledgementsService { var acknowledgementsService: AcknowledgementsServiceProtocol { get } }
-extension Services: HasAcknowledgementsService {}
-
-protocol HasPersistenceService { var persistenceService: PersistenceServiceProtocol { get } }
 extension Services: HasPersistenceService {
   var persistenceService: PersistenceServiceProtocol {
     _persistenceService
   }
 }
+
+extension BundleService: InfoServiceBundle {}
