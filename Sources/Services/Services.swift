@@ -17,6 +17,7 @@ class Services {
   private(set) lazy var soonService: SoonServiceProtocol = SoonService(timeService: timeService, persistenceService: _persistenceService)
   private(set) lazy var videosService: VideosServiceProtocol = VideosService(playbackService: playbackService, persistenceService: _persistenceService)
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
+  private(set) lazy var scheduleService: ScheduleServiceProtocol = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
 
   private(set) lazy var networkService: NetworkService = {
     let session = URLSession.shared
@@ -24,12 +25,6 @@ class Services {
     session.configuration.timeoutIntervalForResource = 30
     return NetworkService(session: session)
   }()
-
-  #if DEBUG
-  lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
-  #else
-  private(set) lazy var scheduleService: ScheduleServiceProtocol? = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
-  #endif
 
   #if DEBUG
   lazy var timeService: TimeServiceProtocol = TimeService()

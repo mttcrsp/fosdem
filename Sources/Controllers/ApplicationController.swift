@@ -63,7 +63,7 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .fos_systemGroupedBackground
 
-    dependencies.scheduleService?.startUpdating()
+    dependencies.scheduleService.startUpdating()
     dependencies.updateService.detectUpdates {
       DispatchQueue.main.async { [weak self] in
         if let self = self {
@@ -76,7 +76,7 @@ final class ApplicationController: UIViewController {
 
   func applicationDidBecomeActive() {
     dependencies.timeService.startMonitoring()
-    dependencies.scheduleService?.startUpdating()
+    dependencies.scheduleService.startUpdating()
   }
 
   func applicationWillResignActive() {

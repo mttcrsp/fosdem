@@ -1,6 +1,10 @@
 import Foundation
 
 final class ScheduleService {
+  #if DEBUG
+  private var isEnabled = true
+  #endif
+
   private var timer: Timer?
   private var isUpdating = false
 
@@ -49,10 +53,14 @@ final class ScheduleService {
 
     let request = ScheduleRequest(year: fosdemYear)
     networkService.perform(request) { [weak self] result in
-      guard case let .success(schedule) = result else { return }
+      guard case let .success(schedule) = result, let self = self else { return }
+
+      #if DEBUG
+      guard self.isEnabled else { return }
+      #endif
 
       let operation = ImportSchedule(schedule: schedule)
-      self?.persistenceService.performWrite(operation) { error in
+      self.persistenceService.performWrite(operation) { [weak self] error in
 
         assert(error == nil)
         self?.isUpdating = false
@@ -60,6 +68,12 @@ final class ScheduleService {
       }
     }
   }
+
+  #if DEBUG
+  func disable() {
+    isEnabled = false
+  }
+  #endif
 }
 
 private extension ScheduleServiceDefaults {
@@ -77,6 +91,10 @@ private extension String {
 protocol ScheduleServiceProtocol {
   func startUpdating()
   func stopUpdating()
+
+  #if DEBUG
+  func disable()
+  #endif
 }
 
 extension ScheduleService: ScheduleServiceProtocol {}
@@ -105,5 +123,5 @@ protocol ScheduleServicePersistence {
 extension PersistenceService: ScheduleServicePersistence {}
 
 protocol HasScheduleService {
-  var scheduleService: ScheduleServiceProtocol? { get }
+  var scheduleService: ScheduleServiceProtocol { get }
 }
