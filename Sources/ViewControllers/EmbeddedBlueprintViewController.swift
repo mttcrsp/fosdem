@@ -10,20 +10,16 @@ final class EmbeddedBlueprintViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     view.addSubview(imageView)
+
     imageView.contentMode = .scaleAspectFit
-  }
+    imageView.translatesAutoresizingMaskIntoConstraints = false
 
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-
-    var insets = view.layoutMargins
-    insets.top += 8
-    insets.left += 8
-    insets.right += 8
-    insets.bottom += 8
-
-    let frame = view.bounds.inset(by: insets)
-    imageView.frame = frame
+    NSLayoutConstraint.activate([
+      imageView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: 8),
+      imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8),
+      imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+      imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+    ])
   }
 
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
