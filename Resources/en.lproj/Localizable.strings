@@ -3,7 +3,7 @@
 // Title for the welcome screen of the app
 "welcome.title" = "FOSDEM %@";
 // A short message describing what FOSDEM - the event - is
-"welcome.message" = "FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels. In 2021, they will gather online.";
+"welcome.message" = "FOSDEM is a free event for software developers to meet, share ideas and collaborate.\n\nEvery year, thousands of developers of free and open source software from all over the world gather at the event in Brussels. In 2022, they will gather online.";
 // A button that navigates from the welcome screen to the home
 "welcome.continue" = "Continue";
 

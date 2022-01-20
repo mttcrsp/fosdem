@@ -6,8 +6,8 @@ final class YearsService {
     case yearNotAvailable
   }
 
-  static let current = 2021
-  static let all = 2012 ... 2020
+  static let current = 2022
+  static let all = 2012 ... 2021
 
   private let fileManager: YearsServiceFile
   private let networkService: YearsServiceNetwork
