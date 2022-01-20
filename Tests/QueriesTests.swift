@@ -40,8 +40,9 @@ final class QueriesTests: XCTestCase {
       let event3 = Event.make(id: 3, track: "a")
       let event4 = Event.make(id: 4, track: "a")
       let event5 = Event.make(id: 5, track: "B")
+      let event6 = Event.make(id: 6, track: "B Stand")
       let day1 = Day.make(index: 1, date: date, events: [event1, event2])
-      let day2 = Day.make(index: 2, date: date, events: [event3, event4, event5])
+      let day2 = Day.make(index: 2, date: date, events: [event3, event4, event5, event6])
       let schedule = Schedule.make(days: [day1, day2])
 
       let query = AllTracksOrderedByName()
