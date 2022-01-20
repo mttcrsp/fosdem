@@ -86,12 +86,14 @@ final class ApplicationController: UIViewController {
   @objc private func didSelectPrevTab() {
     if let rootTabBarController = tabsController {
       rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex - 1) + children.count) % children.count
+      tabBarControllerDidChangeSelectedViewController(rootTabBarController)
     }
   }
 
   @objc private func didSelectNextTab() {
     if let rootTabBarController = tabsController {
       rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex + 1) + children.count) % children.count
+      tabBarControllerDidChangeSelectedViewController(rootTabBarController)
     }
   }
 
@@ -116,6 +118,7 @@ private extension ApplicationController {
 
     for (index, viewController) in viewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
       tabsController.selectedIndex = index
+      tabBarControllerDidChangeSelectedViewController(tabsController)
     }
 
     self.tabsController = tabsController
@@ -177,8 +180,21 @@ extension ApplicationController: UITabBarControllerDelegate {
     return true
   }
 
-  func tabBarController(_: UITabBarController, didSelect viewController: UIViewController) {
+  func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+    tabBarControllerDidChangeSelectedViewController(tabBarController)
     previouslySelectedViewController = String(describing: type(of: viewController))
+  }
+
+  func tabBarControllerDidChangeSelectedViewController(_ tabBarController: UITabBarController) {
+    guard #available(iOS 15.0, *) else { return }
+
+    if tabBarController.selectedViewController is MapController {
+      let appearance = UITabBarAppearance()
+      appearance.configureWithOpaqueBackground()
+      tabBarController.tabBar.scrollEdgeAppearance = appearance
+    } else {
+      tabBarController.tabBar.scrollEdgeAppearance = nil
+    }
   }
 }
 
