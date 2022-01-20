@@ -35,11 +35,11 @@ final class QueriesTests: XCTestCase {
   func testAllTracksOrderedByName() {
     XCTAssertNoThrow(try {
       let date = Date()
-      let event1 = Event.make(id: 1, track: "5")
-      let event2 = Event.make(id: 2, track: "5")
-      let event3 = Event.make(id: 3, track: "3")
-      let event4 = Event.make(id: 4, track: "3")
-      let event5 = Event.make(id: 5, track: "1")
+      let event1 = Event.make(id: 1, track: "C")
+      let event2 = Event.make(id: 2, track: "C")
+      let event3 = Event.make(id: 3, track: "a")
+      let event4 = Event.make(id: 4, track: "a")
+      let event5 = Event.make(id: 5, track: "B")
       let day1 = Day.make(index: 1, date: date, events: [event1, event2])
       let day2 = Day.make(index: 2, date: date, events: [event3, event4, event5])
       let schedule = Schedule.make(days: [day1, day2])
@@ -49,9 +49,9 @@ final class QueriesTests: XCTestCase {
       let tracks = try service.performReadSync(query)
 
       XCTAssertEqual(tracks, [
-        Track(name: "1", day: 2, date: Date()),
-        Track(name: "3", day: 2, date: Date()),
-        Track(name: "5", day: 1, date: Date()),
+        Track(name: "a", day: 2, date: Date()),
+        Track(name: "B", day: 2, date: Date()),
+        Track(name: "C", day: 1, date: Date()),
       ])
     }())
   }
