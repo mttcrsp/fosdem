@@ -9,12 +9,12 @@ let isCI: Bool = {
   }
 }()
 
-let mockolo = TargetAction.pre(
+let mockolo = TargetScript.pre(
   script: "./run-mockolo",
   name: "Mockolo"
 )
 
-let swiftFormat = TargetAction.post(
+let swiftFormat = TargetScript.post(
   script: "swiftformat .",
   name: "SwiftFormat"
 )
@@ -59,9 +59,9 @@ let app = Target(
   ]),
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
-  actions: isCI ? [] : [mockolo, swiftFormat],
+  scripts: isCI ? [] : [mockolo, swiftFormat],
   dependencies: [.package(product: "GRDB")],
-  settings: Settings(base: [
+  settings: .settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",
     "PRODUCT_MODULE_NAME": "Fosdem",
   ]),
@@ -77,7 +77,7 @@ let appTests = Target(
   infoPlist: .default,
   sources: ["Tests/**", "Mocks/**"],
   resources: ["Tests/Resources/**/*", "Resources/Buildings/**/*"],
-  actions: [swiftFormat],
+  scripts: [swiftFormat],
   dependencies: [.target(name: app.name)]
 )
 
@@ -90,7 +90,7 @@ let appUITests = Target(
   infoPlist: .default,
   sources: ["UITests/**/*", "Tests/BundleDataLoader.swift"],
   resources: ["UITests/Resources/**/*"],
-  actions: [swiftFormat],
+  scripts: [swiftFormat],
   dependencies: [.target(name: app.name)]
 )
 
@@ -102,7 +102,7 @@ let appSnapshotTests = Target(
   deploymentTarget: app.deploymentTarget,
   infoPlist: .default,
   sources: ["SnapshotTests/**", "Mocks/**"],
-  actions: [swiftFormat],
+  scripts: [swiftFormat],
   dependencies: [
     .target(name: app.name),
     .package(product: "SnapshotTesting"),
@@ -141,14 +141,15 @@ let dbGenerator = Target(
     "Derived/Sources/Strings+FOSDEM.swift",
     "Derived/Sources/Bundle+FOSDEM.swift",
   ],
-  actions: [swiftFormat],
+  scripts: [swiftFormat],
   dependencies: [.package(product: "GRDB")]
 )
 
 let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
+  options: .options(automaticSchemesOptions: .enabled(codeCoverageEnabled: true)),
   packages: [grdb, snapshotTesting],
-  settings: Settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": .string("YES")]),
+  settings: .settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES"]),
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
