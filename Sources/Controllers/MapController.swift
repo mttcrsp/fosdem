@@ -1,6 +1,56 @@
 import CoreLocation
 import UIKit
 
+class MapInteractor: NSObject {
+  typealias Dependencies = HasBuildingsService & HasOpenService
+
+  private let notificationCenter = NotificationCenter.default
+  private let locationManager = CLLocationManager()
+
+  private let dependencies: Dependencies
+
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
+    super.init()
+  }
+
+  var authorizationStatus: CLAuthorizationStatus {
+    CLLocationManager.authorizationStatus()
+  }
+
+  func didLoad() {
+    dependencies.buildingsService.loadBuildings { buildings, error in
+      DispatchQueue.main.async {
+        if let error = error {
+          _ = error
+        } else {
+          _ = buildings
+        }
+      }
+    }
+  }
+
+  func didSelectLocationSettings() {
+    if let url = URL(string: UIApplication.openSettingsURLString) {
+      dependencies.openService.open(url, completion: nil)
+    }
+  }
+
+  func didSelectLocation() {
+    if let action = authorizationStatus.action {
+      _ = action
+    } else if authorizationStatus == .notDetermined {
+      locationManager.requestWhenInUseAuthorization()
+    }
+  }
+}
+
+extension MapInteractor: CLLocationManagerDelegate {
+  func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    _ = status
+  }
+}
+
 final class MapController: MapContainerViewController {
   typealias Dependencies = HasBuildingsService & HasOpenService
 

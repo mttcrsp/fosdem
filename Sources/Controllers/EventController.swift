@@ -1,5 +1,145 @@
 import AVKit
 
+final class EventInteractor {
+  typealias Arguments = Event
+  typealias Dependencies = HasFavoritesService
+
+  private var favoritesObserver: NSObjectProtocol?
+
+  private let arguments: Arguments
+  private let dependencies: Dependencies
+
+  init(arguments: Arguments, dependencies: Dependencies) {
+    self.arguments = arguments
+    self.dependencies = dependencies
+  }
+
+  deinit {
+    if let favoritesObserver = favoritesObserver {
+      dependencies.favoritesService.removeObserver(favoritesObserver)
+    }
+  }
+
+  var event: Event {
+    arguments
+  }
+
+  func didLoad() {
+    favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak self] _ in
+      _ = self
+    }
+  }
+
+  func didToggleFavorite() {
+    if dependencies.favoritesService.contains(event) {
+      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+    } else {
+      dependencies.favoritesService.addEvent(withIdentifier: event.id)
+    }
+  }
+
+  func didSelectLivestream() {
+    if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
+      _ = url
+    }
+  }
+
+  func didSelectVideo() {
+    if let video = event.video, let url = video.url {
+      _ = url
+    }
+  }
+
+  func didSelect(_ attachment: Attachment) {
+    _ = attachment
+  }
+}
+
+class VideoInteractor {
+  typealias Arguments = (url: URL, event: Event)
+  typealias Dependencies = HasPlaybackService & HasTimeService
+
+  private var finishObserver: NSObjectProtocol?
+  private var timeObserver: Any?
+
+  private let player = AVPlayer()
+  private let notificationCenter: NotificationCenter = .default
+  private let audioSession: AVAudioSessionProtocol = AVAudioSession.sharedInstance()
+
+  private let arguments: Arguments
+  private let dependencies: Dependencies
+
+  init(arguments: Arguments, dependencies: Dependencies) {
+    self.arguments = arguments
+    self.dependencies = dependencies
+  }
+
+  var event: Event {
+    arguments.event
+  }
+
+  deinit {
+    if let timeObserver = timeObserver {
+      player.removeTimeObserver(timeObserver)
+    }
+
+    if let finishObserver = finishObserver {
+      notificationCenter.removeObserver(finishObserver)
+    }
+
+    do {
+      try audioSession.setActive(false, options: [])
+    } catch {
+      assertionFailure(error.localizedDescription)
+    }
+  }
+
+  func willBeginFullScreenPresentation() {
+    do {
+      try audioSession.setCategory(.playback)
+      try audioSession.setActive(true, options: [])
+    } catch {
+      assertionFailure(error.localizedDescription)
+    }
+
+    let intervalScale = CMTimeScale(NSEC_PER_SEC)
+    let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
+    timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+      _ = self
+      _ = time
+    }
+
+    finishObserver = notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
+      if let self = self {
+        self.dependencies.playbackService.setPlaybackPosition(.end, forEventWithIdentifier: self.event.id)
+        //
+      }
+    }
+
+    if case let .at(seconds) = dependencies.playbackService.playbackPosition(forEventWithIdentifier: event.id) {
+      let timeScale = CMTimeScale(NSEC_PER_SEC)
+      let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
+      _ = time
+    }
+  }
+
+  func willEndFullScreenPresentation() {
+    if let observer = timeObserver {
+      player.removeTimeObserver(observer)
+      timeObserver = nil
+    }
+
+    if let observer = finishObserver {
+      notificationCenter.removeObserver(observer)
+      finishObserver = nil
+    }
+  }
+}
+
+class VideoViewController: AVPlayerViewController {
+  
+}
+
 final class EventController: UIViewController {
   typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService & HasNavigationService
   typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol

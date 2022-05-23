@@ -1,5 +1,33 @@
 import UIKit
 
+class InfoInteractor {
+  typealias Dependencies = HasInfoService
+  typealias Arguments = Info
+
+  private let dependencies: Dependencies
+  private let arguments: Arguments
+
+  init(arguments: Arguments, dependencies: Dependencies) {
+    self.arguments = arguments
+    self.dependencies = dependencies
+  }
+
+  func didLoad() {
+    dependencies.infoService.loadAttributedText(for: arguments) { result in
+      DispatchQueue.main.async { [weak self] in
+        _ = self
+
+        switch result {
+        case let .success(attributedText):
+          _ = attributedText
+        case let .failure(error):
+          _ = error
+        }
+      }
+    }
+  }
+}
+
 final class InfoController: TextViewController {
   typealias Dependencies = HasInfoService
 

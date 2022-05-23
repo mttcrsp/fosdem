@@ -1,5 +1,29 @@
 import UIKit
 
+class TransportationInteractor {
+  typealias Dependencies = HasOpenService
+
+  private let dependencies: Dependencies
+
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
+  }
+
+  func didSelect(_ item: TransportationItem) {
+    if case .appleMaps = item {
+      didSelect(.ulbAppleMaps)
+    } else if case .googleMaps = item {
+      didSelect(.ulbGoogleMaps)
+    } else if let info = item.info {
+      _ = info
+    }
+  }
+
+  private func didSelect(_ directionsURL: URL) {
+    dependencies.openService.open(directionsURL) { _ in }
+  }
+}
+
 class TransportationController: UINavigationController {
   typealias Dependencies = HasNavigationService & HasOpenService
 

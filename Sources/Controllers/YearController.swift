@@ -1,5 +1,56 @@
 import UIKit
 
+class YearInteractor {
+  typealias Dependencies = HasPersistenceService
+  typealias Arguments = Year
+
+  private var tracks: [Track] = []
+  private var events: [Event] = []
+  private var results: [Event] = []
+
+  private let arguments: Arguments
+  private let dependencies: Dependencies
+
+  init(arguments: Arguments, dependencies: Dependencies) {
+    self.arguments = arguments
+    self.dependencies = dependencies
+  }
+
+  func didLoad() {
+    let operation = AllTracksOrderedByName()
+    dependencies.persistenceService.performRead(operation) { result in
+      DispatchQueue.main.async { [weak self] in
+        switch result {
+        case let .failure(error):
+          _ = error
+        case let .success(tracks):
+          self?.tracks = tracks
+          //
+        }
+      }
+    }
+  }
+
+  func didSelect(_ track: Track) {
+    events = []
+    dependencies.persistenceService.performRead(EventsForTrack(track: track.name)) { result in
+      DispatchQueue.main.async { [weak self] in
+        switch result {
+        case let .failure(error):
+          _ = error
+        case let .success(events):
+          self?.events = events
+          //
+        }
+      }
+    }
+  }
+
+  func didSelect(_ event: Event) {
+    _ = event
+  }
+}
+
 final class YearController: TracksViewController {
   typealias Dependencies = HasNavigationService
 

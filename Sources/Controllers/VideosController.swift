@@ -1,5 +1,41 @@
 import UIKit
 
+class VideosInteractor {
+  typealias Dependencies = HasVideosService & HasPlaybackService
+
+  private var watchingEvents: [Event] = []
+  private var watchedEvents: [Event] = []
+  private var observer: NSObjectProtocol?
+
+  private let dependencies: Dependencies
+
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
+  }
+
+  func didLoad() {
+    loadVideos()
+    observer = dependencies.playbackService.addObserver { [weak self] in
+      self?.loadVideos()
+    }
+  }
+
+  private func loadVideos() {
+    dependencies.videosService.loadVideos { [weak self] result in
+      guard let self = self else { return }
+
+      switch result {
+      case let .failure(error):
+        _ = error
+      case let .success(videos):
+        self.watchedEvents = videos.watched
+        self.watchingEvents = videos.watching
+        //
+      }
+    }
+  }
+}
+
 final class VideosController: UIPageViewController {
   typealias Dependencies = HasVideosService & HasPlaybackService & HasNavigationService
 

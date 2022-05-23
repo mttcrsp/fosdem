@@ -1,5 +1,74 @@
 import UIKit
 
+class YearsInteractor {
+  typealias Dependencies = HasYearsService
+
+  private var pendingTask: NetworkServiceTask?
+  private var pendingYear: Year?
+
+  private let dependencies: Dependencies
+
+  init(dependencies: Dependencies) {
+    self.dependencies = dependencies
+  }
+
+  private var years: [Year] {
+    Array(type(of: dependencies.yearsService).all).reversed()
+  }
+
+  func didSelectYear(at index: Int) {
+    let year = years[index]
+
+    let onRetry: () -> Void = { [weak self] in
+      self?.didSelectYear(at: index)
+    }
+    let onFailure: (Error) -> Void = { [weak self] error in
+      _ = error
+      _ = self
+    }
+    let onSuccess: () -> Void = { [weak self] in
+      _ = self
+    }
+
+    _ = onRetry
+
+    switch downloadState(for: year) {
+    case .inProgress:
+      break
+    case .completed:
+      onSuccess()
+    case .available:
+      let task = dependencies.yearsService.downloadYear(year) { [weak self] error in
+        DispatchQueue.main.async {
+          if let error = error {
+            onFailure(error)
+          } else {
+            onSuccess()
+          }
+
+          self?.pendingYear = nil
+          self?.pendingTask = nil
+          //
+        }
+      }
+
+      pendingYear = year
+      pendingTask = task
+      //
+    }
+  }
+
+  private func downloadState(for year: Year) -> YearDownloadState {
+    if pendingYear == year {
+      return .inProgress
+    } else if dependencies.yearsService.isYearDownloaded(year) {
+      return .completed
+    } else {
+      return .available
+    }
+  }
+}
+
 final class YearsController: YearsViewController {
   typealias Dependencies = HasYearsService & HasNavigationService
 
