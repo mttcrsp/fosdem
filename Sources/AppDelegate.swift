@@ -1,4 +1,39 @@
+import AVFAudio
+import AVFoundation
+import RIBs
 import UIKit
+
+extension Services: HasAgendaBuilder {
+  var agendaBuilder: AgendaBuildable {
+    AgendaBuilder(dependency: self)
+  }
+}
+
+extension Services: HasEventBuilder {
+  var eventBuilder: EventBuildable {
+    EventBuilder(dependency: self)
+  }
+}
+
+extension Services: HasAudioSession {
+  var audioSession: AVAudioSessionProtocol {
+    AVAudioSession.sharedInstance()
+  }
+}
+
+extension Services: HasPlayer {
+  static let _player = AVPlayer()
+
+  var player: AVPlayerProtocol {
+    Services._player
+  }
+}
+
+extension Services: HasNotificationCenter {
+  var notificationCenter: NotificationCenter {
+    .default
+  }
+}
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
@@ -11,19 +46,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window?.rootViewController as? ApplicationController
   }
 
+  private var rootRouter: LaunchRouting?
+
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-    let rootViewController: UIViewController
-    do {
-      rootViewController = ApplicationController(dependencies: try makeServices())
-    } catch {
-      rootViewController = makeErrorViewController()
-    }
+//    let rootViewController: UIViewController
+//    do {
+//      rootViewController = ApplicationController(dependencies: try makeServices())
+//    } catch {
+//      rootViewController = makeErrorViewController()
+//    }
+//
+//    let window = UIWindow()
+//    window.tintColor = .fos_label
+//    window.rootViewController = rootViewController
+//    window.makeKeyAndVisible()
+//    self.window = window
 
     let window = UIWindow()
-    window.tintColor = .fos_label
-    window.rootViewController = rootViewController
-    window.makeKeyAndVisible()
     self.window = window
+
+    do {
+      let services = try makeServices()
+      let rootBuilder = RootBuilder(dependency: services)
+      let rootRouter = rootBuilder.build()
+      self.rootRouter = rootRouter
+      rootRouter.launch(from: window)
+    } catch {
+      print(error)
+    }
 
     return true
   }

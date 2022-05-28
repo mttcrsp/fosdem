@@ -12,7 +12,7 @@ protocol EventViewControllerDataSource: AnyObject {
   func eventViewController(_ eventViewController: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition
 }
 
-final class EventViewController: UITableViewController {
+class EventViewController: UITableViewController {
   weak var delegate: EventViewControllerDelegate?
   weak var dataSource: EventViewControllerDataSource?
 

@@ -1,25 +1,41 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "GRDB",
-        "repositoryURL": "https://github.com/mttcrsp/GRDB.swift",
-        "state": {
-          "branch": "master",
-          "revision": "8cbcac3bd015d0a279305c6202a89de3d0042d9c",
-          "version": null
-        }
-      },
-      {
-        "package": "SnapshotTesting",
-        "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
-        "state": {
-          "branch": null,
-          "revision": "c466812aa2e22898f27557e2e780d3aad7a27203",
-          "version": "1.8.2"
-        }
+  "pins" : [
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mttcrsp/GRDB.swift",
+      "state" : {
+        "branch" : "master",
+        "revision" : "8cbcac3bd015d0a279305c6202a89de3d0042d9c"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "ribs",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uber/ribs",
+      "state" : {
+        "branch" : "main",
+        "revision" : "0b0948a68f4836f504a09529176e8da90909f846"
+      }
+    },
+    {
+      "identity" : "rxswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ReactiveX/RxSwift",
+      "state" : {
+        "branch" : "main",
+        "revision" : "3d3ed05bed71f19999db2207c714dab0028d37be"
+      }
+    },
+    {
+      "identity" : "swift-snapshot-testing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-snapshot-testing",
+      "state" : {
+        "branch" : "main",
+        "revision" : "ad2c83170e82954d9504e4db205c43a3f493bc55"
+      }
+    }
+  ],
+  "version" : 2
 }

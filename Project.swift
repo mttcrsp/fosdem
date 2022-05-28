@@ -24,9 +24,19 @@ let grdb = Package.remote(
   requirement: .branch("master")
 )
 
+let ribs = Package.remote(
+  url: "https://github.com/uber/ribs",
+  requirement: .branch("main")
+)
+
+let rxSwift = Package.remote(
+  url: "https://github.com/ReactiveX/RxSwift",
+  requirement: .branch("main")
+)
+
 let snapshotTesting = Package.remote(
-  url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
-  requirement: .exact(.init(1, 8, 2))
+  url: "https://github.com/pointfreeco/swift-snapshot-testing",
+  requirement: .branch("main")
 )
 
 let app = Target(
@@ -60,7 +70,11 @@ let app = Target(
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
   scripts: isCI ? [] : [mockolo, swiftFormat],
-  dependencies: [.package(product: "GRDB")],
+  dependencies: [
+    .package(product: "GRDB"),
+    .package(product: "RIBs"),
+    .package(product: "RxSwift"),
+  ],
   settings: .settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",
     "PRODUCT_MODULE_NAME": "Fosdem",
@@ -149,7 +163,7 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   options: .options(automaticSchemesOptions: .enabled(codeCoverageEnabled: true)),
-  packages: [grdb, snapshotTesting],
+  packages: [grdb, ribs, rxSwift, snapshotTesting],
   settings: .settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES"]),
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
