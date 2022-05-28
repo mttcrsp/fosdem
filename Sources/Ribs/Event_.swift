@@ -19,10 +19,12 @@ final class EventBuilder: Builder<EventDependency>, EventBuildable {
   func build(with arguments: EventArguments) -> ViewableRouting {
     let viewController = _EventController()
     let interactor = EventInteractor(arguments: arguments, dependency: dependency, presenter: viewController)
-    let router = ViewableRouter<Interactable, ViewControllable>(interactor: interactor, viewController: viewController)
+    let router = EventRouter(interactor: interactor, viewController: viewController)
     return router
   }
 }
+
+final class EventRouter: ViewableRouter<Interactable, ViewControllable> {}
 
 final class EventInteractor: PresentableInteractor<EventPresentable> {
   private var favoritesObserver: NSObjectProtocol?

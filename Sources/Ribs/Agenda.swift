@@ -34,7 +34,7 @@ protocol AgendaInteractable: Interactable {
 }
 
 protocol AgendaListener: AnyObject {
-  func didError(_ error: Error)
+  func agendaDidError(_ error: Error)
 }
 
 final class AgendaInteractor: PresentableInteractor<AgendaPresentable>, AgendaInteractable {
@@ -51,12 +51,6 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable>, AgendaIn
     super.init(presenter: presenter)
   }
 
-  deinit {
-    if let favoritesObserver = favoritesObserver {
-      dependency.favoritesService.removeObserver(favoritesObserver)
-    }
-  }
-
   override func didBecomeActive() {
     super.didBecomeActive()
 
@@ -70,6 +64,14 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable>, AgendaIn
     }
   }
 
+  override func willResignActive() {
+    super.willResignActive()
+
+    if let favoritesObserver = favoritesObserver {
+      dependency.favoritesService.removeObserver(favoritesObserver)
+    }
+  }
+
   private func reloadFavoriteEvents(forUpdateToEventWithIdentifier identifier: Int? = nil) {
     let identifiers = dependency.favoritesService.eventsIdentifiers
     let operation = EventsForIdentifiers(identifiers: identifiers)
@@ -77,7 +79,7 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable>, AgendaIn
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):
-          self?.listener?.didError(error)
+          self?.listener?.agendaDidError(error)
         case let .success(events):
           self?.presenter.showAgendaEvents(events, withUpdatedEventIdentifier: identifier)
         }
@@ -466,6 +468,7 @@ private extension _AgendaController {
     self.soonViewController = soonViewController
 
     let soonNavigationController = UINavigationController(rootViewController: soonViewController)
+    soonNavigationController.delegate = self
     self.soonNavigationController = soonNavigationController
 
     return soonNavigationController

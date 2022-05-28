@@ -1,11 +1,18 @@
 import AVFAudio
 import AVFoundation
+import CoreLocation
 import RIBs
 import UIKit
 
 extension Services: HasAgendaBuilder {
   var agendaBuilder: AgendaBuildable {
     AgendaBuilder(dependency: self)
+  }
+}
+
+extension Services: HasMapBuilder {
+  var mapBuilder: MapBuildable {
+    MapBuilder(dependency: self)
   }
 }
 
@@ -32,6 +39,14 @@ extension Services: HasPlayer {
 extension Services: HasNotificationCenter {
   var notificationCenter: NotificationCenter {
     .default
+  }
+}
+
+extension Services: HasLocationService {
+  static let _locationService = LocationService()
+
+  var locationService: LocationServiceProtocol {
+    Services._locationService
   }
 }
 
