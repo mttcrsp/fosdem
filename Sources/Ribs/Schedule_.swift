@@ -1,6 +1,12 @@
 import RIBs
 import UIKit
 
+struct TracksSection {
+  let title: String?
+  let accessibilityIdentifier: String?
+  let tracks: [Track]
+}
+
 typealias ScheduleDependency = HasFavoritesService
   & HasPersistenceService
   & HasTracksService
@@ -171,6 +177,24 @@ extension ScheduleInteractor: TracksServiceDelegate {
   
   private var hasFavoriteTracks: Bool {
     !filteredFavoriteTracks.isEmpty
+  }
+  
+  var tracksSections: [TracksSection] {
+    var sections: [TracksSection] = []
+    
+    if hasFavoriteTracks {
+      let sectionTitle = L10n.Search.Filter.favorites
+      let sectionAccessibilityIdentifier = "favorites"
+      let sectionTracks = filteredFavoriteTracks
+      sections.append(TracksSection(title: sectionTitle, accessibilityIdentifier: sectionAccessibilityIdentifier, tracks: sectionTracks))
+    }
+    
+    let sectionTitle = selectedFilter.title
+    let sectionAccessibilityIdentifier = selectedFilter.accessibilityIdentifier
+    let sectionTracks = filteredTracks
+    sections.append(TracksSection(title: sectionTitle, accessibilityIdentifier: sectionAccessibilityIdentifier, tracks: sectionTracks))
+    
+    return sections
   }
   
   private var filteredTracks: [Track] {
