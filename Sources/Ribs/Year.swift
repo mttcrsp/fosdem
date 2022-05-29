@@ -1,7 +1,7 @@
 import RIBs
 import UIKit
 
-typealias YearDependency = HasEventBuilder & HasYearsService
+typealias YearDependency = HasEventBuilder & HasSearchBuilder & HasYearsService
 
 typealias YearArguments = Year
 
@@ -21,7 +21,7 @@ final class YearBuilder: Builder<YearDependency>, YearBuildable {
   func build(with arguments: YearArguments, listener: YearListener) -> YearRouting {
     let viewController = _YearViewController()
     let interactor = YearInteractor(presenter: viewController, dependency: dependency, arguments: arguments)
-    let router = YearRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)
+    let router = YearRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder, searchBuilder: dependency.searchBuilder)
     interactor.listener = listener
     interactor.router = router
     viewController.listener = interactor
@@ -31,16 +31,28 @@ final class YearBuilder: Builder<YearDependency>, YearBuildable {
 
 protocol YearRouting: ViewableRouting {
   func routeToEvent(_ event: Event)
+  func routeToSearchResult(_ event: Event)
 }
 
 final class YearRouter: ViewableRouter<YearInteractable, YearViewControllable> {
   private var eventRouter: ViewableRouting?
+  private var searchResultRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
+  private let searchBuilder: SearchBuildable
 
-  init(interactor: YearInteractable, viewController: YearViewControllable, eventBuilder: EventBuildable) {
+  init(interactor: YearInteractable, viewController: YearViewControllable, eventBuilder: EventBuildable, searchBuilder: SearchBuildable) {
     self.eventBuilder = eventBuilder
+    self.searchBuilder = searchBuilder
     super.init(interactor: interactor, viewController: viewController)
+  }
+
+  override func didLoad() {
+    super.didLoad()
+
+    let searchRouter = searchBuilder.build(with: interactor)
+    attachChild(searchRouter)
+    viewController.showSearch(searchRouter.viewControllable)
   }
 }
 
@@ -56,9 +68,21 @@ extension YearRouter: YearRouting {
     attachChild(eventRouter)
     viewController.showEvent(eventRouter.viewControllable)
   }
+
+  func routeToSearchResult(_ event: Event) {
+    if let searchResultRouter = searchResultRouter {
+      detachChild(searchResultRouter)
+      self.searchResultRouter = nil
+    }
+
+    let searchResultRouter = eventBuilder.build(with: event)
+    self.searchResultRouter = searchResultRouter
+    attachChild(searchResultRouter)
+    viewController.showSearchResult(searchResultRouter.viewControllable)
+  }
 }
 
-protocol YearInteractable: Interactable {}
+protocol YearInteractable: Interactable, SearchListener {}
 
 final class YearInteractor: PresentableInteractor<YearPresentable>, YearInteractable, YearPresentableListener {
   weak var router: YearRouting?
@@ -119,6 +143,10 @@ final class YearInteractor: PresentableInteractor<YearPresentable>, YearInteract
     router?.routeToEvent(event)
   }
 
+  func didSelectResult(_ event: Event) {
+    router?.routeToSearchResult(event)
+  }
+
   var year: Year {
     arguments
   }
@@ -134,6 +162,8 @@ protocol YearPresentableListener: AnyObject {
 
 protocol YearViewControllable: ViewControllable {
   func showEvent(_ eventViewControllable: ViewControllable)
+  func showSearch(_ searchViewControllable: ViewControllable)
+  func showSearchResult(_ eventViewController: ViewControllable)
 }
 
 protocol YearPresentable: Presentable {
@@ -165,7 +195,6 @@ final class _YearViewController: TracksViewController, YearPresentable, YearView
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
-    show(eventsViewController, sender: nil)
   }
 
   func showEvent(_ eventViewControllable: ViewControllable) {
@@ -176,6 +205,17 @@ final class _YearViewController: TracksViewController, YearPresentable, YearView
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
+  }
+
+  func showSearch(_ searchViewControllable: ViewControllable) {
+    if let searchController = searchViewControllable.uiviewController as? UISearchController {
+      addSearchViewController(searchController)
+    }
+  }
+
+  func showSearchResult(_ eventViewControllable: ViewControllable) {
+    let resultViewController = eventViewControllable.uiviewController
+    show(resultViewController, sender: nil)
   }
 }
 
