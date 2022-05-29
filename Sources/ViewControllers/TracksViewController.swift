@@ -31,8 +31,7 @@ protocol TracksViewControllerIndexDelegate: AnyObject {
 
 /// @mockable
 protocol TracksViewControllerFavoritesDelegate: AnyObject {
-  func tracksViewController(_ tracksViewController: TracksViewController, didFavorite track: Track)
-  func tracksViewController(_ tracksViewController: TracksViewController, didUnfavorite track: Track)
+  func tracksViewController(_ tracksViewController: TracksViewController, didToggleFavorite track: Track)
 }
 
 class TracksViewController: UITableViewController {
@@ -184,27 +183,23 @@ class TracksViewController: UITableViewController {
 
     let track = dataSource.tracksViewController(self, trackAt: indexPath)
 
+    let handler: () -> Void = { [weak self] in
+      self?.didToggleFavorite(track)
+    }
+
     if favoritesDataSource.tracksViewController(self, canFavorite: track) {
       let title = L10n.favorite
       let image = UIImage.fos_systemImage(withName: "star.fill")
-      return [Action(title: title, image: image) { [weak self] in
-        self?.didFavorite(track)
-      }]
+      return [Action(title: title, image: image, handler: handler)]
     } else {
       let title = L10n.unfavorite
       let image = UIImage.fos_systemImage(withName: "star.slash.fill")
-      return [Action(title: title, image: image, style: .destructive) { [weak self] in
-        self?.didUnfavorite(track)
-      }]
+      return [Action(title: title, image: image, style: .destructive, handler: handler)]
     }
   }
 
-  private func didFavorite(_ track: Track) {
-    favoritesDelegate?.tracksViewController(self, didFavorite: track)
-  }
-
-  private func didUnfavorite(_ track: Track) {
-    favoritesDelegate?.tracksViewController(self, didUnfavorite: track)
+  private func didToggleFavorite(_ track: Track) {
+    favoritesDelegate?.tracksViewController(self, didToggleFavorite: track)
   }
 }
 

@@ -57,16 +57,16 @@ extension SearchInteractor: SearchPresentableListener {
     listener?.didSelectResult(event)
   }
 
-  func didFavorite(_ event: Event) {
-    dependency.favoritesService.addEvent(withIdentifier: event.id)
-  }
-
-  func didUnfavorite(_ event: Event) {
-    dependency.favoritesService.removeEvent(withIdentifier: event.id)
-  }
-
   func canFavoritEvent(_ event: Event) -> Bool {
     !dependency.favoritesService.contains(event)
+  }
+
+  func toggleFavorite(_ event: Event) {
+    if canFavoritEvent(event) {
+      dependency.favoritesService.addEvent(withIdentifier: event.id)
+    } else {
+      dependency.favoritesService.removeEvent(withIdentifier: event.id)
+    }
   }
 }
 
@@ -85,8 +85,7 @@ enum SearchPresentableConfiguration {
 protocol SearchPresentableListener: AnyObject {
   func didChangeQuery(_ query: String)
   func didSelectEvent(_ event: Event)
-  func didFavorite(_ event: Event)
-  func didUnfavorite(_ event: Event)
+  func toggleFavorite(_ event: Event)
   func canFavoritEvent(_ event: Event) -> Bool
 }
 
@@ -162,12 +161,8 @@ extension SearchViewController: EventsViewControllerFavoritesDataSource {
 }
 
 extension SearchViewController: EventsViewControllerFavoritesDelegate {
-  func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    listener?.didFavorite(event)
-  }
-
-  func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    listener?.didUnfavorite(event)
+  func eventsViewController(_: EventsViewController, didToggleFavorite event: Event) {
+    listener?.toggleFavorite(event)
   }
 }
 

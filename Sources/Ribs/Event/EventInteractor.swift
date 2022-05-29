@@ -62,6 +62,14 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
 }
 
 extension EventInteractor: EventPresentableListener {
+  func toggleFavorite() {
+    if dependency.favoritesService.contains(event) {
+      dependency.favoritesService.removeEvent(withIdentifier: event.id)
+    } else {
+      dependency.favoritesService.addEvent(withIdentifier: event.id)
+    }
+  }
+
   func beginFullScreenPlayerPresentation() {
     let eventID = event.id
 
@@ -102,14 +110,6 @@ extension EventInteractor: EventPresentableListener {
     if let finishObserver = finishObserver {
       dependency.notificationCenter.removeObserver(finishObserver)
       self.finishObserver = nil
-    }
-  }
-
-  func toggleFavorite() {
-    if dependency.favoritesService.contains(event) {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
-    } else {
-      dependency.favoritesService.addEvent(withIdentifier: event.id)
     }
   }
 }

@@ -2,10 +2,6 @@
 import RIBs
 import UIKit
 
-protocol HasVideosBuilder {
-  var videosBuilder: VideosBuildable { get }
-}
-
 typealias VideosDependency = HasEventBuilder & HasPlaybackService & HasVideosService
 
 protocol VideosListener: AnyObject {

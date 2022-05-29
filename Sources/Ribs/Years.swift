@@ -1,10 +1,6 @@
 import RIBs
 import UIKit
 
-protocol HasYearsBuilder {
-  var yearsBuilder: YearsBuildable { get }
-}
-
 typealias YearsDependency = HasYearBuilder & HasYearsService
 
 protocol YearsListener: AnyObject {

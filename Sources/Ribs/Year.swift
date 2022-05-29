@@ -9,10 +9,6 @@ protocol YearListener: AnyObject {
   func yearDidError(_ error: Error)
 }
 
-protocol HasYearBuilder {
-  var yearBuilder: YearBuildable { get }
-}
-
 protocol YearBuildable: Buildable {
   func build(with arguments: YearArguments, listener: YearListener) -> YearRouting
 }

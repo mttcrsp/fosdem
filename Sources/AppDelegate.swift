@@ -4,80 +4,6 @@ import CoreLocation
 import RIBs
 import UIKit
 
-extension Services: HasAgendaBuilder {
-  var agendaBuilder: AgendaBuildable {
-    AgendaBuilder(dependency: self)
-  }
-}
-
-extension Services: HasMapBuilder {
-  var mapBuilder: MapBuildable {
-    MapBuilder(dependency: self)
-  }
-}
-
-extension Services: HasScheduleBuilder {
-  var scheduleBuilder: ScheduleBuildable {
-    ScheduleBuilder(dependency: self)
-  }
-}
-
-extension Services: HasSearchBuilder {
-  var searchBuilder: SearchBuildable {
-    SearchBuilder(dependency: self)
-  }
-}
-
-extension Services: HasMoreBuilder {
-  var moreBuilder: MoreBuildable {
-    MoreBuilder(dependency: self)
-  }
-}
-
-extension Services: HasVideosBuilder {
-  var videosBuilder: VideosBuildable {
-    VideosBuilder(dependency: self)
-  }
-}
-
-extension Services: HasEventBuilder {
-  var eventBuilder: EventBuildable {
-    EventBuilder(dependency: self)
-  }
-}
-
-extension Services: HasAudioSession {
-  var audioSession: AVAudioSessionProtocol {
-    AVAudioSession.sharedInstance()
-  }
-}
-
-extension Services: HasYearsBuilder {
-  var yearsBuilder: YearsBuildable {
-    YearsBuilder(dependency: self)
-  }
-}
-
-extension Services: HasYearBuilder {
-  var yearBuilder: YearBuildable {
-    YearBuilder(dependency: self)
-  }
-}
-
-extension Services: HasPlayer {
-  static let _player = AVPlayer()
-
-  var player: AVPlayerProtocol {
-    Services._player
-  }
-}
-
-extension Services: HasNotificationCenter {
-  var notificationCenter: NotificationCenter {
-    .default
-  }
-}
-
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
@@ -88,19 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   private var rootRouter: LaunchRouting?
 
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-//    let rootViewController: UIViewController
-//    do {
-//      rootViewController = ApplicationController(dependencies: try makeServices())
-//    } catch {
-//      rootViewController = makeErrorViewController()
-//    }
-//
-//    let window = UIWindow()
-//    window.tintColor = .fos_label
-//    window.rootViewController = rootViewController
-//    window.makeKeyAndVisible()
-//    self.window = window
-
     let window = UIWindow()
     window.tintColor = .fos_label
     self.window = window

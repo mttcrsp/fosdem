@@ -23,8 +23,7 @@ protocol EventsViewControllerDelegate: AnyObject {
 
 /// @mockable
 protocol EventsViewControllerFavoritesDelegate: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, didFavorite event: Event)
-  func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event)
+  func eventsViewController(_ eventsViewController: EventsViewController, didToggleFavorite event: Event)
 }
 
 /// @mockable
@@ -64,12 +63,8 @@ final class EventsViewController: UITableViewController {
     }
   }
 
-  func beginUpdates() {
-    tableView.beginUpdates()
-  }
-
-  func endUpdates() {
-    tableView.endUpdates()
+  func performBatchUpdates(_ updates: () -> Void) {
+    tableView.performBatchUpdates(updates)
   }
 
   func insertEvent(at index: Int) {
@@ -169,28 +164,23 @@ final class EventsViewController: UITableViewController {
     }
 
     let event = self.event(forSection: indexPath.section)
+    let handler: () -> Void = { [weak self] in
+      self?.didToggleFavorite(event)
+    }
 
     if favoritesDataSource.eventsViewController(self, canFavorite: event) {
       let title = L10n.Event.add
       let image = UIImage.fos_systemImage(withName: "calendar.badge.plus")
-      return [Action(title: title, image: image) { [weak self] in
-        self?.didFavorite(event)
-      }]
+      return [Action(title: title, image: image, handler: handler)]
     } else {
       let title = L10n.Event.remove
       let image = UIImage.fos_systemImage(withName: "calendar.badge.minus")
-      return [Action(title: title, image: image, style: .destructive) { [weak self] in
-        self?.didUnfavorite(event)
-      }]
+      return [Action(title: title, image: image, style: .destructive, handler: handler)]
     }
   }
 
-  private func didFavorite(_ event: Event) {
-    favoritesDelegate?.eventsViewController(self, didFavorite: event)
-  }
-
-  private func didUnfavorite(_ event: Event) {
-    favoritesDelegate?.eventsViewController(self, didUnfavorite: event)
+  private func didToggleFavorite(_ event: Event) {
+    favoritesDelegate?.eventsViewController(self, didToggleFavorite: event)
   }
 
   private func event(forSection section: Int) -> Event {

@@ -1,10 +1,6 @@
 import RIBs
 import UIKit
 
-protocol HasSearchBuilder {
-  var searchBuilder: SearchBuildable { get }
-}
-
 struct TracksSection {
   let title: String?
   let accessibilityIdentifier: String?
@@ -146,37 +142,28 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, Sche
 }
 
 extension ScheduleInteractor: SchedulePresentableListener {
-  func didFavorite(_ event: Event) {
-    dependency.favoritesService.addEvent(withIdentifier: event.id)
-  }
-
-  func didFavorite(_ track: Track) {
-    dependency.favoritesService.addTrack(withIdentifier: track.name)
-  }
-
-  func didUnfavorite(_ event: Event) {
-    dependency.favoritesService.removeEvent(withIdentifier: event.id)
-  }
-
-  func didUnfavorite(_ track: Track) {
-    dependency.favoritesService.removeTrack(withIdentifier: track.name)
-  }
-
-  func canFavoritEvent(_ event: Event) -> Bool {
+  func canFavoriteEvent(_ event: Event) -> Bool {
     !dependency.favoritesService.contains(event)
   }
 
-  func canFavoritEvent(_ track: Track) -> Bool {
+  func canFavoriteTrack(_ track: Track) -> Bool {
     !dependency.favoritesService.contains(track)
   }
 
-  func didToggleFavorite() {
-    guard let selectedTrack = selectedTrack else { return }
-
-    if dependency.favoritesService.contains(selectedTrack) {
-      dependency.favoritesService.removeTrack(withIdentifier: selectedTrack.name)
+  func toggleFavorite(_ event: Event) {
+    if canFavoriteEvent(event) {
     } else {
-      dependency.favoritesService.addTrack(withIdentifier: selectedTrack.name)
+      dependency.favoritesService.removeEvent(withIdentifier: event.id)
+    }
+  }
+
+  func toggleFavorite(_ track: Track?) {
+    guard let track = track ?? selectedTrack else { return }
+
+    if canFavoriteTrack(track) {
+      dependency.favoritesService.addTrack(withIdentifier: track.name)
+    } else {
+      dependency.favoritesService.removeTrack(withIdentifier: track.name)
     }
   }
 
@@ -319,13 +306,10 @@ protocol SchedulePresentable: Presentable {
 }
 
 protocol SchedulePresentableListener: AnyObject {
-  func didFavorite(_ event: Event)
-  func didUnfavorite(_ event: Event)
-  func canFavoritEvent(_ event: Event) -> Bool
-
-  func didFavorite(_ track: Track)
-  func didUnfavorite(_ track: Track)
-  func canFavoritEvent(_ track: Track) -> Bool
+  func canFavoriteEvent(_ event: Event) -> Bool
+  func canFavoriteTrack(_ track: Track) -> Bool
+  func toggleFavorite(_ event: Event)
+  func toggleFavorite(_ track: Track?)
 
   func didSelectFilters()
   func didSelect(_ filter: TracksFilter)
@@ -334,8 +318,6 @@ protocol SchedulePresentableListener: AnyObject {
   func didSelectTracksSection(_ section: String)
   func didDeselectEvent()
   func didDeselectSearchResult()
-
-  func didToggleFavorite()
 
   var tracksSections: [TracksSection] { get }
 }
@@ -393,7 +375,7 @@ extension ScheduleViewController {
   }
 
   @objc private func didToggleFavorite() {
-    listener?.didToggleFavorite()
+    listener?.toggleFavorite(nil)
   }
 
   @objc private func didTapChangeFilter() {
@@ -524,17 +506,13 @@ extension ScheduleViewController: TracksViewControllerDelegate {
 
 extension ScheduleViewController: TracksViewControllerFavoritesDataSource {
   func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
-    listener?.canFavoritEvent(track) ?? false
+    listener?.canFavoriteTrack(track) ?? false
   }
 }
 
 extension ScheduleViewController: TracksViewControllerFavoritesDelegate {
-  func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-    listener?.didFavorite(track)
-  }
-
-  func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-    listener?.didUnfavorite(track)
+  func tracksViewController(_: TracksViewController, didToggleFavorite track: Track) {
+    listener?.toggleFavorite(track)
   }
 }
 
@@ -568,17 +546,13 @@ extension ScheduleViewController: EventsViewControllerDelegate {
 
 extension ScheduleViewController: EventsViewControllerFavoritesDataSource {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    listener?.canFavoritEvent(event) ?? false
+    listener?.canFavoriteEvent(event) ?? false
   }
 }
 
 extension ScheduleViewController: EventsViewControllerFavoritesDelegate {
-  func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    listener?.didFavorite(event)
-  }
-
-  func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    listener?.didUnfavorite(event)
+  func eventsViewController(_: EventsViewController, didToggleFavorite event: Event) {
+    listener?.toggleFavorite(event)
   }
 }
 
