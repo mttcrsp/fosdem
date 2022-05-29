@@ -9,12 +9,17 @@ protocol HasMapBuilder {
   var mapBuilder: MapBuildable { get }
 }
 
+protocol HasMoreBuilder {
+  var moreBuilder: MoreBuildable { get }
+}
+
 protocol HasScheduleBuilder {
   var scheduleBuilder: ScheduleBuildable { get }
 }
 
 typealias RootDependency = HasAgendaBuilder
   & HasMapBuilder
+  & HasMoreBuilder
   & HasScheduleBuilder
 
 protocol RootBuildable: Buildable {
@@ -30,6 +35,7 @@ class RootBuilder: Builder<RootDependency> {
       viewController: viewController,
       agendaBuilder: dependency.agendaBuilder,
       mapBuilder: dependency.mapBuilder,
+      moreBuilder: dependency.moreBuilder,
       scheduleBuilder: dependency.scheduleBuilder
     )
     interactor.router = router
@@ -45,10 +51,12 @@ protocol RootRouting: Routing {
 class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
   private var agendaRouter: ViewableRouting?
   private var mapRouter: ViewableRouting?
+  private var moreRouter: ViewableRouting?
   private var scheduleRouter: ViewableRouting?
 
   private let agendaBuilder: AgendaBuildable
   private let mapBuilder: MapBuildable
+  private let moreBuilder: MoreBuildable
   private let scheduleBuilder: ScheduleBuildable
 
   init(
@@ -56,10 +64,12 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     viewController: RootViewControllable,
     agendaBuilder: AgendaBuildable,
     mapBuilder: MapBuildable,
+    moreBuilder: MoreBuildable,
     scheduleBuilder: ScheduleBuildable
   ) {
     self.agendaBuilder = agendaBuilder
     self.mapBuilder = mapBuilder
+    self.moreBuilder = moreBuilder
     self.scheduleBuilder = scheduleBuilder
     super.init(interactor: interactor, viewController: viewController)
   }
@@ -76,6 +86,11 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
+
+    let moreRouter = moreBuilder.build()
+    self.moreRouter = moreRouter
+    attachChild(moreRouter)
+    viewController.addMore(moreRouter.viewControllable)
 
     let mapRouter = mapBuilder.build(with: interactor)
     self.mapRouter = mapRouter
@@ -115,6 +130,7 @@ extension RootInteractor: RootInteractable {
 protocol RootViewControllable: ViewControllable {
   func addAgenda(_ agendaViewControllable: ViewControllable)
   func addMap(_ mapViewControllable: ViewControllable)
+  func addMore(_ mapViewControllable: ViewControllable)
   func addSchedule(_ scheduleViewControllable: ViewControllable)
   func removeAgenda()
   func removeMap()
@@ -130,12 +146,17 @@ class RootViewController: UITabBarController {
     didSet { didChangeViewControllers() }
   }
 
+  private var moreViewController: UIViewController? {
+    didSet { didChangeViewControllers() }
+  }
+
   private var scheduleViewController: UIViewController? {
     didSet { didChangeViewControllers() }
   }
 
   private func didChangeViewControllers() {
-    viewControllers = [scheduleViewController, agendaViewController, mapViewController].compactMap { $0 }
+    let viewControllers = [scheduleViewController, agendaViewController, mapViewController, moreViewController]
+    self.viewControllers = viewControllers.compactMap { $0 }
   }
 }
 
@@ -152,6 +173,13 @@ extension RootViewController: RootViewControllable {
     mapViewController?.title = L10n.Map.title
     mapViewController?.tabBarItem.accessibilityIdentifier = "map"
     mapViewController?.tabBarItem.image = .fos_systemImage(withName: "map")
+  }
+
+  func addMore(_ mapViewControllable: ViewControllable) {
+    moreViewController = mapViewControllable.uiviewController
+    moreViewController?.title = L10n.More.title
+    moreViewController?.tabBarItem.accessibilityIdentifier = "more"
+    moreViewController?.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
   }
 
   func addSchedule(_ scheduleViewControllable: ViewControllable) {

@@ -22,6 +22,18 @@ extension Services: HasScheduleBuilder {
   }
 }
 
+extension Services: HasMoreBuilder {
+  var moreBuilder: MoreBuildable {
+    MoreBuilder(dependency: self)
+  }
+}
+
+extension Services: HasVideosBuilder {
+  var videosBuilder: VideosBuildable {
+    VideosBuilder(dependency: self)
+  }
+}
+
 extension Services: HasEventBuilder {
   var eventBuilder: EventBuildable {
     EventBuilder(dependency: self)

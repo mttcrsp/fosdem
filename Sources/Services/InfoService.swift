@@ -64,6 +64,31 @@ final class InfoService {
 }
 
 extension Info {
+  var title: String {
+    switch self {
+    case .history:
+      return L10n.History.title
+    case .devrooms:
+      return L10n.Devrooms.title
+    case .transportation:
+      return L10n.Transportation.title
+    case .bus:
+      return L10n.Transportation.Item.bus
+    case .shuttle:
+      return L10n.Transportation.Item.shuttle
+    case .train:
+      return L10n.Transportation.Item.train
+    case .car:
+      return L10n.Transportation.Item.car
+    case .plane:
+      return L10n.Transportation.Item.plane
+    case .taxi:
+      return L10n.Transportation.Item.taxi
+    case .legal:
+      return L10n.Legal.title
+    }
+  }
+
   var accessibilityIdentifier: String {
     rawValue
   }
