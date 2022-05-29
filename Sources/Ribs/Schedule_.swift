@@ -40,10 +40,13 @@ final class ScheduleBuilder: Builder<ScheduleDependency>, ScheduleBuildable {
 
 protocol ScheduleRouting: ViewableRouting {
   func routeToEvent(_ event: Event?)
+  func routeToSearchResult(_ event: Event)
+  func routeBackFromSearchResult()
 }
 
 final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewControllable> {
   private var eventRouter: ViewableRouting?
+  private var searchResultRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
   private let searchBuilder: SearchBuildable
@@ -57,7 +60,7 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
   override func didLoad() {
     super.didLoad()
 
-    let searchRouter = searchBuilder.build()
+    let searchRouter = searchBuilder.build(with: interactor)
     attachChild(searchRouter)
     viewController.showSearch(searchRouter.viewControllable)
   }
@@ -77,11 +80,28 @@ extension ScheduleRouter: ScheduleRouting {
       viewController.showEvent(eventRouter.viewControllable)
     }
   }
+
+  func routeToSearchResult(_ event: Event) {
+    if let searchResultRouter = searchResultRouter {
+      detachChild(searchResultRouter)
+      self.searchResultRouter = nil
+    }
+
+    let searchResultRouter = eventBuilder.build(with: event)
+    self.searchResultRouter = searchResultRouter
+    attachChild(searchResultRouter)
+    viewController.showSearchResult(searchResultRouter.viewControllable)
+  }
+
+  func routeBackFromSearchResult() {
+    if let searchResultRouter = searchResultRouter {
+      detachChild(searchResultRouter)
+      self.searchResultRouter = nil
+    }
+  }
 }
 
-protocol ScheduleInteractable: Interactable {
-  var router: ScheduleRouting? { get set }
-}
+protocol ScheduleInteractable: Interactable, SearchListener {}
 
 final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, ScheduleInteractable {
   weak var router: ScheduleRouting?
@@ -118,6 +138,10 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, Sche
     if let observer = observer {
       dependency.favoritesService.removeObserver(observer)
     }
+  }
+
+  func didSelectResult(_ event: Event) {
+    router?.routeToSearchResult(event)
   }
 }
 
@@ -198,6 +222,10 @@ extension ScheduleInteractor: SchedulePresentableListener {
   func didDeselectEvent() {
     router?.routeToEvent(nil)
   }
+
+  func didDeselectSearchResult() {
+    router?.routeBackFromSearchResult()
+  }
 }
 
 extension ScheduleInteractor: TracksServiceDelegate {
@@ -269,6 +297,7 @@ extension ScheduleInteractor: TracksServiceDelegate {
 protocol ScheduleViewControllable: ViewControllable {
   func showEvent(_ eventViewController: ViewControllable)
   func showSearch(_ eventViewController: ViewControllable)
+  func showSearchResult(_ eventViewController: ViewControllable)
 }
 
 protocol SchedulePresentable: Presentable {
@@ -304,6 +333,7 @@ protocol SchedulePresentableListener: AnyObject {
   func didSelect(_ track: Track)
   func didSelectTracksSection(_ section: String)
   func didDeselectEvent()
+  func didDeselectSearchResult()
 
   func didToggleFavorite()
 
@@ -329,6 +359,7 @@ final class ScheduleViewController: UISplitViewController {
   private weak var tracksViewController: TracksViewController?
   private weak var eventsViewController: EventsViewController?
   private weak var eventViewController: UIViewController?
+  private weak var resultViewController: UIViewController?
   private weak var filtersButton: UIBarButtonItem?
 
   private lazy var favoriteButton: UIBarButtonItem = {
@@ -386,6 +417,12 @@ extension ScheduleViewController: ScheduleViewControllable {
       tracksViewController?.addSearchViewController(searchController)
     }
   }
+
+  func showSearchResult(_ resultViewControllable: ViewControllable) {
+    let resultViewController = resultViewControllable.uiviewController
+    self.resultViewController = resultViewController
+    showDetailViewController(resultViewController)
+  }
 }
 
 extension ScheduleViewController: SchedulePresentable {
@@ -428,13 +465,21 @@ extension ScheduleViewController: SchedulePresentable {
     eventsCaptions = events.captions
 
     let eventsNavigationController = makeEventsNavigationController(for: track)
-    tracksViewController?.showDetailViewController(eventsNavigationController, sender: nil)
-    UIAccessibility.post(notification: .screenChanged, argument: eventsNavigationController.view)
+    showDetailViewController(eventsNavigationController)
   }
 
   func showFilters(_ filters: [TracksFilter], selectedFilter: TracksFilter) {
     let filtersViewController = makeFiltersViewController(with: filters, selectedFilter: selectedFilter)
     tracksViewController?.present(filtersViewController, animated: true)
+  }
+
+  private func showDetailViewController(_ detailViewController: UIViewController) {
+    if detailViewController != resultViewController {
+      listener?.didDeselectSearchResult()
+    }
+
+    tracksViewController?.showDetailViewController(detailViewController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
   }
 }
 

@@ -3,21 +3,28 @@ import UIKit
 
 typealias SearchDependency = HasFavoritesService & HasPersistenceService
 
+protocol SearchListener: AnyObject {
+  func didSelectResult(_ event: Event)
+}
+
 protocol SearchBuildable: Buildable {
-  func build() -> ViewableRouting
+  func build(with listener: SearchListener) -> ViewableRouting
 }
 
 final class SearchBuilder: Builder<SearchDependency>, SearchBuildable {
-  func build() -> ViewableRouting {
+  func build(with listener: SearchListener) -> ViewableRouting {
     let viewController = SearchViewController()
     let interactor = SearchInteractor(presenter: viewController, dependency: dependency)
     let router = SearchRouter(interactor: interactor, viewController: viewController)
+    interactor.listener = listener
     viewController.listener = interactor
     return router
   }
 }
 
 final class SearchInteractor: PresentableInteractor<SearchPresentable> {
+  weak var listener: SearchListener?
+
   private let dependency: SearchDependency
 
   init(presenter: SearchPresentable, dependency: SearchDependency) {
@@ -47,7 +54,7 @@ extension SearchInteractor: SearchPresentableListener {
   }
 
   func didSelectEvent(_ event: Event) {
-    _ = event //
+    listener?.didSelectResult(event)
   }
 
   func didFavorite(_ event: Event) {
