@@ -2,13 +2,11 @@ import RIBs
 import UIKit
 
 protocol AgendaPresentableListener: AnyObject {
-  func didSelectSoon()
-  func didSelectSoonEvent(_ event: Event)
-  func didDeselectSoonEvent()
+  func selectSoon()
   func didSelectAgendaEvent(_ event: Event)
   func toggleFavorite(_ event: Event)
   func canFavoriteEvent(_ event: Event) -> Bool
-  func shouldShowLiveIndicator(for event: Event) -> Bool
+  func isLive(_ event: Event) -> Bool
 }
 
 final class AgendaViewController: UIViewController {
@@ -17,12 +15,9 @@ final class AgendaViewController: UIViewController {
   weak var listener: AgendaPresentableListener?
 
   private var agendaEvents: [Event] = []
-  private var soonEvents: [Event] = []
 
   private weak var agendaViewController: EventsViewController?
   private weak var agendaNavigationController: UINavigationController?
-  private weak var soonViewController: EventsViewController?
-  private weak var soonNavigationController: UINavigationController?
   private weak var eventViewController: UIViewController?
 
   private weak var rootViewController: UIViewController? {
@@ -48,31 +43,6 @@ extension AgendaViewController: AgendaPresentable {
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
-  }
-
-  func showSoonEvents(_ soonEvents: [Event]) {
-    self.soonEvents = soonEvents
-
-    let dismissAction = #selector(didTapDismiss)
-    let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
-    dismissButton.accessibilityIdentifier = "dismiss"
-
-    let soonViewController = EventsViewController(style: .grouped)
-    soonViewController.emptyBackgroundMessage = L10n.Soon.Empty.message
-    soonViewController.emptyBackgroundTitle = L10n.Soon.Empty.title
-    soonViewController.title = L10n.Soon.title
-    soonViewController.navigationItem.rightBarButtonItem = dismissButton
-    soonViewController.favoritesDataSource = self
-    soonViewController.favoritesDelegate = self
-    soonViewController.dataSource = self
-    soonViewController.delegate = self
-    self.soonViewController = soonViewController
-
-    let soonNavigationController = UINavigationController(rootViewController: soonViewController)
-    soonNavigationController.delegate = self
-    self.soonNavigationController = soonNavigationController
-
-    present(soonNavigationController, animated: true)
   }
 
   func showAgendaEvents(_ agendaEvents: [Event], withUpdatedEventIdentifier updatedEventID: Int?) {
@@ -115,17 +85,19 @@ extension AgendaViewController: AgendaViewControllable {
     let eventViewController = viewControllable.uiviewController
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
-    
+
     agendaViewController?.showDetailViewController(eventViewController, sender: nil)
     UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
   }
 
-  func showSoonEvent(_ event: Event, with viewControllable: ViewControllable) {
-    let eventViewController = viewControllable.uiviewController
-    eventViewController.fos_eventID = event.id
-    
-    soonViewController?.show(eventViewController, sender: nil)
-    soonViewController?.select(event)
+  func present(_ viewControllable: ViewControllable) {
+    present(viewControllable.uiviewController, animated: true)
+  }
+
+  func dismiss(_ viewControllable: ViewControllable) {
+    if presentedViewController === viewControllable.uiviewController {
+      presentedViewController?.dismiss(animated: true)
+    }
   }
 }
 
@@ -134,34 +106,19 @@ extension AgendaViewController: EventsViewControllerDataSource {
     switch eventsViewController {
     case agendaViewController:
       return agendaEvents
-    case soonViewController:
-      return soonEvents
     default:
       return []
     }
   }
 
-  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
-    switch eventsViewController {
-    case agendaViewController:
-      return caption(from: event.formattedStart, event.room, event.track)
-    case soonViewController:
-      return caption(from: event.formattedStart, event.room)
-    default:
-      return nil
-    }
-  }
-
-  private func caption(from items: String?...) -> String {
-    items.compactMap { $0 }.joined(separator: " - ")
+  func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
+    [event.formattedStart, event.room, event.track].compactMap { $0 }.joined(separator: " - ")
   }
 }
 
 extension AgendaViewController: EventsViewControllerDelegate {
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     switch eventsViewController {
-    case soonViewController:
-      listener?.didSelectSoonEvent(event)
     case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
       break
     case agendaViewController:
@@ -187,17 +144,9 @@ extension AgendaViewController: EventsViewControllerFavoritesDelegate {
 extension AgendaViewController: EventsViewControllerLiveDataSource {
   func eventsViewController(_: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
     if eventViewController == agendaViewController {
-      return listener?.shouldShowLiveIndicator(for: event) ?? false
+      return listener?.isLive(event) ?? false
     } else {
       return false
-    }
-  }
-}
-
-extension AgendaViewController: UINavigationControllerDelegate {
-  func navigationController(_ navigationController: UINavigationController, didShow _: UIViewController, animated _: Bool) {
-    if navigationController.viewControllers.count == 1, navigationController == soonNavigationController {
-      listener?.didDeselectSoonEvent()
     }
   }
 }
@@ -206,15 +155,11 @@ private extension AgendaViewController {
   var isMissingSecondaryViewController: Bool {
     eventViewController == nil
   }
-  
+
   @objc func didTapSoon() {
-    listener?.didSelectSoon()
+    listener?.selectSoon()
   }
 
-  @objc func didTapDismiss() {
-    soonViewController?.dismiss(animated: true)
-  }
-  
   func selectFirstEvent() {
     if let event = agendaEvents.first, traitCollection.horizontalSizeClass == .regular {
       listener?.didSelectAgendaEvent(event)
@@ -273,7 +218,6 @@ private extension AgendaViewController {
 
     let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
     agendaNavigationController.navigationBar.prefersLargeTitles = true
-    agendaNavigationController.delegate = self
     self.agendaNavigationController = agendaNavigationController
 
     return agendaNavigationController

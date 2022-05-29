@@ -59,6 +59,16 @@ extension Services: HasSearchBuilder {
   }
 }
 
+protocol HasSoonBuilder {
+  var soonBuilder: SoonBuildable { get }
+}
+
+extension Services: HasSoonBuilder {
+  var soonBuilder: SoonBuildable {
+    SoonBuilder(dependency: self)
+  }
+}
+
 protocol HasVideosBuilder {
   var videosBuilder: VideosBuildable { get }
 }

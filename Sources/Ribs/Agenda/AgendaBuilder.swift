@@ -10,7 +10,7 @@ typealias AgendaDependency =
   HasFavoritesService &
   HasPersistenceService &
   HasTimeService &
-  HasSoonService
+  HasSoonBuilder
 
 protocol AgendaBuildable {
   func build(with listener: AgendaListener) -> ViewableRouting
@@ -20,7 +20,12 @@ final class AgendaBuilder: Builder<AgendaDependency>, AgendaBuildable {
   func build(with listener: AgendaListener) -> ViewableRouting {
     let viewController = AgendaViewController()
     let interactor = AgendaInteractor(dependency: dependency, presenter: viewController)
-    let router = AgendaRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)
+    let router = AgendaRouter(
+      interactor: interactor,
+      viewController: viewController,
+      eventBuilder: dependency.eventBuilder,
+      soonBuilder: dependency.soonBuilder
+    )
 
     interactor.router = router
     interactor.listener = listener

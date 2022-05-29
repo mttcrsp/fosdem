@@ -3,13 +3,13 @@ import RIBs
 
 protocol AgendaRouting: Routing {
   func routeToAgendaEvent(_ event: Event)
-  func routeToSoonEvent(_ event: Event?)
+  func routeToSoon()
+  func routeBackFromSoon()
 }
 
 protocol AgendaPresentable: Presentable {
   func reloadLiveStatus()
   func showError()
-  func showSoonEvents(_ events: [Event])
   func showAgendaEvents(_ events: [Event], withUpdatedEventIdentifier identifier: Int?)
 }
 
@@ -69,25 +69,12 @@ extension AgendaInteractor: AgendaPresentableListener {
     router?.routeToAgendaEvent(event)
   }
 
-  func didSelectSoon() {
-    dependency.soonService.loadEvents { result in
-      DispatchQueue.main.async { [weak self] in
-        switch result {
-        case .failure:
-          self?.presenter.showError()
-        case let .success(events):
-          self?.presenter.showSoonEvents(events)
-        }
-      }
-    }
+  func selectSoon() {
+    router?.routeToSoon()
   }
 
-  func didSelectSoonEvent(_ event: Event) {
-    router?.routeToSoonEvent(event)
-  }
-
-  func didDeselectSoonEvent() {
-    router?.routeToSoonEvent(nil)
+  func isLive(_ event: Event) -> Bool {
+    event.isLive(at: dependency.timeService.now)
   }
 
   func canFavoriteEvent(_ event: Event) -> Bool {
@@ -101,8 +88,15 @@ extension AgendaInteractor: AgendaPresentableListener {
       dependency.favoritesService.removeEvent(withIdentifier: event.id)
     }
   }
+}
 
-  func shouldShowLiveIndicator(for event: Event) -> Bool {
-    event.isLive(at: dependency.timeService.now)
+extension AgendaInteractor: AgendaInteractable {
+  func soonDidError(_: Error) {
+    router?.routeBackFromSoon()
+    presenter.showError()
+  }
+
+  func soonDidDismiss() {
+    router?.routeBackFromSoon()
   }
 }

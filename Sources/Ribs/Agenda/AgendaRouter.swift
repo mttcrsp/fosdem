@@ -2,17 +2,22 @@ import RIBs
 
 protocol AgendaViewControllable: ViewControllable {
   func showAgendaEvent(_ event: Event, with viewControllable: ViewControllable)
-  func showSoonEvent(_ event: Event, with viewControllable: ViewControllable)
+  func present(_ viewControllable: ViewControllable)
+  func dismiss(_ viewControllable: ViewControllable)
 }
 
-final class AgendaRouter: ViewableRouter<Interactable, AgendaViewControllable>, AgendaRouting {
+protocol AgendaInteractable: Interactable, SoonListener {}
+
+final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControllable>, AgendaRouting {
   private var agendaEventRouter: ViewableRouting?
-  private var soonEventRouter: ViewableRouting?
+  private var soonRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
+  private let soonBuilder: SoonBuildable
 
-  init(interactor: Interactable, viewController: AgendaViewControllable, eventBuilder: EventBuildable) {
+  init(interactor: AgendaInteractable, viewController: AgendaViewControllable, eventBuilder: EventBuildable, soonBuilder: SoonBuildable) {
     self.eventBuilder = eventBuilder
+    self.soonBuilder = soonBuilder
     super.init(interactor: interactor, viewController: viewController)
   }
 
@@ -28,15 +33,18 @@ final class AgendaRouter: ViewableRouter<Interactable, AgendaViewControllable>, 
     agendaEventRouter = router
   }
 
-  func routeToSoonEvent(_ event: Event?) {
-    if let event = event {
-      let router = eventBuilder.build(with: .init(event: event))
-      attachChild(router)
-      viewController.showSoonEvent(event, with: router.viewControllable)
-      soonEventRouter = router
-    } else if let router = soonEventRouter {
-      detachChild(router)
-      soonEventRouter = nil
+  func routeToSoon() {
+    let soonRouter = soonBuilder.build(withListener: interactor)
+    self.soonRouter = soonRouter
+    attachChild(soonRouter)
+    viewController.present(soonRouter.viewControllable)
+  }
+
+  func routeBackFromSoon() {
+    if let soonRouter = soonRouter {
+      self.soonRouter = nil
+      detachChild(soonRouter)
+      viewController.dismiss(soonRouter.viewControllable)
     }
   }
 }

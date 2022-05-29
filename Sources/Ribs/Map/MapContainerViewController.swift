@@ -1,4 +1,5 @@
 import CoreLocation
+import RIBs
 import UIKit
 
 protocol MapPresentableListener: AnyObject {
@@ -6,7 +7,7 @@ protocol MapPresentableListener: AnyObject {
   func openLocationSettings()
 }
 
-class MapContainerViewController: ContainerViewController {
+class MapContainerViewController: ContainerViewController, ViewControllable {
   weak var listener: MapPresentableListener?
 
   var authorizationStatus: CLAuthorizationStatus = .notDetermined {
