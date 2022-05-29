@@ -30,6 +30,16 @@ final class AgendaViewController: UIViewController {
   }
 }
 
+extension AgendaViewController {
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+
+    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
+      selectFirstEvent()
+    }
+  }
+}
+
 extension AgendaViewController: AgendaPresentable {
   func reloadLiveStatus() {
     agendaViewController?.reloadLiveStatus()
@@ -95,7 +105,7 @@ extension AgendaViewController: AgendaPresentable {
     }
 
     if didDeleteSelectedEvent || isMissingSecondaryViewController {
-      showFirstEvent()
+      selectFirstEvent()
     }
   }
 }
@@ -105,6 +115,7 @@ extension AgendaViewController: AgendaViewControllable {
     let eventViewController = viewControllable.uiviewController
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
+    
     agendaViewController?.showDetailViewController(eventViewController, sender: nil)
     UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
   }
@@ -112,28 +123,9 @@ extension AgendaViewController: AgendaViewControllable {
   func showSoonEvent(_ event: Event, with viewControllable: ViewControllable) {
     let eventViewController = viewControllable.uiviewController
     eventViewController.fos_eventID = event.id
+    
     soonViewController?.show(eventViewController, sender: nil)
     soonViewController?.select(event)
-  }
-}
-
-extension AgendaViewController {
-  private var isMissingSecondaryViewController: Bool {
-    eventViewController == nil
-  }
-
-  func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      agendaViewController?.navigationController?.popToRootViewController(animated: true)
-    }
-  }
-
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    super.traitCollectionDidChange(previousTraitCollection)
-
-    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
-      showFirstEvent()
-    }
   }
 }
 
@@ -150,18 +142,18 @@ extension AgendaViewController: EventsViewControllerDataSource {
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
-    let items: [String?]
-
     switch eventsViewController {
     case agendaViewController:
-      items = [event.formattedStart, event.room, event.track]
+      return caption(from: event.formattedStart, event.room, event.track)
     case soonViewController:
-      items = [event.formattedStart, event.room]
+      return caption(from: event.formattedStart, event.room)
     default:
       return nil
     }
+  }
 
-    return items.compactMap { $0 }.joined(separator: " - ")
+  private func caption(from items: String?...) -> String {
+    items.compactMap { $0 }.joined(separator: " - ")
   }
 }
 
@@ -211,6 +203,10 @@ extension AgendaViewController: UINavigationControllerDelegate {
 }
 
 private extension AgendaViewController {
+  var isMissingSecondaryViewController: Bool {
+    eventViewController == nil
+  }
+  
   @objc func didTapSoon() {
     listener?.didSelectSoon()
   }
@@ -218,8 +214,8 @@ private extension AgendaViewController {
   @objc func didTapDismiss() {
     soonViewController?.dismiss(animated: true)
   }
-
-  func showFirstEvent() {
+  
+  func selectFirstEvent() {
     if let event = agendaEvents.first, traitCollection.horizontalSizeClass == .regular {
       listener?.didSelectAgendaEvent(event)
     }
