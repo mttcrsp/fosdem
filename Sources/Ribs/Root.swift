@@ -9,7 +9,13 @@ protocol HasMapBuilder {
   var mapBuilder: MapBuildable { get }
 }
 
-typealias RootDependency = HasAgendaBuilder & HasMapBuilder
+protocol HasScheduleBuilder {
+  var scheduleBuilder: ScheduleBuildable { get }
+}
+
+typealias RootDependency = HasAgendaBuilder
+  & HasMapBuilder
+  & HasScheduleBuilder
 
 protocol RootBuildable: Buildable {
   func build() -> LaunchRouting
@@ -19,7 +25,13 @@ class RootBuilder: Builder<RootDependency> {
   func build() -> LaunchRouting {
     let viewController = RootViewController()
     let interactor = RootInteractor()
-    let router = RootRouter(interactor: interactor, viewController: viewController, agendaBuilder: dependency.agendaBuilder, mapBuilder: dependency.mapBuilder)
+    let router = RootRouter(
+      interactor: interactor,
+      viewController: viewController,
+      agendaBuilder: dependency.agendaBuilder,
+      mapBuilder: dependency.mapBuilder,
+      scheduleBuilder: dependency.scheduleBuilder
+    )
     interactor.router = router
     return router
   }
@@ -33,18 +45,32 @@ protocol RootRouting: Routing {
 class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
   private var agendaRouter: ViewableRouting?
   private var mapRouter: ViewableRouting?
+  private var scheduleRouter: ViewableRouting?
 
   private let agendaBuilder: AgendaBuildable
   private let mapBuilder: MapBuildable
+  private let scheduleBuilder: ScheduleBuildable
 
-  init(interactor: RootInteractable, viewController: RootViewControllable, agendaBuilder: AgendaBuildable, mapBuilder: MapBuildable) {
+  init(
+    interactor: RootInteractable,
+    viewController: RootViewControllable,
+    agendaBuilder: AgendaBuildable,
+    mapBuilder: MapBuildable,
+    scheduleBuilder: ScheduleBuildable
+  ) {
     self.agendaBuilder = agendaBuilder
     self.mapBuilder = mapBuilder
+    self.scheduleBuilder = scheduleBuilder
     super.init(interactor: interactor, viewController: viewController)
   }
 
   override func didLoad() {
     super.didLoad()
+
+    let scheduleRouter = scheduleBuilder.build()
+    self.scheduleRouter = scheduleRouter
+    attachChild(scheduleRouter)
+    viewController.addSchedule(scheduleRouter.viewControllable)
 
     let agendaRouter = agendaBuilder.build(with: interactor)
     self.agendaRouter = agendaRouter
@@ -88,10 +114,11 @@ extension RootInteractor: RootInteractable {
 
 protocol RootViewControllable: ViewControllable {
   func addAgenda(_ agendaViewControllable: ViewControllable)
-  func removeAgenda()
-
   func addMap(_ mapViewControllable: ViewControllable)
+  func addSchedule(_ scheduleViewControllable: ViewControllable)
+  func removeAgenda()
   func removeMap()
+  func removeSchedule()
 }
 
 class RootViewController: UITabBarController {
@@ -103,8 +130,12 @@ class RootViewController: UITabBarController {
     didSet { didChangeViewControllers() }
   }
 
+  private var scheduleViewController: UIViewController? {
+    didSet { didChangeViewControllers() }
+  }
+
   private func didChangeViewControllers() {
-    viewControllers = [agendaViewController, mapViewController].compactMap { $0 }
+    viewControllers = [scheduleViewController, agendaViewController, mapViewController].compactMap { $0 }
   }
 }
 
@@ -116,10 +147,6 @@ extension RootViewController: RootViewControllable {
     agendaViewController?.tabBarItem.image = .fos_systemImage(withName: "calendar")
   }
 
-  func removeAgenda() {
-    agendaViewController = nil
-  }
-
   func addMap(_ mapViewControllable: ViewControllable) {
     mapViewController = mapViewControllable.uiviewController
     mapViewController?.title = L10n.Map.title
@@ -127,7 +154,22 @@ extension RootViewController: RootViewControllable {
     mapViewController?.tabBarItem.image = .fos_systemImage(withName: "map")
   }
 
+  func addSchedule(_ scheduleViewControllable: ViewControllable) {
+    scheduleViewController = scheduleViewControllable.uiviewController
+    scheduleViewController?.title = L10n.Search.title
+    scheduleViewController?.tabBarItem.accessibilityIdentifier = "search"
+    scheduleViewController?.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
+  }
+
+  func removeAgenda() {
+    agendaViewController = nil
+  }
+
   func removeMap() {
     mapViewController = nil
+  }
+
+  func removeSchedule() {
+    scheduleViewController = nil
   }
 }

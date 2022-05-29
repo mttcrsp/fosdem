@@ -343,6 +343,7 @@ private extension _MapController {
   func makeMapViewController() -> MapViewController {
     let mapViewController = MapViewController()
     mapViewController.delegate = self
+    mapViewController.buildings = buildings
     mapViewController.setAuthorizationStatus(authorizationStatus)
     self.mapViewController = mapViewController
     return mapViewController

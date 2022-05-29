@@ -16,6 +16,12 @@ extension Services: HasMapBuilder {
   }
 }
 
+extension Services: HasScheduleBuilder {
+  var scheduleBuilder: ScheduleBuildable {
+    ScheduleBuilder(dependency: self)
+  }
+}
+
 extension Services: HasEventBuilder {
   var eventBuilder: EventBuildable {
     EventBuilder(dependency: self)
@@ -78,6 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //    self.window = window
 
     let window = UIWindow()
+    window.tintColor = .fos_label
     self.window = window
 
     do {

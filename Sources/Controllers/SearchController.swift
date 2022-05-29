@@ -1,155 +1,155 @@
 import UIKit
 
-class ScheduleInteractor {
-  typealias Dependencies = HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
-
-  private var observation: NSObjectProtocol?
-  private var selectedFilter: TracksFilter = .all
-  private var selectedTrack: Track?
-
-  private var captions: [Event: String] = [:]
-  private var events: [Event] = []
-
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
-  }
-
-  func didLoad() {
-    dependencies.tracksService.delegate = self
-    dependencies.tracksService.loadTracks()
-  }
-
-  func didSelect(_ track: Track) {
-    let operation = EventsForTrack(track: track.name)
-    dependencies.persistenceService.performRead(operation) { result in
-      DispatchQueue.main.async { [weak self] in
-        switch result {
-        case .failure:
-          //
-          break
-        case let .success(events):
-          self?.events = events
-          self?.selectedTrack = track
-          self?.captions = events.captions
-
-          //
-        }
-      }
-    }
-  }
-
-  func didSelect(_ event: Event) {
-    _ = event
-  }
-
-  func didSelectFilters() {
-    let filters = dependencies.tracksService.filters
-    _ = filters
-  }
-
-  func didSelectFilter(_ filter: TracksFilter) {
-    selectedFilter = filter
-    //
-  }
-
-  func didSelectSection(_ section: Int) {
-    _ = section
-  }
-
-  func didToggleFavorite(_ track: Track) {
-    if dependencies.favoritesService.contains(track) {
-      dependencies.favoritesService.removeTrack(withIdentifier: track.name)
-    } else {
-      dependencies.favoritesService.addTrack(withIdentifier: track.name)
-    }
-  }
-
-  func didToggleFavorite(_ event: Event) {
-    if dependencies.favoritesService.contains(event) {
-      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
-    } else {
-      dependencies.favoritesService.addEvent(withIdentifier: event.id)
-    }
-  }
-}
-
-extension ScheduleInteractor: TracksServiceDelegate {
-  func tracksServiceDidUpdateTracks(_: TracksService) {
-    //
-  }
-
-  func tracksService(_: TracksService, performBatchUpdates updates: () -> Void) {
-    _ = updates
-  }
-
-  func tracksService(_: TracksService, insertFavoriteWith identifier: String) {
-    if filteredFavoriteTracks.count == 1 {
-      //
-    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
-      _ = index
-    }
-  }
-
-  func tracksService(_: TracksService, deleteFavoriteWith identifier: String) {
-    if filteredFavoriteTracks.count == 1 {
-      //
-    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
-      _ = index
-    }
-  }
-
-  private var filteredTracks: [Track] {
-    dependencies.tracksService.filteredTracks[selectedFilter] ?? []
-  }
-
-  private var filteredFavoriteTracks: [Track] {
-    dependencies.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
-  }
-}
-
-class SearchInteractor {
-  typealias Dependencies = HasFavoritesService & HasPersistenceService
-
-  private var results: [Event] = []
-
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
-  }
-
-  func didChangeQuery(_ query: String) {
-    guard query.count >= 3 else {
-      results = []
-      //
-      return
-    }
-
-    let operation = EventsForSearch(query: query)
-    dependencies.persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case .failure:
-          self?.results = []
-        //
-        case let .success(events):
-          self?.results = events
-          //
-        }
-      }
-    }
-  }
-
-  func didToggleFavorite(_ event: Event) {
-    if dependencies.favoritesService.contains(event) {
-      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
-    } else {
-      dependencies.favoritesService.addEvent(withIdentifier: event.id)
-    }
-  }
-}
+// class ScheduleInteractor {
+//  typealias Dependencies = HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
+//
+//  private var observation: NSObjectProtocol?
+//  private var selectedFilter: TracksFilter = .all
+//  private var selectedTrack: Track?
+//
+//  private var captions: [Event: String] = [:]
+//  private var events: [Event] = []
+//
+//  private let dependencies: Dependencies
+//
+//  init(dependencies: Dependencies) {
+//    self.dependencies = dependencies
+//  }
+//
+//  func didLoad() {
+//    dependencies.tracksService.delegate = self
+//    dependencies.tracksService.loadTracks()
+//  }
+//
+//  func didSelect(_ track: Track) {
+//    let operation = EventsForTrack(track: track.name)
+//    dependencies.persistenceService.performRead(operation) { result in
+//      DispatchQueue.main.async { [weak self] in
+//        switch result {
+//        case .failure:
+//          //
+//          break
+//        case let .success(events):
+//          self?.events = events
+//          self?.selectedTrack = track
+//          self?.captions = events.captions
+//
+//          //
+//        }
+//      }
+//    }
+//  }
+//
+//  func didSelect(_ event: Event) {
+//    _ = event
+//  }
+//
+//  func didSelectFilters() {
+//    let filters = dependencies.tracksService.filters
+//    _ = filters
+//  }
+//
+//  func didSelectFilter(_ filter: TracksFilter) {
+//    selectedFilter = filter
+//    //
+//  }
+//
+//  func didSelectSection(_ section: Int) {
+//    _ = section
+//  }
+//
+//  func didToggleFavorite(_ track: Track) {
+//    if dependencies.favoritesService.contains(track) {
+//      dependencies.favoritesService.removeTrack(withIdentifier: track.name)
+//    } else {
+//      dependencies.favoritesService.addTrack(withIdentifier: track.name)
+//    }
+//  }
+//
+//  func didToggleFavorite(_ event: Event) {
+//    if dependencies.favoritesService.contains(event) {
+//      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+//    } else {
+//      dependencies.favoritesService.addEvent(withIdentifier: event.id)
+//    }
+//  }
+// }
+//
+// extension ScheduleInteractor: TracksServiceDelegate {
+//  func tracksServiceDidUpdateTracks(_: TracksService) {
+//    //
+//  }
+//
+//  func tracksService(_: TracksService, performBatchUpdates updates: () -> Void) {
+//    _ = updates
+//  }
+//
+//  func tracksService(_: TracksService, insertFavoriteWith identifier: String) {
+//    if filteredFavoriteTracks.count == 1 {
+//      //
+//    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
+//      _ = index
+//    }
+//  }
+//
+//  func tracksService(_: TracksService, deleteFavoriteWith identifier: String) {
+//    if filteredFavoriteTracks.count == 1 {
+//      //
+//    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
+//      _ = index
+//    }
+//  }
+//
+//  private var filteredTracks: [Track] {
+//    dependencies.tracksService.filteredTracks[selectedFilter] ?? []
+//  }
+//
+//  private var filteredFavoriteTracks: [Track] {
+//    dependencies.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
+//  }
+// }
+//
+// class SearchInteractor {
+//  typealias Dependencies = HasFavoritesService & HasPersistenceService
+//
+//  private var results: [Event] = []
+//
+//  private let dependencies: Dependencies
+//
+//  init(dependencies: Dependencies) {
+//    self.dependencies = dependencies
+//  }
+//
+//  func didChangeQuery(_ query: String) {
+//    guard query.count >= 3 else {
+//      results = []
+//      //
+//      return
+//    }
+//
+//    let operation = EventsForSearch(query: query)
+//    dependencies.persistenceService.performRead(operation) { [weak self] result in
+//      DispatchQueue.main.async {
+//        switch result {
+//        case .failure:
+//          self?.results = []
+//        //
+//        case let .success(events):
+//          self?.results = events
+//          //
+//        }
+//      }
+//    }
+//  }
+//
+//  func didToggleFavorite(_ event: Event) {
+//    if dependencies.favoritesService.contains(event) {
+//      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+//    } else {
+//      dependencies.favoritesService.addEvent(withIdentifier: event.id)
+//    }
+//  }
+// }
 
 final class SearchController: UISplitViewController {
   typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
