@@ -22,6 +22,12 @@ extension Services: HasScheduleBuilder {
   }
 }
 
+extension Services: HasSearchBuilder {
+  var searchBuilder: SearchBuildable {
+    SearchBuilder(dependency: self)
+  }
+}
+
 extension Services: HasMoreBuilder {
   var moreBuilder: MoreBuildable {
     MoreBuilder(dependency: self)

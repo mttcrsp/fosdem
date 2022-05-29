@@ -1,6 +1,10 @@
 import RIBs
 import UIKit
 
+protocol HasSearchBuilder {
+  var searchBuilder: SearchBuildable { get }
+}
+
 struct TracksSection {
   let title: String?
   let accessibilityIdentifier: String?
@@ -10,6 +14,7 @@ struct TracksSection {
 typealias ScheduleDependency = HasEventBuilder
   & HasFavoritesService
   & HasPersistenceService
+  & HasSearchBuilder
   & HasTracksService
   & HasYearsService
 
@@ -21,8 +26,14 @@ final class ScheduleBuilder: Builder<ScheduleDependency>, ScheduleBuildable {
   func build() -> ScheduleRouting {
     let viewController = ScheduleViewController()
     let interactor = ScheduleInteractor(presenter: viewController, dependency: dependency)
-    let router = ScheduleRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)
+    let router = ScheduleRouter(
+      interactor: interactor,
+      viewController: viewController,
+      eventBuilder: dependency.eventBuilder,
+      searchBuilder: dependency.searchBuilder
+    )
     viewController.listener = interactor
+    interactor.router = router
     return router
   }
 }
@@ -35,11 +46,20 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
   private var eventRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
+  private let searchBuilder: SearchBuildable
 
-  init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable, eventBuilder: EventBuildable) {
+  init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable, eventBuilder: EventBuildable, searchBuilder: SearchBuildable) {
     self.eventBuilder = eventBuilder
+    self.searchBuilder = searchBuilder
     super.init(interactor: interactor, viewController: viewController)
-    interactor.router = self
+  }
+
+  override func didLoad() {
+    super.didLoad()
+
+    let searchRouter = searchBuilder.build()
+    attachChild(searchRouter)
+    viewController.showSearch(searchRouter.viewControllable)
   }
 }
 
@@ -248,6 +268,7 @@ extension ScheduleInteractor: TracksServiceDelegate {
 
 protocol ScheduleViewControllable: ViewControllable {
   func showEvent(_ eventViewController: ViewControllable)
+  func showSearch(_ eventViewController: ViewControllable)
 }
 
 protocol SchedulePresentable: Presentable {
@@ -315,6 +336,16 @@ final class ScheduleViewController: UISplitViewController {
     let favoriteButton = UIBarButtonItem(title: nil, style: .plain, target: self, action: favoriteAction)
     return favoriteButton
   }()
+
+  init() {
+    super.init(nibName: nil, bundle: nil)
+    viewControllers = [makeTracksNavigationController()]
+  }
+
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
 }
 
 extension ScheduleViewController {
@@ -325,8 +356,6 @@ extension ScheduleViewController {
     maximumPrimaryColumnWidth = 375
     preferredPrimaryColumnWidthFraction = 0.4
 
-    let tracksNavigationController = makeTracksNavigationController()
-    viewControllers = [tracksNavigationController]
     if traitCollection.horizontalSizeClass == .regular {
       viewControllers.append(makeWelcomeViewController())
     }
@@ -350,6 +379,12 @@ extension ScheduleViewController: ScheduleViewControllable {
     let eventViewController = eventViewControllable.uiviewController
     self.eventViewController = eventViewController
     eventsViewController?.show(eventViewController, sender: nil)
+  }
+
+  func showSearch(_ searchViewControllable: ViewControllable) {
+    if let searchController = searchViewControllable.uiviewController as? UISearchController {
+      tracksViewController?.addSearchViewController(searchController)
+    }
   }
 }
 
