@@ -46,6 +46,18 @@ extension Services: HasAudioSession {
   }
 }
 
+extension Services: HasYearsBuilder {
+  var yearsBuilder: YearsBuildable {
+    YearsBuilder(dependency: self)
+  }
+}
+
+extension Services: HasYearBuilder {
+  var yearBuilder: YearBuildable {
+    YearBuilder(dependency: self)
+  }
+}
+
 extension Services: HasPlayer {
   static let _player = AVPlayer()
 
@@ -73,10 +85,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   private var pendingNetworkRequests = 0 {
     didSet { didChangePendingNetworkRequests() }
-  }
-
-  private var applicationController: ApplicationController? {
-    window?.rootViewController as? ApplicationController
   }
 
   private var rootRouter: LaunchRouting?
@@ -110,14 +118,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     return true
-  }
-
-  func applicationDidBecomeActive(_: UIApplication) {
-    applicationController?.applicationDidBecomeActive()
-  }
-
-  func applicationWillResignActive(_: UIApplication) {
-    applicationController?.applicationWillResignActive()
   }
 
   private func didChangePendingNetworkRequests() {

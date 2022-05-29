@@ -196,7 +196,7 @@ protocol AgendaPresentableListener: AnyObject {
 }
 
 final class _AgendaController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService & HasSoonService
+  typealias Dependencies = HasFavoritesService & HasPersistenceService & HasTimeService & HasSoonService
 
   weak var listener: AgendaPresentableListener?
 

@@ -5,6 +5,7 @@ typealias MoreDependency = HasAcknowledgementsService
   & HasInfoService
   & HasOpenService
   & HasTimeService
+  & HasYearsBuilder
   & HasYearsService
   & HasVideosBuilder
 
@@ -16,7 +17,7 @@ final class MoreBuilder: Builder<MoreDependency>, MoreBuildable {
   func build() -> MoreRouting {
     let viewController = _MoreViewController()
     let interactor = MoreInteractor(presenter: viewController, dependency: dependency)
-    let router = MoreRouter(interactor: interactor, viewController: viewController, videosBuilder: dependency.videosBuilder)
+    let router = MoreRouter(interactor: interactor, viewController: viewController, videosBuilder: dependency.videosBuilder, yearsBuilder: dependency.yearsBuilder)
     viewController.listener = interactor
     interactor.router = router
     return router
@@ -25,16 +26,21 @@ final class MoreBuilder: Builder<MoreDependency>, MoreBuildable {
 
 protocol MoreRouting: ViewableRouting {
   func routeToVideos()
+  func routeToYears()
   func routeBackFromVideos()
+  func routeBackFromYears()
 }
 
 final class MoreRouter: ViewableRouter<MoreInteractable, MoreViewControllable> {
   private var videosRouter: Routing?
+  private var yearsRouter: Routing?
 
   private let videosBuilder: VideosBuildable
+  private let yearsBuilder: YearsBuildable
 
-  init(interactor: MoreInteractable, viewController: MoreViewControllable, videosBuilder: VideosBuildable) {
+  init(interactor: MoreInteractable, viewController: MoreViewControllable, videosBuilder: VideosBuildable, yearsBuilder: YearsBuildable) {
     self.videosBuilder = videosBuilder
+    self.yearsBuilder = yearsBuilder
     super.init(interactor: interactor, viewController: viewController)
   }
 }
@@ -53,11 +59,23 @@ extension MoreRouter: MoreRouting {
       self.videosRouter = nil
     }
   }
+
+  func routeToYears() {
+    let yearsRouter = yearsBuilder.build(with: interactor)
+    self.yearsRouter = yearsRouter
+    attachChild(yearsRouter)
+    viewController.showYears(yearsRouter.viewControllable)
+  }
+
+  func routeBackFromYears() {
+    if let yearsRouter = yearsRouter {
+      detachChild(yearsRouter)
+      self.yearsRouter = nil
+    }
+  }
 }
 
-protocol MoreInteractable: Interactable, VideosListener {
-  var router: MoreRouting? { get set }
-}
+protocol MoreInteractable: Interactable, VideosListener, YearsListener {}
 
 final class MoreInteractor: PresentableInteractor<MorePresentable> {
   weak var router: MoreRouting?
@@ -79,6 +97,11 @@ extension MoreInteractor: MoreInteractable {
 
   func videosDidError(_: Error) {
     presenter.hideVideos()
+    presenter.showError()
+  }
+
+  func yearsDidError(_: Error) {
+    presenter.hideYears()
     presenter.showError()
   }
 }
@@ -118,9 +141,7 @@ extension MoreInteractor: MorePresentableListener {
     case .video:
       router?.routeToVideos()
     case .years:
-      //
-      break
-
+      router?.routeToYears()
     #if DEBUG
     case .time:
       presenter.showDate(dependency.timeService.now)
@@ -164,6 +185,10 @@ extension MoreInteractor: MorePresentableListener {
     router?.routeBackFromVideos()
   }
 
+  func didDeselectYears() {
+    router?.routeBackFromYears()
+  }
+
   private func open(_ url: URL, completion: @escaping () -> Void) {
     dependency.openService.open(url) { _ in
       completion()
@@ -181,6 +206,7 @@ extension MoreInteractor {
 
 protocol MoreViewControllable: ViewControllable {
   func showVideos(_ videosViewControllable: ViewControllable)
+  func showYears(_ yearsViewControllable: ViewControllable)
 }
 
 protocol MorePresentable: Presentable {
@@ -188,6 +214,7 @@ protocol MorePresentable: Presentable {
   func deselectSelectedItem()
   func deselectSelectedTransportationItem()
   func hideVideos()
+  func hideYears()
   func showError()
   func showAcknowledgements(_ acknowledgements: [Acknowledgement])
   func showInfo(_ info: Info, attributedString: NSAttributedString)
@@ -203,6 +230,7 @@ protocol MorePresentableListener: AnyObject {
   func didSelect(_ item: MoreItem)
   func didSelect(_ item: TransportationItem)
   func didDeselectVideos()
+  func didDeselectYears()
   #if DEBUG
   func didSelectDate(_ date: Date)
   #endif
@@ -217,6 +245,7 @@ final class _MoreViewController: UISplitViewController {
   private weak var moreViewController: MoreViewController?
   private weak var transportationViewController: TransportationViewController?
   private weak var videosViewController: UIViewController?
+  private weak var yearsViewController: UIViewController?
 }
 
 extension _MoreViewController {
@@ -252,6 +281,12 @@ extension _MoreViewController: MoreViewControllable {
     self.videosViewController = videosViewController
     showDetailViewController(videosViewController)
   }
+
+  func showYears(_ yearsViewControllable: ViewControllable) {
+    let yearsViewController = yearsViewControllable.uiviewController
+    self.yearsViewController = yearsViewController
+    showDetailViewController(yearsViewController)
+  }
 }
 
 extension _MoreViewController: MorePresentable {
@@ -268,6 +303,12 @@ extension _MoreViewController: MorePresentable {
   }
 
   func hideVideos() {
+    if let moreViewController = moreViewController {
+      self.moreViewController(moreViewController, didSelect: .history)
+    }
+  }
+
+  func hideYears() {
     if let moreViewController = moreViewController {
       self.moreViewController(moreViewController, didSelect: .history)
     }
@@ -350,6 +391,9 @@ private extension _MoreViewController {
   func showDetailViewController(_ detailViewController: UIViewController) {
     if detailViewController != videosViewController {
       listener?.didDeselectVideos()
+    }
+    if detailViewController != yearsViewController {
+      listener?.didDeselectYears()
     }
 
     moreViewController?.showDetailViewController(detailViewController, sender: nil)

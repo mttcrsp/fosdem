@@ -9,7 +9,6 @@ class Services {
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
 
-  private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
   private(set) lazy var yearsService: YearsServiceProtocol = YearsService(networkService: networkService)
   private(set) lazy var updateService: UpdateServiceProtocol = UpdateService(networkService: networkService)
@@ -67,7 +66,7 @@ class Services {
   }
 }
 
-extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasNavigationService, HasAcknowledgementsService {}
+extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasAcknowledgementsService {}
 
 extension Services: HasPersistenceService {
   var persistenceService: PersistenceServiceProtocol {
