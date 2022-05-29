@@ -36,6 +36,7 @@ final class SoonViewController: UINavigationController {
     self.eventsViewController = eventsViewController
 
     delegate = self
+    presentationController?.delegate = self
     viewControllers = [eventsViewController]
   }
 
@@ -78,6 +79,12 @@ extension SoonViewController: EventsViewControllerFavoritesDataSource {
 extension SoonViewController: EventsViewControllerFavoritesDelegate {
   func eventsViewController(_: EventsViewController, didToggleFavorite event: Event) {
     listener?.toggleFavorite(event)
+  }
+}
+
+extension SoonViewController: UIAdaptivePresentationControllerDelegate {
+  func presentationControllerDidDismiss(_: UIPresentationController) {
+    listener?.dismiss()
   }
 }
 

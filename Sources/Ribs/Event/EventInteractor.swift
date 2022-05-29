@@ -4,7 +4,7 @@ import RIBs
 protocol EventPresentable: Presentable {
   var playbackPosition: PlaybackPosition { get set }
   var showsFavorite: Bool { get set }
-  var showsFavoriteButton: Bool { get set }
+  var allowsFavoriting: Bool { get set }
   var showsLivestream: Bool { get set }
 }
 
@@ -28,7 +28,7 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
     let hasLivestream = event.links.contains(where: \.isLivestream)
     let isLivestreamToday = event.isSameDay(as: dependency.timeService.now)
     presenter.showsLivestream = hasLivestream && isLivestreamToday
-    presenter.showsFavoriteButton = arguments.allowsFavoriting
+    presenter.allowsFavoriting = arguments.allowsFavoriting
     presenter.playbackPosition = dependency.playbackService.playbackPosition(forEventWithIdentifier: event.id)
 
     favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] _ in

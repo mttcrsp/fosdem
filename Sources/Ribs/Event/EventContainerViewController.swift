@@ -12,9 +12,6 @@ protocol EventPresentableListener: AnyObject {
 final class EventContainerViewController: EventViewController, ViewControllable {
   weak var listener: EventPresentableListener?
 
-  private weak var playerViewController: AVPlayerViewController?
-  private weak var eventViewController: EventViewController?
-
   private lazy var favoriteButton: UIBarButtonItem = {
     let favoriteAction = #selector(didToggleFavorite)
     let favoriteButton = UIBarButtonItem(title: nil, style: .plain, target: self, action: favoriteAction)
@@ -54,7 +51,6 @@ extension EventContainerViewController: EventViewControllerListener {
     playerViewController.player = AVPlayer(url: url)
     playerViewController.player?.play()
     playerViewController.delegate = self
-    self.playerViewController = playerViewController
     present(playerViewController, animated: true)
   }
 }
@@ -70,9 +66,9 @@ extension EventContainerViewController: AVPlayerViewControllerDelegate {
 }
 
 extension EventContainerViewController: EventPresentable {
-  var showsFavoriteButton: Bool {
+  var allowsFavoriting: Bool {
     get { navigationItem.rightBarButtonItem == favoriteButton }
-    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil }
+    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil; print(newValue) }
   }
 
   var showsFavorite: Bool {
