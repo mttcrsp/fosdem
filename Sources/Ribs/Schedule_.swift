@@ -74,7 +74,7 @@ extension ScheduleRouter: ScheduleRouting {
     }
 
     if let event = event {
-      let eventRouter = eventBuilder.build(with: event)
+      let eventRouter = eventBuilder.build(with: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
       viewController.showEvent(eventRouter.viewControllable)
@@ -87,7 +87,7 @@ extension ScheduleRouter: ScheduleRouting {
       self.searchResultRouter = nil
     }
 
-    let searchResultRouter = eventBuilder.build(with: event)
+    let searchResultRouter = eventBuilder.build(with: .init(event: event))
     self.searchResultRouter = searchResultRouter
     attachChild(searchResultRouter)
     viewController.showSearchResult(searchResultRouter.viewControllable)

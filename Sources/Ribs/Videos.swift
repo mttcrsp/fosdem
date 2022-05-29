@@ -52,7 +52,7 @@ extension VideosRouter: VideosRouting {
     }
 
     if let event = event {
-      let eventRouter = eventBuilder.build(with: event)
+      let eventRouter = eventBuilder.build(with: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
       viewController.showEvent(eventRouter.viewControllable)

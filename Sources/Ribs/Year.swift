@@ -63,7 +63,7 @@ extension YearRouter: YearRouting {
       self.eventRouter = nil
     }
 
-    let eventRouter = eventBuilder.build(with: event)
+    let eventRouter = eventBuilder.build(with: .init(event: event, allowsFavoriting: false))
     self.eventRouter = eventRouter
     attachChild(eventRouter)
     viewController.showEvent(eventRouter.viewControllable)
@@ -75,7 +75,7 @@ extension YearRouter: YearRouting {
       self.searchResultRouter = nil
     }
 
-    let searchResultRouter = eventBuilder.build(with: event)
+    let searchResultRouter = eventBuilder.build(with: .init(event: event, allowsFavoriting: false))
     self.searchResultRouter = searchResultRouter
     attachChild(searchResultRouter)
     viewController.showSearchResult(searchResultRouter.viewControllable)

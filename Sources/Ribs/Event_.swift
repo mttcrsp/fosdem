@@ -3,7 +3,16 @@ import RIBs
 import SafariServices
 import UIKit
 
-typealias EventArguments = Event
+struct EventArguments {
+  let event: Event
+  let allowsFavoriting: Bool
+
+  init(event: Event, allowsFavoriting: Bool = true) {
+    self.event = event
+    self.allowsFavoriting = allowsFavoriting
+  }
+}
+
 typealias EventDependency = HasAudioSession
   & HasFavoritesService
   & HasNotificationCenter
@@ -17,14 +26,13 @@ protocol EventBuildable {
 
 final class EventBuilder: Builder<EventDependency>, EventBuildable {
   func build(with arguments: EventArguments) -> ViewableRouting {
-    let viewController = _EventController()
+    let viewController = EventContainerViewController(event: arguments.event)
     let interactor = EventInteractor(arguments: arguments, dependency: dependency, presenter: viewController)
-    let router = EventRouter(interactor: interactor, viewController: viewController)
+    let router = ViewableRouter(interactor: interactor, viewController: viewController)
+    viewController.listener = interactor
     return router
   }
 }
-
-final class EventRouter: ViewableRouter<Interactable, ViewControllable> {}
 
 final class EventInteractor: PresentableInteractor<EventPresentable> {
   private var favoritesObserver: NSObjectProtocol?
@@ -38,10 +46,27 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
     self.arguments = arguments
     self.dependency = dependency
     super.init(presenter: presenter)
-    presenter.listener = self
   }
 
-  deinit {
+  override func didBecomeActive() {
+    super.didBecomeActive()
+
+    let hasLivestream = event.links.contains(where: \.isLivestream)
+    let isLivestreamToday = event.isSameDay(as: dependency.timeService.now)
+    presenter.showsLivestream = hasLivestream && isLivestreamToday
+    presenter.showsFavoriteButton = arguments.allowsFavoriting
+    presenter.playbackPosition = dependency.playbackService.playbackPosition(forEventWithIdentifier: event.id)
+
+    favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] _ in
+      if let self = self {
+        self.presenter.showsFavorite = self.dependency.favoritesService.contains(self.event)
+      }
+    }
+  }
+
+  override func willResignActive() {
+    super.willResignActive()
+
     if let timeObserver = timeObserver {
       dependency.player.removeTimeObserver(timeObserver)
     }
@@ -60,34 +85,11 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
       assertionFailure(error.localizedDescription)
     }
   }
-
-  var event: Event {
-    arguments
-  }
-
-  override func didBecomeActive() {
-    super.didBecomeActive()
-
-    presenter.event = event
-    presenter.showsFavoriteButton = true // FIXME: handle presentation from years
-    presenter.showsLivestream =
-      event.links.contains(where: \.isLivestream) &&
-      event.isSameDay(as: dependency.timeService.now)
-    presenter.playbackPosition =
-      dependency.playbackService.playbackPosition(forEventWithIdentifier: event.id)
-
-    favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] id in
-      if let self = self, self.event.id == id {
-        self.presenter.showsFavorite =
-          self.dependency.favoritesService.contains(self.event)
-      }
-    }
-  }
 }
 
 extension EventInteractor: EventPresentableListener {
-  func willBeginFullScreenPlayerPresentation() {
-    let event = self.event
+  func beginFullScreenPlayerPresentation() {
+    let eventID = event.id
 
     do {
       try dependency.audioSession.setCategory(.playback)
@@ -100,24 +102,24 @@ extension EventInteractor: EventPresentableListener {
     let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
     timeObserver = dependency.player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
       let position = PlaybackPosition.at(time.seconds)
-      self?.dependency.playbackService.setPlaybackPosition(position, forEventWithIdentifier: event.id)
+      self?.dependency.playbackService.setPlaybackPosition(position, forEventWithIdentifier: eventID)
       self?.presenter.playbackPosition = position
     }
 
     finishObserver = dependency.notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
       let position = PlaybackPosition.end
-      self?.dependency.playbackService.setPlaybackPosition(position, forEventWithIdentifier: event.id)
+      self?.dependency.playbackService.setPlaybackPosition(position, forEventWithIdentifier: eventID)
       self?.presenter.playbackPosition = position
     }
 
-    if case let .at(seconds) = dependency.playbackService.playbackPosition(forEventWithIdentifier: event.id) {
+    if case let .at(seconds) = dependency.playbackService.playbackPosition(forEventWithIdentifier: eventID) {
       let timeScale = CMTimeScale(NSEC_PER_SEC)
       let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
       dependency.player.seek(to: time)
     }
   }
 
-  func willEndFullScreenPlayerPresentation() {
+  func endFullScreenPlayerPresentation() {
     if let timeObserver = timeObserver {
       dependency.player.removeTimeObserver(timeObserver)
       self.timeObserver = nil
@@ -129,7 +131,7 @@ extension EventInteractor: EventPresentableListener {
     }
   }
 
-  func didToggleFavorite() {
+  func toggleFavorite() {
     if dependency.favoritesService.contains(event) {
       dependency.favoritesService.removeEvent(withIdentifier: event.id)
     } else {
@@ -138,30 +140,30 @@ extension EventInteractor: EventPresentableListener {
   }
 }
 
+private extension EventInteractor {
+  var event: Event {
+    arguments.event
+  }
+}
+
 protocol EventPresentable: Presentable {
-  var listener: EventPresentableListener? { get set }
-  var event: Event? { get set }
-  var showsLivestream: Bool { get set }
+  var playbackPosition: PlaybackPosition { get set }
   var showsFavorite: Bool { get set }
   var showsFavoriteButton: Bool { get set }
-  var playbackPosition: PlaybackPosition { get set }
+  var showsLivestream: Bool { get set }
 }
 
 protocol EventPresentableListener: AnyObject {
-  func didToggleFavorite()
-  func willBeginFullScreenPlayerPresentation()
-  func willEndFullScreenPlayerPresentation()
+  func toggleFavorite()
+  func beginFullScreenPlayerPresentation()
+  func endFullScreenPlayerPresentation()
 }
 
-final class _EventController: EventViewController, EventPresentable, ViewControllable {
+final class EventContainerViewController: EventViewController, EventPresentable, ViewControllable {
   weak var listener: EventPresentableListener?
 
   private weak var playerViewController: AVPlayerViewController?
   private weak var eventViewController: EventViewController?
-
-  var playbackPosition: PlaybackPosition = .beginning {
-    didSet { eventViewController?.reloadPlaybackPosition() }
-  }
 
   var showsFavoriteButton: Bool {
     get { navigationItem.rightBarButtonItem == favoriteButton }
@@ -169,7 +171,9 @@ final class _EventController: EventViewController, EventPresentable, ViewControl
   }
 
   var showsFavorite: Bool {
-    get { favoriteButton.accessibilityIdentifier == "unfavorite" }
+    get {
+      favoriteButton.accessibilityIdentifier == "unfavorite"
+    }
     set {
       favoriteButton.title = newValue ? L10n.Event.remove : L10n.Event.add
       favoriteButton.accessibilityIdentifier = newValue ? "unfavorite" : "favorite"
@@ -182,80 +186,54 @@ final class _EventController: EventViewController, EventPresentable, ViewControl
     return favoriteButton
   }()
 
-  init() {
-    super.init(style: {
-      if #available(iOS 13.0, *), UIDevice.current.userInterfaceIdiom == .pad {
-        return .insetGrouped
-      } else {
-        return .plain
-      }
-    }())
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   override func viewDidLoad() {
     super.viewDidLoad()
     navigationItem.largeTitleDisplayMode = .never
-    dataSource = self
-    delegate = self
-  }
-
-  @objc private func didToggleFavorite() {
-    listener?.didToggleFavorite()
+    eventListener = self
   }
 }
 
-extension _EventController: EventViewControllerDelegate, EventViewControllerDataSource {
-  func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController) {
-    if let event = event, let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
-      let livestreamViewController = makeVideoViewController(for: url)
-      eventViewController.present(livestreamViewController, animated: true)
-    }
-  }
-
-  func eventViewControllerDidTapVideo(_ eventViewController: EventViewController) {
-    if let event = event, let video = event.video, let url = video.url {
-      let videoViewController = makeVideoViewController(for: url)
-      eventViewController.present(videoViewController, animated: true)
-    }
-  }
-
+extension EventContainerViewController: EventViewControllerListener {
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
-    let attachmentViewController = makeAttachmentViewController(for: attachment)
+    let attachmentViewController = SFSafariViewController(url: attachment.url)
     eventViewController.present(attachmentViewController, animated: true)
   }
 
-  func eventViewController(_: EventViewController, playbackPositionFor _: Event) -> PlaybackPosition {
-    playbackPosition
-  }
-}
-
-extension _EventController: AVPlayerViewControllerDelegate {
-  func playerViewController(_: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
-    listener?.willBeginFullScreenPlayerPresentation()
+  func eventViewControllerDidTapLivestream(_: EventViewController) {
+    if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
+      showPlayerViewController(with: url)
+    }
   }
 
-  func playerViewController(_: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
-    listener?.willEndFullScreenPlayerPresentation()
+  func eventViewControllerDidTapVideo(_: EventViewController) {
+    if let video = event.video, let url = video.url {
+      showPlayerViewController(with: url)
+    }
   }
-}
 
-private extension _EventController {
-  func makeVideoViewController(for url: URL) -> AVPlayerViewController {
+  private func showPlayerViewController(with url: URL) {
     let playerViewController = AVPlayerViewController()
     playerViewController.exitsFullScreenWhenPlaybackEnds = true
     playerViewController.player = AVPlayer(url: url)
     playerViewController.player?.play()
     playerViewController.delegate = self
     self.playerViewController = playerViewController
-    return playerViewController
+    present(playerViewController, animated: true)
+  }
+}
+
+extension EventContainerViewController: AVPlayerViewControllerDelegate {
+  func playerViewController(_: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
+    listener?.beginFullScreenPlayerPresentation()
   }
 
-  private func makeAttachmentViewController(for attachment: Attachment) -> UIViewController {
-    SFSafariViewController(url: attachment.url)
+  func playerViewController(_: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
+    listener?.endFullScreenPlayerPresentation()
+  }
+}
+
+private extension EventContainerViewController {
+  @objc func didToggleFavorite() {
+    listener?.toggleFavorite()
   }
 }

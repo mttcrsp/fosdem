@@ -1,16 +1,14 @@
 import UIKit
 
 final class EventTableViewCell: UITableViewCell {
-  private let eventView = EventView()
-
-  var dataSource: EventViewDataSource? {
-    get { eventView.dataSource }
-    set { eventView.dataSource = newValue }
+  var listener: EventViewListener? {
+    get { eventView.listener }
+    set { eventView.listener = newValue }
   }
 
-  var delegate: EventViewDelegate? {
-    get { eventView.delegate }
-    set { eventView.delegate = newValue }
+  var playbackPosition: PlaybackPosition {
+    get { eventView.playbackPosition }
+    set { eventView.playbackPosition = newValue }
   }
 
   var showsLivestream: Bool {
@@ -18,13 +16,17 @@ final class EventTableViewCell: UITableViewCell {
     set { eventView.showsLivestream = newValue }
   }
 
-  init(isAdaptive: Bool) {
+  private let eventView: EventView
+
+  init(event: Event, isAdaptive: Bool) {
+    eventView = EventView(event: event)
+    eventView.translatesAutoresizingMaskIntoConstraints = false
+
     super.init(style: .default, reuseIdentifier: nil)
 
     selectionStyle = .none
     isAccessibilityElement = false
     contentView.addSubview(eventView)
-    eventView.translatesAutoresizingMaskIntoConstraints = false
 
     if isAdaptive {
       let defaultWidthConstraint = eventView.widthAnchor.constraint(equalTo: contentView.widthAnchor)
@@ -54,13 +56,5 @@ final class EventTableViewCell: UITableViewCell {
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  func configure(with event: Event) {
-    eventView.event = event
-  }
-
-  func reloadPlaybackPosition() {
-    eventView.reloadPlaybackPosition()
   }
 }

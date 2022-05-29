@@ -1,63 +1,34 @@
 import UIKit
 
-protocol EventViewDelegate: AnyObject {
+protocol EventViewListener: AnyObject {
   func eventViewDidTapVideo(_ eventView: EventView)
   func eventViewDidTapLivestream(_ eventView: EventView)
   func eventView(_ eventView: EventView, didSelect attachment: Attachment)
 }
 
-protocol EventViewDataSource: AnyObject {
-  func eventView(_ eventView: EventView, playbackPositionFor event: Event) -> PlaybackPosition
-}
-
 final class EventView: UIStackView {
-  weak var delegate: EventViewDelegate?
-  weak var dataSource: EventViewDataSource? {
-    didSet { reloadPlaybackPosition() }
-  }
+  weak var listener: EventViewListener?
 
-  private weak var videoButton: RoundedButton?
-  private weak var livestreamButton: RoundedButton?
-
-  var event: Event? {
-    didSet { didChangeEvent() }
+  var playbackPosition: PlaybackPosition = .beginning {
+    didSet { didChangePlaybackPosition() }
   }
 
   var showsLivestream = false {
     didSet { didChangeShowLivestream() }
   }
 
-  override init(frame: CGRect) {
-    super.init(frame: frame)
+  private weak var videoButton: RoundedButton?
+  private weak var livestreamButton: RoundedButton?
+
+  let event: Event
+
+  init(event: Event) {
+    self.event = event
+    super.init(frame: .zero)
 
     spacing = 24
     axis = .vertical
     alignment = .leading
-  }
-
-  @available(*, unavailable)
-  required init(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
-  func reloadPlaybackPosition() {
-    var position: PlaybackPosition = .beginning
-    if let dataSource = dataSource, let event = event {
-      position = dataSource.eventView(self, playbackPositionFor: event)
-    }
-
-    videoButton?.setTitle(position.title, for: .normal)
-    videoButton?.accessibilityLabel = position.accessibilityLabel
-    videoButton?.accessibilityIdentifier = position.accessibilityIdentifier
-  }
-
-  private func didChangeEvent() {
-    for subview in arrangedSubviews {
-      removeArrangedSubview(subview)
-      subview.removeFromSuperview()
-    }
-
-    guard let event = event else { return }
 
     var constraints: [NSLayoutConstraint] = []
 
@@ -86,8 +57,6 @@ final class EventView: UIStackView {
       setCustomSpacing(28, after: videoButton)
 
       constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
-
-      reloadPlaybackPosition()
     } else if showsLivestream {
       let livestreamAction = #selector(didTapLivestream)
       let livestreamButton = RoundedButton()
@@ -176,21 +145,36 @@ final class EventView: UIStackView {
     NSLayoutConstraint.activate(constraints)
   }
 
+  @available(*, unavailable)
+  required init(coder _: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+}
+
+private extension EventView {
+  func didChangePlaybackPosition() {
+    videoButton?.setTitle(playbackPosition.title, for: .normal)
+    videoButton?.accessibilityLabel = playbackPosition.accessibilityLabel
+    videoButton?.accessibilityIdentifier = playbackPosition.accessibilityIdentifier
+  }
+
   private func didChangeShowLivestream() {
     livestreamButton?.isHidden = !showsLivestream
   }
+}
 
-  @objc private func didTapLivestream() {
-    delegate?.eventViewDidTapLivestream(self)
+private extension EventView {
+  @objc func didTapLivestream() {
+    listener?.eventViewDidTapLivestream(self)
   }
 
-  @objc private func didTapVideo() {
-    delegate?.eventViewDidTapVideo(self)
+  @objc func didTapVideo() {
+    listener?.eventViewDidTapVideo(self)
   }
 
-  @objc private func didTapAttachment(_ attachmentView: EventAttachmentView) {
+  @objc func didTapAttachment(_ attachmentView: EventAttachmentView) {
     if let attachment = attachmentView.attachment {
-      delegate?.eventView(self, didSelect: attachment)
+      listener?.eventView(self, didSelect: attachment)
     }
   }
 }

@@ -153,7 +153,7 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
       agendaEventRouter = nil
     }
 
-    let router = eventBuilder.build(with: event)
+    let router = eventBuilder.build(with: .init(event: event))
     attachChild(router)
     viewController.showAgendaEvent(event, with: router.viewControllable)
     agendaEventRouter = router
@@ -161,7 +161,7 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
 
   func routeToSoonEvent(_ event: Event?) {
     if let event = event {
-      let router = eventBuilder.build(with: event)
+      let router = eventBuilder.build(with: .init(event: event))
       attachChild(router)
       viewController.showSoonEvent(event, with: router.viewControllable)
       soonEventRouter = router
