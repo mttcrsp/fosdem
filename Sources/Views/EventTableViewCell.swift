@@ -1,9 +1,9 @@
 import UIKit
 
 final class EventTableViewCell: UITableViewCell {
-  var listener: EventViewListener? {
-    get { eventView.listener }
-    set { eventView.listener = newValue }
+  var delegate: EventViewDelegate? {
+    get { eventView.delegate }
+    set { eventView.delegate = newValue }
   }
 
   var playbackPosition: PlaybackPosition {

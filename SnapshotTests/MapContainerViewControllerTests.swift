@@ -20,7 +20,7 @@ final class MapContainerViewControllerTests: XCTestCase {
       .horizontal
     }
 
-    let containerViewController = MapContainerViewController()
+    let containerViewController = ContainerViewController()
     containerViewController.containerDelegate = delegate
     containerViewController.masterViewController = makeViewController(with: .red)
     containerViewController.detailViewController = makeViewController(with: .blue)
@@ -58,7 +58,7 @@ final class MapContainerViewControllerTests: XCTestCase {
       .vertical
     }
 
-    let containerViewController = MapContainerViewController()
+    let containerViewController = ContainerViewController()
     containerViewController.containerDelegate = delegate
     containerViewController.masterViewController = makeViewController(with: .red)
     containerViewController.detailViewController = makeViewController(with: .blue)

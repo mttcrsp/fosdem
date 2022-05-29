@@ -78,14 +78,6 @@ extension Services: HasNotificationCenter {
   }
 }
 
-extension Services: HasLocationService {
-  static let _locationService = LocationService()
-
-  var locationService: LocationServiceProtocol {
-    Services._locationService
-  }
-}
-
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 

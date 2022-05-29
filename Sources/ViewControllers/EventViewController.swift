@@ -22,7 +22,7 @@ class EventViewController: UITableViewController {
 
   private lazy var eventCell: EventTableViewCell = {
     let eventCell = EventTableViewCell(event: event, isAdaptive: isAdaptive)
-    eventCell.listener = self
+    eventCell.delegate = self
     return eventCell
   }()
 
@@ -69,7 +69,7 @@ extension EventViewController {
   }
 }
 
-extension EventViewController: EventViewListener {
+extension EventViewController: EventViewDelegate {
   func eventViewDidTapLivestream(_: EventView) {
     eventListener?.eventViewControllerDidTapLivestream(self)
   }

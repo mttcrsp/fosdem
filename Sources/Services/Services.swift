@@ -5,6 +5,7 @@ class Services {
 
   let bundleService = BundleService()
   let openService: OpenServiceProtocol = OpenService()
+  let locationService: LocationServiceProtocol = LocationService()
   let playbackService: PlaybackServiceProtocol = PlaybackService()
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
@@ -66,7 +67,7 @@ class Services {
   }
 }
 
-extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasAcknowledgementsService {}
+extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasLocationService, HasBuildingsService, HasFavoritesService, HasAcknowledgementsService {}
 
 extension Services: HasPersistenceService {
   var persistenceService: PersistenceServiceProtocol {

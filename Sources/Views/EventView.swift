@@ -1,13 +1,13 @@
 import UIKit
 
-protocol EventViewListener: AnyObject {
+protocol EventViewDelegate: AnyObject {
   func eventViewDidTapVideo(_ eventView: EventView)
   func eventViewDidTapLivestream(_ eventView: EventView)
   func eventView(_ eventView: EventView, didSelect attachment: Attachment)
 }
 
 final class EventView: UIStackView {
-  weak var listener: EventViewListener?
+  weak var delegate: EventViewDelegate?
 
   var playbackPosition: PlaybackPosition = .beginning {
     didSet { didChangePlaybackPosition() }
@@ -165,16 +165,16 @@ private extension EventView {
 
 private extension EventView {
   @objc func didTapLivestream() {
-    listener?.eventViewDidTapLivestream(self)
+    delegate?.eventViewDidTapLivestream(self)
   }
 
   @objc func didTapVideo() {
-    listener?.eventViewDidTapVideo(self)
+    delegate?.eventViewDidTapVideo(self)
   }
 
   @objc func didTapAttachment(_ attachmentView: EventAttachmentView) {
     if let attachment = attachmentView.attachment {
-      listener?.eventView(self, didSelect: attachment)
+      delegate?.eventView(self, didSelect: attachment)
     }
   }
 }
