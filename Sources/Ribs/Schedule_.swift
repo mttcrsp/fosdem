@@ -7,7 +7,8 @@ struct TracksSection {
   let tracks: [Track]
 }
 
-typealias ScheduleDependency = HasFavoritesService
+typealias ScheduleDependency = HasEventBuilder
+  & HasFavoritesService
   & HasPersistenceService
   & HasTracksService
   & HasYearsService
@@ -20,18 +21,41 @@ final class ScheduleBuilder: Builder<ScheduleDependency>, ScheduleBuildable {
   func build() -> ScheduleRouting {
     let viewController = ScheduleViewController()
     let interactor = ScheduleInteractor(presenter: viewController, dependency: dependency)
-    let router = ScheduleRouter(interactor: interactor, viewController: viewController)
+    let router = ScheduleRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)
     viewController.listener = interactor
     return router
   }
 }
 
-protocol ScheduleRouting: ViewableRouting {}
+protocol ScheduleRouting: ViewableRouting {
+  func routeToEvent(_ event: Event?)
+}
 
-final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewControllable>, ScheduleRouting {
-  override init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable) {
+final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewControllable> {
+  private var eventRouter: ViewableRouting?
+
+  private let eventBuilder: EventBuildable
+
+  init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable, eventBuilder: EventBuildable) {
+    self.eventBuilder = eventBuilder
     super.init(interactor: interactor, viewController: viewController)
     interactor.router = self
+  }
+}
+
+extension ScheduleRouter: ScheduleRouting {
+  func routeToEvent(_ event: Event?) {
+    if let eventRouter = eventRouter {
+      detachChild(eventRouter)
+      self.eventRouter = nil
+    }
+
+    if let event = event {
+      let eventRouter = eventBuilder.build(with: event)
+      self.eventRouter = eventRouter
+      attachChild(eventRouter)
+      viewController.showEvent(eventRouter.viewControllable)
+    }
   }
 }
 
@@ -44,6 +68,7 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, Sche
 
   private var observer: NSObjectProtocol?
   private var selectedFilter: TracksFilter = .all
+  private var selectedTrack: Track?
 
   private let dependency: ScheduleDependency
 
@@ -56,13 +81,14 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, Sche
     super.didBecomeActive()
 
     presenter.year = type(of: dependency.yearsService).current
-    
+
     dependency.tracksService.delegate = self
     dependency.tracksService.loadTracks()
 
     observer = dependency.favoritesService.addObserverForTracks { [weak self] _ in
-      _ = self
-      // self?.presenter.showsFavorite =
+      if let self = self, let track = self.selectedTrack {
+        self.presenter.showsFavoriteTrack = self.dependency.favoritesService.contains(track)
+      }
     }
   }
 
@@ -84,7 +110,6 @@ extension ScheduleInteractor: SchedulePresentableListener {
     dependency.favoritesService.addTrack(withIdentifier: track.name)
   }
 
-  
   func didUnfavorite(_ event: Event) {
     dependency.favoritesService.removeEvent(withIdentifier: event.id)
   }
@@ -92,7 +117,7 @@ extension ScheduleInteractor: SchedulePresentableListener {
   func didUnfavorite(_ track: Track) {
     dependency.favoritesService.removeTrack(withIdentifier: track.name)
   }
-  
+
   func canFavoritEvent(_ event: Event) -> Bool {
     !dependency.favoritesService.contains(event)
   }
@@ -100,12 +125,14 @@ extension ScheduleInteractor: SchedulePresentableListener {
   func canFavoritEvent(_ track: Track) -> Bool {
     !dependency.favoritesService.contains(track)
   }
-  
-  func didToggleFavorite(_ track: Track) {
-    if dependency.favoritesService.contains(track) {
-      dependency.favoritesService.removeTrack(withIdentifier: track.name)
+
+  func didToggleFavorite() {
+    guard let selectedTrack = selectedTrack else { return }
+
+    if dependency.favoritesService.contains(selectedTrack) {
+      dependency.favoritesService.removeTrack(withIdentifier: selectedTrack.name)
     } else {
-      dependency.favoritesService.addTrack(withIdentifier: track.name)
+      dependency.favoritesService.addTrack(withIdentifier: selectedTrack.name)
     }
   }
 
@@ -114,33 +141,42 @@ extension ScheduleInteractor: SchedulePresentableListener {
   }
 
   func didSelect(_ event: Event) {
-    _ = event
+    router?.routeToEvent(event)
   }
-  
+
   func didSelect(_ selectedFilter: TracksFilter) {
     self.selectedFilter = selectedFilter
     presenter.reloadData()
   }
-  
-  func didSelect(_ track: Track) {
-    let operation = EventsForTrack(track: track.name)
+
+  func didSelect(_ selectedTrack: Track) {
+    self.selectedTrack = selectedTrack
+
+    let operation = EventsForTrack(track: selectedTrack.name)
     dependency.persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async { [weak self] in
+      DispatchQueue.main.async {
+        guard let self = self else { return }
+
         switch result {
         case .failure:
-          self?.presenter.showError()
+          self.presenter.showError()
         case let .success(events):
-          self?.presenter.showEvents(events, for: track)
+          self.presenter.showTrack(selectedTrack, events: events)
+          self.presenter.showsFavoriteTrack = self.dependency.favoritesService.contains(selectedTrack)
         }
       }
     }
   }
-  
+
   func didSelectTracksSection(_ section: String) {
     if let index = dependency.tracksService.filteredIndexTitles[selectedFilter]?[section] {
       let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
       presenter.scrollToRow(at: indexPath)
     }
+  }
+
+  func didDeselectEvent() {
+    router?.routeToEvent(nil)
   }
 }
 
@@ -174,29 +210,29 @@ extension ScheduleInteractor: TracksServiceDelegate {
   private func isFavoriteSection(_ section: Int) -> Bool {
     section == 0 && hasFavoriteTracks
   }
-  
+
   private var hasFavoriteTracks: Bool {
     !filteredFavoriteTracks.isEmpty
   }
-  
+
   var tracksSections: [TracksSection] {
     var sections: [TracksSection] = []
-    
+
     if hasFavoriteTracks {
       let sectionTitle = L10n.Search.Filter.favorites
       let sectionAccessibilityIdentifier = "favorites"
       let sectionTracks = filteredFavoriteTracks
       sections.append(TracksSection(title: sectionTitle, accessibilityIdentifier: sectionAccessibilityIdentifier, tracks: sectionTracks))
     }
-    
+
     let sectionTitle = selectedFilter.title
     let sectionAccessibilityIdentifier = selectedFilter.accessibilityIdentifier
     let sectionTracks = filteredTracks
     sections.append(TracksSection(title: sectionTitle, accessibilityIdentifier: sectionAccessibilityIdentifier, tracks: sectionTracks))
-    
+
     return sections
   }
-  
+
   private var filteredTracks: [Track] {
     dependency.tracksService.filteredTracks[selectedFilter] ?? []
   }
@@ -204,16 +240,19 @@ extension ScheduleInteractor: TracksServiceDelegate {
   private var filteredFavoriteTracks: [Track] {
     dependency.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
   }
-  
+
   private var filteredTracksSectionIndexTitles: [String] {
     dependency.tracksService.filteredIndexTitles[selectedFilter]?.keys.sorted() ?? []
   }
 }
 
-protocol ScheduleViewControllable: ViewControllable {}
+protocol ScheduleViewControllable: ViewControllable {
+  func showEvent(_ eventViewController: ViewControllable)
+}
 
 protocol SchedulePresentable: Presentable {
   var year: Year? { get set }
+  var showsFavoriteTrack: Bool { get set }
   var tracksSectionIndexTitles: [String] { get set }
 
   func reloadData()
@@ -223,9 +262,9 @@ protocol SchedulePresentable: Presentable {
   func insertFavorite(at index: Int)
   func deleteFavorite(at index: Int)
   func scrollToRow(at indexPath: IndexPath)
-  
+
   func showError()
-  func showEvents(_ events: [Event], for track: Track)
+  func showTrack(_ track: Track, events: [Event])
   func showFilters(_ filters: [TracksFilter], selectedFilter: TracksFilter)
 }
 
@@ -233,7 +272,7 @@ protocol SchedulePresentableListener: AnyObject {
   func didFavorite(_ event: Event)
   func didUnfavorite(_ event: Event)
   func canFavoritEvent(_ event: Event) -> Bool
-  
+
   func didFavorite(_ track: Track)
   func didUnfavorite(_ track: Track)
   func canFavoritEvent(_ track: Track) -> Bool
@@ -243,15 +282,20 @@ protocol SchedulePresentableListener: AnyObject {
   func didSelect(_ event: Event)
   func didSelect(_ track: Track)
   func didSelectTracksSection(_ section: String)
+  func didDeselectEvent()
+
+  func didToggleFavorite()
+
+  var tracksSections: [TracksSection] { get }
 }
 
-final class ScheduleViewController: UISplitViewController, ScheduleViewControllable {
+final class ScheduleViewController: UISplitViewController {
   weak var listener: SchedulePresentableListener?
 
-  var showsFavorite = false {
+  var showsFavoriteTrack = false {
     didSet {
-      favoriteButton.title = showsFavorite ? L10n.unfavorite : L10n.favorite
-      favoriteButton.accessibilityIdentifier = showsFavorite ? "unfavorite" : "favorite"
+      favoriteButton.title = showsFavoriteTrack ? L10n.unfavorite : L10n.favorite
+      favoriteButton.accessibilityIdentifier = showsFavoriteTrack ? "unfavorite" : "favorite"
     }
   }
 
@@ -260,9 +304,10 @@ final class ScheduleViewController: UISplitViewController, ScheduleViewControlla
 
   private var events: [Event] = []
   private var eventsCaptions: [Event: String] = [:]
-  
+
   private weak var tracksViewController: TracksViewController?
   private weak var eventsViewController: EventsViewController?
+  private weak var eventViewController: UIViewController?
   private weak var filtersButton: UIBarButtonItem?
 
   private lazy var favoriteButton: UIBarButtonItem = {
@@ -280,10 +325,7 @@ extension ScheduleViewController {
     maximumPrimaryColumnWidth = 375
     preferredPrimaryColumnWidthFraction = 0.4
 
-    let tracksViewController = makeTracksViewController()
-    let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
-    tracksNavigationController.navigationBar.prefersLargeTitles = true
-
+    let tracksNavigationController = makeTracksNavigationController()
     viewControllers = [tracksNavigationController]
     if traitCollection.horizontalSizeClass == .regular {
       viewControllers.append(makeWelcomeViewController())
@@ -291,7 +333,7 @@ extension ScheduleViewController {
   }
 
   @objc private func didToggleFavorite() {
-//    guard let selectedTrack = selectedTrack else { return }
+    listener?.didToggleFavorite()
   }
 
   @objc private func didTapChangeFilter() {
@@ -300,6 +342,14 @@ extension ScheduleViewController {
 
   private func didSelectFilter(_ filter: TracksFilter) {
     listener?.didSelect(filter)
+  }
+}
+
+extension ScheduleViewController: ScheduleViewControllable {
+  func showEvent(_ eventViewControllable: ViewControllable) {
+    let eventViewController = eventViewControllable.uiviewController
+    self.eventViewController = eventViewController
+    eventsViewController?.show(eventViewController, sender: nil)
   }
 }
 
@@ -331,21 +381,20 @@ extension ScheduleViewController: SchedulePresentable {
   func scrollToRow(at indexPath: IndexPath) {
     tracksViewController?.scrollToRow(at: indexPath, at: .top, animated: false)
   }
-  
+
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     tracksViewController?.present(errorViewController, animated: true)
     tracksViewController?.deselectSelectedRow(animated: true)
   }
-  
-  func showEvents(_ events: [Event], for track: Track) {
-    self.events = events
-    self.eventsCaptions = events.captions
 
-    let eventsViewController = self.makeEventsViewController(for: track)
-    let navigationController = UINavigationController(rootViewController: eventsViewController)
-    tracksViewController?.showDetailViewController(navigationController, sender: nil)
-    UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
+  func showTrack(_ track: Track, events: [Event]) {
+    self.events = events
+    eventsCaptions = events.captions
+
+    let eventsNavigationController = makeEventsNavigationController(for: track)
+    tracksViewController?.showDetailViewController(eventsNavigationController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: eventsNavigationController.view)
   }
 
   func showFilters(_ filters: [TracksFilter], selectedFilter: TracksFilter) {
@@ -366,60 +415,57 @@ extension ScheduleViewController: UISplitViewControllerDelegate {
 }
 
 extension ScheduleViewController: TracksViewControllerDataSource {
-  func numberOfSections(in tracksViewController: TracksViewController) -> Int {
-    <#code#>
+  func numberOfSections(in _: TracksViewController) -> Int {
+    listener?.tracksSections.count ?? 0
   }
-  
-  func tracksViewController(_ tracksViewController: TracksViewController, numberOfTracksIn section: Int) -> Int {
-    <#code#>
+
+  func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
+    listener?.tracksSections[section].tracks.count ?? 0
   }
-  
-  func tracksViewController(_ tracksViewController: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    <#code#>
+
+  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
+    listener!.tracksSections[indexPath.section].tracks[indexPath.row] // FIXME: sections handling
   }
-  
-  func tracksViewController(_ tracksViewController: TracksViewController, titleForSectionAt section: Int) -> String? {
-    <#code#>
+
+  func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
+    listener?.tracksSections[section].title
   }
-  
-  func tracksViewController(_ tracksViewController: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    <#code#>
+
+  func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
+    listener?.tracksSections[section].accessibilityIdentifier
   }
 }
 
 extension ScheduleViewController: TracksViewControllerDelegate {
-  func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
+  func tracksViewController(_: TracksViewController, didSelect track: Track) {
     listener?.didSelect(track)
   }
 }
 
 extension ScheduleViewController: TracksViewControllerFavoritesDataSource {
-  func tracksViewController(_ tracksViewController: TracksViewController, canFavorite track: Track) -> Bool {
+  func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
     listener?.canFavoritEvent(track) ?? false
   }
-  
-  
 }
 
 extension ScheduleViewController: TracksViewControllerFavoritesDelegate {
-  func tracksViewController(_ tracksViewController: TracksViewController, didFavorite track: Track) {
+  func tracksViewController(_: TracksViewController, didFavorite track: Track) {
     listener?.didFavorite(track)
   }
-  
-  func tracksViewController(_ tracksViewController: TracksViewController, didUnfavorite track: Track) {
+
+  func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
     listener?.didUnfavorite(track)
   }
 }
 
 extension ScheduleViewController: TracksViewControllerIndexDataSource {
-  func sectionIndexTitles(in tracksViewController: TracksViewController) -> [String] {
+  func sectionIndexTitles(in _: TracksViewController) -> [String] {
     tracksSectionIndexTitles
   }
 }
 
-
 extension ScheduleViewController: TracksViewControllerIndexDelegate {
-  func tracksViewController(_ tracksViewController: TracksViewController, didSelect section: Int) {
+  func tracksViewController(_: TracksViewController, didSelect section: Int) {
     listener?.didSelectTracksSection(tracksSectionIndexTitles[section])
   }
 }
@@ -456,6 +502,14 @@ extension ScheduleViewController: EventsViewControllerFavoritesDelegate {
   }
 }
 
+extension ScheduleViewController: UINavigationControllerDelegate {
+  func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated _: Bool) {
+    if !navigationController.viewControllers.contains(where: { viewController in viewController === eventViewController }) {
+      listener?.didDeselectEvent()
+    }
+  }
+}
+
 private extension ScheduleViewController {
   func prefersLargeTitleForDetailViewController(withTitle title: String) -> Bool {
     let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
@@ -468,7 +522,7 @@ private extension ScheduleViewController {
 }
 
 private extension ScheduleViewController {
-  func makeTracksViewController() -> TracksViewController {
+  func makeTracksNavigationController() -> UINavigationController {
     let filtersTitle = L10n.Search.Filter.title
     let filtersAction = #selector(didTapChangeFilter)
     let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
@@ -487,7 +541,10 @@ private extension ScheduleViewController {
     tracksViewController.dataSource = self
     tracksViewController.delegate = self
     self.tracksViewController = tracksViewController
-    return tracksViewController
+
+    let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
+    tracksNavigationController.navigationBar.prefersLargeTitles = true
+    return tracksNavigationController
   }
 
   func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
@@ -508,7 +565,7 @@ private extension ScheduleViewController {
     return alertController
   }
 
-  func makeEventsViewController(for track: Track) -> EventsViewController {
+  func makeEventsNavigationController(for track: Track) -> UINavigationController {
     let style: UITableView.Style
     if traitCollection.userInterfaceIdiom == .pad {
       style = .fos_insetGrouped
@@ -531,7 +588,9 @@ private extension ScheduleViewController {
       eventsViewController.navigationItem.largeTitleDisplayMode = .never
     }
 
-    return eventsViewController
+    let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
+    eventsNavigationController.delegate = self
+    return eventsNavigationController
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
