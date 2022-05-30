@@ -44,6 +44,10 @@ final class TimeService {
     notificationCenter.addObserver(forName: .timeDidChange, object: nil, queue: nil, using: { _ in handler() })
   }
 
+  func removeObserver(_ observer: NSObjectProtocol) {
+    notificationCenter.removeObserver(observer)
+  }
+
   private func timerDidFire() {
     notificationCenter.post(Notification(name: .timeDidChange))
   }
@@ -72,6 +76,7 @@ protocol TimeServiceProtocol: AnyObject {
   func startMonitoring()
   func stopMonitoring()
   func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol
+  func removeObserver(_ observer: NSObjectProtocol)
 }
 
 extension TimeService: TimeServiceProtocol {}

@@ -53,6 +53,10 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
     if let favoritesObserver = favoritesObserver {
       dependency.favoritesService.removeObserver(favoritesObserver)
     }
+
+    if let timeObserver = timeObserver {
+      dependency.timeService.removeObserver(timeObserver)
+    }
   }
 
   private func reloadFavoriteEvents(forUpdateToEventWithIdentifier updatedID: Int? = nil) {
