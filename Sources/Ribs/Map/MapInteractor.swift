@@ -32,8 +32,8 @@ class MapInteractor: PresentableInteractor<MapPresentable> {
       self?.presenter.authorizationStatus = authorizationStatus
     }
 
-    dependency.buildingsService.loadBuildings { buildings, error in
-      DispatchQueue.main.async { [weak self] in
+    dependency.buildingsService.loadBuildings { [weak self] buildings, error in
+      DispatchQueue.main.async {
         if let error = error {
           self?.listener?.mapDidError(error)
         } else {

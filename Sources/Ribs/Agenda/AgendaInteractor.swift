@@ -62,8 +62,8 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
   private func reloadFavoriteEvents(forUpdateToEventWithIdentifier updatedID: Int? = nil) {
     let identifiers = dependency.favoritesService.eventsIdentifiers
     let operation = EventsForIdentifiers(identifiers: identifiers)
-    dependency.persistenceService.performRead(operation) { result in
-      DispatchQueue.main.async { [weak self] in
+    dependency.persistenceService.performRead(operation) { [weak self] result in
+      DispatchQueue.main.async {
         guard let self = self else { return }
 
         switch result {

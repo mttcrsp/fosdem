@@ -122,8 +122,8 @@ final class YearInteractor: PresentableInteractor<YearPresentable>, YearInteract
 
   func didSelect(_ track: Track) {
     events = []
-    persistenceService?.performRead(EventsForTrack(track: track.name)) { result in
-      DispatchQueue.main.async { [weak self] in
+    persistenceService?.performRead(EventsForTrack(track: track.name)) { [weak self] result in
+      DispatchQueue.main.async {
         switch result {
         case .failure:
           self?.presenter.showError()
