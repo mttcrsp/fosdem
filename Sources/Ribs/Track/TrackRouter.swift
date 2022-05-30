@@ -1,17 +1,15 @@
 import RIBs
 
-protocol TrackInteractable: Interactable {}
-
 protocol TrackViewControllable: ViewControllable {
   func show(_ viewControllable: ViewControllable)
 }
 
-final class TrackRouter: ViewableRouter<TrackInteractable, TrackViewControllable> {
+final class TrackRouter: ViewableRouter<Interactable, TrackViewControllable> {
   private var eventRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
 
-  init(interactor: TrackInteractable, viewController: TrackViewControllable, eventBuilder: EventBuildable) {
+  init(interactor: Interactable, viewController: TrackViewControllable, eventBuilder: EventBuildable) {
     self.eventBuilder = eventBuilder
     super.init(interactor: interactor, viewController: viewController)
   }

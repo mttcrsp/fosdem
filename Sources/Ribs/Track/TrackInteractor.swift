@@ -67,8 +67,6 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
   }
 }
 
-extension TrackInteractor: TrackInteractable {}
-
 extension TrackInteractor: TrackPresentableListener {
   func select(_ event: Event) {
     router?.routeToEvent(event)
