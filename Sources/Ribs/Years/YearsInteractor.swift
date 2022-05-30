@@ -5,9 +5,9 @@ protocol YearsPresentable: Presentable {
   var years: [Year] { get set }
   func reloadDownloadState(at index: Int)
 
-  func showYearUnavailableError()
-  func showNoInternetError(withRetryHandler retryHandler: @escaping () -> Void)
   func showError()
+  func showNoInternetError(withRetryHandler retryHandler: @escaping () -> Void)
+  func showYearUnavailableError()
 }
 
 protocol YearsRouting: ViewableRouting {

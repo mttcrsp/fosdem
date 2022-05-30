@@ -27,9 +27,7 @@ final class YearsContainerViewController: YearsViewController {
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-}
 
-extension YearsContainerViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -47,10 +45,8 @@ extension YearsContainerViewController: YearsPresentable {
 }
 
 extension YearsContainerViewController: YearsViewControllable {
-  func showYearUnavailableError() {
-    let title = L10n.Years.Unavailable.title, message = L10n.Years.Unavailable.message
-    let errorViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-    errorViewController.addAction(.init(title: L10n.Years.Unavailable.dismiss, style: .default))
+  func showError() {
+    let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
   }
 
@@ -59,8 +55,10 @@ extension YearsContainerViewController: YearsViewControllable {
     present(errorViewController, animated: true)
   }
 
-  func showError() {
-    let errorViewController = UIAlertController.makeErrorController()
+  func showYearUnavailableError() {
+    let title = L10n.Years.Unavailable.title, message = L10n.Years.Unavailable.message
+    let errorViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    errorViewController.addAction(.init(title: L10n.Years.Unavailable.dismiss, style: .default))
     present(errorViewController, animated: true)
   }
 }
