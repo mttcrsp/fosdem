@@ -17,9 +17,7 @@ final class EventContainerViewController: EventViewController, ViewControllable 
     let favoriteButton = UIBarButtonItem(title: nil, style: .plain, target: self, action: favoriteAction)
     return favoriteButton
   }()
-}
 
-extension EventContainerViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     delegate = self

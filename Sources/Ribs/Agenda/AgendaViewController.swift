@@ -23,9 +23,7 @@ final class AgendaViewController: UIViewController {
 
   private weak var detailViewController: UIViewController?
   private weak var eventsViewController: EventsViewController?
-}
 
-extension AgendaViewController {
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
