@@ -36,10 +36,25 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
   override func didBecomeActive() {
     super.didBecomeActive()
 
-    reloadFavoriteEvents()
+    loadFavoriteEvents { [weak self] events in
+      self?.presenter.events = events
+      self?.presenter.reloadEvents()
+    }
 
-    favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] identifier in
-      self?.reloadFavoriteEvents(forUpdateToEventWithIdentifier: identifier)
+    favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] id in
+      self?.loadFavoriteEvents { events in
+        guard let self = self else { return }
+
+        self.presenter.performEventsUpdate {
+          defer { self.presenter.events = events }
+
+          if let index = self.presenter.events.firstIndex(where: { event in event.id == id }) {
+            self.presenter.removeEvent(at: index)
+          } else if let index = events.firstIndex(where: { event in event.id == id }) {
+            self.presenter.insertEvent(at: index)
+          }
+        }
+      }
     }
 
     timeObserver = dependency.timeService.addObserver { [weak self] in
@@ -59,30 +74,16 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
     }
   }
 
-  private func reloadFavoriteEvents(forUpdateToEventWithIdentifier updatedID: Int? = nil) {
+  private func loadFavoriteEvents(completion: @escaping ([Event]) -> Void) {
     let identifiers = dependency.favoritesService.eventsIdentifiers
     let operation = EventsForIdentifiers(identifiers: identifiers)
     dependency.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
-        guard let self = self else { return }
-
         switch result {
         case let .failure(error):
-          self.listener?.agendaDidError(error)
+          self?.listener?.agendaDidError(error)
         case let .success(events):
-          if let updatedID = updatedID {
-            self.presenter.performEventsUpdate {
-              if let index = self.presenter.events.firstIndex(where: { $0.id == updatedID }) {
-                self.presenter.removeEvent(at: index)
-              } else if let index = events.firstIndex(where: { $0.id == updatedID }) {
-                self.presenter.insertEvent(at: index)
-              }
-              self.presenter.events = events
-            }
-          } else {
-            self.presenter.events = events
-            self.presenter.reloadEvents()
-          }
+          completion(events)
         }
       }
     }
