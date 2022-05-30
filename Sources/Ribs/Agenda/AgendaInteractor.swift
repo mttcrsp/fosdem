@@ -73,21 +73,6 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
       dependency.timeService.removeObserver(timeObserver)
     }
   }
-
-  private func loadFavoriteEvents(completion: @escaping ([Event]) -> Void) {
-    let identifiers = dependency.favoritesService.eventsIdentifiers
-    let operation = EventsForIdentifiers(identifiers: identifiers)
-    dependency.persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async {
-        switch result {
-        case let .failure(error):
-          self?.listener?.agendaDidError(error)
-        case let .success(events):
-          completion(events)
-        }
-      }
-    }
-  }
 }
 
 extension AgendaInteractor: AgendaPresentableListener {
@@ -134,5 +119,22 @@ extension AgendaInteractor: AgendaInteractable {
 
   func soonDidDismiss() {
     router?.routeBackFromSoon()
+  }
+}
+
+private extension AgendaInteractor {
+  func loadFavoriteEvents(completion: @escaping ([Event]) -> Void) {
+    let identifiers = dependency.favoritesService.eventsIdentifiers
+    let operation = EventsForIdentifiers(identifiers: identifiers)
+    dependency.persistenceService.performRead(operation) { [weak self] result in
+      DispatchQueue.main.async {
+        switch result {
+        case let .failure(error):
+          self?.listener?.agendaDidError(error)
+        case let .success(events):
+          completion(events)
+        }
+      }
+    }
   }
 }
