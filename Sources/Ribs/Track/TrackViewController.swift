@@ -9,7 +9,7 @@ protocol TrackPresentableListener: AnyObject {
   func toggleFavorite(_ event: Event)
 }
 
-final class TrackViewController: UINavigationController {
+final class TrackViewController: UINavigationController, TrackPresentable {
   weak var listener: TrackPresentableListener?
 
   var track: Track? {
@@ -59,8 +59,6 @@ final class TrackViewController: UINavigationController {
     fatalError("init(coder:) has not been implemented")
   }
 }
-
-extension TrackViewController: TrackPresentable {}
 
 extension TrackViewController: TrackViewControllable {
   func show(_ viewControllable: ViewControllable) {
