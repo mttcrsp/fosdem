@@ -41,16 +41,16 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
   override func willResignActive() {
     super.willResignActive()
 
-    if let timeObserver = timeObserver {
-      dependency.player.removeTimeObserver(timeObserver)
+    if let favoritesObserver = favoritesObserver {
+      dependency.favoritesService.removeObserver(favoritesObserver)
     }
 
     if let finishObserver = finishObserver {
       dependency.notificationCenter.removeObserver(finishObserver)
     }
 
-    if let observer = finishObserver {
-      dependency.notificationCenter.removeObserver(observer)
+    if let timeObserver = timeObserver {
+      dependency.player.removeTimeObserver(timeObserver)
     }
 
     do {
