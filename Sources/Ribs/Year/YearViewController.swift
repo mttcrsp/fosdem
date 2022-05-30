@@ -22,6 +22,7 @@ final class YearViewController: TracksViewController {
   }
 
   private weak var eventsViewController: EventsViewController?
+
   private var searchController: UISearchController?
 
   override func viewDidLoad() {
@@ -38,6 +39,7 @@ final class YearViewController: TracksViewController {
 extension YearViewController: YearViewControllable {
   func addSearch(_ searchViewControllable: ViewControllable) {
     if let searchController = searchViewControllable.uiviewController as? UISearchController {
+      self.searchController = searchController
       addSearchViewController(searchController)
     }
   }
