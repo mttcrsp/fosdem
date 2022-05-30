@@ -1,20 +1,24 @@
 import RIBs
 
 protocol ScheduleViewControllable: ViewControllable {
-  func addSearch(_ eventViewController: ViewControllable)
-  func showEvent(_ eventViewController: ViewControllable)
+  func addSearch(_ viewController: ViewControllable)
+  func showDetail(_ viewControllable: ViewControllable)
   func showSearchResult(_ eventViewController: ViewControllable)
 }
 
+protocol ScheduleInteractable: Interactable, SearchListener, TrackListener {}
+
 final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewControllable> {
-  private var eventRouter: ViewableRouting?
+  private var trackRouter: ViewableRouting?
   private var searchResultRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
+  private let trackBuilder: TrackBuildable
   private let searchBuilder: SearchBuildable
 
-  init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable, eventBuilder: EventBuildable, searchBuilder: SearchBuildable) {
+  init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable, eventBuilder: EventBuildable, trackBuilder: TrackBuildable, searchBuilder: SearchBuildable) {
     self.eventBuilder = eventBuilder
+    self.trackBuilder = trackBuilder
     self.searchBuilder = searchBuilder
     super.init(interactor: interactor, viewController: viewController)
   }
@@ -29,18 +33,16 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
 }
 
 extension ScheduleRouter: ScheduleRouting {
-  func routeToEvent(_ event: Event?) {
-    if let eventRouter = eventRouter {
-      detachChild(eventRouter)
-      self.eventRouter = nil
+  func routeToTrack(_ track: Track) {
+    if let trackRouter = trackRouter {
+      detachChild(trackRouter)
+      self.trackRouter = nil
     }
 
-    if let event = event {
-      let eventRouter = eventBuilder.build(with: .init(event: event))
-      self.eventRouter = eventRouter
-      attachChild(eventRouter)
-      viewController.showEvent(eventRouter.viewControllable)
-    }
+    let trackRouter = trackBuilder.build(withListener: interactor, arguments: .init(track: track))
+    self.trackRouter = trackRouter
+    attachChild(trackRouter)
+    viewController.showDetail(trackRouter.viewControllable)
   }
 
   func routeToSearchResult(_ event: Event) {
@@ -62,5 +64,3 @@ extension ScheduleRouter: ScheduleRouting {
     }
   }
 }
-
-protocol ScheduleInteractable: Interactable, SearchListener {}

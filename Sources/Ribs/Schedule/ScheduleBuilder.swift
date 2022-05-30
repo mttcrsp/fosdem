@@ -4,6 +4,7 @@ typealias ScheduleDependency = HasEventBuilder
   & HasFavoritesService
   & HasPersistenceService
   & HasSearchBuilder
+  & HasTrackBuilder
   & HasTracksService
   & HasYearsService
 
@@ -19,6 +20,7 @@ final class ScheduleBuilder: Builder<ScheduleDependency>, ScheduleBuildable {
       interactor: interactor,
       viewController: viewController,
       eventBuilder: dependency.eventBuilder,
+      trackBuilder: dependency.trackBuilder,
       searchBuilder: dependency.searchBuilder
     )
     viewController.listener = interactor

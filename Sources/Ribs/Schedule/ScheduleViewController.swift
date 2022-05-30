@@ -12,27 +12,16 @@ protocol SchedulePresentableListener: AnyObject {
 
   func selectFilters()
   func select(_ filter: TracksFilter)
-  func select(_ event: Event)
   func select(_ track: Track)
   func selectTracksSection(_ section: String)
-  func deselectEvent()
   func deselectSearchResult()
 
-  func canFavorite(_ event: Event) -> Bool
   func canFavorite(_ track: Track) -> Bool
-  func toggleFavorite(_ event: Event)
   func toggleFavorite(_ track: Track?)
 }
 
 final class ScheduleViewController: UISplitViewController {
   weak var listener: SchedulePresentableListener?
-
-  var showsFavoriteTrack = false {
-    didSet {
-      favoriteButton.title = showsFavoriteTrack ? L10n.unfavorite : L10n.favorite
-      favoriteButton.accessibilityIdentifier = showsFavoriteTrack ? "unfavorite" : "favorite"
-    }
-  }
 
   var year: Year? {
     didSet { welcomeViewController?.year = year }
@@ -40,21 +29,11 @@ final class ScheduleViewController: UISplitViewController {
 
   var tracksSectionIndexTitles: [String] = []
 
-  private var events: [Event] = []
-  private var eventsCaptions: [Event: String] = [:]
-
-  private weak var eventViewController: UIViewController?
   private weak var eventsViewController: EventsViewController?
   private weak var resultViewController: UIViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var welcomeViewController: WelcomeViewController?
   private weak var filtersButton: UIBarButtonItem?
-
-  private lazy var favoriteButton: UIBarButtonItem = {
-    let favoriteAction = #selector(didToggleFavorite)
-    let favoriteButton = UIBarButtonItem(title: nil, style: .plain, target: self, action: favoriteAction)
-    return favoriteButton
-  }()
 
   init() {
     super.init(nibName: nil, bundle: nil)
@@ -102,12 +81,6 @@ final class ScheduleViewController: UISplitViewController {
 }
 
 extension ScheduleViewController: ScheduleViewControllable {
-  func showEvent(_ eventViewControllable: ViewControllable) {
-    let eventViewController = eventViewControllable.uiviewController
-    self.eventViewController = eventViewController
-    eventsViewController?.show(eventViewController, sender: nil)
-  }
-
   func addSearch(_ searchViewControllable: ViewControllable) {
     if let searchController = searchViewControllable.uiviewController as? UISearchController {
       tracksViewController?.addSearchViewController(searchController)
@@ -156,35 +129,13 @@ extension ScheduleViewController: SchedulePresentable {
     tracksViewController?.deselectSelectedRow(animated: true)
   }
 
-  func showTrack(_ track: Track, events: [Event]) {
-    self.events = events
-    eventsCaptions = events.captions
+  func showWelcome() {
+    let welcomeViewController = makeWelcomeViewController()
+    showDetailViewController(welcomeViewController)
+  }
 
-    let style: UITableView.Style
-    if traitCollection.userInterfaceIdiom == .pad {
-      style = .fos_insetGrouped
-    } else {
-      style = .grouped
-    }
-
-    let eventsViewController = EventsViewController(style: style)
-    eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
-    eventsViewController.favoritesDataSource = self
-    eventsViewController.favoritesDelegate = self
-    eventsViewController.title = track.name
-    eventsViewController.dataSource = self
-    eventsViewController.delegate = self
-    self.eventsViewController = eventsViewController
-
-    if prefersLargeTitleForDetailViewController(withTitle: track.name) {
-      eventsViewController.navigationItem.largeTitleDisplayMode = .always
-    } else {
-      eventsViewController.navigationItem.largeTitleDisplayMode = .never
-    }
-
-    let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
-    eventsNavigationController.delegate = self
-    showDetailViewController(eventsNavigationController)
+  func showDetail(_ viewControllable: ViewControllable) {
+    showDetailViewController(viewControllable.uiviewController)
   }
 
   func showFilters(_ filters: [TracksFilter], selectedFilter: TracksFilter) {
@@ -258,34 +209,6 @@ extension ScheduleViewController: TracksViewControllerIndexDelegate {
   }
 }
 
-extension ScheduleViewController: EventsViewControllerDataSource {
-  func events(in _: EventsViewController) -> [Event] {
-    events
-  }
-
-  func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
-    eventsCaptions[event]
-  }
-}
-
-extension ScheduleViewController: EventsViewControllerDelegate {
-  func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    listener?.select(event)
-  }
-}
-
-extension ScheduleViewController: EventsViewControllerFavoritesDataSource {
-  func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    listener?.canFavorite(event) ?? false
-  }
-}
-
-extension ScheduleViewController: EventsViewControllerFavoritesDelegate {
-  func eventsViewController(_: EventsViewController, didToggleFavorite event: Event) {
-    listener?.toggleFavorite(event)
-  }
-}
-
 extension ScheduleViewController: UISplitViewControllerDelegate {
   func splitViewController(_: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto _: UIViewController) -> Bool {
     secondaryViewController is WelcomeViewController
@@ -297,35 +220,20 @@ extension ScheduleViewController: UISplitViewControllerDelegate {
   }
 }
 
-extension ScheduleViewController: UINavigationControllerDelegate {
-  func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated _: Bool) {
-    if !navigationController.viewControllers.contains(where: { viewController in viewController === eventViewController }) {
-      listener?.deselectEvent()
-    }
-  }
-}
-
 private extension ScheduleViewController {
-  @objc func didToggleFavorite() {
-    listener?.toggleFavorite(nil)
-  }
-
   @objc func didTapChangeFilter() {
     listener?.selectFilters()
-  }
-
-  func prefersLargeTitleForDetailViewController(withTitle title: String) -> Bool {
-    let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
-    let attributes = [NSAttributedString.Key.font: font]
-    let attributedString = NSAttributedString(string: title, attributes: attributes)
-    let preferredWidth = attributedString.size().width
-    let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
-    return preferredWidth < availableWidth
   }
 
   func showDetailViewController(_ detailViewController: UIViewController) {
     if detailViewController != resultViewController {
       listener?.deselectSearchResult()
+    }
+
+    if let title = detailViewController.title, prefersLargeTitleForDetailViewController(withTitle: title) {
+      detailViewController.navigationItem.largeTitleDisplayMode = .always
+    } else {
+      detailViewController.navigationItem.largeTitleDisplayMode = .never
     }
 
     tracksViewController?.showDetailViewController(detailViewController, sender: nil)
@@ -338,28 +246,13 @@ private extension ScheduleViewController {
     self.welcomeViewController = welcomeViewController
     return welcomeViewController
   }
-}
 
-private extension Array where Element == Event {
-  var captions: [Event: String] {
-    var result: [Event: String] = [:]
-
-    if let event = first, let caption = event.formattedStartWithWeekday {
-      result[event] = caption
-    }
-
-    for (lhs, rhs) in zip(self, dropFirst()) {
-      if lhs.isSameWeekday(as: rhs) {
-        if let caption = rhs.formattedStart {
-          result[rhs] = caption
-        }
-      } else {
-        if let caption = rhs.formattedStartWithWeekday {
-          result[rhs] = caption
-        }
-      }
-    }
-
-    return result
+  private func prefersLargeTitleForDetailViewController(withTitle title: String) -> Bool {
+    let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
+    let attributes = [NSAttributedString.Key.font: font]
+    let attributedString = NSAttributedString(string: title, attributes: attributes)
+    let preferredWidth = attributedString.size().width
+    let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
+    return preferredWidth < availableWidth
   }
 }

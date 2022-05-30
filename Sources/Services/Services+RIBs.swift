@@ -69,6 +69,16 @@ extension Services: HasSoonBuilder {
   }
 }
 
+protocol HasTrackBuilder {
+  var trackBuilder: TrackBuildable { get }
+}
+
+extension Services: HasTrackBuilder {
+  var trackBuilder: TrackBuildable {
+    TrackBuilder(dependency: self)
+  }
+}
+
 protocol HasVideosBuilder {
   var videosBuilder: VideosBuildable { get }
 }

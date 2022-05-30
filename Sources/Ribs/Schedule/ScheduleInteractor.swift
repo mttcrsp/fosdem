@@ -2,14 +2,13 @@ import Foundation
 import RIBs
 
 protocol ScheduleRouting: ViewableRouting {
-  func routeToEvent(_ event: Event?)
+  func routeToTrack(_ track: Track)
   func routeToSearchResult(_ event: Event)
   func routeBackFromSearchResult()
 }
 
 protocol SchedulePresentable: Presentable {
   var year: Year? { get set }
-  var showsFavoriteTrack: Bool { get set }
   var tracksSectionIndexTitles: [String] { get set }
 
   func reloadData()
@@ -21,14 +20,13 @@ protocol SchedulePresentable: Presentable {
   func scrollToRow(at indexPath: IndexPath)
 
   func showError()
-  func showTrack(_ track: Track, events: [Event])
+  func showWelcome()
   func showFilters(_ filters: [TracksFilter], selectedFilter: TracksFilter)
 }
 
-final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, ScheduleInteractable {
+final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
   weak var router: ScheduleRouting?
 
-  private var observer: NSObjectProtocol?
   private var selectedFilter: TracksFilter = .all
   private var selectedTrack: Track?
 
@@ -41,46 +39,15 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, Sche
 
   override func didBecomeActive() {
     super.didBecomeActive()
-
     presenter.year = type(of: dependency.yearsService).current
-
     dependency.tracksService.delegate = self
     dependency.tracksService.loadTracks()
-
-    observer = dependency.favoritesService.addObserverForTracks { [weak self] _ in
-      if let self = self, let track = self.selectedTrack {
-        self.presenter.showsFavoriteTrack = self.dependency.favoritesService.contains(track)
-      }
-    }
-  }
-
-  override func willResignActive() {
-    super.willResignActive()
-
-    if let observer = observer {
-      dependency.favoritesService.removeObserver(observer)
-    }
-  }
-
-  func didSelectResult(_ event: Event) {
-    router?.routeToSearchResult(event)
   }
 }
 
 extension ScheduleInteractor: SchedulePresentableListener {
-  func canFavorite(_ event: Event) -> Bool {
-    !dependency.favoritesService.contains(event)
-  }
-
   func canFavorite(_ track: Track) -> Bool {
     !dependency.favoritesService.contains(track)
-  }
-
-  func toggleFavorite(_ event: Event) {
-    if canFavorite(event) {
-    } else {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
-    }
   }
 
   func toggleFavorite(_ track: Track?) {
@@ -97,32 +64,13 @@ extension ScheduleInteractor: SchedulePresentableListener {
     presenter.showFilters(dependency.tracksService.filters, selectedFilter: selectedFilter)
   }
 
-  func select(_ event: Event) {
-    router?.routeToEvent(event)
-  }
-
   func select(_ selectedFilter: TracksFilter) {
     self.selectedFilter = selectedFilter
     presenter.reloadData()
   }
 
-  func select(_ selectedTrack: Track) {
-    self.selectedTrack = selectedTrack
-
-    let operation = EventsForTrack(track: selectedTrack.name)
-    dependency.persistenceService.performRead(operation) { [weak self] result in
-      DispatchQueue.main.async {
-        guard let self = self else { return }
-
-        switch result {
-        case .failure:
-          self.presenter.showError()
-        case let .success(events):
-          self.presenter.showTrack(selectedTrack, events: events)
-          self.presenter.showsFavoriteTrack = self.dependency.favoritesService.contains(selectedTrack)
-        }
-      }
-    }
+  func select(_ track: Track) {
+    router?.routeToTrack(track)
   }
 
   func selectTracksSection(_ section: String) {
@@ -130,10 +78,6 @@ extension ScheduleInteractor: SchedulePresentableListener {
       let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
       presenter.scrollToRow(at: indexPath)
     }
-  }
-
-  func deselectEvent() {
-    router?.routeToEvent(nil)
   }
 
   func deselectSearchResult() {
@@ -204,5 +148,16 @@ extension ScheduleInteractor: TracksServiceDelegate {
 
   private var filteredTracksSectionIndexTitles: [String] {
     dependency.tracksService.filteredIndexTitles[selectedFilter]?.keys.sorted() ?? []
+  }
+}
+
+extension ScheduleInteractor: ScheduleInteractable {
+  func didSelectResult(_ event: Event) {
+    router?.routeToSearchResult(event)
+  }
+
+  func trackDidError(_: Error) {
+    presenter.showError()
+    presenter.showWelcome()
   }
 }
