@@ -50,15 +50,15 @@ extension YearsInteractor: YearsPresentableListener {
     case .available:
       let task = dependency.yearsService.downloadYear(year) { [weak self] error in
         DispatchQueue.main.async {
+          self?.pendingYear = nil
+          self?.pendingTask = nil
+          self?.presenter.reloadDownloadState(at: index)
+
           if let error = error {
             self?.downloadDidFail(for: year, with: error)
           } else {
             self?.downloadDidSucceed(for: year)
           }
-
-          self?.pendingYear = nil
-          self?.pendingTask = nil
-          self?.presenter.reloadDownloadState(at: index)
         }
       }
 
