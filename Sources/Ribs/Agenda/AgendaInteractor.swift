@@ -2,20 +2,26 @@ import Foundation
 import RIBs
 
 protocol AgendaRouting: Routing {
-  func routeToAgendaEvent(_ event: Event)
+  func routeToEvent(_ event: Event?)
   func routeToSoon()
   func routeBackFromSoon()
 }
 
 protocol AgendaPresentable: Presentable {
+  var events: [Event] { get set }
+  func performEventsUpdate(_ updates: () -> Void)
+  func insertEvent(at index: Int)
+  func removeEvent(at index: Int)
+  func reloadEvents()
   func reloadLiveStatus()
   func showError()
-  func showAgendaEvents(_ events: [Event], withUpdatedEventIdentifier identifier: Int?)
 }
 
 final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
   weak var listener: AgendaListener?
   weak var router: AgendaRouting?
+
+  private(set) var selectedEvent: Event?
 
   private var favoritesObserver: NSObjectProtocol?
   private var timeObserver: NSObjectProtocol?
@@ -31,6 +37,7 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
     super.didBecomeActive()
 
     reloadFavoriteEvents()
+
     favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] identifier in
       self?.reloadFavoriteEvents(forUpdateToEventWithIdentifier: identifier)
     }
@@ -48,16 +55,30 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
     }
   }
 
-  private func reloadFavoriteEvents(forUpdateToEventWithIdentifier identifier: Int? = nil) {
+  private func reloadFavoriteEvents(forUpdateToEventWithIdentifier updatedID: Int? = nil) {
     let identifiers = dependency.favoritesService.eventsIdentifiers
     let operation = EventsForIdentifiers(identifiers: identifiers)
     dependency.persistenceService.performRead(operation) { result in
       DispatchQueue.main.async { [weak self] in
+        guard let self = self else { return }
+
         switch result {
         case let .failure(error):
-          self?.listener?.agendaDidError(error)
+          self.listener?.agendaDidError(error)
         case let .success(events):
-          self?.presenter.showAgendaEvents(events, withUpdatedEventIdentifier: identifier)
+          if let updatedID = updatedID {
+            self.presenter.performEventsUpdate {
+              if let index = self.presenter.events.firstIndex(where: { $0.id == updatedID }) {
+                self.presenter.removeEvent(at: index)
+              } else if let index = events.firstIndex(where: { $0.id == updatedID }) {
+                self.presenter.insertEvent(at: index)
+              }
+              self.presenter.events = events
+            }
+          } else {
+            self.presenter.events = events
+            self.presenter.reloadEvents()
+          }
         }
       }
     }
@@ -65,8 +86,14 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
 }
 
 extension AgendaInteractor: AgendaPresentableListener {
-  func didSelectAgendaEvent(_ event: Event) {
-    router?.routeToAgendaEvent(event)
+  func select(_ selectedEvent: Event?) {
+    router?.routeToEvent(selectedEvent)
+  }
+
+  func selectFirstEvent() {
+    if let event = presenter.events.first {
+      select(event)
+    }
   }
 
   func selectSoon() {
@@ -86,6 +113,10 @@ extension AgendaInteractor: AgendaPresentableListener {
       dependency.favoritesService.addEvent(withIdentifier: event.id)
     } else {
       dependency.favoritesService.removeEvent(withIdentifier: event.id)
+    }
+
+    if event == selectedEvent {
+      selectFirstEvent()
     }
   }
 }

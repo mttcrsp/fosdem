@@ -1,7 +1,7 @@
 import RIBs
 
 protocol AgendaViewControllable: ViewControllable {
-  func showAgendaEvent(_ event: Event, with viewControllable: ViewControllable)
+  func showDetail(_ viewControllable: ViewControllable)
   func present(_ viewControllable: ViewControllable)
   func dismiss(_ viewControllable: ViewControllable)
 }
@@ -21,16 +21,18 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
     super.init(interactor: interactor, viewController: viewController)
   }
 
-  func routeToAgendaEvent(_ event: Event) {
+  func routeToEvent(_ event: Event?) {
     if let router = agendaEventRouter {
       detachChild(router)
       agendaEventRouter = nil
     }
 
-    let router = eventBuilder.build(with: .init(event: event))
-    attachChild(router)
-    viewController.showAgendaEvent(event, with: router.viewControllable)
-    agendaEventRouter = router
+    if let event = event {
+      let router = eventBuilder.build(with: .init(event: event))
+      attachChild(router)
+      viewController.showDetail(router.viewControllable)
+      agendaEventRouter = router
+    }
   }
 
   func routeToSoon() {

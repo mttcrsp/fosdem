@@ -3,7 +3,8 @@ import UIKit
 
 protocol AgendaPresentableListener: AnyObject {
   func selectSoon()
-  func didSelectAgendaEvent(_ event: Event)
+  func select(_ event: Event?)
+  func selectFirstEvent()
   func toggleFavorite(_ event: Event)
   func canFavoriteEvent(_ event: Event) -> Bool
   func isLive(_ event: Event) -> Bool
@@ -12,11 +13,12 @@ protocol AgendaPresentableListener: AnyObject {
 final class AgendaViewController: UIViewController {
   weak var listener: AgendaPresentableListener?
 
-  private var agendaEvents: [Event] = []
+  var events: [Event] = [] {
+    didSet { didChangeEvents() }
+  }
 
-  private weak var agendaViewController: EventsViewController?
-  private weak var agendaNavigationController: UINavigationController?
-  private weak var eventViewController: UIViewController?
+  private weak var detailViewController: UIViewController?
+  private weak var eventsViewController: EventsViewController?
 
   private weak var rootViewController: UIViewController? {
     didSet { didChangeRootViewController(from: oldValue, to: rootViewController) }
@@ -27,65 +29,49 @@ extension AgendaViewController {
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
-    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
-      selectFirstEvent()
+    if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, traitCollection.horizontalSizeClass == .regular {
+      if !showsDetailViewController, isViewLoaded {
+        listener?.selectFirstEvent()
+      }
     }
   }
 }
 
 extension AgendaViewController: AgendaPresentable {
+  func insertEvent(at index: Int) {
+    eventsViewController?.insertEvent(at: index)
+  }
+
+  func removeEvent(at index: Int) {
+    eventsViewController?.deleteEvent(at: index)
+  }
+
+  func performEventsUpdate(_ updates: () -> Void) {
+    eventsViewController?.performBatchUpdates(updates)
+  }
+
+  func reloadEvents() {
+    eventsViewController?.reloadData()
+  }
+
   func reloadLiveStatus() {
-    agendaViewController?.reloadLiveStatus()
+    eventsViewController?.reloadLiveStatus()
   }
 
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
   }
-
-  func showAgendaEvents(_ agendaEvents: [Event], withUpdatedEventIdentifier updatedEventID: Int?) {
-    if agendaEvents.isEmpty, !(rootViewController is UINavigationController) {
-      rootViewController = makeAgendaNavigationController()
-    } else if !agendaEvents.isEmpty, !(rootViewController is UISplitViewController) {
-      rootViewController = makeAgendaSplitViewController()
-    }
-
-    if let id = updatedEventID {
-      let oldEvents = self.agendaEvents
-      let newEvents = agendaEvents
-
-      agendaViewController?.performBatchUpdates {
-        self.agendaEvents = newEvents
-        if let index = newEvents.firstIndex(where: { event in event.id == id }) {
-          agendaViewController?.insertEvent(at: index)
-        } else if let index = oldEvents.firstIndex(where: { event in event.id == id }) {
-          agendaViewController?.deleteEvent(at: index)
-        }
-      }
-    } else {
-      self.agendaEvents = agendaEvents
-      agendaViewController?.reloadData()
-    }
-
-    var didDeleteSelectedEvent = false
-    if let selectedEventID = eventViewController?.fos_eventID, !agendaEvents.contains(where: { event in event.id == selectedEventID }) {
-      didDeleteSelectedEvent = true
-    }
-
-    if didDeleteSelectedEvent || isMissingSecondaryViewController {
-      selectFirstEvent()
-    }
-  }
 }
 
 extension AgendaViewController: AgendaViewControllable {
-  func showAgendaEvent(_ event: Event, with viewControllable: ViewControllable) {
-    let eventViewController = viewControllable.uiviewController
-    eventViewController.fos_eventID = event.id
-    self.eventViewController = eventViewController
+  func showDetail(_ viewControllable: ViewControllable) {
+    let detailViewController = viewControllable.uiviewController
+    self.detailViewController = detailViewController
 
-    agendaViewController?.showDetailViewController(eventViewController, sender: nil)
-    UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
+    let navigationController = UINavigationController(rootViewController: detailViewController)
+    eventsViewController?.showDetailViewController(navigationController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
   }
 
   func present(_ viewControllable: ViewControllable) {
@@ -100,13 +86,8 @@ extension AgendaViewController: AgendaViewControllable {
 }
 
 extension AgendaViewController: EventsViewControllerDataSource {
-  func events(in eventsViewController: EventsViewController) -> [Event] {
-    switch eventsViewController {
-    case agendaViewController:
-      return agendaEvents
-    default:
-      return []
-    }
+  func events(in _: EventsViewController) -> [Event] {
+    events
   }
 
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
@@ -115,15 +96,8 @@ extension AgendaViewController: EventsViewControllerDataSource {
 }
 
 extension AgendaViewController: EventsViewControllerDelegate {
-  func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-    switch eventsViewController {
-    case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
-      break
-    case agendaViewController:
-      listener?.didSelectAgendaEvent(event)
-    default:
-      break
-    }
+  func eventsViewController(_: EventsViewController, didSelect event: Event) {
+    listener?.select(event)
   }
 }
 
@@ -141,26 +115,28 @@ extension AgendaViewController: EventsViewControllerFavoritesDelegate {
 
 extension AgendaViewController: EventsViewControllerLiveDataSource {
   func eventsViewController(_: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    if eventViewController == agendaViewController {
-      return listener?.isLive(event) ?? false
-    } else {
-      return false
-    }
+    listener?.isLive(event) ?? false
   }
 }
 
 private extension AgendaViewController {
-  var isMissingSecondaryViewController: Bool {
-    eventViewController == nil
+  private var showsDetailViewController: Bool {
+    detailViewController != nil
   }
 
   @objc func didTapSoon() {
     listener?.selectSoon()
   }
 
-  func selectFirstEvent() {
-    if let event = agendaEvents.first, traitCollection.horizontalSizeClass == .regular {
-      listener?.didSelectAgendaEvent(event)
+  func didChangeEvents() {
+    if events.isEmpty, !(rootViewController is UINavigationController) {
+      rootViewController = makeAgendaNavigationController()
+      listener?.select(nil)
+    } else if !events.isEmpty, !(rootViewController is UISplitViewController) {
+      rootViewController = makeAgendaSplitViewController()
+      if traitCollection.horizontalSizeClass == .regular {
+        listener?.selectFirstEvent()
+      }
     }
   }
 
@@ -201,32 +177,21 @@ private extension AgendaViewController {
     let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
     soonButton.accessibilityIdentifier = "soon"
 
-    let agendaViewController = EventsViewController(style: .grouped)
-    agendaViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
-    agendaViewController.emptyBackgroundTitle = L10n.Agenda.Empty.title
-    agendaViewController.title = L10n.Agenda.title
-    agendaViewController.navigationItem.largeTitleDisplayMode = .always
-    agendaViewController.navigationItem.rightBarButtonItem = soonButton
-    agendaViewController.favoritesDataSource = self
-    agendaViewController.favoritesDelegate = self
-    agendaViewController.liveDataSource = self
-    agendaViewController.dataSource = self
-    agendaViewController.delegate = self
-    self.agendaViewController = agendaViewController
+    let eventsViewController = EventsViewController(style: .grouped)
+    eventsViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
+    eventsViewController.emptyBackgroundTitle = L10n.Agenda.Empty.title
+    eventsViewController.title = L10n.Agenda.title
+    eventsViewController.navigationItem.largeTitleDisplayMode = .always
+    eventsViewController.navigationItem.rightBarButtonItem = soonButton
+    eventsViewController.favoritesDataSource = self
+    eventsViewController.favoritesDelegate = self
+    eventsViewController.liveDataSource = self
+    eventsViewController.dataSource = self
+    eventsViewController.delegate = self
+    self.eventsViewController = eventsViewController
 
-    let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
-    agendaNavigationController.navigationBar.prefersLargeTitles = true
-    self.agendaNavigationController = agendaNavigationController
-
-    return agendaNavigationController
-  }
-}
-
-private extension UIViewController {
-  private static var eventIDKey = 0
-
-  var fos_eventID: Int? {
-    get { objc_getAssociatedObject(self, &UIViewController.eventIDKey) as? Int }
-    set { objc_setAssociatedObject(self, &UIViewController.eventIDKey, newValue as Int?, .OBJC_ASSOCIATION_COPY_NONATOMIC) }
+    let eventsNavigationController = UINavigationController(rootViewController: eventsViewController)
+    eventsNavigationController.navigationBar.prefersLargeTitles = true
+    return eventsNavigationController
   }
 }
