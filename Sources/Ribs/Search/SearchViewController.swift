@@ -8,10 +8,10 @@ enum SearchPresentableConfiguration {
 }
 
 protocol SearchPresentableListener: AnyObject {
-  func searchEvents(for query: String)
-  func selectEvent(_ event: Event)
+  func search(_ query: String)
+  func select(_ event: Event)
   func toggleFavorite(_ event: Event)
-  func canFavoriteEvent(_ event: Event) -> Bool
+  func canFavorite(_ event: Event) -> Bool
 }
 
 final class SearchViewController: UISearchController, ViewControllable, SearchPresentable {
@@ -61,7 +61,7 @@ extension SearchViewController: EventsViewControllerDelegate {
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     eventsViewController.deselectSelectedRow(animated: true)
 
-    listener?.selectEvent(event)
+    listener?.select(event)
 
     if traitCollection.horizontalSizeClass == .regular {
       searchBar.endEditing(true)
@@ -71,7 +71,7 @@ extension SearchViewController: EventsViewControllerDelegate {
 
 extension SearchViewController: EventsViewControllerFavoritesDataSource {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    listener?.canFavoriteEvent(event) ?? false
+    listener?.canFavorite(event) ?? false
   }
 }
 
@@ -83,8 +83,7 @@ extension SearchViewController: EventsViewControllerFavoritesDelegate {
 
 extension SearchViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    let query = searchController.searchBar.text ?? ""
-    listener?.searchEvents(for: query)
+    listener?.search(searchController.searchBar.text ?? "")
   }
 }
 

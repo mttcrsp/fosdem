@@ -22,7 +22,7 @@ final class SearchInteractor: PresentableInteractor<SearchPresentable> {
 }
 
 extension SearchInteractor: SearchPresentableListener {
-  func searchEvents(for query: String) {
+  func search(_ query: String) {
     guard query.count >= 3 else {
       presenter.configuration = .noQuery
       presenter.events = []
@@ -44,16 +44,16 @@ extension SearchInteractor: SearchPresentableListener {
     }
   }
 
-  func selectEvent(_ event: Event) {
+  func select(_ event: Event) {
     listener?.didSelectResult(event)
   }
 
-  func canFavoriteEvent(_ event: Event) -> Bool {
+  func canFavorite(_ event: Event) -> Bool {
     !dependency.favoritesService.contains(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    if canFavoriteEvent(event) {
+    if canFavorite(event) {
       dependency.favoritesService.addEvent(withIdentifier: event.id)
     } else {
       dependency.favoritesService.removeEvent(withIdentifier: event.id)

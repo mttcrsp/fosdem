@@ -6,7 +6,7 @@ protocol AgendaPresentableListener: AnyObject {
   func select(_ event: Event?)
   func selectFirstEvent()
   func toggleFavorite(_ event: Event)
-  func canFavoriteEvent(_ event: Event) -> Bool
+  func canFavorite(_ event: Event) -> Bool
   func isLive(_ event: Event) -> Bool
 }
 
@@ -101,7 +101,7 @@ extension AgendaViewController: EventsViewControllerDelegate {
 
 extension AgendaViewController: EventsViewControllerFavoritesDataSource {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    listener?.canFavoriteEvent(event) ?? false
+    listener?.canFavorite(event) ?? false
   }
 }
 

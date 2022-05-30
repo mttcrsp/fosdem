@@ -142,7 +142,7 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable>, Sche
 }
 
 extension ScheduleInteractor: SchedulePresentableListener {
-  func canFavoriteEvent(_ event: Event) -> Bool {
+  func canFavorite(_ event: Event) -> Bool {
     !dependency.favoritesService.contains(event)
   }
 
@@ -151,7 +151,7 @@ extension ScheduleInteractor: SchedulePresentableListener {
   }
 
   func toggleFavorite(_ event: Event) {
-    if canFavoriteEvent(event) {
+    if canFavorite(event) {
     } else {
       dependency.favoritesService.removeEvent(withIdentifier: event.id)
     }
@@ -306,7 +306,7 @@ protocol SchedulePresentable: Presentable {
 }
 
 protocol SchedulePresentableListener: AnyObject {
-  func canFavoriteEvent(_ event: Event) -> Bool
+  func canFavorite(_ event: Event) -> Bool
   func canFavoriteTrack(_ track: Track) -> Bool
   func toggleFavorite(_ event: Event)
   func toggleFavorite(_ track: Track?)
@@ -546,7 +546,7 @@ extension ScheduleViewController: EventsViewControllerDelegate {
 
 extension ScheduleViewController: EventsViewControllerFavoritesDataSource {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    listener?.canFavoriteEvent(event) ?? false
+    listener?.canFavorite(event) ?? false
   }
 }
 
