@@ -32,9 +32,7 @@ class MapContainerViewController: ContainerViewController, ViewControllable {
       notificationCenter.removeObserver(observer)
     }
   }
-}
 
-extension MapContainerViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -57,6 +55,23 @@ extension MapContainerViewController {
     observer = notificationCenter.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
       self?.didChangeVoiceOverStatus()
     }
+  }
+}
+
+extension MapContainerViewController: MapPresentable {
+  func showAction(_ action: CLAuthorizationStatus.Action) {
+    let dismissTitle = L10n.Location.dismiss
+    let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
+
+    let confirmTitle = L10n.Location.confirm
+    let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
+      self?.listener?.openLocationSettings()
+    }
+
+    let actionViewController = UIAlertController(title: action.title, message: action.message, preferredStyle: .alert)
+    actionViewController.addAction(dismissAction)
+    actionViewController.addAction(confirmAction)
+    mapViewController?.present(actionViewController, animated: true)
   }
 }
 
@@ -183,23 +198,6 @@ extension MapContainerViewController: BlueprintsViewControllerDelegate {
     }, completion: { [weak blueprintsNavigationController] _ in
       blueprintsNavigationController?.view.alpha = 1
     })
-  }
-}
-
-extension MapContainerViewController: MapPresentable {
-  func showAction(_ action: CLAuthorizationStatus.Action) {
-    let dismissTitle = L10n.Location.dismiss
-    let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
-
-    let confirmTitle = L10n.Location.confirm
-    let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
-      self?.listener?.openLocationSettings()
-    }
-
-    let actionViewController = UIAlertController(title: action.title, message: action.message, preferredStyle: .alert)
-    actionViewController.addAction(dismissAction)
-    actionViewController.addAction(confirmAction)
-    mapViewController?.present(actionViewController, animated: true)
   }
 }
 
