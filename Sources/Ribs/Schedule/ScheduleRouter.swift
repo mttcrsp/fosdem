@@ -2,7 +2,7 @@ import RIBs
 
 protocol ScheduleViewControllable: ViewControllable {
   func addSearch(_ viewController: ViewControllable)
-  func showDetail(_ viewControllable: ViewControllable)
+  func showTrack(_ viewControllable: ViewControllable)
   func showSearchResult(_ eventViewController: ViewControllable)
 }
 
@@ -33,16 +33,18 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
 }
 
 extension ScheduleRouter: ScheduleRouting {
-  func routeToTrack(_ track: Track) {
+  func routeToTrack(_ track: Track?) {
     if let trackRouter = trackRouter {
       detachChild(trackRouter)
       self.trackRouter = nil
     }
 
-    let trackRouter = trackBuilder.build(withListener: interactor, arguments: .init(track: track))
-    self.trackRouter = trackRouter
-    attachChild(trackRouter)
-    viewController.showDetail(trackRouter.viewControllable)
+    if let track = track {
+      let trackRouter = trackBuilder.build(withListener: interactor, arguments: .init(track: track))
+      self.trackRouter = trackRouter
+      attachChild(trackRouter)
+      viewController.showTrack(trackRouter.viewControllable)
+    }
   }
 
   func routeToSearchResult(_ event: Event) {

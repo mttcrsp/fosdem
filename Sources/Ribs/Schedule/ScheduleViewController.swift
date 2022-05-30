@@ -12,7 +12,7 @@ protocol SchedulePresentableListener: AnyObject {
 
   func selectFilters()
   func select(_ filter: TracksFilter)
-  func select(_ track: Track)
+  func select(_ track: Track?)
   func selectTracksSection(_ section: String)
   func deselectSearchResult()
 
@@ -30,6 +30,7 @@ final class ScheduleViewController: UISplitViewController {
   var tracksSectionIndexTitles: [String] = []
 
   private weak var resultViewController: UIViewController?
+  private weak var trackViewController: UIViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var welcomeViewController: WelcomeViewController?
   private weak var filtersButton: UIBarButtonItem?
@@ -91,6 +92,12 @@ extension ScheduleViewController: ScheduleViewControllable {
     self.resultViewController = resultViewController
     showDetailViewController(resultViewController)
   }
+
+  func showTrack(_ trackViewControllable: ViewControllable) {
+    let trackViewController = trackViewControllable.uiviewController
+    self.trackViewController = trackViewController
+    showDetailViewController(trackViewController)
+  }
 }
 
 extension ScheduleViewController: SchedulePresentable {
@@ -131,10 +138,6 @@ extension ScheduleViewController: SchedulePresentable {
   func showWelcome() {
     let welcomeViewController = makeWelcomeViewController()
     showDetailViewController(welcomeViewController)
-  }
-
-  func showDetail(_ viewControllable: ViewControllable) {
-    showDetailViewController(viewControllable.uiviewController)
   }
 
   func showFilters(_ filters: [TracksFilter], selectedFilter: TracksFilter) {
@@ -227,6 +230,10 @@ private extension ScheduleViewController {
   func showDetailViewController(_ detailViewController: UIViewController) {
     if detailViewController != resultViewController {
       listener?.deselectSearchResult()
+    }
+
+    if detailViewController != trackViewController {
+      listener?.select(nil)
     }
 
     if let title = detailViewController.title, prefersLargeTitleForDetailViewController(withTitle: title) {

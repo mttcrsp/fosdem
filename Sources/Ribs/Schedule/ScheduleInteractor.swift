@@ -2,7 +2,7 @@ import Foundation
 import RIBs
 
 protocol ScheduleRouting: ViewableRouting {
-  func routeToTrack(_ track: Track)
+  func routeToTrack(_ track: Track?)
   func routeToSearchResult(_ event: Event)
   func routeBackFromSearchResult()
 }
@@ -69,7 +69,7 @@ extension ScheduleInteractor: SchedulePresentableListener {
     presenter.reloadData()
   }
 
-  func select(_ track: Track) {
+  func select(_ track: Track?) {
     router?.routeToTrack(track)
   }
 
