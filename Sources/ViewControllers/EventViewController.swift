@@ -1,14 +1,14 @@
 import UIKit
 
 /// @mockable
-protocol EventViewControllerListener: AnyObject {
+protocol EventViewControllerDelegate: AnyObject {
   func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
 }
 
 class EventViewController: UITableViewController {
-  weak var eventListener: EventViewControllerListener?
+  weak var delegate: EventViewControllerDelegate?
 
   var playbackPosition: PlaybackPosition {
     get { eventCell.playbackPosition }
@@ -71,15 +71,15 @@ extension EventViewController {
 
 extension EventViewController: EventViewDelegate {
   func eventViewDidTapLivestream(_: EventView) {
-    eventListener?.eventViewControllerDidTapLivestream(self)
+    delegate?.eventViewControllerDidTapLivestream(self)
   }
 
   func eventViewDidTapVideo(_: EventView) {
-    eventListener?.eventViewControllerDidTapVideo(self)
+    delegate?.eventViewControllerDidTapVideo(self)
   }
 
   func eventView(_: EventView, didSelect attachment: Attachment) {
-    eventListener?.eventViewController(self, didSelect: attachment)
+    delegate?.eventViewController(self, didSelect: attachment)
   }
 }
 

@@ -20,7 +20,7 @@ final class AgendaViewController: UIViewController {
   private weak var rootViewController: UIViewController? {
     didSet { didChangeRootViewController(from: oldValue, to: rootViewController) }
   }
-  
+
   private weak var detailViewController: UIViewController?
   private weak var eventsViewController: EventsViewController?
 }

@@ -22,12 +22,27 @@ final class EventContainerViewController: EventViewController, ViewControllable 
 extension EventContainerViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
+    delegate = self
     navigationItem.largeTitleDisplayMode = .never
-    eventListener = self
   }
 }
 
-extension EventContainerViewController: EventViewControllerListener {
+extension EventContainerViewController: EventPresentable {
+  var allowsFavoriting: Bool {
+    get { navigationItem.rightBarButtonItem == favoriteButton }
+    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil; print(newValue) }
+  }
+
+  var showsFavorite: Bool {
+    get { favoriteButton.accessibilityIdentifier == "unfavorite" }
+    set {
+      favoriteButton.title = newValue ? L10n.Event.remove : L10n.Event.add
+      favoriteButton.accessibilityIdentifier = newValue ? "unfavorite" : "favorite"
+    }
+  }
+}
+
+extension EventContainerViewController: EventViewControllerDelegate {
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
     let attachmentViewController = SFSafariViewController(url: attachment.url)
     eventViewController.present(attachmentViewController, animated: true)
@@ -62,21 +77,6 @@ extension EventContainerViewController: AVPlayerViewControllerDelegate {
 
   func playerViewController(_: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
     listener?.endFullScreenPlayerPresentation()
-  }
-}
-
-extension EventContainerViewController: EventPresentable {
-  var allowsFavoriting: Bool {
-    get { navigationItem.rightBarButtonItem == favoriteButton }
-    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil; print(newValue) }
-  }
-
-  var showsFavorite: Bool {
-    get { favoriteButton.accessibilityIdentifier == "unfavorite" }
-    set {
-      favoriteButton.title = newValue ? L10n.Event.remove : L10n.Event.add
-      favoriteButton.accessibilityIdentifier = newValue ? "unfavorite" : "favorite"
-    }
   }
 }
 
