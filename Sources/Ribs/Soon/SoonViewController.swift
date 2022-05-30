@@ -8,7 +8,7 @@ protocol SoonPresentableListener: AnyObject {
   func dismiss()
 }
 
-final class SoonViewController: UINavigationController {
+final class SoonViewController: UINavigationController, SoonPresentable {
   weak var listener: SoonPresentableListener?
 
   var events: [Event] = [] {
@@ -45,8 +45,6 @@ final class SoonViewController: UINavigationController {
     fatalError("init(coder:) has not been implemented")
   }
 }
-
-extension SoonViewController: SoonPresentable {}
 
 extension SoonViewController: SoonViewControllable {
   func push(_ viewControllable: ViewControllable) {
