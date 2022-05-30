@@ -47,7 +47,7 @@ extension SoonInteractor: SoonPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    !dependency.favoritesService.contains(event)
+    dependency.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {

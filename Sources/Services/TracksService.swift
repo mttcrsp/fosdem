@@ -53,7 +53,7 @@ final class TracksService {
       filteredTracks[.all, default: []].append(track)
       filteredTracks[filter, default: []].append(track)
 
-      if favoritesService.contains(track) {
+      if !favoritesService.canFavorite(track) {
         filteredFavoriteTracks[.all, default: []].append(track)
         filteredFavoriteTracks[filter, default: []].append(track)
       }
@@ -92,7 +92,7 @@ final class TracksService {
       }
 
       self.filteredFavoriteTracks = [:]
-      for track in self.tracks where self.favoritesService.contains(track) {
+      for track in self.tracks where !self.favoritesService.canFavorite(track) {
         let filter = TracksFilter.day(track.day)
         self.filteredFavoriteTracks[.all, default: []].append(track)
         self.filteredFavoriteTracks[filter, default: []].append(track)

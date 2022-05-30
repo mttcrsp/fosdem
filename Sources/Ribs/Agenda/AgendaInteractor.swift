@@ -95,15 +95,11 @@ extension AgendaInteractor: AgendaPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    !dependency.favoritesService.contains(event)
+    dependency.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    if canFavorite(event) {
-      dependency.favoritesService.addEvent(withIdentifier: event.id)
-    } else {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
-    }
+    dependency.favoritesService.toggleFavorite(event)
 
     if event == selectedEvent {
       selectFirstEvent()

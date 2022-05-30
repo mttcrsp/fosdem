@@ -47,17 +47,11 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
 
 extension ScheduleInteractor: SchedulePresentableListener {
   func canFavorite(_ track: Track) -> Bool {
-    !dependency.favoritesService.contains(track)
+    dependency.favoritesService.canFavorite(track)
   }
 
-  func toggleFavorite(_ track: Track?) {
-    guard let track = track ?? selectedTrack else { return }
-
-    if canFavorite(track) {
-      dependency.favoritesService.addTrack(withIdentifier: track.name)
-    } else {
-      dependency.favoritesService.removeTrack(withIdentifier: track.name)
-    }
+  func toggleFavorite(_ track: Track) {
+    dependency.favoritesService.toggleFavorite(track)
   }
 
   func selectFilters() {

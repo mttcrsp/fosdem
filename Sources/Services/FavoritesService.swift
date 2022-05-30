@@ -55,10 +55,6 @@ final class FavoritesService {
     }
   }
 
-  func contains(_ track: Track) -> Bool {
-    tracksIdentifiers.contains(track.name)
-  }
-
   func addEvent(withIdentifier identifier: Int) {
     let (inserted, _) = eventsIdentifiers.insert(identifier)
     if inserted {
@@ -74,10 +70,6 @@ final class FavoritesService {
       let notification = Notification(name: .favoriteEventsDidChange, userInfo: userInfo)
       notificationCenter.post(notification)
     }
-  }
-
-  func contains(_ event: Event) -> Bool {
-    eventsIdentifiers.contains(event.id)
   }
 
   func removeAllTracksAndEvents() {
@@ -119,6 +111,32 @@ private extension FavoritesServiceDefaults {
   }
 }
 
+extension FavoritesService {
+  func canFavorite(_ event: Event) -> Bool {
+    !eventsIdentifiers.contains(event.id)
+  }
+
+  func toggleFavorite(_ event: Event) {
+    if canFavorite(event) {
+      addEvent(withIdentifier: event.id)
+    } else {
+      removeEvent(withIdentifier: event.id)
+    }
+  }
+
+  func canFavorite(_ track: Track) -> Bool {
+    !tracksIdentifiers.contains(track.name)
+  }
+
+  func toggleFavorite(_ track: Track) {
+    if canFavorite(track) {
+      addTrack(withIdentifier: track.name)
+    } else {
+      removeTrack(withIdentifier: track.name)
+    }
+  }
+}
+
 private extension String {
   static var favoriteTracksKey: String { #function }
   static var favoriteEventsKey: String { #function }
@@ -140,13 +158,16 @@ protocol FavoritesServiceProtocol {
 
   func addTrack(withIdentifier identifier: String)
   func removeTrack(withIdentifier identifier: String)
-  func contains(_ track: Track) -> Bool
 
   func addEvent(withIdentifier identifier: Int)
   func removeEvent(withIdentifier identifier: Int)
-  func contains(_ event: Event) -> Bool
 
   func removeAllTracksAndEvents()
+
+  func canFavorite(_ event: Event) -> Bool
+  func canFavorite(_ track: Track) -> Bool
+  func toggleFavorite(_ event: Event)
+  func toggleFavorite(_ track: Track)
 }
 
 extension FavoritesService: FavoritesServiceProtocol {}

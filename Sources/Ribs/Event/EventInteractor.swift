@@ -31,9 +31,10 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
     presenter.allowsFavoriting = arguments.allowsFavoriting
     presenter.playbackPosition = dependency.playbackService.playbackPosition(forEventWithIdentifier: event.id)
 
+    presenter.showsFavorite = !dependency.favoritesService.canFavorite(event)
     favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] _ in
       if let self = self {
-        self.presenter.showsFavorite = self.dependency.favoritesService.contains(self.event)
+        self.presenter.showsFavorite = !self.dependency.favoritesService.canFavorite(self.event)
       }
     }
   }
@@ -63,11 +64,7 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
 
 extension EventInteractor: EventPresentableListener {
   func toggleFavorite() {
-    if dependency.favoritesService.contains(event) {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
-    } else {
-      dependency.favoritesService.addEvent(withIdentifier: event.id)
-    }
+    dependency.favoritesService.toggleFavorite(event)
   }
 
   func beginFullScreenPlayerPresentation() {

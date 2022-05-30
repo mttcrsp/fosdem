@@ -17,7 +17,7 @@ protocol SchedulePresentableListener: AnyObject {
   func deselectSearchResult()
 
   func canFavorite(_ track: Track) -> Bool
-  func toggleFavorite(_ track: Track?)
+  func toggleFavorite(_ track: Track)
 }
 
 final class ScheduleViewController: UISplitViewController {
@@ -161,23 +161,27 @@ extension ScheduleViewController: SchedulePresentable {
 
 extension ScheduleViewController: TracksViewControllerDataSource {
   func numberOfSections(in _: TracksViewController) -> Int {
-    listener?.tracksSections.count ?? 0
+    sections.count
   }
 
   func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
-    listener?.tracksSections[section].tracks.count ?? 0
+    sections[section].tracks.count
   }
 
   func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    listener!.tracksSections[indexPath.section].tracks[indexPath.row] // FIXME: sections handling
+    sections[indexPath.section].tracks[indexPath.row]
   }
 
   func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
-    listener?.tracksSections[section].title
+    sections[section].title
   }
 
   func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    listener?.tracksSections[section].accessibilityIdentifier
+    sections[section].accessibilityIdentifier
+  }
+
+  private var sections: [TracksSection] {
+    listener?.tracksSections ?? []
   }
 }
 

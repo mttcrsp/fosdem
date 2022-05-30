@@ -36,10 +36,10 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
     let track = arguments.track
 
     presenter.track = track
-    presenter.showsFavorite = dependency.favoritesService.contains(track)
+    presenter.showsFavorite = !dependency.favoritesService.canFavorite(track)
     observer = dependency.favoritesService.addObserverForTracks { [weak self] _ in
       if let self = self {
-        self.presenter.showsFavorite = self.dependency.favoritesService.contains(track)
+        self.presenter.showsFavorite = !self.dependency.favoritesService.canFavorite(track)
       }
     }
 
@@ -77,26 +77,18 @@ extension TrackInteractor: TrackPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    !dependency.favoritesService.contains(event)
+    dependency.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    if canFavorite(event) {
-    } else {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
-    }
+    dependency.favoritesService.toggleFavorite(event)
   }
 
   func canFavorite() -> Bool {
-    !dependency.favoritesService.contains(arguments.track)
+    dependency.favoritesService.canFavorite(arguments.track)
   }
 
   func toggleFavorite() {
-    let track = arguments.track
-    if canFavorite() {
-      dependency.favoritesService.addTrack(withIdentifier: track.name)
-    } else {
-      dependency.favoritesService.removeTrack(withIdentifier: track.name)
-    }
+    dependency.favoritesService.toggleFavorite(arguments.track)
   }
 }
