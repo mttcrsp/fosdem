@@ -68,12 +68,8 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
 }
 
 extension TrackInteractor: TrackPresentableListener {
-  func select(_ event: Event) {
+  func select(_ event: Event?) {
     router?.routeToEvent(event)
-  }
-
-  func deselectEvent() {
-    router?.routeToEvent(nil)
   }
 
   func canFavorite(_ event: Event) -> Bool {

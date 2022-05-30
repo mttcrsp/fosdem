@@ -2,8 +2,7 @@ import RIBs
 import UIKit
 
 protocol TrackPresentableListener: AnyObject {
-  func select(_ event: Event)
-  func deselectEvent()
+  func select(_ event: Event?)
   func canFavorite(_ event: Event) -> Bool
   func toggleFavorite()
   func toggleFavorite(_ event: Event)
@@ -97,7 +96,7 @@ extension TrackViewController: EventsViewControllerFavoritesDelegate {
 extension TrackViewController: UINavigationControllerDelegate {
   func navigationController(_ navigationController: UINavigationController, didShow viewController: UIViewController, animated _: Bool) {
     if !navigationController.viewControllers.contains(where: { viewController in viewController === eventViewController }) {
-      listener?.deselectEvent()
+      listener?.select(nil)
     }
   }
 }
