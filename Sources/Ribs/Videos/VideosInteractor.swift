@@ -39,18 +39,6 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
       dependency.playbackService.removeObserver(observer)
     }
   }
-
-  private func loadVideos() {
-    dependency.videosService.loadVideos { [weak self] result in
-      switch result {
-      case let .failure(error):
-        self?.listener?.videosDidError(error)
-      case let .success(videos):
-        self?.presenter.watchedEvents = videos.watched
-        self?.presenter.watchingEvents = videos.watching
-      }
-    }
-  }
 }
 
 extension VideosInteractor: VideosPresentableListener {
@@ -64,5 +52,19 @@ extension VideosInteractor: VideosPresentableListener {
 
   func deselectEvent() {
     router?.routeToEvent(nil)
+  }
+}
+
+private extension VideosInteractor {
+  func loadVideos() {
+    dependency.videosService.loadVideos { [weak self] result in
+      switch result {
+      case let .failure(error):
+        self?.listener?.videosDidError(error)
+      case let .success(videos):
+        self?.presenter.watchedEvents = videos.watched
+        self?.presenter.watchingEvents = videos.watching
+      }
+    }
   }
 }
