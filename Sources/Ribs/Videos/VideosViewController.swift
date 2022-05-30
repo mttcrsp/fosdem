@@ -22,7 +22,6 @@ final class VideosViewController: UINavigationController, VideosPresentable {
   private weak var pageViewController: UIPageViewController?
   private lazy var watchedViewController = makeEventsViewController()
   private lazy var watchingViewController = makeEventsViewController()
-
   private lazy var segmentedControl = UISegmentedControl()
 
   init() {
