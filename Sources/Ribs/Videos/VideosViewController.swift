@@ -35,9 +35,7 @@ final class VideosViewController: UINavigationController, VideosPresentable {
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-}
-
-extension VideosViewController {
+  
   override func viewDidLoad() {
     super.viewDidLoad()
 
