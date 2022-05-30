@@ -43,7 +43,7 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
       }
     }
 
-    let operation = EventsForTrack(track: arguments.track.name)
+    let operation = EventsForTrack(track: track.name)
     dependency.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         guard let self = self else { return }
