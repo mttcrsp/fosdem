@@ -1,135 +1,10 @@
-
 import RIBs
 import UIKit
 
-typealias VideosDependency = HasEventBuilder & HasPlaybackService & HasVideosService
-
-protocol VideosListener: AnyObject {
-  func videosDidError(_ error: Error)
-  func videosDidDismiss()
-}
-
-protocol VideosBuildable: Buildable {
-  func build(with listener: VideosListener) -> VideosRouting
-}
-
-final class VideosBuilder: Builder<VideosDependency>, VideosBuildable {
-  func build(with listener: VideosListener) -> VideosRouting {
-    let viewController = VideosViewController()
-    let interactor = VideosInteractor(presenter: viewController, dependency: dependency)
-    let router = VideosRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)
-    interactor.listener = listener
-    interactor.router = router
-    viewController.listener = interactor
-    return router
-  }
-}
-
-protocol VideosRouting: ViewableRouting {
-  func routeToEvent(_ event: Event?)
-}
-
-final class VideosRouter: ViewableRouter<VideosInteractable, VideosViewControllable> {
-  private var eventRouter: ViewableRouting?
-
-  private let eventBuilder: EventBuildable
-
-  init(interactor: VideosInteractable, viewController: VideosViewControllable, eventBuilder: EventBuildable) {
-    self.eventBuilder = eventBuilder
-    super.init(interactor: interactor, viewController: viewController)
-  }
-}
-
-extension VideosRouter: VideosRouting {
-  func routeToEvent(_ event: Event?) {
-    if let eventRouter = eventRouter {
-      detachChild(eventRouter)
-      self.eventRouter = nil
-    }
-
-    if let event = event {
-      let eventRouter = eventBuilder.build(with: .init(event: event))
-      self.eventRouter = eventRouter
-      attachChild(eventRouter)
-      viewController.showEvent(eventRouter.viewControllable)
-    }
-  }
-}
-
-protocol VideosInteractable: Interactable {
-  var router: VideosRouting? { get set }
-}
-
-final class VideosInteractor: PresentableInteractor<VideosPresentable>, VideosInteractable {
-  weak var listener: VideosListener?
-  weak var router: VideosRouting?
-
-  private var observer: NSObjectProtocol?
-
-  private let dependency: VideosDependency
-
-  init(presenter: VideosPresentable, dependency: VideosDependency) {
-    self.dependency = dependency
-    super.init(presenter: presenter)
-  }
-
-  override func didBecomeActive() {
-    super.didBecomeActive()
-
-    loadVideos()
-    observer = dependency.playbackService.addObserver { [weak self] in
-      self?.loadVideos()
-    }
-  }
-
-  override func willResignActive() {
-    super.willResignActive()
-
-    if let observer = observer {
-      dependency.playbackService.removeObserver(observer)
-    }
-  }
-
-  private func loadVideos() {
-    dependency.videosService.loadVideos { [weak self] result in
-      switch result {
-      case let .failure(error):
-        self?.listener?.videosDidError(error)
-      case let .success(videos):
-        self?.presenter.watchedEvents = videos.watched
-        self?.presenter.watchingEvents = videos.watching
-      }
-    }
-  }
-}
-
-extension VideosInteractor: VideosPresentableListener {
-  func didDelete(_ event: Event) {
-    dependency.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
-  }
-
-  func didSelect(_ event: Event) {
-    router?.routeToEvent(event)
-  }
-
-  func didDeselectEvent() {
-    router?.routeToEvent(nil)
-  }
-}
-
-protocol VideosViewControllable: ViewControllable {
-  func showEvent(_ eventViewControllable: ViewControllable)
-}
-
-protocol VideosPresentable: Presentable {
-  var watchedEvents: [Event] { get set }
-  var watchingEvents: [Event] { get set }
-}
-
 protocol VideosPresentableListener: AnyObject {
-  func didDelete(_ event: Event)
-  func didSelect(_ event: Event)
-  func didDeselectEvent()
+  func delete(_ event: Event)
+  func select(_ event: Event)
+  func deselectEvent()
 }
 
 final class VideosViewController: UINavigationController {
@@ -224,13 +99,13 @@ extension VideosViewController: EventsViewControllerDataSource {
 
 extension VideosViewController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    listener?.didSelect(event)
+    listener?.select(event)
   }
 }
 
 extension VideosViewController: EventsViewControllerDeleteDelegate {
   func eventsViewController(_: EventsViewController, didDelete event: Event) {
-    listener?.didDelete(event)
+    listener?.delete(event)
   }
 }
 
@@ -280,17 +155,12 @@ extension VideosViewController: UIPageViewControllerDelegate {
 extension VideosViewController: UINavigationControllerDelegate {
   func navigationController(_: UINavigationController, didShow viewController: UIViewController, animated _: Bool) {
     if !viewControllers.contains(where: { viewController in viewController == eventViewController }) {
-      listener?.didDeselectEvent()
+      listener?.deselectEvent()
     }
   }
 }
 
 private extension VideosViewController {
-  func setViewController(_ childViewController: UIViewController, direction: UIPageViewController.NavigationDirection, animated: Bool) {
-    pageViewController?.setViewControllers([childViewController], direction: direction, animated: animated)
-    pageViewController?.navigationItem.setRightBarButton(childViewController.editButtonItem, animated: animated)
-  }
-
   @objc func didChangeSegment(_ control: UISegmentedControl) {
     switch control.selectedSegmentIndex {
     case 0:
@@ -301,9 +171,12 @@ private extension VideosViewController {
       break
     }
   }
-}
 
-private extension VideosViewController {
+  func setViewController(_ childViewController: UIViewController, direction: UIPageViewController.NavigationDirection, animated: Bool) {
+    pageViewController?.setViewControllers([childViewController], direction: direction, animated: animated)
+    pageViewController?.navigationItem.setRightBarButton(childViewController.editButtonItem, animated: animated)
+  }
+
   func makeEventsViewController() -> EventsViewController {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.navigationItem.largeTitleDisplayMode = .never
