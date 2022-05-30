@@ -182,7 +182,7 @@ private extension MoreContainerViewController {
     if detailViewController != videosViewController {
       listener?.deselectVideos()
     }
-    
+
     if detailViewController != yearsViewController {
       listener?.deselectYears()
     }

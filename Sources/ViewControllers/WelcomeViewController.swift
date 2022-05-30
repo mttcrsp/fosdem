@@ -8,6 +8,10 @@ protocol WelcomeViewControllerDelegate: AnyObject {
 final class WelcomeViewController: UIViewController {
   weak var delegate: WelcomeViewControllerDelegate?
 
+  var year: Year? {
+    didSet { yearChanged() }
+  }
+
   var showsContinue = false {
     didSet { showsContinueChanged() }
   }
@@ -41,18 +45,6 @@ final class WelcomeViewController: UIViewController {
     continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)
     return continueButton
   }()
-
-  private let year: Int
-
-  init(year: Int) {
-    self.year = year
-    super.init(nibName: nil, bundle: nil)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -118,7 +110,13 @@ final class WelcomeViewController: UIViewController {
     }
   }
 
-  private func makeAttributedText() -> NSAttributedString {
+  private func yearChanged() {
+    messageLabel.attributedText = makeAttributedText()
+  }
+
+  private func makeAttributedText() -> NSAttributedString? {
+    guard let year = year else { return nil }
+
     let titleFont: UIFont = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
     let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.fos_label]
     let titleString = L10n.Welcome.title(year)
