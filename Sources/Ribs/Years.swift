@@ -45,7 +45,7 @@ extension YearsRouter: YearsRouting {
       self.yearRouter = nil
     }
 
-    let yearRouter = yearBuilder.build(with: year, listener: interactor)
+    let yearRouter = yearBuilder.build(with: .init(year: year), listener: interactor)
     self.yearRouter = yearRouter
     attachChild(yearRouter)
     viewController.showYear(yearRouter.viewControllable)

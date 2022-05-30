@@ -2,15 +2,24 @@ import RIBs
 import UIKit
 
 protocol YearPresentableListener: AnyObject {
-  var year: Year { get }
-  var events: [Event] { get }
-  var tracks: [Track] { get }
   func select(_ event: Event)
   func select(_ track: Track)
 }
 
-final class YearContainerViewController: TracksViewController {
+final class YearViewController: TracksViewController {
   weak var listener: YearPresentableListener?
+
+  var year: Year? {
+    didSet { title = year?.description }
+  }
+
+  var events: [Event] = [] {
+    didSet { eventsViewController?.reloadData() }
+  }
+
+  var tracks: [Track] = [] {
+    didSet { reloadData() }
+  }
 
   private weak var eventsViewController: EventsViewController?
   private var searchController: UISearchController?
@@ -21,13 +30,12 @@ final class YearContainerViewController: TracksViewController {
     delegate = self
     dataSource = self
     definesPresentationContext = true
-    view.backgroundColor = .groupTableViewBackground
     navigationItem.largeTitleDisplayMode = .never
-    title = listener?.year.description
+    view.backgroundColor = .groupTableViewBackground
   }
 }
 
-extension YearContainerViewController: YearViewControllable {
+extension YearViewController: YearViewControllable {
   func addSearch(_ searchViewControllable: ViewControllable) {
     if let searchController = searchViewControllable.uiviewController as? UISearchController {
       addSearchViewController(searchController)
@@ -45,7 +53,7 @@ extension YearContainerViewController: YearViewControllable {
   }
 }
 
-extension YearContainerViewController: YearPresentable {
+extension YearViewController: YearPresentable {
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
@@ -60,15 +68,7 @@ extension YearContainerViewController: YearPresentable {
   }
 }
 
-extension YearContainerViewController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-  private var events: [Event] {
-    listener?.events ?? []
-  }
-
-  private var tracks: [Track] {
-    listener?.tracks ?? []
-  }
-
+extension YearViewController: TracksViewControllerDataSource {
   func numberOfSections(in _: TracksViewController) -> Int {
     1
   }
@@ -80,21 +80,25 @@ extension YearContainerViewController: TracksViewControllerDataSource, TracksVie
   func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
     tracks[indexPath.row]
   }
+}
 
+extension YearViewController: TracksViewControllerDelegate {
   func tracksViewController(_: TracksViewController, didSelect track: Track) {
     listener?.select(track)
   }
 }
 
-extension YearContainerViewController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension YearViewController: EventsViewControllerDataSource {
   func events(in _: EventsViewController) -> [Event] {
-    listener?.events ?? []
+    events
   }
 
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
+}
 
+extension YearViewController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
     listener?.select(event)
   }
