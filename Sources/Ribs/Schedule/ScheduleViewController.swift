@@ -29,7 +29,6 @@ final class ScheduleViewController: UISplitViewController {
 
   var tracksSectionIndexTitles: [String] = []
 
-  private weak var eventsViewController: EventsViewController?
   private weak var resultViewController: UIViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var welcomeViewController: WelcomeViewController?
