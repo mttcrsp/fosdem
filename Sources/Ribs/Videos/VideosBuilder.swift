@@ -8,11 +8,11 @@ protocol VideosListener: AnyObject {
 }
 
 protocol VideosBuildable: Buildable {
-  func build(with listener: VideosListener) -> VideosRouting
+  func build(withListener listener: VideosListener) -> VideosRouting
 }
 
 final class VideosBuilder: Builder<VideosDependency>, VideosBuildable {
-  func build(with listener: VideosListener) -> VideosRouting {
+  func build(withListener listener: VideosListener) -> VideosRouting {
     let viewController = VideosViewController()
     let interactor = VideosInteractor(presenter: viewController, dependency: dependency)
     let router = VideosRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)

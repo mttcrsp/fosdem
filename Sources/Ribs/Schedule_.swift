@@ -56,7 +56,7 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
   override func didLoad() {
     super.didLoad()
 
-    let searchRouter = searchBuilder.build(with: interactor)
+    let searchRouter = searchBuilder.build(withListener: interactor)
     attachChild(searchRouter)
     viewController.showSearch(searchRouter.viewControllable)
   }

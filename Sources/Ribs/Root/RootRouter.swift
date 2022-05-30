@@ -46,7 +46,7 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = agendaBuilder.build(with: interactor)
+    let agendaRouter = agendaBuilder.build(withListener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
@@ -56,7 +56,7 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)
 
-    let mapRouter = mapBuilder.build(with: interactor)
+    let mapRouter = mapBuilder.build(withListener: interactor)
     self.mapRouter = mapRouter
     attachChild(mapRouter)
     viewController.addMap(mapRouter.viewControllable)

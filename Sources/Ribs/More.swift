@@ -47,7 +47,7 @@ final class MoreRouter: ViewableRouter<MoreInteractable, MoreViewControllable> {
 
 extension MoreRouter: MoreRouting {
   func routeToVideos() {
-    let videosRouter = videosBuilder.build(with: interactor)
+    let videosRouter = videosBuilder.build(withListener: interactor)
     self.videosRouter = videosRouter
     attachChild(videosRouter)
     viewController.showVideos(videosRouter.viewControllable)
@@ -61,7 +61,7 @@ extension MoreRouter: MoreRouting {
   }
 
   func routeToYears() {
-    let yearsRouter = yearsBuilder.build(with: interactor)
+    let yearsRouter = yearsBuilder.build(withListener: interactor)
     self.yearsRouter = yearsRouter
     attachChild(yearsRouter)
     viewController.showYears(yearsRouter.viewControllable)

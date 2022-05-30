@@ -13,11 +13,11 @@ typealias AgendaDependency =
   HasSoonBuilder
 
 protocol AgendaBuildable {
-  func build(with listener: AgendaListener) -> ViewableRouting
+  func build(withListener listener: AgendaListener) -> ViewableRouting
 }
 
 final class AgendaBuilder: Builder<AgendaDependency>, AgendaBuildable {
-  func build(with listener: AgendaListener) -> ViewableRouting {
+  func build(withListener listener: AgendaListener) -> ViewableRouting {
     let viewController = AgendaViewController()
     let interactor = AgendaInteractor(dependency: dependency, presenter: viewController)
     let router = AgendaRouter(

@@ -8,11 +8,11 @@ protocol SearchListener: AnyObject {
 }
 
 protocol SearchBuildable: Buildable {
-  func build(with listener: SearchListener) -> ViewableRouting
+  func build(withListener listener: SearchListener) -> ViewableRouting
 }
 
 final class SearchBuilder: Builder<SearchDependency>, SearchBuildable {
-  func build(with listener: SearchListener) -> ViewableRouting {
+  func build(withListener listener: SearchListener) -> ViewableRouting {
     let viewController = SearchViewController()
     let interactor = SearchInteractor(presenter: viewController, dependency: dependency)
     let router = SearchRouter(interactor: interactor, viewController: viewController)

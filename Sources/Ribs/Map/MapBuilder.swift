@@ -6,11 +6,11 @@ typealias MapDependency = HasBuildingsService
   & HasOpenService
 
 protocol MapBuildable: Buildable {
-  func build(with listener: MapListener) -> ViewableRouting
+  func build(withListener listener: MapListener) -> ViewableRouting
 }
 
 class MapBuilder: Builder<MapDependency>, MapBuildable {
-  func build(with listener: MapListener) -> ViewableRouting {
+  func build(withListener listener: MapListener) -> ViewableRouting {
     let viewController = MapContainerViewController()
     let interactor = MapInteractor(dependency: dependency, presenter: viewController)
     let router = ViewableRouter(interactor: interactor, viewController: viewController)

@@ -8,11 +8,11 @@ protocol YearsListener: AnyObject {
 }
 
 protocol YearsBuildable: Buildable {
-  func build(with listener: YearsListener) -> YearsRouting
+  func build(withListener listener: YearsListener) -> YearsRouting
 }
 
 final class YearsBuilder: Builder<YearsDependency>, YearsBuildable {
-  func build(with listener: YearsListener) -> YearsRouting {
+  func build(withListener listener: YearsListener) -> YearsRouting {
     let viewController = _YearsViewController()
     let interactor = YearsInteractor(presenter: viewController, dependency: dependency)
     let router = YearsRouter(interactor: interactor, viewController: viewController, yearBuilder: dependency.yearBuilder)
