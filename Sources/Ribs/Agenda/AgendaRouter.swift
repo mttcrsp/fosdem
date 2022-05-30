@@ -9,7 +9,7 @@ protocol AgendaViewControllable: ViewControllable {
 protocol AgendaInteractable: Interactable, SoonListener {}
 
 final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControllable>, AgendaRouting {
-  private var agendaEventRouter: ViewableRouting?
+  private var eventRouter: ViewableRouting?
   private var soonRouter: ViewableRouting?
 
   private let eventBuilder: EventBuildable
@@ -22,16 +22,16 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
   }
 
   func routeToEvent(_ event: Event?) {
-    if let router = agendaEventRouter {
+    if let router = eventRouter {
       detachChild(router)
-      agendaEventRouter = nil
+      eventRouter = nil
     }
 
     if let event = event {
       let router = eventBuilder.build(with: .init(event: event))
       attachChild(router)
       viewController.showDetail(router.viewControllable)
-      agendaEventRouter = router
+      eventRouter = router
     }
   }
 
