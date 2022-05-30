@@ -42,34 +42,18 @@ extension YearsInteractor: YearsPresentableListener {
   func select(_ year: Year) {
     guard let index = presenter.years.firstIndex(of: year) else { return }
 
-    let onFailure: (Error) -> Void = { [weak self] error in
-      switch error {
-      case let error as URLError where error.code == .notConnectedToInternet:
-        self?.presenter.showNoInternetError(withRetryHandler: { [weak self] in
-          self?.select(year)
-        })
-      case let error as YearsService.Error where error == .yearNotAvailable:
-        self?.presenter.showYearUnavailableError()
-      default:
-        self?.presenter.showError()
-      }
-    }
-    let onSuccess: () -> Void = { [weak self] in
-      self?.router?.routeToYear(year)
-    }
-
     switch downloadState(for: year) {
     case .inProgress:
       break
     case .completed:
-      onSuccess()
+      downloadDidSucceed(for: year)
     case .available:
       let task = dependency.yearsService.downloadYear(year) { [weak self] error in
         DispatchQueue.main.async {
           if let error = error {
-            onFailure(error)
+            self?.downloadDidFail(for: year, with: error)
           } else {
-            onSuccess()
+            self?.downloadDidSucceed(for: year)
           }
 
           self?.pendingYear = nil
@@ -98,5 +82,24 @@ extension YearsInteractor: YearsPresentableListener {
 extension YearsInteractor: YearsInteractable {
   func yearDidError(_ error: Error) {
     _ = error
+  }
+}
+
+private extension YearsInteractor {
+  func downloadDidSucceed(for year: Year) {
+    router?.routeToYear(year)
+  }
+
+  func downloadDidFail(for year: Year, with error: Error) {
+    switch error {
+    case let error as YearsService.Error where error == .yearNotAvailable:
+      presenter.showYearUnavailableError()
+    case let error as URLError where error.code == .notConnectedToInternet:
+      presenter.showNoInternetError(withRetryHandler: { [weak self] in
+        self?.select(year)
+      })
+    default:
+      presenter.showError()
+    }
   }
 }
