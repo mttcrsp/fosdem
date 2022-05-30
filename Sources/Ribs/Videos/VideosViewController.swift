@@ -7,7 +7,7 @@ protocol VideosPresentableListener: AnyObject {
   func deselectEvent()
 }
 
-final class VideosViewController: UINavigationController {
+final class VideosViewController: UINavigationController, VideosPresentable {
   weak var listener: VideosPresentableListener?
 
   var watchedEvents: [Event] = [] {
@@ -69,8 +69,6 @@ extension VideosViewController {
     setViewController(watchingViewController, direction: .forward, animated: false)
   }
 }
-
-extension VideosViewController: VideosPresentable {}
 
 extension VideosViewController: VideosViewControllable {
   func showEvent(_ eventViewControllable: ViewControllable) {
