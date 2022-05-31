@@ -152,6 +152,10 @@ extension MoreInteractor: MorePresentableListener {
 }
 
 private extension URL {
+  static var fosdemGithub: URL? {
+    URL(string: "https://www.github.com/mttcrsp/fosdem")
+  }
+
   static var ulbAppleMaps: URL {
     URL(string: "https://maps.apple.com/?address=Avenue%20Franklin%20Roosevelt%2050,%201050%20Brussels,%20Belgium&auid=2450730505287536200&ll=50.812050,4.382236&lsp=9902&q=Universit%C3%A9%20Libre%20de%20Bruxelles&_ext=ChgKBAgEEFcKBAgFEAMKBAgGEBkKBAgKEAESJCkjtQWwbFxJQDFgm0ZDufUQQDkZviUmcHNJQEGgZLl8GBkSQA%3D%3D")!
   }
