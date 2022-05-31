@@ -143,6 +143,9 @@ final class EventView: UIStackView {
     accessibilityElements = subviews
 
     NSLayoutConstraint.activate(constraints)
+
+    didChangePlaybackPosition()
+    didChangeShowLivestream()
   }
 
   @available(*, unavailable)
