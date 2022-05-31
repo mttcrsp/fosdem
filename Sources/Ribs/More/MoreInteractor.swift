@@ -31,10 +31,10 @@ final class MoreInteractor: PresentableInteractor<MorePresentable> {
 
   private var acknowledgements: [Acknowledgement] = []
 
-  private let dependency: MoreDependency
+  private let services: MoreServices
 
-  init(presenter: MorePresentable, dependency: MoreDependency) {
-    self.dependency = dependency
+  init(presenter: MorePresentable, services: MoreServices) {
+    self.services = services
     super.init(presenter: presenter)
   }
 }
@@ -61,20 +61,20 @@ extension MoreInteractor: MorePresentableListener {
     case .acknowledgements:
       do {
         presenter.showAcknowledgements(
-          try dependency.acknowledgementsService.loadAcknowledgements()
+          try services.acknowledgementsService.loadAcknowledgements()
         )
       } catch {
         presenter.showError()
       }
     case .code:
       if let url = URL.fosdemGithub {
-        dependency.openService.open(url) { [weak self] _ in
+        services.openService.open(url) { [weak self] _ in
           self?.presenter.deselectSelectedItem()
         }
       }
     case .history, .legal, .devrooms:
       if let info = item.info {
-        dependency.infoService.loadAttributedText(for: info) { [weak self] result in
+        services.infoService.loadAttributedText(for: info) { [weak self] result in
           DispatchQueue.main.async {
             switch result {
             case .failure:
@@ -93,7 +93,7 @@ extension MoreInteractor: MorePresentableListener {
       router?.routeToYears()
     #if DEBUG
     case .time:
-      presenter.showDate(dependency.timeService.now)
+      presenter.showDate(services.timeService.now)
     #endif
     }
   }
@@ -101,16 +101,16 @@ extension MoreInteractor: MorePresentableListener {
   func select(_ item: TransportationItem) {
     switch item {
     case .appleMaps:
-      dependency.openService.open(.ulbAppleMaps) { [weak self] _ in
+      services.openService.open(.ulbAppleMaps) { [weak self] _ in
         self?.presenter.deselectSelectedTransportationItem()
       }
     case .googleMaps:
-      dependency.openService.open(.ulbGoogleMaps) { [weak self] _ in
+      services.openService.open(.ulbGoogleMaps) { [weak self] _ in
         self?.presenter.deselectSelectedTransportationItem()
       }
     case .bus, .car, .taxi, .plane, .train, .shuttle:
       if let info = item.info {
-        dependency.infoService.loadAttributedText(for: info) { [weak self] result in
+        services.infoService.loadAttributedText(for: info) { [weak self] result in
           DispatchQueue.main.async {
             switch result {
             case .failure:
@@ -132,7 +132,7 @@ extension MoreInteractor: MorePresentableListener {
 
   #if DEBUG
   func select(_ date: Date) {
-    dependency.timeService.now = date
+    services.timeService.now = date
   }
   #endif
 
@@ -145,7 +145,7 @@ extension MoreInteractor: MorePresentableListener {
   }
 
   private func open(_ url: URL, completion: @escaping () -> Void) {
-    dependency.openService.open(url) { _ in
+    services.openService.open(url) { _ in
       completion()
     }
   }

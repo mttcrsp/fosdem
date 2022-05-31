@@ -1,12 +1,8 @@
 import RIBs
 
-typealias MoreDependency = HasAcknowledgementsService
-  & HasInfoService
-  & HasOpenService
-  & HasTimeService
-  & HasYearsBuilder
-  & HasYearsService
-  & HasVideosBuilder
+typealias MoreBuilders = HasYearsBuilder & HasVideosBuilder
+typealias MoreServices = HasAcknowledgementsService & HasInfoService & HasOpenService & HasTimeService & HasYearsService
+typealias MoreDependency = MoreBuilders & MoreServices
 
 protocol MoreBuildable: Buildable {
   func build() -> MoreRouting
@@ -15,8 +11,8 @@ protocol MoreBuildable: Buildable {
 final class MoreBuilder: Builder<MoreDependency>, MoreBuildable {
   func build() -> MoreRouting {
     let viewController = MoreRootViewController()
-    let interactor = MoreInteractor(presenter: viewController, dependency: dependency)
-    let router = MoreRouter(interactor: interactor, viewController: viewController, videosBuilder: dependency.videosBuilder, yearsBuilder: dependency.yearsBuilder)
+    let interactor = MoreInteractor(presenter: viewController, services: dependency)
+    let router = MoreRouter(builders: dependency, interactor: interactor, viewController: viewController)
     viewController.listener = interactor
     interactor.router = router
     return router
