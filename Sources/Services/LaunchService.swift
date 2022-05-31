@@ -91,7 +91,3 @@ protocol LaunchServiceDefaults: AnyObject {
 }
 
 extension UserDefaults: LaunchServiceDefaults {}
-
-protocol HasLaunchService {
-  var launchService: LaunchServiceProtocol { get }
-}

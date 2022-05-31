@@ -2,8 +2,6 @@ import AVFoundation
 import Foundation
 
 class Services {
-  let launchService: LaunchServiceProtocol
-
   let bundleService = BundleService()
   let openService: OpenServiceProtocol = OpenService()
   let locationService: LocationServiceProtocol = LocationService()
@@ -36,7 +34,7 @@ class Services {
   private let _persistenceService: PersistenceService
 
   init() throws {
-    launchService = LaunchService(fosdemYear: YearsService.current)
+    let launchService = LaunchService(fosdemYear: YearsService.current)
     try launchService.detectStatus()
 
     if launchService.didLaunchAfterFosdemYearChange {
@@ -68,7 +66,7 @@ class Services {
   }
 }
 
-extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasLocationService, HasBuildingsService, HasFavoritesService, HasAcknowledgementsService {}
+extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasLocationService, HasBuildingsService, HasFavoritesService, HasAcknowledgementsService {}
 
 extension Services: HasPersistenceService {
   var persistenceService: PersistenceServiceProtocol {
