@@ -1,6 +1,8 @@
 import RIBs
 
-typealias YearsDependency = HasYearBuilder & HasYearsService
+typealias YearsBuilders = HasYearBuilder
+typealias YearsServices = HasYearsService
+typealias YearsDependency = YearsBuilders & YearsServices
 
 protocol YearsBuildable: Buildable {
   func build(withListener listener: YearsListener) -> YearsRouting
@@ -9,8 +11,8 @@ protocol YearsBuildable: Buildable {
 final class YearsBuilder: Builder<YearsDependency>, YearsBuildable {
   func build(withListener listener: YearsListener) -> YearsRouting {
     let viewController = YearsRootViewController()
-    let interactor = YearsInteractor(presenter: viewController, dependency: dependency)
-    let router = YearsRouter(interactor: interactor, viewController: viewController, yearBuilder: dependency.yearBuilder)
+    let interactor = YearsInteractor(presenter: viewController, services: dependency)
+    let router = YearsRouter(builders: dependency, interactor: interactor, viewController: viewController)
     interactor.router = router
     interactor.listener = listener
     viewController.listener = interactor

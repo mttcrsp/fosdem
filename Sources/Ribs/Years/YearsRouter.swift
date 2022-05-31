@@ -9,10 +9,10 @@ protocol YearsInteractable: Interactable, YearListener {}
 final class YearsRouter: ViewableRouter<YearsInteractable, YearsViewControllable> {
   private var yearRouter: ViewableRouting?
 
-  private let yearBuilder: YearBuildable
+  private let builders: YearsBuilders
 
-  init(interactor: YearsInteractable, viewController: YearsViewControllable, yearBuilder: YearBuildable) {
-    self.yearBuilder = yearBuilder
+  init(builders: YearsBuilders, interactor: YearsInteractable, viewController: YearsViewControllable) {
+    self.builders = builders
     super.init(interactor: interactor, viewController: viewController)
   }
 }
@@ -24,7 +24,7 @@ extension YearsRouter: YearsRouting {
       self.yearRouter = nil
     }
 
-    let yearRouter = yearBuilder.build(with: .init(year: year), listener: interactor)
+    let yearRouter = builders.yearBuilder.build(with: .init(year: year), listener: interactor)
     self.yearRouter = yearRouter
     attachChild(yearRouter)
     viewController.showYear(yearRouter.viewControllable)
