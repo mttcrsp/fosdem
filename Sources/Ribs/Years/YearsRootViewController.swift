@@ -30,7 +30,6 @@ final class YearsRootViewController: YearsViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
-
     delegate = self
     dataSource = self
     title = L10n.Years.title
