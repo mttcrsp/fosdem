@@ -23,14 +23,7 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
   private let moreBuilder: MoreBuildable
   private let scheduleBuilder: ScheduleBuildable
 
-  init(
-    interactor: RootInteractable,
-    viewController: RootViewControllable,
-    agendaBuilder: AgendaBuildable,
-    mapBuilder: MapBuildable,
-    moreBuilder: MoreBuildable,
-    scheduleBuilder: ScheduleBuildable
-  ) {
+  init(interactor: RootInteractable, viewController: RootViewControllable, agendaBuilder: AgendaBuildable, mapBuilder: MapBuildable, moreBuilder: MoreBuildable, scheduleBuilder: ScheduleBuildable) {
     self.agendaBuilder = agendaBuilder
     self.mapBuilder = mapBuilder
     self.moreBuilder = moreBuilder
