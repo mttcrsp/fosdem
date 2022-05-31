@@ -22,11 +22,11 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
   private var observer: NSObjectProtocol?
 
   private let arguments: TrackArguments
-  private let dependency: TrackDependency
+  private let services: TrackServices
 
-  init(arguments: TrackArguments, dependency: TrackDependency, presenter: TrackPresentable) {
+  init(arguments: TrackArguments, presenter: TrackPresentable, services: TrackServices) {
     self.arguments = arguments
-    self.dependency = dependency
+    self.services = services
     super.init(presenter: presenter)
   }
 
@@ -36,15 +36,15 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
     let track = arguments.track
 
     presenter.track = track
-    presenter.showsFavorite = !dependency.favoritesService.canFavorite(track)
-    observer = dependency.favoritesService.addObserverForTracks { [weak self] _ in
+    presenter.showsFavorite = !services.favoritesService.canFavorite(track)
+    observer = services.favoritesService.addObserverForTracks { [weak self] _ in
       if let self = self {
-        self.presenter.showsFavorite = !self.dependency.favoritesService.canFavorite(track)
+        self.presenter.showsFavorite = !self.services.favoritesService.canFavorite(track)
       }
     }
 
     let operation = EventsForTrack(track: track.name)
-    dependency.persistenceService.performRead(operation) { [weak self] result in
+    services.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         guard let self = self else { return }
 
@@ -62,7 +62,7 @@ final class TrackInteractor: PresentableInteractor<TrackPresentable> {
     super.willResignActive()
 
     if let observer = observer {
-      dependency.favoritesService.removeObserver(observer)
+      services.favoritesService.removeObserver(observer)
     }
   }
 }
@@ -73,18 +73,18 @@ extension TrackInteractor: TrackPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    dependency.favoritesService.canFavorite(event)
+    services.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    dependency.favoritesService.toggleFavorite(event)
+    services.favoritesService.toggleFavorite(event)
   }
 
   func canFavorite() -> Bool {
-    dependency.favoritesService.canFavorite(arguments.track)
+    services.favoritesService.canFavorite(arguments.track)
   }
 
   func toggleFavorite() {
-    dependency.favoritesService.toggleFavorite(arguments.track)
+    services.favoritesService.toggleFavorite(arguments.track)
   }
 }
