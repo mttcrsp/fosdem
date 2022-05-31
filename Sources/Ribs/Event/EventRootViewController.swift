@@ -9,7 +9,7 @@ protocol EventPresentableListener: AnyObject {
   func endFullScreenPlayerPresentation()
 }
 
-final class EventContainerViewController: EventViewController, ViewControllable {
+final class EventRootViewController: EventViewController, ViewControllable {
   weak var listener: EventPresentableListener?
 
   private lazy var favoriteButton: UIBarButtonItem = {
@@ -25,7 +25,7 @@ final class EventContainerViewController: EventViewController, ViewControllable 
   }
 }
 
-extension EventContainerViewController: EventPresentable {
+extension EventRootViewController: EventPresentable {
   var allowsFavoriting: Bool {
     get { navigationItem.rightBarButtonItem == favoriteButton }
     set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil; print(newValue) }
@@ -40,7 +40,7 @@ extension EventContainerViewController: EventPresentable {
   }
 }
 
-extension EventContainerViewController: EventViewControllerDelegate {
+extension EventRootViewController: EventViewControllerDelegate {
   func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
     let attachmentViewController = SFSafariViewController(url: attachment.url)
     eventViewController.present(attachmentViewController, animated: true)
@@ -68,7 +68,7 @@ extension EventContainerViewController: EventViewControllerDelegate {
   }
 }
 
-extension EventContainerViewController: AVPlayerViewControllerDelegate {
+extension EventRootViewController: AVPlayerViewControllerDelegate {
   func playerViewController(_: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
     listener?.beginFullScreenPlayerPresentation()
   }
@@ -78,7 +78,7 @@ extension EventContainerViewController: AVPlayerViewControllerDelegate {
   }
 }
 
-private extension EventContainerViewController {
+private extension EventRootViewController {
   @objc func didToggleFavorite() {
     listener?.toggleFavorite()
   }

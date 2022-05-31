@@ -23,7 +23,7 @@ protocol EventBuildable {
 
 final class EventBuilder: Builder<EventDependency>, EventBuildable {
   func build(with arguments: EventArguments) -> ViewableRouting {
-    let viewController = EventContainerViewController(event: arguments.event)
+    let viewController = EventRootViewController(event: arguments.event)
     let interactor = EventInteractor(arguments: arguments, dependency: dependency, presenter: viewController)
     let router = ViewableRouter(interactor: interactor, viewController: viewController)
     viewController.listener = interactor
