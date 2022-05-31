@@ -18,17 +18,17 @@ final class SoonInteractor: PresentableInteractor<SoonPresentable> {
   weak var router: SoonRouting?
   weak var listener: SoonListener?
 
-  private let dependency: SoonDependency
+  private let services: SoonServices
 
-  init(dependency: SoonDependency, presenter: SoonPresentable) {
-    self.dependency = dependency
+  init(services: SoonServices, presenter: SoonPresentable) {
+    self.services = services
     super.init(presenter: presenter)
   }
 
   override func didBecomeActive() {
     super.didBecomeActive()
 
-    dependency.soonService.loadEvents { [weak self] result in
+    services.soonService.loadEvents { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case let .failure(error):
@@ -47,15 +47,11 @@ extension SoonInteractor: SoonPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    dependency.favoritesService.canFavorite(event)
+    services.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    if canFavorite(event) {
-      dependency.favoritesService.addEvent(withIdentifier: event.id)
-    } else {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
-    }
+    services.favoritesService.toggleFavorite(event)
   }
 
   func dismiss() {
