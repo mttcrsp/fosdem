@@ -18,38 +18,32 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
   private var moreRouter: ViewableRouting?
   private var scheduleRouter: ViewableRouting?
 
-  private let agendaBuilder: AgendaBuildable
-  private let mapBuilder: MapBuildable
-  private let moreBuilder: MoreBuildable
-  private let scheduleBuilder: ScheduleBuildable
+  private let builders: RootBuilders
 
-  init(interactor: RootInteractable, viewController: RootViewControllable, agendaBuilder: AgendaBuildable, mapBuilder: MapBuildable, moreBuilder: MoreBuildable, scheduleBuilder: ScheduleBuildable) {
-    self.agendaBuilder = agendaBuilder
-    self.mapBuilder = mapBuilder
-    self.moreBuilder = moreBuilder
-    self.scheduleBuilder = scheduleBuilder
+  init(builders: RootBuilders, interactor: RootInteractable, viewController: RootViewControllable) {
+    self.builders = builders
     super.init(interactor: interactor, viewController: viewController)
   }
 
   override func didLoad() {
     super.didLoad()
 
-    let scheduleRouter = scheduleBuilder.build()
+    let scheduleRouter = builders.scheduleBuilder.build()
     self.scheduleRouter = scheduleRouter
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = agendaBuilder.build(withListener: interactor)
+    let agendaRouter = builders.agendaBuilder.build(withListener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
 
-    let moreRouter = moreBuilder.build()
+    let moreRouter = builders.moreBuilder.build()
     self.moreRouter = moreRouter
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)
 
-    let mapRouter = mapBuilder.build(withListener: interactor)
+    let mapRouter = builders.mapBuilder.build(withListener: interactor)
     self.mapRouter = mapRouter
     attachChild(mapRouter)
     viewController.addMap(mapRouter.viewControllable)
