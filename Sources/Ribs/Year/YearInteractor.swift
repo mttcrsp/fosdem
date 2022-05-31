@@ -26,11 +26,11 @@ final class YearInteractor: PresentableInteractor<YearPresentable> {
   private var persistenceService: PersistenceServiceProtocol?
 
   private let arguments: YearArguments
-  private let dependency: YearDependency
+  private let services: YearServices
 
-  init(presenter: YearPresentable, dependency: YearDependency, arguments: YearArguments) {
+  init(arguments: YearArguments, presenter: YearPresentable, services: YearServices) {
     self.arguments = arguments
-    self.dependency = dependency
+    self.services = services
     super.init(presenter: presenter)
   }
 
@@ -40,7 +40,7 @@ final class YearInteractor: PresentableInteractor<YearPresentable> {
     presenter.year = arguments.year
 
     do {
-      persistenceService = try dependency.yearsService.makePersistenceService(forYear: arguments.year)
+      persistenceService = try services.yearsService.makePersistenceService(forYear: arguments.year)
     } catch {
       listener?.yearDidError(error)
     }

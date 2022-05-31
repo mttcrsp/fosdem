@@ -12,19 +12,17 @@ final class YearRouter: ViewableRouter<YearInteractable, YearViewControllable> {
   private var eventRouter: ViewableRouting?
   private var searchResultRouter: ViewableRouting?
 
-  private let eventBuilder: EventBuildable
-  private let searchBuilder: SearchBuildable
+  private let builders: YearBuilders
 
-  init(interactor: YearInteractable, viewController: YearViewControllable, eventBuilder: EventBuildable, searchBuilder: SearchBuildable) {
-    self.eventBuilder = eventBuilder
-    self.searchBuilder = searchBuilder
+  init(builders: YearBuilders, interactor: YearInteractable, viewController: YearViewControllable) {
+    self.builders = builders
     super.init(interactor: interactor, viewController: viewController)
   }
 
   override func didLoad() {
     super.didLoad()
 
-    let searchRouter = searchBuilder.build(withListener: interactor)
+    let searchRouter = builders.searchBuilder.build(withListener: interactor)
     attachChild(searchRouter)
     viewController.addSearch(searchRouter.viewControllable)
   }
@@ -58,6 +56,6 @@ extension YearRouter: YearRouting {
 
 private extension YearRouter {
   func makeEventRouter(for event: Event) -> ViewableRouting {
-    eventBuilder.build(with: .init(event: event, allowsFavoriting: false))
+    builders.eventBuilder.build(with: .init(event: event, allowsFavoriting: false))
   }
 }
