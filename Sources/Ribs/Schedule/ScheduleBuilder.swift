@@ -1,12 +1,8 @@
 import RIBs
 
-typealias ScheduleDependency = HasEventBuilder
-  & HasFavoritesService
-  & HasPersistenceService
-  & HasSearchBuilder
-  & HasTrackBuilder
-  & HasTracksService
-  & HasYearsService
+typealias ScheduleBuilders = HasEventBuilder & HasSearchBuilder & HasTrackBuilder
+typealias ScheduleServices = HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
+typealias ScheduleDependency = ScheduleBuilders & ScheduleServices
 
 protocol ScheduleBuildable: Buildable {
   func build() -> ScheduleRouting
@@ -15,14 +11,8 @@ protocol ScheduleBuildable: Buildable {
 final class ScheduleBuilder: Builder<ScheduleDependency>, ScheduleBuildable {
   func build() -> ScheduleRouting {
     let viewController = ScheduleViewController()
-    let interactor = ScheduleInteractor(presenter: viewController, dependency: dependency)
-    let router = ScheduleRouter(
-      interactor: interactor,
-      viewController: viewController,
-      eventBuilder: dependency.eventBuilder,
-      trackBuilder: dependency.trackBuilder,
-      searchBuilder: dependency.searchBuilder
-    )
+    let interactor = ScheduleInteractor(presenter: viewController, services: dependency)
+    let router = ScheduleRouter(builders: dependency, interactor: interactor, viewController: viewController)
     viewController.listener = interactor
     interactor.router = router
     return router

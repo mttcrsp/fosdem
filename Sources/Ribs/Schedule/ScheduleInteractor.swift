@@ -30,32 +30,32 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
   private var selectedFilter: TracksFilter = .all
   private var selectedTrack: Track?
 
-  private let dependency: ScheduleDependency
+  private let services: ScheduleServices
 
-  init(presenter: SchedulePresentable, dependency: ScheduleDependency) {
-    self.dependency = dependency
+  init(presenter: SchedulePresentable, services: ScheduleServices) {
+    self.services = services
     super.init(presenter: presenter)
   }
 
   override func didBecomeActive() {
     super.didBecomeActive()
-    presenter.year = type(of: dependency.yearsService).current
-    dependency.tracksService.delegate = self
-    dependency.tracksService.loadTracks()
+    presenter.year = type(of: services.yearsService).current
+    services.tracksService.delegate = self
+    services.tracksService.loadTracks()
   }
 }
 
 extension ScheduleInteractor: SchedulePresentableListener {
   func canFavorite(_ track: Track) -> Bool {
-    dependency.favoritesService.canFavorite(track)
+    services.favoritesService.canFavorite(track)
   }
 
   func toggleFavorite(_ track: Track) {
-    dependency.favoritesService.toggleFavorite(track)
+    services.favoritesService.toggleFavorite(track)
   }
 
   func selectFilters() {
-    presenter.showFilters(dependency.tracksService.filters, selectedFilter: selectedFilter)
+    presenter.showFilters(services.tracksService.filters, selectedFilter: selectedFilter)
   }
 
   func select(_ selectedFilter: TracksFilter) {
@@ -68,7 +68,7 @@ extension ScheduleInteractor: SchedulePresentableListener {
   }
 
   func selectTracksSection(_ section: String) {
-    if let index = dependency.tracksService.filteredIndexTitles[selectedFilter]?[section] {
+    if let index = services.tracksService.filteredIndexTitles[selectedFilter]?[section] {
       let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
       presenter.scrollToRow(at: indexPath)
     }
@@ -133,15 +133,15 @@ extension ScheduleInteractor: TracksServiceDelegate {
   }
 
   private var filteredTracks: [Track] {
-    dependency.tracksService.filteredTracks[selectedFilter] ?? []
+    services.tracksService.filteredTracks[selectedFilter] ?? []
   }
 
   private var filteredFavoriteTracks: [Track] {
-    dependency.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
+    services.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
   }
 
   private var filteredTracksSectionIndexTitles: [String] {
-    dependency.tracksService.filteredIndexTitles[selectedFilter]?.keys.sorted() ?? []
+    services.tracksService.filteredIndexTitles[selectedFilter]?.keys.sorted() ?? []
   }
 }
 

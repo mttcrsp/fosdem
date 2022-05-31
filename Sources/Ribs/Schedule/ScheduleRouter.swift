@@ -12,21 +12,17 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
   private var trackRouter: ViewableRouting?
   private var searchResultRouter: ViewableRouting?
 
-  private let eventBuilder: EventBuildable
-  private let trackBuilder: TrackBuildable
-  private let searchBuilder: SearchBuildable
+  private let builders: ScheduleBuilders
 
-  init(interactor: ScheduleInteractable, viewController: ScheduleViewControllable, eventBuilder: EventBuildable, trackBuilder: TrackBuildable, searchBuilder: SearchBuildable) {
-    self.eventBuilder = eventBuilder
-    self.trackBuilder = trackBuilder
-    self.searchBuilder = searchBuilder
+  init(builders: ScheduleBuilders, interactor: ScheduleInteractable, viewController: ScheduleViewControllable) {
+    self.builders = builders
     super.init(interactor: interactor, viewController: viewController)
   }
 
   override func didLoad() {
     super.didLoad()
 
-    let searchRouter = searchBuilder.build(withListener: interactor)
+    let searchRouter = builders.searchBuilder.build(withListener: interactor)
     attachChild(searchRouter)
     viewController.addSearch(searchRouter.viewControllable)
   }
@@ -40,7 +36,7 @@ extension ScheduleRouter: ScheduleRouting {
     }
 
     if let track = track {
-      let trackRouter = trackBuilder.build(withListener: interactor, arguments: .init(track: track))
+      let trackRouter = builders.trackBuilder.build(withListener: interactor, arguments: .init(track: track))
       self.trackRouter = trackRouter
       attachChild(trackRouter)
       viewController.showTrack(trackRouter.viewControllable)
@@ -53,7 +49,7 @@ extension ScheduleRouter: ScheduleRouting {
       self.searchResultRouter = nil
     }
 
-    let searchResultRouter = eventBuilder.build(with: .init(event: event))
+    let searchResultRouter = builders.eventBuilder.build(with: .init(event: event))
     self.searchResultRouter = searchResultRouter
     attachChild(searchResultRouter)
     viewController.showSearchResult(searchResultRouter.viewControllable)
