@@ -6,7 +6,7 @@ protocol YearsPresentableListener: AnyObject {
   func downloadState(for year: Year) -> YearDownloadState
 }
 
-final class YearsContainerViewController: YearsViewController {
+final class YearsRootViewController: YearsViewController {
   weak var listener: YearsPresentableListener?
 
   var years: [Year] = [] {
@@ -37,14 +37,14 @@ final class YearsContainerViewController: YearsViewController {
   }
 }
 
-extension YearsContainerViewController: YearsPresentable {
+extension YearsRootViewController: YearsPresentable {
   func showYear(_ yearViewControllable: ViewControllable) {
     let yearViewController = yearViewControllable.uiviewController
     show(yearViewController, sender: nil)
   }
 }
 
-extension YearsContainerViewController: YearsViewControllable {
+extension YearsRootViewController: YearsViewControllable {
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
@@ -63,7 +63,7 @@ extension YearsContainerViewController: YearsViewControllable {
   }
 }
 
-extension YearsContainerViewController: YearsViewControllerDataSource {
+extension YearsRootViewController: YearsViewControllerDataSource {
   func numberOfYears(in _: YearsViewController) -> Int {
     years.count
   }
@@ -77,7 +77,7 @@ extension YearsContainerViewController: YearsViewControllerDataSource {
   }
 }
 
-extension YearsContainerViewController: YearsViewControllerDelegate {
+extension YearsRootViewController: YearsViewControllerDelegate {
   func yearsViewController(_: YearsViewController, didSelectYearAt index: Int) {
     listener?.select(years[index])
   }

@@ -11,7 +11,7 @@ protocol MapBuildable: Buildable {
 
 class MapBuilder: Builder<MapDependency>, MapBuildable {
   func build(withListener listener: MapListener) -> ViewableRouting {
-    let viewController = MapContainerViewController()
+    let viewController = MapRootViewController()
     let interactor = MapInteractor(dependency: dependency, presenter: viewController)
     let router = ViewableRouter(interactor: interactor, viewController: viewController)
     interactor.listener = listener

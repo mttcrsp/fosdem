@@ -13,7 +13,7 @@ protocol MorePresentableListener: AnyObject {
   #endif
 }
 
-final class MoreContainerViewController: UISplitViewController {
+final class MoreRootViewController: UISplitViewController {
   weak var listener: MorePresentableListener?
 
   private(set) var acknowledgements: [Acknowledgement] = []
@@ -54,7 +54,7 @@ final class MoreContainerViewController: UISplitViewController {
   }
 }
 
-extension MoreContainerViewController: MoreViewControllable {
+extension MoreRootViewController: MoreViewControllable {
   func showVideos(_ videosViewControllable: ViewControllable) {
     let videosViewController = videosViewControllable.uiviewController
     self.videosViewController = videosViewController
@@ -68,7 +68,7 @@ extension MoreContainerViewController: MoreViewControllable {
   }
 }
 
-extension MoreContainerViewController: MorePresentable {
+extension MoreRootViewController: MorePresentable {
   func deselectSelectedItem() {
     moreViewController?.deselectSelectedRow(animated: true)
   }
@@ -143,33 +143,33 @@ extension MoreContainerViewController: MorePresentable {
   #endif
 }
 
-extension MoreContainerViewController: MoreViewControllerDelegate {
+extension MoreRootViewController: MoreViewControllerDelegate {
   func moreViewController(_: MoreViewController, didSelect item: MoreItem) {
     listener?.select(item)
   }
 }
 
-extension MoreContainerViewController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
+extension MoreRootViewController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
   func acknowledgementsViewController(_: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
     listener?.select(acknowledgement)
   }
 }
 
-extension MoreContainerViewController: TransportationViewControllerDelegate {
+extension MoreRootViewController: TransportationViewControllerDelegate {
   func transportationViewController(_: TransportationViewController, didSelect item: TransportationItem) {
     listener?.select(item)
   }
 }
 
 #if DEBUG
-extension MoreContainerViewController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
+extension MoreRootViewController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
   func dateViewControllerDidChange(_ dateViewController: DateViewController) {
     listener?.select(dateViewController.date)
   }
 }
 #endif
 
-private extension MoreContainerViewController {
+private extension MoreRootViewController {
   var preferredDetailViewControllerStyle: UITableView.Style {
     if traitCollection.userInterfaceIdiom == .pad {
       return .fos_insetGrouped

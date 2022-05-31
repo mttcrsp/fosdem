@@ -14,7 +14,7 @@ protocol MoreBuildable: Buildable {
 
 final class MoreBuilder: Builder<MoreDependency>, MoreBuildable {
   func build() -> MoreRouting {
-    let viewController = MoreContainerViewController()
+    let viewController = MoreRootViewController()
     let interactor = MoreInteractor(presenter: viewController, dependency: dependency)
     let router = MoreRouter(interactor: interactor, viewController: viewController, videosBuilder: dependency.videosBuilder, yearsBuilder: dependency.yearsBuilder)
     viewController.listener = interactor

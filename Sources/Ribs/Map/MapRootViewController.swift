@@ -7,7 +7,7 @@ protocol MapPresentableListener: AnyObject {
   func openLocationSettings()
 }
 
-class MapContainerViewController: ContainerViewController, ViewControllable {
+class MapRootViewController: ContainerViewController, ViewControllable {
   weak var listener: MapPresentableListener?
 
   var authorizationStatus: CLAuthorizationStatus = .notDetermined {
@@ -58,7 +58,7 @@ class MapContainerViewController: ContainerViewController, ViewControllable {
   }
 }
 
-extension MapContainerViewController: MapPresentable {
+extension MapRootViewController: MapPresentable {
   func showAction(_ action: CLAuthorizationStatus.Action) {
     let dismissTitle = L10n.Location.dismiss
     let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
@@ -75,7 +75,7 @@ extension MapContainerViewController: MapPresentable {
   }
 }
 
-extension MapContainerViewController: ContainerViewControllerDelegate {
+extension MapRootViewController: ContainerViewControllerDelegate {
   private enum Layout {
     case pad, phonePortrait, phoneLandscape
   }
@@ -125,7 +125,7 @@ extension MapContainerViewController: ContainerViewControllerDelegate {
   }
 }
 
-extension MapContainerViewController: MapViewControllerDelegate {
+extension MapRootViewController: MapViewControllerDelegate {
   func mapViewController(_ mapViewController: MapViewController, didSelect building: Building) {
     embeddedBlueprintsViewController?.building = building
     setDetailViewControllerVisible(true, animated: true)
@@ -160,7 +160,7 @@ extension MapContainerViewController: MapViewControllerDelegate {
   }
 }
 
-extension MapContainerViewController: BlueprintsViewControllerDelegate {
+extension MapRootViewController: BlueprintsViewControllerDelegate {
   func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController) {
     if blueprintsViewController == embeddedBlueprintsViewController {
       mapViewController?.deselectSelectedAnnotation()
@@ -201,7 +201,7 @@ extension MapContainerViewController: BlueprintsViewControllerDelegate {
   }
 }
 
-private extension MapContainerViewController {
+private extension MapRootViewController {
   func didChangeVoiceOverStatus() {
     if isViewLoaded, UIAccessibility.isVoiceOverRunning {
       mapViewController?.deselectSelectedAnnotation()

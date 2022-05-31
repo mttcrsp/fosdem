@@ -4,9 +4,9 @@ import MapKit
 import SnapshotTesting
 import XCTest
 
-final class MapContainerViewControllerTests: XCTestCase {
+final class MapRootViewControllerTests: XCTestCase {
   func testAppearance() throws {
-    let delegate = MapContainerViewControllerDelegateMock()
+    let delegate = MapRootViewControllerDelegateMock()
     delegate.containerViewControllerHandler = { containerViewController, _ in
       guard let view = containerViewController.view else { return .zero }
 
@@ -45,7 +45,7 @@ final class MapContainerViewControllerTests: XCTestCase {
   }
 
   func testScrolling() throws {
-    let delegate = MapContainerViewControllerDelegateMock()
+    let delegate = MapRootViewControllerDelegateMock()
     delegate.containerViewControllerHandler = { containerViewController, _ in
       guard let view = containerViewController.view else { return .zero }
 

@@ -8,7 +8,7 @@ protocol YearsBuildable: Buildable {
 
 final class YearsBuilder: Builder<YearsDependency>, YearsBuildable {
   func build(withListener listener: YearsListener) -> YearsRouting {
-    let viewController = YearsContainerViewController()
+    let viewController = YearsRootViewController()
     let interactor = YearsInteractor(presenter: viewController, dependency: dependency)
     let router = YearsRouter(interactor: interactor, viewController: viewController, yearBuilder: dependency.yearBuilder)
     interactor.router = router
