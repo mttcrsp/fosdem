@@ -16,10 +16,10 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
 
   private var observer: NSObjectProtocol?
 
-  private let dependency: VideosDependency
+  private let services: VideosServices
 
-  init(presenter: VideosPresentable, dependency: VideosDependency) {
-    self.dependency = dependency
+  init(presenter: VideosPresentable, services: VideosServices) {
+    self.services = services
     super.init(presenter: presenter)
   }
 
@@ -27,7 +27,7 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
     super.didBecomeActive()
 
     loadVideos()
-    observer = dependency.playbackService.addObserver { [weak self] in
+    observer = services.playbackService.addObserver { [weak self] in
       self?.loadVideos()
     }
   }
@@ -36,14 +36,14 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
     super.willResignActive()
 
     if let observer = observer {
-      dependency.playbackService.removeObserver(observer)
+      services.playbackService.removeObserver(observer)
     }
   }
 }
 
 extension VideosInteractor: VideosPresentableListener {
   func delete(_ event: Event) {
-    dependency.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
+    services.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
   }
 
   func select(_ event: Event) {
@@ -57,7 +57,7 @@ extension VideosInteractor: VideosPresentableListener {
 
 private extension VideosInteractor {
   func loadVideos() {
-    dependency.videosService.loadVideos { [weak self] result in
+    services.videosService.loadVideos { [weak self] result in
       switch result {
       case let .failure(error):
         self?.listener?.videosDidError(error)

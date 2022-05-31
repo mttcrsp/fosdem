@@ -1,6 +1,8 @@
 import RIBs
 
-typealias VideosDependency = HasEventBuilder & HasPlaybackService & HasVideosService
+typealias VideosBuilders = HasEventBuilder
+typealias VideosServices = HasPlaybackService & HasVideosService
+typealias VideosDependency = VideosBuilders & VideosServices
 
 protocol VideosListener: AnyObject {
   func videosDidError(_ error: Error)
@@ -14,8 +16,8 @@ protocol VideosBuildable: Buildable {
 final class VideosBuilder: Builder<VideosDependency>, VideosBuildable {
   func build(withListener listener: VideosListener) -> VideosRouting {
     let viewController = VideosViewController()
-    let interactor = VideosInteractor(presenter: viewController, dependency: dependency)
-    let router = VideosRouter(interactor: interactor, viewController: viewController, eventBuilder: dependency.eventBuilder)
+    let interactor = VideosInteractor(presenter: viewController, services: dependency)
+    let router = VideosRouter(builders: dependency, interactor: interactor, viewController: viewController)
     interactor.listener = listener
     interactor.router = router
     viewController.listener = interactor
