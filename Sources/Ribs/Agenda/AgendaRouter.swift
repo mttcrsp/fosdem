@@ -12,12 +12,10 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
   private var eventRouter: ViewableRouting?
   private var soonRouter: ViewableRouting?
 
-  private let eventBuilder: EventBuildable
-  private let soonBuilder: SoonBuildable
+  private let builders: AgendaBuilders
 
-  init(interactor: AgendaInteractable, viewController: AgendaViewControllable, eventBuilder: EventBuildable, soonBuilder: SoonBuildable) {
-    self.eventBuilder = eventBuilder
-    self.soonBuilder = soonBuilder
+  init(builders: AgendaBuilders, interactor: AgendaInteractable, viewController: AgendaViewControllable) {
+    self.builders = builders
     super.init(interactor: interactor, viewController: viewController)
   }
 
@@ -28,7 +26,7 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
     }
 
     if let event = event {
-      let router = eventBuilder.build(with: .init(event: event))
+      let router = builders.eventBuilder.build(with: .init(event: event))
       attachChild(router)
       viewController.showDetail(router.viewControllable)
       eventRouter = router
@@ -36,7 +34,7 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
   }
 
   func routeToSoon() {
-    let soonRouter = soonBuilder.build(withListener: interactor)
+    let soonRouter = builders.soonBuilder.build(withListener: interactor)
     self.soonRouter = soonRouter
     attachChild(soonRouter)
     viewController.present(soonRouter.viewControllable)

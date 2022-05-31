@@ -17,6 +17,10 @@ protocol AgendaPresentable: Presentable {
   func showError()
 }
 
+protocol AgendaListener: AnyObject {
+  func agendaDidError(_ error: Error)
+}
+
 final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
   weak var listener: AgendaListener?
   weak var router: AgendaRouting?
@@ -26,10 +30,10 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
   private var favoritesObserver: NSObjectProtocol?
   private var timeObserver: NSObjectProtocol?
 
-  let dependency: AgendaDependency
+  private let services: AgendaServices
 
-  init(dependency: AgendaDependency, presenter: AgendaPresentable) {
-    self.dependency = dependency
+  init(presenter: AgendaPresentable, services: AgendaServices) {
+    self.services = services
     super.init(presenter: presenter)
   }
 
@@ -41,7 +45,7 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
       self?.presenter.reloadEvents()
     }
 
-    favoritesObserver = dependency.favoritesService.addObserverForEvents { [weak self] id in
+    favoritesObserver = services.favoritesService.addObserverForEvents { [weak self] id in
       self?.loadFavoriteEvents { events in
         guard let self = self else { return }
 
@@ -57,7 +61,7 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
       }
     }
 
-    timeObserver = dependency.timeService.addObserver { [weak self] in
+    timeObserver = services.timeService.addObserver { [weak self] in
       self?.presenter.reloadLiveStatus()
     }
   }
@@ -66,11 +70,11 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
     super.willResignActive()
 
     if let favoritesObserver = favoritesObserver {
-      dependency.favoritesService.removeObserver(favoritesObserver)
+      services.favoritesService.removeObserver(favoritesObserver)
     }
 
     if let timeObserver = timeObserver {
-      dependency.timeService.removeObserver(timeObserver)
+      services.timeService.removeObserver(timeObserver)
     }
   }
 }
@@ -91,15 +95,15 @@ extension AgendaInteractor: AgendaPresentableListener {
   }
 
   func isLive(_ event: Event) -> Bool {
-    event.isLive(at: dependency.timeService.now)
+    event.isLive(at: services.timeService.now)
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    dependency.favoritesService.canFavorite(event)
+    services.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    dependency.favoritesService.toggleFavorite(event)
+    services.favoritesService.toggleFavorite(event)
 
     if event == selectedEvent {
       selectFirstEvent()
@@ -120,9 +124,9 @@ extension AgendaInteractor: AgendaInteractable {
 
 private extension AgendaInteractor {
   func loadFavoriteEvents(completion: @escaping ([Event]) -> Void) {
-    let identifiers = dependency.favoritesService.eventsIdentifiers
+    let identifiers = services.favoritesService.eventsIdentifiers
     let operation = EventsForIdentifiers(identifiers: identifiers)
-    dependency.persistenceService.performRead(operation) { [weak self] result in
+    services.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case let .failure(error):
