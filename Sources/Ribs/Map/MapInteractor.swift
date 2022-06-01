@@ -17,22 +17,22 @@ class MapInteractor: PresentableInteractor<MapPresentable> {
 
   private var observer: NSObjectProtocol?
 
-  private let dependency: MapDependency
+  private let services: MapServices
 
-  init(dependency: MapDependency, presenter: MapPresentable) {
-    self.dependency = dependency
+  init(presenter: MapPresentable, services: MapServices) {
+    self.services = services
     super.init(presenter: presenter)
   }
 
   override func didBecomeActive() {
     super.didBecomeActive()
 
-    presenter.authorizationStatus = dependency.locationService.authorizationStatus
-    observer = dependency.locationService.addObserverForStatus { [weak self] authorizationStatus in
+    presenter.authorizationStatus = services.locationService.authorizationStatus
+    observer = services.locationService.addObserverForStatus { [weak self] authorizationStatus in
       self?.presenter.authorizationStatus = authorizationStatus
     }
 
-    dependency.buildingsService.loadBuildings { [weak self] buildings, error in
+    services.buildingsService.loadBuildings { [weak self] buildings, error in
       DispatchQueue.main.async {
         if let error = error {
           self?.listener?.mapDidError(error)
@@ -47,23 +47,23 @@ class MapInteractor: PresentableInteractor<MapPresentable> {
     super.willResignActive()
 
     if let observer = observer {
-      dependency.locationService.removeObserver(observer)
+      services.locationService.removeObserver(observer)
     }
   }
 }
 
 extension MapInteractor: MapPresentableListener {
   func requestLocationAuthorization() {
-    if let action = dependency.locationService.authorizationStatus.action {
+    if let action = services.locationService.authorizationStatus.action {
       presenter.showAction(action)
-    } else if dependency.locationService.authorizationStatus == .notDetermined {
-      dependency.locationService.requestAuthorization()
+    } else if services.locationService.authorizationStatus == .notDetermined {
+      services.locationService.requestAuthorization()
     }
   }
 
   func openLocationSettings() {
     if let url = URL(string: UIApplication.openSettingsURLString) {
-      dependency.openService.open(url, completion: nil)
+      services.openService.open(url, completion: nil)
     }
   }
 }

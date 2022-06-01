@@ -61,7 +61,3 @@ protocol VideosServiceProtocol {
 }
 
 extension VideosService: VideosServiceProtocol {}
-
-protocol HasVideosService {
-  var videosService: VideosServiceProtocol { get }
-}

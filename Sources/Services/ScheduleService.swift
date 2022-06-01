@@ -121,7 +121,3 @@ protocol ScheduleServicePersistence {
 }
 
 extension PersistenceService: ScheduleServicePersistence {}
-
-protocol HasScheduleService {
-  var scheduleService: ScheduleServiceProtocol { get }
-}

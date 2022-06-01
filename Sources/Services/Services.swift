@@ -18,6 +18,22 @@ class Services {
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
   private(set) lazy var scheduleService: ScheduleServiceProtocol = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
 
+  let audioSession: AVAudioSessionProtocol = AVAudioSession.sharedInstance()
+  let notificationCenter: NotificationCenter = .default
+  let player: AVPlayerProtocol = AVPlayer()
+
+  private(set) lazy var agendaBuilder: AgendaBuildable = AgendaBuilder(dependency: self)
+  private(set) lazy var eventBuilder: EventBuildable = EventBuilder(dependency: self)
+  private(set) lazy var mapBuilder: MapBuildable = MapBuilder(dependency: self)
+  private(set) lazy var moreBuilder: MoreBuildable = MoreBuilder(dependency: self)
+  private(set) lazy var scheduleBuilder: ScheduleBuildable = ScheduleBuilder(dependency: self)
+  private(set) lazy var searchBuilder: SearchBuildable = SearchBuilder(dependency: self)
+  private(set) lazy var soonBuilder: SoonBuildable = SoonBuilder(dependency: self)
+  private(set) lazy var trackBuilder: TrackBuildable = TrackBuilder(dependency: self)
+  private(set) lazy var videosBuilder: VideosBuildable = VideosBuilder(dependency: self)
+  private(set) lazy var yearBuilder: YearBuildable = YearBuilder(dependency: self)
+  private(set) lazy var yearsBuilder: YearsBuildable = YearsBuilder(dependency: self)
+
   private(set) lazy var networkService: NetworkService = {
     let session = URLSession.shared
     session.configuration.timeoutIntervalForRequest = 30
@@ -66,12 +82,23 @@ class Services {
   }
 }
 
-extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasLocationService, HasBuildingsService, HasFavoritesService, HasAcknowledgementsService {}
-
-extension Services: HasPersistenceService {
+extension Services {
   var persistenceService: PersistenceServiceProtocol {
     _persistenceService
   }
 }
+
+extension Services: AgendaDependency {}
+extension Services: EventDependency {}
+extension Services: MapDependency {}
+extension Services: MoreDependency {}
+extension Services: RootDependency {}
+extension Services: ScheduleDependency {}
+extension Services: SearchDependency {}
+extension Services: SoonDependency {}
+extension Services: TrackDependency {}
+extension Services: VideosDependency {}
+extension Services: YearDependency {}
+extension Services: YearsDependency {}
 
 extension BundleService: InfoServiceBundle {}

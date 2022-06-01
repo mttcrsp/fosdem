@@ -1,8 +1,14 @@
 import RIBs
 import UIKit
 
-typealias RootBuilders = HasAgendaBuilder & HasMapBuilder & HasMoreBuilder & HasScheduleBuilder
-typealias RootDependency = RootBuilders
+protocol RootBuilders {
+  var agendaBuilder: AgendaBuildable { get }
+  var mapBuilder: MapBuildable { get }
+  var moreBuilder: MoreBuildable { get }
+  var scheduleBuilder: ScheduleBuildable { get }
+}
+
+protocol RootDependency: Dependency, RootBuilders {}
 
 protocol RootBuildable: Buildable {
   func build() -> LaunchRouting

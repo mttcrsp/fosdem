@@ -1,3 +1,4 @@
+import Foundation
 import RIBs
 
 struct EventArguments {
@@ -10,12 +11,16 @@ struct EventArguments {
   }
 }
 
-typealias EventDependency = HasAudioSession
-  & HasFavoritesService
-  & HasNotificationCenter
-  & HasPlaybackService
-  & HasPlayer
-  & HasTimeService
+protocol EventServices {
+  var player: AVPlayerProtocol { get }
+  var audioSession: AVAudioSessionProtocol { get }
+  var favoritesService: FavoritesServiceProtocol { get }
+  var notificationCenter: NotificationCenter { get }
+  var playbackService: PlaybackServiceProtocol { get }
+  var timeService: TimeServiceProtocol { get }
+}
+
+protocol EventDependency: Dependency, EventServices {}
 
 protocol EventBuildable {
   func build(with arguments: EventArguments) -> ViewableRouting
@@ -24,7 +29,7 @@ protocol EventBuildable {
 final class EventBuilder: Builder<EventDependency>, EventBuildable {
   func build(with arguments: EventArguments) -> ViewableRouting {
     let viewController = EventRootViewController(event: arguments.event)
-    let interactor = EventInteractor(arguments: arguments, dependency: dependency, presenter: viewController)
+    let interactor = EventInteractor(arguments: arguments, presenter: viewController, services: dependency)
     let router = ViewableRouter(interactor: interactor, viewController: viewController)
     viewController.listener = interactor
     return router

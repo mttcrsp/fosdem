@@ -55,7 +55,3 @@ protocol UpdateServiceNetwork {
 }
 
 extension NetworkService: UpdateServiceNetwork {}
-
-protocol HasUpdateService {
-  var updateService: UpdateServiceProtocol { get }
-}

@@ -1,8 +1,15 @@
 import RIBs
 
-typealias VideosBuilders = HasEventBuilder
-typealias VideosServices = HasPlaybackService & HasVideosService
-typealias VideosDependency = VideosBuilders & VideosServices
+protocol VideosBuilders {
+  var eventBuilder: EventBuildable { get }
+}
+
+protocol VideosServices {
+  var playbackService: PlaybackServiceProtocol { get }
+  var videosService: VideosServiceProtocol { get }
+}
+
+protocol VideosDependency: Dependency, VideosBuilders, VideosServices {}
 
 protocol VideosListener: AnyObject {
   func videosDidError(_ error: Error)

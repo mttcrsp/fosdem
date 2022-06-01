@@ -1,12 +1,19 @@
 import RIBs
 
-typealias TrackServices = HasFavoritesService & HasPersistenceService
-typealias TrackBuilders = HasEventBuilder
-typealias TrackDependency = TrackBuilders & TrackServices
-
 struct TrackArguments {
   let track: Track
 }
+
+protocol TrackBuilders {
+  var eventBuilder: EventBuildable { get }
+}
+
+protocol TrackServices {
+  var favoritesService: FavoritesServiceProtocol { get }
+  var persistenceService: PersistenceServiceProtocol { get }
+}
+
+protocol TrackDependency: Dependency, TrackBuilders, TrackServices {}
 
 protocol TrackBuildable: Buildable {
   func build(withListener listener: TrackListener, arguments: TrackArguments) -> TrackRouting

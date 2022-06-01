@@ -1,8 +1,19 @@
 import RIBs
 
-typealias MoreBuilders = HasYearsBuilder & HasVideosBuilder
-typealias MoreServices = HasAcknowledgementsService & HasInfoService & HasOpenService & HasTimeService & HasYearsService
-typealias MoreDependency = MoreBuilders & MoreServices
+protocol MoreBuilders {
+  var yearsBuilder: YearsBuildable { get }
+  var videosBuilder: VideosBuildable { get }
+}
+
+protocol MoreServices {
+  var acknowledgementsService: AcknowledgementsServiceProtocol { get }
+  var infoService: InfoServiceProtocol { get }
+  var openService: OpenServiceProtocol { get }
+  var timeService: TimeServiceProtocol { get }
+  var yearsService: YearsServiceProtocol { get }
+}
+
+protocol MoreDependency: Dependency, MoreBuilders, MoreServices {}
 
 protocol MoreBuildable: Buildable {
   func build() -> MoreRouting

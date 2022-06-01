@@ -19,7 +19,3 @@ protocol SoonServiceProtocol {
 }
 
 extension SoonService: SoonServiceProtocol {}
-
-protocol HasSoonService {
-  var soonService: SoonServiceProtocol { get }
-}

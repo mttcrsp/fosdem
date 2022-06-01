@@ -1,8 +1,15 @@
 import RIBs
 
-typealias SoonBuilders = HasEventBuilder
-typealias SoonServices = HasFavoritesService & HasSoonService
-typealias SoonDependency = SoonBuilders & SoonServices
+protocol SoonBuilders {
+  var eventBuilder: EventBuildable { get }
+}
+
+protocol SoonServices {
+  var favoritesService: FavoritesServiceProtocol { get }
+  var soonService: SoonServiceProtocol { get }
+}
+
+protocol SoonDependency: Dependency, SoonBuilders, SoonServices {}
 
 protocol SoonBuildable: Buildable {
   func build(withListener listener: SoonListener) -> SoonRouting

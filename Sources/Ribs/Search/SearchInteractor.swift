@@ -13,10 +13,10 @@ protocol SearchListener: AnyObject {
 final class SearchInteractor: PresentableInteractor<SearchPresentable> {
   weak var listener: SearchListener?
 
-  private let dependency: SearchDependency
+  private let services: SearchServices
 
-  init(presenter: SearchPresentable, dependency: SearchDependency) {
-    self.dependency = dependency
+  init(presenter: SearchPresentable, services: SearchServices) {
+    self.services = services
     super.init(presenter: presenter)
   }
 }
@@ -30,7 +30,7 @@ extension SearchInteractor: SearchPresentableListener {
     }
 
     let operation = EventsForSearch(query: query)
-    dependency.persistenceService.performRead(operation) { [weak self] result in
+    services.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case .failure:
@@ -49,14 +49,14 @@ extension SearchInteractor: SearchPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    dependency.favoritesService.canFavorite(event)
+    services.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
     if canFavorite(event) {
-      dependency.favoritesService.addEvent(withIdentifier: event.id)
+      services.favoritesService.addEvent(withIdentifier: event.id)
     } else {
-      dependency.favoritesService.removeEvent(withIdentifier: event.id)
+      services.favoritesService.removeEvent(withIdentifier: event.id)
     }
   }
 }

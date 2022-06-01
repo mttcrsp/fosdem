@@ -25,7 +25,3 @@ protocol OpenServiceApplication {
 }
 
 extension UIApplication: OpenServiceApplication {}
-
-protocol HasOpenService {
-  var openService: OpenServiceProtocol { get }
-}

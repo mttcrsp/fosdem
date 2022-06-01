@@ -1,8 +1,14 @@
 import RIBs
 
-typealias YearsBuilders = HasYearBuilder
-typealias YearsServices = HasYearsService
-typealias YearsDependency = YearsBuilders & YearsServices
+protocol YearsBuilders {
+  var yearBuilder: YearBuildable { get }
+}
+
+protocol YearsServices {
+  var yearsService: YearsServiceProtocol { get }
+}
+
+protocol YearsDependency: Dependency, YearsBuilders, YearsServices {}
 
 protocol YearsBuildable: Buildable {
   func build(withListener listener: YearsListener) -> YearsRouting

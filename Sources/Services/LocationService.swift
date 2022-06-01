@@ -50,7 +50,3 @@ protocol LocationServiceProtocol {
 }
 
 extension LocationService: LocationServiceProtocol {}
-
-protocol HasLocationService {
-  var locationService: LocationServiceProtocol { get }
-}

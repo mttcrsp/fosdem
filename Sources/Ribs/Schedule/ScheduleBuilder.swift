@@ -1,8 +1,19 @@
 import RIBs
 
-typealias ScheduleBuilders = HasEventBuilder & HasSearchBuilder & HasTrackBuilder
-typealias ScheduleServices = HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
-typealias ScheduleDependency = ScheduleBuilders & ScheduleServices
+protocol ScheduleBuilders {
+  var eventBuilder: EventBuildable { get }
+  var searchBuilder: SearchBuildable { get }
+  var trackBuilder: TrackBuildable { get }
+}
+
+protocol ScheduleServices {
+  var favoritesService: FavoritesServiceProtocol { get }
+  var persistenceService: PersistenceServiceProtocol { get }
+  var tracksService: TracksServiceProtocol { get }
+  var yearsService: YearsServiceProtocol { get }
+}
+
+protocol ScheduleDependency: Dependency, ScheduleBuilders, ScheduleServices {}
 
 protocol ScheduleBuildable: Buildable {
   func build() -> ScheduleRouting

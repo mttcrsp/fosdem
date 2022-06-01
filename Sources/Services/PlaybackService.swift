@@ -153,7 +153,3 @@ protocol PlaybackServiceDefaults: AnyObject {
 }
 
 extension UserDefaults: PlaybackServiceDefaults {}
-
-protocol HasPlaybackService {
-  var playbackService: PlaybackServiceProtocol { get }
-}

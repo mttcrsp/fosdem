@@ -1,8 +1,15 @@
 import RIBs
 
-typealias YearBuilders = HasEventBuilder & HasSearchBuilder
-typealias YearServices = HasYearsService
-typealias YearDependency = YearBuilders & YearServices
+protocol YearBuilders {
+  var eventBuilder: EventBuildable { get }
+  var searchBuilder: SearchBuildable { get }
+}
+
+protocol YearServices {
+  var yearsService: YearsServiceProtocol { get }
+}
+
+protocol YearDependency: Dependency, YearBuilders, YearServices {}
 
 struct YearArguments {
   let year: Year
