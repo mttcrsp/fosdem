@@ -22,9 +22,9 @@ final class TracksService {
   private(set) var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 
   private let favoritesService: FavoritesServiceProtocol
-  private let persistenceService: PersistenceService
+  private let persistenceService: PersistenceServiceProtocol
 
-  init(favoritesService: FavoritesServiceProtocol, persistenceService: PersistenceService) {
+  init(favoritesService: FavoritesServiceProtocol, persistenceService: PersistenceServiceProtocol) {
     self.persistenceService = persistenceService
     self.favoritesService = favoritesService
   }
