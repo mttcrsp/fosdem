@@ -17,9 +17,12 @@ final class AgendaComponent: NeedleFoundation.Component<AgendaDependency> {
   var eventBuilder: EventBuildable {
     fatalError()
   }
+}
 
-  var soonBuilder: SoonBuildable {
-    fatalError()
+extension AgendaComponent {
+  func buildSoonRouter(withListener listener: SoonListener) -> SoonRouting {
+    SoonBuilder(componentBuilder: { SoonComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: listener)
   }
 }
 

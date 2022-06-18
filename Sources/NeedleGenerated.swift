@@ -22,6 +22,9 @@ public func registerProviderFactories() {
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MapComponent") { component in
     MapDependency7dfd1288fd22c9a72c37Provider(component: component)
   }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->AgendaComponent->SoonComponent") { component in
+    SoonDependency9a2a455ed39148b6e961Provider(component: component)
+  }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent") { component in
     EmptyDependencyProvider(component: component)
   }
@@ -139,6 +142,34 @@ private class MapDependency7dfd1288fd22c9a72c37BaseProvider: MapDependency {
 private class MapDependency7dfd1288fd22c9a72c37Provider: MapDependency7dfd1288fd22c9a72c37BaseProvider {
   init(component: NeedleFoundation.Scope) {
     super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
+
+private class SoonDependency9a2a455ed39148b6e961BaseProvider: SoonDependency {
+  var timeService: TimeServiceProtocol {
+    rootComponent.timeService
+  }
+
+  var favoritesService: FavoritesServiceProtocol {
+    rootComponent.favoritesService
+  }
+
+  var persistenceService: PersistenceServiceProtocol {
+    agendaComponent.persistenceService
+  }
+
+  private let agendaComponent: AgendaComponent
+  private let rootComponent: RootComponent
+  init(agendaComponent: AgendaComponent, rootComponent: RootComponent) {
+    self.agendaComponent = agendaComponent
+    self.rootComponent = rootComponent
+  }
+}
+
+/// ^->RootComponent->AgendaComponent->SoonComponent
+private class SoonDependency9a2a455ed39148b6e961Provider: SoonDependency9a2a455ed39148b6e961BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(agendaComponent: component.parent as! AgendaComponent, rootComponent: component.parent.parent as! RootComponent)
   }
 }
 

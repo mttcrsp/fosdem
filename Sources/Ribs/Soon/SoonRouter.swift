@@ -7,10 +7,10 @@ protocol SoonViewControllable: ViewControllable {
 final class SoonRouter: ViewableRouter<Interactable, SoonViewControllable> {
   private var eventRouter: Routing?
 
-  private let builders: SoonBuilders
+  private let component: SoonComponent
 
-  init(builders: SoonBuilders, interactor: Interactable, viewController: SoonViewControllable) {
-    self.builders = builders
+  init(component: SoonComponent, interactor: Interactable, viewController: SoonViewControllable) {
+    self.component = component
     super.init(interactor: interactor, viewController: viewController)
   }
 }
@@ -23,7 +23,7 @@ extension SoonRouter: SoonRouting {
     }
 
     if let event = event {
-      let eventRouter = builders.eventBuilder.build(with: .init(event: event))
+      let eventRouter = component.eventBuilder.build(with: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
       viewController.push(eventRouter.viewControllable)

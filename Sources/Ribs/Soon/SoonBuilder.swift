@@ -1,25 +1,29 @@
+import NeedleFoundation
 import RIBs
 
-protocol SoonBuilders {
-  var eventBuilder: EventBuildable { get }
-}
-
-protocol SoonServices {
+protocol SoonDependency: NeedleFoundation.Dependency {
+  var timeService: TimeServiceProtocol { get }
   var favoritesService: FavoritesServiceProtocol { get }
-  var soonService: SoonServiceProtocol { get }
+  var persistenceService: PersistenceServiceProtocol { get }
 }
 
-protocol SoonDependency: Dependency, SoonBuilders, SoonServices {}
+final class SoonComponent: NeedleFoundation.Component<SoonDependency> {
+  var soonService: SoonServiceProtocol {
+    shared { SoonService(timeService: dependency.timeService, persistenceService: dependency.persistenceService) }
+  }
+
+  var eventBuilder: EventBuildable { fatalError() }
+}
 
 protocol SoonBuildable: Buildable {
-  func build(withListener listener: SoonListener) -> SoonRouting
+  func finalStageBuild(withDynamicDependency dynamicDependency: SoonListener) -> SoonRouting
 }
 
-final class SoonBuilder: Builder<SoonDependency>, SoonBuildable {
-  func build(withListener listener: SoonListener) -> SoonRouting {
+final class SoonBuilder: MultiStageComponentizedBuilder<SoonComponent, SoonRouting, SoonListener>, SoonBuildable {
+  override func finalStageBuild(with component: SoonComponent, _ listener: SoonListener) -> SoonRouting {
     let viewController = SoonViewController()
-    let interactor = SoonInteractor(services: dependency, presenter: viewController)
-    let router = SoonRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = SoonInteractor(component: component, presenter: viewController)
+    let router = SoonRouter(component: component, interactor: interactor, viewController: viewController)
     interactor.listener = listener
     interactor.router = router
     viewController.listener = interactor

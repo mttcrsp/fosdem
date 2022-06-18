@@ -55,28 +55,22 @@ final class RootComponent: BootstrapComponent {
   }
 }
 
-extension RootComponent: MapDependency {
+extension RootComponent {
   func buildMapRouter(withListener listener: MapListener) -> ViewableRouting {
     MapBuilder(componentBuilder: { MapComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: listener)
   }
-}
 
-extension RootComponent: AgendaDependency {
   func buildAgendaRouter(withPersistenceService persistenceService: PersistenceServiceProtocol, listener: AgendaListener) -> ViewableRouting {
     AgendaBuilder(componentBuilder: { AgendaComponent(parent: self, persistenceService: persistenceService) })
       .finalStageBuild(withDynamicDependency: listener)
   }
-}
 
-extension RootComponent: MoreDependency {
   func buildMoreRouter(withPersistenceService persistenceService: PersistenceServiceProtocol) -> ViewableRouting {
     MoreBuilder(componentBuilder: { MoreComponent(parent: self, persistenceService: persistenceService) })
       .build()
   }
-}
 
-extension RootComponent: ScheduleDependency {
   func buildScheduleRouter(withPersistenceService persistenceService: PersistenceServiceProtocol) -> ViewableRouting {
     ScheduleBuilder(componentBuilder: { ScheduleComponent(parent: self, persistenceService: persistenceService) })
       .build()

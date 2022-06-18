@@ -34,7 +34,7 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
   }
 
   func routeToSoon() {
-    let soonRouter = component.soonBuilder.build(withListener: interactor)
+    let soonRouter = component.buildSoonRouter(withListener: interactor)
     self.soonRouter = soonRouter
     attachChild(soonRouter)
     viewController.present(soonRouter.viewControllable)
