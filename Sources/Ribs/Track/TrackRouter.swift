@@ -7,10 +7,10 @@ protocol TrackViewControllable: ViewControllable {
 final class TrackRouter: ViewableRouter<Interactable, TrackViewControllable> {
   private var eventRouter: ViewableRouting?
 
-  private let builders: TrackBuilders
+  private let component: TrackComponent
 
-  init(builders: TrackBuilders, interactor: Interactable, viewController: TrackViewControllable) {
-    self.builders = builders
+  init(component: TrackComponent, interactor: Interactable, viewController: TrackViewControllable) {
+    self.component = component
     super.init(interactor: interactor, viewController: viewController)
   }
 }
@@ -23,7 +23,7 @@ extension TrackRouter: TrackRouting {
     }
 
     if let event = event {
-      let eventRouter = builders.eventBuilder.build(with: .init(event: event))
+      let eventRouter = component.eventBuilder.build(with: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
       viewController.showEvent(eventRouter.viewControllable)

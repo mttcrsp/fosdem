@@ -13,6 +13,9 @@ public func registerProviderFactories() {
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->ScheduleComponent") { component in
     ScheduleDependencyd09faca1aa36b0d9671fProvider(component: component)
   }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->ScheduleComponent->TrackComponent") { component in
+    TrackDependency53efe7b382ad8eff4c2fProvider(component: component)
+  }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent") { component in
     MoreDependency8687d23345095611bcfeProvider(component: component)
   }
@@ -54,6 +57,30 @@ private class ScheduleDependencyd09faca1aa36b0d9671fBaseProvider: ScheduleDepend
 private class ScheduleDependencyd09faca1aa36b0d9671fProvider: ScheduleDependencyd09faca1aa36b0d9671fBaseProvider {
   init(component: NeedleFoundation.Scope) {
     super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
+
+private class TrackDependency53efe7b382ad8eff4c2fBaseProvider: TrackDependency {
+  var favoritesService: FavoritesServiceProtocol {
+    rootComponent.favoritesService
+  }
+
+  var persistenceService: PersistenceServiceProtocol {
+    scheduleComponent.persistenceService
+  }
+
+  private let rootComponent: RootComponent
+  private let scheduleComponent: ScheduleComponent
+  init(rootComponent: RootComponent, scheduleComponent: ScheduleComponent) {
+    self.rootComponent = rootComponent
+    self.scheduleComponent = scheduleComponent
+  }
+}
+
+/// ^->RootComponent->ScheduleComponent->TrackComponent
+private class TrackDependency53efe7b382ad8eff4c2fProvider: TrackDependency53efe7b382ad8eff4c2fBaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent as! RootComponent, scheduleComponent: component.parent as! ScheduleComponent)
   }
 }
 

@@ -9,7 +9,6 @@ protocol ScheduleDependency: NeedleFoundation.Dependency {
 final class ScheduleComponent: NeedleFoundation.Component<ScheduleDependency> {
   var eventBuilder: EventBuildable { fatalError() }
   var searchBuilder: SearchBuildable { fatalError() }
-  var trackBuilder: TrackBuildable { fatalError() }
 
   let persistenceService: PersistenceServiceProtocol
 
@@ -22,6 +21,13 @@ final class ScheduleComponent: NeedleFoundation.Component<ScheduleDependency> {
 extension ScheduleComponent {
   var tracksService: TracksServiceProtocol {
     shared { TracksService(favoritesService: dependency.favoritesService, persistenceService: persistenceService) }
+  }
+}
+
+extension ScheduleComponent {
+  func buildTrackRouter(withArguments arguments: TrackArguments, listener: TrackListener) -> ViewableRouting {
+    TrackBuilder(componentBuilder: { TrackComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: (arguments, listener))
   }
 }
 

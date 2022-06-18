@@ -34,7 +34,7 @@ extension ScheduleRouter: ScheduleRouting {
     }
 
     if let track = track {
-      let trackRouter = component.trackBuilder.build(withListener: interactor, arguments: .init(track: track))
+      let trackRouter = component.buildTrackRouter(withArguments: .init(track: track), listener: interactor)
       self.trackRouter = trackRouter
       attachChild(trackRouter)
       viewController.showTrack(trackRouter.viewControllable)

@@ -1,30 +1,29 @@
+import NeedleFoundation
 import RIBs
 
 struct TrackArguments {
   let track: Track
 }
 
-protocol TrackBuilders {
-  var eventBuilder: EventBuildable { get }
-}
-
-protocol TrackServices {
+protocol TrackDependency: NeedleFoundation.Dependency {
   var favoritesService: FavoritesServiceProtocol { get }
   var persistenceService: PersistenceServiceProtocol { get }
 }
 
-protocol TrackDependency: Dependency, TrackBuilders, TrackServices {}
-
-protocol TrackBuildable: Buildable {
-  func build(withListener listener: TrackListener, arguments: TrackArguments) -> TrackRouting
+final class TrackComponent: NeedleFoundation.Component<TrackDependency> {
+  var eventBuilder: EventBuildable { fatalError() }
 }
 
-final class TrackBuilder: Builder<TrackDependency>, TrackBuildable {
-  func build(withListener listener: TrackListener, arguments: TrackArguments) -> TrackRouting {
+protocol TrackBuildable: Buildable {
+  func finalStageBuild(withDynamicDependency: (TrackArguments, TrackListener)) -> ViewableRouting
+}
+
+final class TrackBuilder: MultiStageComponentizedBuilder<TrackComponent, ViewableRouting, (TrackArguments, TrackListener)>, TrackBuildable {
+  override func finalStageBuild(with component: TrackComponent, _ dynamicDependency: (arguments: TrackArguments, listener: TrackListener)) -> ViewableRouting {
     let viewController = TrackViewController()
-    let interactor = TrackInteractor(arguments: arguments, presenter: viewController, services: dependency)
-    let router = TrackRouter(builders: dependency, interactor: interactor, viewController: viewController)
-    interactor.listener = listener
+    let interactor = TrackInteractor(arguments: dynamicDependency.arguments, component: component, presenter: viewController)
+    let router = TrackRouter(component: component, interactor: interactor, viewController: viewController)
+    interactor.listener = dynamicDependency.listener
     interactor.router = router
     viewController.listener = interactor
     return router
