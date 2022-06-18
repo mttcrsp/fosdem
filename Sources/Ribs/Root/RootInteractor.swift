@@ -16,10 +16,10 @@ protocol RootPresentable: Presentable {
 class RootInteractor: PresentableInteractor<RootPresentable> {
   var router: RootRouting?
 
-  private let services: RootServices
+  private let component: RootComponent
 
-  init(presenter: RootPresentable, services: RootServices) {
-    self.services = services
+  init(presenter: RootPresentable, component: RootComponent) {
+    self.component = component
     super.init(presenter: presenter)
   }
 
@@ -94,7 +94,7 @@ extension RootInteractor: RootInteractable {
 extension RootInteractor: RootPresentableListener {
   func openAppStore() {
     if let url = URL.fosdemAppStore {
-      services.openService.open(url, completion: nil)
+      component.openService.open(url, completion: nil)
     }
   }
 }

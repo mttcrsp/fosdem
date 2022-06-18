@@ -38,3 +38,10 @@ final class BundleServiceData: BundleServiceDataProvider {
     try Data(contentsOf: url)
   }
 }
+
+/// @mockable
+protocol BundleServiceProtocol {
+  func data(forResource name: String?, withExtension ext: String?) throws -> Data
+}
+
+extension BundleService: BundleServiceProtocol {}

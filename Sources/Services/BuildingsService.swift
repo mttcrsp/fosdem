@@ -5,10 +5,10 @@ final class BuildingsService {
     case missingData, partialData
   }
 
-  private let bundleService: BuildingsServiceBundle
+  private let bundleService: BundleServiceProtocol
   private let queue: DispatchQueue
 
-  init(bundleService: BuildingsServiceBundle, queue: DispatchQueue = .global()) {
+  init(bundleService: BundleServiceProtocol, queue: DispatchQueue = .global()) {
     self.bundleService = bundleService
     self.queue = queue
   }
@@ -46,10 +46,3 @@ protocol BuildingsServiceProtocol {
 }
 
 extension BuildingsService: BuildingsServiceProtocol {}
-
-/// @mockable
-protocol BuildingsServiceBundle {
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data
-}
-
-extension BundleService: BuildingsServiceBundle {}

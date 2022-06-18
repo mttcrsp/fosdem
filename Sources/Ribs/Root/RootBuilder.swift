@@ -1,28 +1,48 @@
+import NeedleFoundation
 import RIBs
 import UIKit
 
-protocol RootBuilders {
-  var agendaBuilder: AgendaBuildable { get }
-  var mapBuilder: MapBuildable { get }
-  var moreBuilder: MoreBuildable { get }
-  var scheduleBuilder: ScheduleBuildable { get }
+final class EmptyComponent: NeedleFoundation.EmptyDependency {}
+
+protocol RootDependency: NeedleFoundation.Dependency {}
+
+final class RootComponent: BootstrapComponent {
+  lazy var openService: OpenServiceProtocol =
+    OpenService()
 }
 
-protocol RootServices {
-  var openService: OpenServiceProtocol { get }
+extension RootComponent: MapDependency {
+  func buildMapRouter(withListener listener: MapListener) -> ViewableRouting {
+    MapBuilder(componentBuilder: { MapComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: listener)
+  }
 }
 
-protocol RootDependency: Dependency, RootBuilders, RootServices {}
+extension RootComponent {
+  private final class EmptyRibsComponent: RIBs.EmptyDependency {}
+
+  var agendaBuilder: AgendaBuildable {
+    AgendaBuilder(dependency: EmptyRibsComponent())
+  }
+
+  var moreBuilder: MoreBuildable {
+    MoreBuilder(dependency: EmptyRibsComponent())
+  }
+
+  var scheduleBuilder: ScheduleBuildable {
+    ScheduleBuilder(dependency: EmptyRibsComponent())
+  }
+}
 
 protocol RootBuildable: Buildable {
-  func build() -> LaunchRouting
+  func build(with component: RootComponent) -> LaunchRouting
 }
 
-class RootBuilder: Builder<RootDependency> {
-  func build() -> LaunchRouting {
+class RootBuilder: SimpleComponentizedBuilder<RootComponent, LaunchRouting> {
+  override func build(with component: RootComponent) -> LaunchRouting {
     let viewController = RootViewController()
-    let interactor = RootInteractor(presenter: viewController, services: dependency)
-    let router = RootRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = RootInteractor(presenter: viewController, component: component)
+    let router = RootRouter(component: component, interactor: interactor, viewController: viewController)
     interactor.router = router
     viewController.listener = interactor
     return router

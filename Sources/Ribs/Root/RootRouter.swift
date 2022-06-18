@@ -17,30 +17,30 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
   private var moreRouter: ViewableRouting?
   private var scheduleRouter: ViewableRouting?
 
-  private let builders: RootBuilders
+  private let component: RootComponent
 
-  init(builders: RootBuilders, interactor: RootInteractable, viewController: RootViewControllable) {
-    self.builders = builders
+  init(component: RootComponent, interactor: RootInteractable, viewController: RootViewControllable) {
+    self.component = component
     super.init(interactor: interactor, viewController: viewController)
   }
 
   func attach(withServices services: Services) {
-    let scheduleRouter = builders.scheduleBuilder.build(withDynamicDependency: services)
+    let scheduleRouter = component.scheduleBuilder.build(withDynamicDependency: services)
     self.scheduleRouter = scheduleRouter
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = builders.agendaBuilder.build(withDynamicDependency: services, listener: interactor)
+    let agendaRouter = component.agendaBuilder.build(withDynamicDependency: services, listener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
 
-    let moreRouter = builders.moreBuilder.build(withDynamicDependency: services)
+    let moreRouter = component.moreBuilder.build(withDynamicDependency: services)
     self.moreRouter = moreRouter
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)
 
-    let mapRouter = builders.mapBuilder.build(withDynamicDependency: services, listener: interactor)
+    let mapRouter = component.buildMapRouter(withListener: interactor)
     self.mapRouter = mapRouter
     attachChild(mapRouter)
     viewController.addMap(mapRouter.viewControllable)
