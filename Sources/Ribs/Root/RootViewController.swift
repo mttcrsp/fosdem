@@ -24,6 +24,13 @@ class RootViewController: UITabBarController {
   }
 }
 
+extension RootViewController: RootPresentable {
+  func showError() {
+    let errorViewController = UIAlertController.makeErrorController()
+    present(errorViewController, animated: true)
+  }
+}
+
 extension RootViewController: RootViewControllable {
   func addAgenda(_ agendaViewControllable: ViewControllable) {
     agendaViewController = agendaViewControllable.uiviewController

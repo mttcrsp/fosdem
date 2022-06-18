@@ -20,9 +20,9 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
   }
 
   func routeToEvent(_ event: Event?) {
-    if let router = eventRouter {
-      detachChild(router)
-      eventRouter = nil
+    if let eventRouter = eventRouter {
+      detachChild(eventRouter)
+      self.eventRouter = nil
     }
 
     if let event = event {

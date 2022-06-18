@@ -7,7 +7,11 @@ protocol RootRouting: Routing {
   func removeMap()
 }
 
-class RootInteractor: Interactor {
+protocol RootPresentable: Presentable {
+  func showError()
+}
+
+class RootInteractor: PresentableInteractor<RootPresentable> {
   var router: RootRouting?
 
   override func didBecomeActive() {
@@ -64,11 +68,11 @@ class RootInteractor: Interactor {
 extension RootInteractor: RootInteractable {
   func agendaDidError(_: Error) {
     router?.removeAgenda()
-    // TODO: show error if needed?
+    presenter.showError()
   }
 
   func mapDidError(_: Error) {
     router?.removeMap()
-    // TODO: show error if needed?
+    presenter.showError()
   }
 }

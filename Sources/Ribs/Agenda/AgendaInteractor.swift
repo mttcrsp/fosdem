@@ -130,6 +130,7 @@ private extension AgendaInteractor {
       DispatchQueue.main.async {
         switch result {
         case let .failure(error):
+          self?.router?.routeBackFromSoon()
           self?.listener?.agendaDidError(error)
         case let .success(events):
           completion(events)

@@ -50,7 +50,10 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
 
 extension RootRouter: RootRouting {
   func removeAgenda() {
-    viewController.removeAgenda()
+    if let agendaRouter = agendaRouter {
+      detachChild(agendaRouter)
+      viewController.removeAgenda()
+    }
   }
 
   func removeMap() {
