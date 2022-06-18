@@ -24,6 +24,11 @@ let grdb = Package.remote(
   requirement: .branch("master")
 )
 
+let needle = Package.remote(
+  url: "https://github.com/uber/needle",
+  requirement: .branch("master")
+)
+
 let ribs = Package.remote(
   url: "https://github.com/uber/ribs",
   requirement: .branch("main")
@@ -72,6 +77,7 @@ let app = Target(
   scripts: isCI ? [] : [mockolo, swiftFormat],
   dependencies: [
     .package(product: "GRDB"),
+    .package(product: "NeedleFoundation"),
     .package(product: "RIBs"),
     .package(product: "RxSwift"),
   ],
@@ -163,7 +169,7 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   options: .options(automaticSchemesOptions: .enabled(codeCoverageEnabled: true)),
-  packages: [grdb, ribs, rxSwift, snapshotTesting],
+  packages: [grdb, needle, ribs, rxSwift, snapshotTesting],
   settings: .settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES"]),
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
