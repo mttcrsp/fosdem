@@ -2,21 +2,14 @@ import Foundation
 import NeedleFoundation
 import RIBs
 
-protocol MapDependency: NeedleFoundation.Dependency {}
-
-final class MapComponent: NeedleFoundation.Component<MapDependency> {
-  lazy var buildingsService: BuildingsServiceProtocol =
-    BuildingsService(bundleService: bundleService)
-
-  lazy var bundleService: BundleServiceProtocol =
-    BundleService()
-
-  lazy var locationService: LocationServiceProtocol =
-    LocationService()
-
-  lazy var openService: OpenServiceProtocol =
-    OpenService()
+protocol MapDependency: NeedleFoundation.Dependency {
+  var buildingsService: BuildingsServiceProtocol { get }
+  var bundleService: BundleServiceProtocol { get }
+  var locationService: LocationServiceProtocol { get }
+  var openService: OpenServiceProtocol { get }
 }
+
+final class MapComponent: NeedleFoundation.Component<MapDependency> {}
 
 protocol MapBuildable: Buildable {
   func finalStageBuild(with component: MapComponent, _ listener: MapListener) -> ViewableRouting

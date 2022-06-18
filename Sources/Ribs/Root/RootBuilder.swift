@@ -7,8 +7,21 @@ final class EmptyComponent: NeedleFoundation.EmptyDependency {}
 protocol RootDependency: NeedleFoundation.Dependency {}
 
 final class RootComponent: BootstrapComponent {
-  lazy var openService: OpenServiceProtocol =
-    OpenService()
+  var buildingsService: BuildingsServiceProtocol {
+    shared { BuildingsService(bundleService: bundleService) }
+  }
+
+  var bundleService: BundleServiceProtocol {
+    shared { BundleService() }
+  }
+
+  var locationService: LocationServiceProtocol {
+    shared { LocationService() }
+  }
+
+  var openService: OpenServiceProtocol {
+    shared { OpenService() }
+  }
 }
 
 extension RootComponent: MapDependency {

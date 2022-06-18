@@ -56,7 +56,6 @@ class Services {
 
 extension Services: AgendaDependency {}
 extension Services: EventDependency {}
-extension Services: MapDependency {}
 extension Services: MoreDependency {}
 extension Services: ScheduleDependency {}
 extension Services: SearchDependency {}
