@@ -30,10 +30,10 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
   private var favoritesObserver: NSObjectProtocol?
   private var timeObserver: NSObjectProtocol?
 
-  private let services: AgendaServices
+  private let component: AgendaComponent
 
-  init(presenter: AgendaPresentable, services: AgendaServices) {
-    self.services = services
+  init(component: AgendaComponent, presenter: AgendaPresentable) {
+    self.component = component
     super.init(presenter: presenter)
   }
 
@@ -45,7 +45,7 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
       self?.presenter.reloadEvents()
     }
 
-    favoritesObserver = services.favoritesService.addObserverForEvents { [weak self] id in
+    favoritesObserver = component.favoritesService.addObserverForEvents { [weak self] id in
       self?.loadFavoriteEvents { events in
         guard let self = self else { return }
 
@@ -61,7 +61,7 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
       }
     }
 
-    timeObserver = services.timeService.addObserver { [weak self] in
+    timeObserver = component.timeService.addObserver { [weak self] in
       self?.presenter.reloadLiveStatus()
     }
   }
@@ -70,11 +70,11 @@ final class AgendaInteractor: PresentableInteractor<AgendaPresentable> {
     super.willResignActive()
 
     if let favoritesObserver = favoritesObserver {
-      services.favoritesService.removeObserver(favoritesObserver)
+      component.favoritesService.removeObserver(favoritesObserver)
     }
 
     if let timeObserver = timeObserver {
-      services.timeService.removeObserver(timeObserver)
+      component.timeService.removeObserver(timeObserver)
     }
   }
 }
@@ -95,15 +95,15 @@ extension AgendaInteractor: AgendaPresentableListener {
   }
 
   func isLive(_ event: Event) -> Bool {
-    event.isLive(at: services.timeService.now)
+    event.isLive(at: component.timeService.now)
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    services.favoritesService.canFavorite(event)
+    component.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    services.favoritesService.toggleFavorite(event)
+    component.favoritesService.toggleFavorite(event)
 
     if event == selectedEvent {
       selectFirstEvent()
@@ -124,9 +124,9 @@ extension AgendaInteractor: AgendaInteractable {
 
 private extension AgendaInteractor {
   func loadFavoriteEvents(completion: @escaping ([Event]) -> Void) {
-    let identifiers = services.favoritesService.eventsIdentifiers
+    let identifiers = component.favoritesService.eventsIdentifiers
     let operation = EventsForIdentifiers(identifiers: identifiers)
-    services.persistenceService.performRead(operation) { [weak self] result in
+    component.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case let .failure(error):

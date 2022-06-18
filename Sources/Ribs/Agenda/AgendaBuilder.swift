@@ -1,28 +1,37 @@
+import NeedleFoundation
 import RIBs
-import UIKit
 
-protocol AgendaBuilders {
-  var eventBuilder: EventBuildable { get }
-  var soonBuilder: SoonBuildable { get }
-}
-
-protocol AgendaServices {
+protocol AgendaDependency: NeedleFoundation.Dependency {
   var favoritesService: FavoritesServiceProtocol { get }
-  var persistenceService: PersistenceServiceProtocol { get }
   var timeService: TimeServiceProtocol { get }
 }
 
-protocol AgendaDependency: Dependency, AgendaBuilders, AgendaServices {}
+final class AgendaComponent: NeedleFoundation.Component<AgendaDependency> {
+  let persistenceService: PersistenceServiceProtocol
 
-protocol AgendaBuildable {
-  func build(withDynamicDependency dependency: AgendaDependency, listener: AgendaListener) -> ViewableRouting
+  init(parent: Scope, persistenceService: PersistenceServiceProtocol) {
+    self.persistenceService = persistenceService
+    super.init(parent: parent)
+  }
+
+  var eventBuilder: EventBuildable {
+    fatalError()
+  }
+
+  var soonBuilder: SoonBuildable {
+    fatalError()
+  }
 }
 
-final class AgendaBuilder: Builder<EmptyDependency>, AgendaBuildable {
-  func build(withDynamicDependency dependency: AgendaDependency, listener: AgendaListener) -> ViewableRouting {
+protocol AgendaBuildable {
+  func finalStageBuild(with component: AgendaComponent, _ listener: AgendaListener) -> ViewableRouting
+}
+
+final class AgendaBuilder: MultiStageComponentizedBuilder<AgendaComponent, ViewableRouting, AgendaListener>, AgendaBuildable {
+  override func finalStageBuild(with component: AgendaComponent, _ listener: AgendaListener) -> ViewableRouting {
     let viewController = AgendaViewController()
-    let interactor = AgendaInteractor(presenter: viewController, services: dependency)
-    let router = AgendaRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = AgendaInteractor(component: component, presenter: viewController)
+    let router = AgendaRouter(component: component, interactor: interactor, viewController: viewController)
     interactor.router = router
     interactor.listener = listener
     viewController.listener = interactor

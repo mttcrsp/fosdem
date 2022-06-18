@@ -30,7 +30,7 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = component.agendaBuilder.build(withDynamicDependency: services, listener: interactor)
+    let agendaRouter = component.buildAgendaRouter(withPersistenceService: services.persistenceService, listener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)

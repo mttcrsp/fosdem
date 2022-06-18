@@ -15,6 +15,14 @@ final class RootComponent: BootstrapComponent {
     shared { BundleService() }
   }
 
+  var favoritesService: FavoritesServiceProtocol {
+    shared { FavoritesService() }
+  }
+
+  var timeService: TimeServiceProtocol {
+    shared { TimeService() }
+  }
+
   var locationService: LocationServiceProtocol {
     shared { LocationService() }
   }
@@ -31,12 +39,15 @@ extension RootComponent: MapDependency {
   }
 }
 
+extension RootComponent: AgendaDependency {
+  func buildAgendaRouter(withPersistenceService persistenceService: PersistenceServiceProtocol, listener: AgendaListener) -> ViewableRouting {
+    AgendaBuilder(componentBuilder: { AgendaComponent(parent: self, persistenceService: persistenceService) })
+      .finalStageBuild(withDynamicDependency: listener)
+  }
+}
+
 extension RootComponent {
   private final class EmptyRibsComponent: RIBs.EmptyDependency {}
-
-  var agendaBuilder: AgendaBuildable {
-    AgendaBuilder(dependency: EmptyRibsComponent())
-  }
 
   var moreBuilder: MoreBuildable {
     MoreBuilder(dependency: EmptyRibsComponent())
