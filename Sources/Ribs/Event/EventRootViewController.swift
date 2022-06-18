@@ -28,7 +28,7 @@ final class EventRootViewController: EventViewController, ViewControllable {
 extension EventRootViewController: EventPresentable {
   var allowsFavoriting: Bool {
     get { navigationItem.rightBarButtonItem == favoriteButton }
-    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil; print(newValue) }
+    set { navigationItem.rightBarButtonItem = newValue ? favoriteButton : nil }
   }
 
   var showsFavorite: Bool {

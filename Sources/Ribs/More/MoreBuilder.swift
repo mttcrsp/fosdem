@@ -16,11 +16,11 @@ protocol MoreServices {
 protocol MoreDependency: Dependency, MoreBuilders, MoreServices {}
 
 protocol MoreBuildable: Buildable {
-  func build() -> MoreRouting
+  func build(withDynamicDependency dependency: MoreDependency) -> ViewableRouting
 }
 
-final class MoreBuilder: Builder<MoreDependency>, MoreBuildable {
-  func build() -> MoreRouting {
+final class MoreBuilder: Builder<EmptyDependency>, MoreBuildable {
+  func build(withDynamicDependency dependency: MoreDependency) -> ViewableRouting {
     let viewController = MoreRootViewController()
     let interactor = MoreInteractor(presenter: viewController, services: dependency)
     let router = MoreRouter(builders: dependency, interactor: interactor, viewController: viewController)

@@ -12,7 +12,7 @@ final class TrackViewController: UINavigationController, TrackPresentable {
   weak var listener: TrackPresentableListener?
 
   var track: Track? {
-    didSet { title = track?.name }
+    didSet { didChangeTrack() }
   }
 
   var events: [Event] = [] {
@@ -60,8 +60,10 @@ final class TrackViewController: UINavigationController, TrackPresentable {
 }
 
 extension TrackViewController: TrackViewControllable {
-  func show(_ viewControllable: ViewControllable) {
-    show(viewControllable.uiviewController, sender: nil)
+  func showEvent(_ eventViewControllable: ViewControllable) {
+    let eventViewController = eventViewControllable.uiviewController
+    self.eventViewController = eventViewController
+    show(eventViewController, sender: nil)
   }
 }
 
@@ -109,6 +111,10 @@ private extension TrackViewController {
   func didChangeEvents() {
     eventsCaptions = events.captions
     eventsViewController?.reloadData()
+  }
+
+  func didChangeTrack() {
+    eventsViewController?.title = track?.name
   }
 
   func didChangeShowsFavorite() {

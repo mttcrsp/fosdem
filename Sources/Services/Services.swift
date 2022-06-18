@@ -22,11 +22,7 @@ class Services {
   let notificationCenter: NotificationCenter = .default
   let player: AVPlayerProtocol = AVPlayer()
 
-  private(set) lazy var agendaBuilder: AgendaBuildable = AgendaBuilder(dependency: self)
   private(set) lazy var eventBuilder: EventBuildable = EventBuilder(dependency: self)
-  private(set) lazy var mapBuilder: MapBuildable = MapBuilder(dependency: self)
-  private(set) lazy var moreBuilder: MoreBuildable = MoreBuilder(dependency: self)
-  private(set) lazy var scheduleBuilder: ScheduleBuildable = ScheduleBuilder(dependency: self)
   private(set) lazy var searchBuilder: SearchBuildable = SearchBuilder(dependency: self)
   private(set) lazy var soonBuilder: SoonBuildable = SoonBuilder(dependency: self)
   private(set) lazy var trackBuilder: TrackBuildable = TrackBuilder(dependency: self)
@@ -48,11 +44,11 @@ class Services {
   #endif
 
   private let _persistenceService: PersistenceService
-  
+
   var persistenceService: PersistenceServiceProtocol {
     _persistenceService
   }
-  
+
   init(persistenceService: PersistenceService) {
     _persistenceService = persistenceService
   }
@@ -62,7 +58,6 @@ extension Services: AgendaDependency {}
 extension Services: EventDependency {}
 extension Services: MapDependency {}
 extension Services: MoreDependency {}
-extension Services: RootDependency {}
 extension Services: ScheduleDependency {}
 extension Services: SearchDependency {}
 extension Services: SoonDependency {}

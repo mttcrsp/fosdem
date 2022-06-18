@@ -18,15 +18,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window.tintColor = .fos_label
     self.window = window
 
-    do {
-      let services = try makeServices()
-      let rootBuilder = RootBuilder(dependency: services)
-      let rootRouter = rootBuilder.build()
-      self.rootRouter = rootRouter
-      rootRouter.launch(from: window)
-    } catch {
-      print(error)
+    final class EmptyContainer: EmptyDependency {}
+    final class Dependency: RootDependency, RootBuilders {
+      let agendaBuilder: AgendaBuildable = AgendaBuilder(dependency: EmptyContainer())
+      let mapBuilder: MapBuildable = MapBuilder(dependency: EmptyContainer())
+      let moreBuilder: MoreBuildable = MoreBuilder(dependency: EmptyContainer())
+      let scheduleBuilder: ScheduleBuildable = ScheduleBuilder(dependency: EmptyContainer())
     }
+    let rootBuilder = RootBuilder(dependency: Dependency())
+    let rootRouter = rootBuilder.build()
+    self.rootRouter = rootRouter
+    rootRouter.launch(from: window)
 
     return true
   }
@@ -37,35 +39,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #endif
   }
 
-  private func makeServices() throws -> Services {
-    #if DEBUG
-    let services = try DebugServices()
-    #else
-    let services = try Services()
-    #endif
-    services.networkService.delegate = self
-    return services
-  }
-
   func makeErrorViewController() -> ErrorViewController {
     let errorViewController = ErrorViewController()
     errorViewController.showsAppStoreButton = true
     errorViewController.delegate = self
     return errorViewController
-  }
-}
-
-extension AppDelegate: NetworkServiceDelegate {
-  func networkServiceDidBeginRequest(_: NetworkService) {
-    OperationQueue.main.addOperation { [weak self] in
-      self?.pendingNetworkRequests += 1
-    }
-  }
-
-  func networkServiceDidEndRequest(_: NetworkService) {
-    OperationQueue.main.addOperation { [weak self] in
-      self?.pendingNetworkRequests -= 1
-    }
   }
 }
 

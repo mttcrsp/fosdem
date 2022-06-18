@@ -16,11 +16,11 @@ protocol ScheduleServices {
 protocol ScheduleDependency: Dependency, ScheduleBuilders, ScheduleServices {}
 
 protocol ScheduleBuildable: Buildable {
-  func build() -> ScheduleRouting
+  func build(withDynamicDependency dependency: ScheduleDependency) -> ViewableRouting
 }
 
-final class ScheduleBuilder: Builder<ScheduleDependency>, ScheduleBuildable {
-  func build() -> ScheduleRouting {
+final class ScheduleBuilder: Builder<EmptyDependency>, ScheduleBuildable {
+  func build(withDynamicDependency dependency: ScheduleDependency) -> ViewableRouting {
     let viewController = ScheduleViewController()
     let interactor = ScheduleInteractor(presenter: viewController, services: dependency)
     let router = ScheduleRouter(builders: dependency, interactor: interactor, viewController: viewController)

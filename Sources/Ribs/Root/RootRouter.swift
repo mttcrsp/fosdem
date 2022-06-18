@@ -25,25 +25,23 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     super.init(interactor: interactor, viewController: viewController)
   }
 
-  override func didLoad() {
-    super.didLoad()
-
-    let scheduleRouter = builders.scheduleBuilder.build()
+  func attach(withServices services: Services) {
+    let scheduleRouter = builders.scheduleBuilder.build(withDynamicDependency: services)
     self.scheduleRouter = scheduleRouter
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = builders.agendaBuilder.build(withListener: interactor)
+    let agendaRouter = builders.agendaBuilder.build(withDynamicDependency: services, listener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
 
-    let moreRouter = builders.moreBuilder.build()
+    let moreRouter = builders.moreBuilder.build(withDynamicDependency: services)
     self.moreRouter = moreRouter
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)
 
-    let mapRouter = builders.mapBuilder.build(withListener: interactor)
+    let mapRouter = builders.mapBuilder.build(withDynamicDependency: services, listener: interactor)
     self.mapRouter = mapRouter
     attachChild(mapRouter)
     viewController.addMap(mapRouter.viewControllable)

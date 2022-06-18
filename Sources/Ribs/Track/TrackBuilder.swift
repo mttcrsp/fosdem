@@ -25,6 +25,8 @@ final class TrackBuilder: Builder<TrackDependency>, TrackBuildable {
     let interactor = TrackInteractor(arguments: arguments, presenter: viewController, services: dependency)
     let router = TrackRouter(builders: dependency, interactor: interactor, viewController: viewController)
     interactor.listener = listener
+    interactor.router = router
+    viewController.listener = interactor
     return router
   }
 }

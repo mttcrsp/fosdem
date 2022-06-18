@@ -11,11 +11,11 @@ protocol MapServices {
 protocol MapDependency: Dependency, MapServices {}
 
 protocol MapBuildable: Buildable {
-  func build(withListener listener: MapListener) -> ViewableRouting
+  func build(withDynamicDependency dependency: MapDependency, listener: MapListener) -> ViewableRouting
 }
 
-class MapBuilder: Builder<MapDependency>, MapBuildable {
-  func build(withListener listener: MapListener) -> ViewableRouting {
+class MapBuilder: Builder<EmptyDependency>, MapBuildable {
+  func build(withDynamicDependency dependency: MapDependency, listener: MapListener) -> ViewableRouting {
     let viewController = MapRootViewController()
     let interactor = MapInteractor(presenter: viewController, services: dependency)
     let router = ViewableRouter(interactor: interactor, viewController: viewController)

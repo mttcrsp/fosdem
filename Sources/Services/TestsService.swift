@@ -64,9 +64,9 @@ private struct PreventOnboarding: PreInitCommand {
 
 private struct SpeedUpAnimations: PreInitCommand {
   static func perform(with _: [String: String]) {
-    for window in UIApplication.shared.windows {
-      window.layer.speed = 100
-    }
+//    for window in UIApplication.shared.windows {
+//      window.layer.speed = 100
+//    }
   }
 }
 

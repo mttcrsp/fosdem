@@ -1,9 +1,9 @@
 #if DEBUG
 final class DebugServices: Services {
-  override init() throws {
+  override init(persistenceService: PersistenceService) {
     let testsService = TestsService()
     testsService.runPreInitializationTestCommands()
-    try super.init()
+    super.init(persistenceService: persistenceService)
     testsService.runPostInitializationTestCommands(with: self)
   }
 }

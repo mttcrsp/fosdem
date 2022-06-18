@@ -15,11 +15,11 @@ protocol AgendaServices {
 protocol AgendaDependency: Dependency, AgendaBuilders, AgendaServices {}
 
 protocol AgendaBuildable {
-  func build(withListener listener: AgendaListener) -> ViewableRouting
+  func build(withDynamicDependency dependency: AgendaDependency, listener: AgendaListener) -> ViewableRouting
 }
 
-final class AgendaBuilder: Builder<AgendaDependency>, AgendaBuildable {
-  func build(withListener listener: AgendaListener) -> ViewableRouting {
+final class AgendaBuilder: Builder<EmptyDependency>, AgendaBuildable {
+  func build(withDynamicDependency dependency: AgendaDependency, listener: AgendaListener) -> ViewableRouting {
     let viewController = AgendaViewController()
     let interactor = AgendaInteractor(presenter: viewController, services: dependency)
     let router = AgendaRouter(builders: dependency, interactor: interactor, viewController: viewController)

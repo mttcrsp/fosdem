@@ -1,7 +1,7 @@
 import RIBs
 
 protocol TrackViewControllable: ViewControllable {
-  func show(_ viewControllable: ViewControllable)
+  func showEvent(_ viewControllable: ViewControllable)
 }
 
 final class TrackRouter: ViewableRouter<Interactable, TrackViewControllable> {
@@ -26,7 +26,7 @@ extension TrackRouter: TrackRouting {
       let eventRouter = builders.eventBuilder.build(with: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
-      viewController.show(eventRouter.viewControllable)
+      viewController.showEvent(eventRouter.viewControllable)
     }
   }
 }
