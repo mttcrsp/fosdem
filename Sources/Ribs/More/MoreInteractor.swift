@@ -31,10 +31,10 @@ final class MoreInteractor: PresentableInteractor<MorePresentable> {
 
   private var acknowledgements: [Acknowledgement] = []
 
-  private let services: MoreServices
+  private let component: MoreComponent
 
-  init(presenter: MorePresentable, services: MoreServices) {
-    self.services = services
+  init(component: MoreComponent, presenter: MorePresentable) {
+    self.component = component
     super.init(presenter: presenter)
   }
 }
@@ -61,20 +61,20 @@ extension MoreInteractor: MorePresentableListener {
     case .acknowledgements:
       do {
         presenter.showAcknowledgements(
-          try services.acknowledgementsService.loadAcknowledgements()
+          try component.acknowledgementsService.loadAcknowledgements()
         )
       } catch {
         presenter.showError()
       }
     case .code:
       if let url = URL.fosdemGithub {
-        services.openService.open(url) { [weak self] _ in
+        component.openService.open(url) { [weak self] _ in
           self?.presenter.deselectSelectedItem()
         }
       }
     case .history, .legal, .devrooms:
       if let info = item.info {
-        services.infoService.loadAttributedText(for: info) { [weak self] result in
+        component.infoService.loadAttributedText(for: info) { [weak self] result in
           DispatchQueue.main.async {
             switch result {
             case .failure:
@@ -93,7 +93,7 @@ extension MoreInteractor: MorePresentableListener {
       router?.routeToYears()
     #if DEBUG
     case .time:
-      presenter.showDate(services.timeService.now)
+      presenter.showDate(component.timeService.now)
     #endif
     }
   }
@@ -101,16 +101,16 @@ extension MoreInteractor: MorePresentableListener {
   func select(_ item: TransportationItem) {
     switch item {
     case .appleMaps:
-      services.openService.open(.ulbAppleMaps) { [weak self] _ in
+      component.openService.open(.ulbAppleMaps) { [weak self] _ in
         self?.presenter.deselectSelectedTransportationItem()
       }
     case .googleMaps:
-      services.openService.open(.ulbGoogleMaps) { [weak self] _ in
+      component.openService.open(.ulbGoogleMaps) { [weak self] _ in
         self?.presenter.deselectSelectedTransportationItem()
       }
     case .bus, .car, .taxi, .plane, .train, .shuttle:
       if let info = item.info {
-        services.infoService.loadAttributedText(for: info) { [weak self] result in
+        component.infoService.loadAttributedText(for: info) { [weak self] result in
           DispatchQueue.main.async {
             switch result {
             case .failure:
@@ -132,7 +132,7 @@ extension MoreInteractor: MorePresentableListener {
 
   #if DEBUG
   func select(_ date: Date) {
-    services.timeService.now = date
+    component.timeService.now = date
   }
   #endif
 
@@ -145,7 +145,7 @@ extension MoreInteractor: MorePresentableListener {
   }
 
   private func open(_ url: URL, completion: @escaping () -> Void) {
-    services.openService.open(url) { _ in
+    component.openService.open(url) { _ in
       completion()
     }
   }

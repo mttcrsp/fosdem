@@ -3,7 +3,6 @@
 import Foundation
 import NeedleFoundation
 import RIBs
-import UIKit
 
 // swiftlint:disable unused_declaration
 private let needleDependenciesHash: String? = nil
@@ -11,6 +10,12 @@ private let needleDependenciesHash: String? = nil
 // MARK: - Registration
 
 public func registerProviderFactories() {
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->ScheduleComponent") { component in
+    ScheduleDependencyd09faca1aa36b0d9671fProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent") { component in
+    MoreDependency8687d23345095611bcfeProvider(component: component)
+  }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MapComponent") { component in
     MapDependency7dfd1288fd22c9a72c37Provider(component: component)
   }
@@ -23,6 +28,62 @@ public func registerProviderFactories() {
 }
 
 // MARK: - Providers
+
+private class ScheduleDependencyd09faca1aa36b0d9671fBaseProvider: ScheduleDependency {
+  var favoritesService: FavoritesServiceProtocol {
+    rootComponent.favoritesService
+  }
+
+  var yearsService: YearsServiceProtocol {
+    rootComponent.yearsService
+  }
+
+  private let rootComponent: RootComponent
+  init(rootComponent: RootComponent) {
+    self.rootComponent = rootComponent
+  }
+}
+
+/// ^->RootComponent->ScheduleComponent
+private class ScheduleDependencyd09faca1aa36b0d9671fProvider: ScheduleDependencyd09faca1aa36b0d9671fBaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
+
+private class MoreDependency8687d23345095611bcfeBaseProvider: MoreDependency {
+  var acknowledgementsService: AcknowledgementsServiceProtocol {
+    rootComponent.acknowledgementsService
+  }
+
+  var infoService: InfoServiceProtocol {
+    rootComponent.infoService
+  }
+
+  var openService: OpenServiceProtocol {
+    rootComponent.openService
+  }
+
+  var timeService: TimeServiceProtocol {
+    rootComponent.timeService
+  }
+
+  var yearsService: YearsServiceProtocol {
+    rootComponent.yearsService
+  }
+
+  private let rootComponent: RootComponent
+  init(rootComponent: RootComponent) {
+    self.rootComponent = rootComponent
+  }
+}
+
+/// ^->RootComponent->MoreComponent
+private class MoreDependency8687d23345095611bcfeProvider: MoreDependency8687d23345095611bcfeBaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
 
 private class MapDependency7dfd1288fd22c9a72c37BaseProvider: MapDependency {
   var buildingsService: BuildingsServiceProtocol {

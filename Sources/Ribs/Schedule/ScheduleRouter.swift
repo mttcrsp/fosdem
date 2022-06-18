@@ -12,17 +12,17 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
   private var trackRouter: ViewableRouting?
   private var searchResultRouter: ViewableRouting?
 
-  private let builders: ScheduleBuilders
+  private let component: ScheduleComponent
 
-  init(builders: ScheduleBuilders, interactor: ScheduleInteractable, viewController: ScheduleViewControllable) {
-    self.builders = builders
+  init(component: ScheduleComponent, interactor: ScheduleInteractable, viewController: ScheduleViewControllable) {
+    self.component = component
     super.init(interactor: interactor, viewController: viewController)
   }
 }
 
 extension ScheduleRouter: ScheduleRouting {
   func attachSearch(_ arguments: SearchArguments) {
-    let searchRouter = builders.searchBuilder.build(withArguments: arguments, listener: interactor)
+    let searchRouter = component.searchBuilder.build(withArguments: arguments, listener: interactor)
     attachChild(searchRouter)
     viewController.addSearch(searchRouter.viewControllable)
   }
@@ -34,7 +34,7 @@ extension ScheduleRouter: ScheduleRouting {
     }
 
     if let track = track {
-      let trackRouter = builders.trackBuilder.build(withListener: interactor, arguments: .init(track: track))
+      let trackRouter = component.trackBuilder.build(withListener: interactor, arguments: .init(track: track))
       self.trackRouter = trackRouter
       attachChild(trackRouter)
       viewController.showTrack(trackRouter.viewControllable)
@@ -47,7 +47,7 @@ extension ScheduleRouter: ScheduleRouting {
       self.searchResultRouter = nil
     }
 
-    let searchResultRouter = builders.eventBuilder.build(with: .init(event: event))
+    let searchResultRouter = component.eventBuilder.build(with: .init(event: event))
     self.searchResultRouter = searchResultRouter
     attachChild(searchResultRouter)
     viewController.showSearchResult(searchResultRouter.viewControllable)

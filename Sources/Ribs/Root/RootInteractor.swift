@@ -2,7 +2,7 @@ import Foundation
 import RIBs
 
 protocol RootRouting: Routing {
-  func attach(withServices services: Services)
+  func attach(withDynamicBuildDependency persistenceService: PersistenceServiceProtocol)
   func removeAgenda()
   func removeMap()
 }
@@ -18,7 +18,7 @@ class RootInteractor: PresentableInteractor<RootPresentable> {
 
   private let component: RootComponent
 
-  init(presenter: RootPresentable, component: RootComponent) {
+  init(component: RootComponent, presenter: RootPresentable) {
     self.component = component
     super.init(presenter: presenter)
   }
@@ -60,18 +60,10 @@ class RootInteractor: PresentableInteractor<RootPresentable> {
       try preloadService.preloadDatabaseIfNeeded()
 
       let persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
-
-      let services: Services
-      #if DEBUG
-      services = DebugServices(persistenceService: persistenceService)
-      #else
-      services = Services(persistenceService: persistenceService)
-      #endif
-
-      router?.attach(withServices: services)
+      router?.attach(withDynamicBuildDependency: persistenceService)
 
       if launchService.didLaunchAfterInstall {
-        let year = type(of: services.yearsService).current
+        let year = type(of: component.yearsService).current
         presenter.showWelcome(for: year)
       }
     } catch {

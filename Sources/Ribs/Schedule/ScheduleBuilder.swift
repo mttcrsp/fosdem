@@ -1,29 +1,39 @@
+import NeedleFoundation
 import RIBs
 
-protocol ScheduleBuilders {
-  var eventBuilder: EventBuildable { get }
-  var searchBuilder: SearchBuildable { get }
-  var trackBuilder: TrackBuildable { get }
-}
-
-protocol ScheduleServices {
+protocol ScheduleDependency: NeedleFoundation.Dependency {
   var favoritesService: FavoritesServiceProtocol { get }
-  var persistenceService: PersistenceServiceProtocol { get }
-  var tracksService: TracksServiceProtocol { get }
   var yearsService: YearsServiceProtocol { get }
 }
 
-protocol ScheduleDependency: Dependency, ScheduleBuilders, ScheduleServices {}
+final class ScheduleComponent: NeedleFoundation.Component<ScheduleDependency> {
+  var eventBuilder: EventBuildable { fatalError() }
+  var searchBuilder: SearchBuildable { fatalError() }
+  var trackBuilder: TrackBuildable { fatalError() }
 
-protocol ScheduleBuildable: Buildable {
-  func build(withDynamicDependency dependency: ScheduleDependency) -> ViewableRouting
+  let persistenceService: PersistenceServiceProtocol
+
+  init(parent: Scope, persistenceService: PersistenceServiceProtocol) {
+    self.persistenceService = persistenceService
+    super.init(parent: parent)
+  }
 }
 
-final class ScheduleBuilder: Builder<EmptyDependency>, ScheduleBuildable {
-  func build(withDynamicDependency dependency: ScheduleDependency) -> ViewableRouting {
+extension ScheduleComponent {
+  var tracksService: TracksServiceProtocol {
+    shared { TracksService(favoritesService: dependency.favoritesService, persistenceService: persistenceService) }
+  }
+}
+
+protocol ScheduleBuildable: Buildable {
+  func build() -> ViewableRouting
+}
+
+final class ScheduleBuilder: SimpleComponentizedBuilder<ScheduleComponent, ViewableRouting>, ScheduleBuildable {
+  override func build(with component: ScheduleComponent) -> ViewableRouting {
     let viewController = ScheduleViewController()
-    let interactor = ScheduleInteractor(presenter: viewController, services: dependency)
-    let router = ScheduleRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = ScheduleInteractor(component: component, presenter: viewController)
+    let router = ScheduleRouter(component: component, interactor: interactor, viewController: viewController)
     viewController.listener = interactor
     interactor.router = router
     return router

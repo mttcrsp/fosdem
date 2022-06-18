@@ -24,18 +24,18 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     super.init(interactor: interactor, viewController: viewController)
   }
 
-  func attach(withServices services: Services) {
-    let scheduleRouter = component.scheduleBuilder.build(withDynamicDependency: services)
+  func attach(withDynamicBuildDependency persistenceService: PersistenceServiceProtocol) {
+    let scheduleRouter = component.buildScheduleRouter(withPersistenceService: persistenceService)
     self.scheduleRouter = scheduleRouter
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = component.buildAgendaRouter(withPersistenceService: services.persistenceService, listener: interactor)
+    let agendaRouter = component.buildAgendaRouter(withPersistenceService: persistenceService, listener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
 
-    let moreRouter = component.moreBuilder.build(withDynamicDependency: services)
+    let moreRouter = component.buildMoreRouter()
     self.moreRouter = moreRouter
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)

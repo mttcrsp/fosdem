@@ -64,5 +64,3 @@ extension Services: TrackDependency {}
 extension Services: VideosDependency {}
 extension Services: YearDependency {}
 extension Services: YearsDependency {}
-
-extension BundleService: InfoServiceBundle {}

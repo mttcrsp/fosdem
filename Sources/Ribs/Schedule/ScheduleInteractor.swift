@@ -31,10 +31,10 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
   private var selectedFilter: TracksFilter = .all
   private var selectedTrack: Track?
 
-  private let services: ScheduleServices
+  private let component: ScheduleComponent
 
-  init(presenter: SchedulePresentable, services: ScheduleServices) {
-    self.services = services
+  init(component: ScheduleComponent, presenter: SchedulePresentable) {
+    self.component = component
     super.init(presenter: presenter)
   }
 
@@ -42,28 +42,28 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
     super.didBecomeActive()
 
     let arguments = SearchArguments(
-      persistenceService: services.persistenceService,
-      favoritesService: services.favoritesService
+      persistenceService: component.persistenceService,
+      favoritesService: component.favoritesService
     )
 
     router?.attachSearch(arguments)
-    presenter.year = type(of: services.yearsService).current
-    services.tracksService.delegate = self
-    services.tracksService.loadTracks()
+    presenter.year = type(of: component.yearsService).current
+    component.tracksService.delegate = self
+    component.tracksService.loadTracks()
   }
 }
 
 extension ScheduleInteractor: SchedulePresentableListener {
   func canFavorite(_ track: Track) -> Bool {
-    services.favoritesService.canFavorite(track)
+    component.favoritesService.canFavorite(track)
   }
 
   func toggleFavorite(_ track: Track) {
-    services.favoritesService.toggleFavorite(track)
+    component.favoritesService.toggleFavorite(track)
   }
 
   func selectFilters() {
-    presenter.showFilters(services.tracksService.filters, selectedFilter: selectedFilter)
+    presenter.showFilters(component.tracksService.filters, selectedFilter: selectedFilter)
   }
 
   func select(_ selectedFilter: TracksFilter) {
@@ -76,7 +76,7 @@ extension ScheduleInteractor: SchedulePresentableListener {
   }
 
   func selectTracksSection(_ section: String) {
-    if let index = services.tracksService.filteredIndexTitles[selectedFilter]?[section] {
+    if let index = component.tracksService.filteredIndexTitles[selectedFilter]?[section] {
       let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
       presenter.scrollToRow(at: indexPath)
     }
@@ -141,15 +141,15 @@ extension ScheduleInteractor: TracksServiceDelegate {
   }
 
   private var filteredTracks: [Track] {
-    services.tracksService.filteredTracks[selectedFilter] ?? []
+    component.tracksService.filteredTracks[selectedFilter] ?? []
   }
 
   private var filteredFavoriteTracks: [Track] {
-    services.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
+    component.tracksService.filteredFavoriteTracks[selectedFilter] ?? []
   }
 
   private var filteredTracksSectionIndexTitles: [String] {
-    services.tracksService.filteredIndexTitles[selectedFilter]?.keys.sorted() ?? []
+    component.tracksService.filteredIndexTitles[selectedFilter]?.keys.sorted() ?? []
   }
 }
 

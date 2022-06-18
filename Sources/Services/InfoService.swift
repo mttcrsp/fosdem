@@ -8,9 +8,9 @@ enum Info: String {
 
 final class InfoService {
   private let queue: DispatchQueue
-  private let bundleService: InfoServiceBundle
+  private let bundleService: BundleServiceProtocol
 
-  init(queue: DispatchQueue = .global(), bundleService: InfoServiceBundle) {
+  init(queue: DispatchQueue = .global(), bundleService: BundleServiceProtocol) {
     self.bundleService = bundleService
     self.queue = queue
   }
@@ -138,8 +138,3 @@ protocol InfoServiceProtocol {
 }
 
 extension InfoService: InfoServiceProtocol {}
-
-/// @mockable
-protocol InfoServiceBundle {
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data
-}

@@ -1,11 +1,7 @@
+import NeedleFoundation
 import RIBs
 
-protocol MoreBuilders {
-  var yearsBuilder: YearsBuildable { get }
-  var videosBuilder: VideosBuildable { get }
-}
-
-protocol MoreServices {
+protocol MoreDependency: NeedleFoundation.Dependency {
   var acknowledgementsService: AcknowledgementsServiceProtocol { get }
   var infoService: InfoServiceProtocol { get }
   var openService: OpenServiceProtocol { get }
@@ -13,17 +9,20 @@ protocol MoreServices {
   var yearsService: YearsServiceProtocol { get }
 }
 
-protocol MoreDependency: Dependency, MoreBuilders, MoreServices {}
-
-protocol MoreBuildable: Buildable {
-  func build(withDynamicDependency dependency: MoreDependency) -> ViewableRouting
+final class MoreComponent: NeedleFoundation.Component<MoreDependency> {
+  var yearsBuilder: YearsBuildable { fatalError() }
+  var videosBuilder: VideosBuildable { fatalError() }
 }
 
-final class MoreBuilder: Builder<EmptyDependency>, MoreBuildable {
-  func build(withDynamicDependency dependency: MoreDependency) -> ViewableRouting {
+protocol MoreBuildable: Buildable {
+  func build() -> ViewableRouting
+}
+
+final class MoreBuilder: SimpleComponentizedBuilder<MoreComponent, ViewableRouting>, MoreBuildable {
+  override func build(with component: MoreComponent) -> ViewableRouting {
     let viewController = MoreRootViewController()
-    let interactor = MoreInteractor(presenter: viewController, services: dependency)
-    let router = MoreRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = MoreInteractor(component: component, presenter: viewController)
+    let router = MoreRouter(component: component, interactor: interactor, viewController: viewController)
     viewController.listener = interactor
     interactor.router = router
     return router
