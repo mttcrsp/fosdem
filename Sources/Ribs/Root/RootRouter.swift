@@ -9,7 +9,6 @@ protocol RootViewControllable: ViewControllable {
   func addSchedule(_ scheduleViewControllable: ViewControllable)
   func removeAgenda()
   func removeMap()
-  func removeSchedule()
 }
 
 class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {

@@ -1,7 +1,27 @@
 import RIBs
 import UIKit
 
-class RootViewController: UITabBarController {
+protocol RootPresentableListener: AnyObject {
+  func openAppStore()
+}
+
+class RootViewController: UIViewController, UITabBarControllerDelegate {
+  weak var listener: RootPresentableListener?
+
+  private weak var tabsController: UITabBarController?
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+
+    let tabsController = UITabBarController()
+    tabsController.delegate = self
+    self.tabsController = tabsController
+
+    add(tabsController)
+
+    view.backgroundColor = .fos_systemGroupedBackground
+  }
+
   private var agendaViewController: UIViewController? {
     didSet { didChangeViewControllers() }
   }
@@ -18,9 +38,23 @@ class RootViewController: UITabBarController {
     didSet { didChangeViewControllers() }
   }
 
+  private func add(_ viewController: UIViewController) {
+    addChild(viewController)
+    view.addSubview(viewController.view)
+    viewController.view.translatesAutoresizingMaskIntoConstraints = false
+    viewController.didMove(toParent: self)
+
+    NSLayoutConstraint.activate([
+      viewController.view.topAnchor.constraint(equalTo: view.topAnchor),
+      viewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+      viewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      viewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+    ])
+  }
+
   private func didChangeViewControllers() {
     let viewControllers = [scheduleViewController, agendaViewController, mapViewController, moreViewController]
-    self.viewControllers = viewControllers.compactMap { $0 }
+    tabsController?.viewControllers = viewControllers.compactMap { $0 }
   }
 }
 
@@ -28,6 +62,21 @@ extension RootViewController: RootPresentable {
   func showError() {
     let errorViewController = UIAlertController.makeErrorController()
     present(errorViewController, animated: true)
+  }
+
+  func showFailure() {
+    let errorViewController = ErrorViewController()
+    errorViewController.delegate = self
+    errorViewController.showsAppStoreButton = true
+    add(errorViewController)
+  }
+
+  func showWelcome(for year: Year) {
+    let welcomeViewController = WelcomeViewController()
+    welcomeViewController.year = year
+    welcomeViewController.delegate = self
+    welcomeViewController.showsContinue = true
+    add(welcomeViewController)
   }
 }
 
@@ -67,8 +116,24 @@ extension RootViewController: RootViewControllable {
   func removeMap() {
     mapViewController = nil
   }
+}
 
-  func removeSchedule() {
-    scheduleViewController = nil
+extension RootViewController: ErrorViewControllerDelegate {
+  func errorViewControllerDidTapAppStore(_: ErrorViewController) {
+    listener?.openAppStore()
+  }
+}
+
+extension RootViewController: WelcomeViewControllerDelegate {
+  func welcomeViewControllerDidTapContinue(_ welcomeViewController: WelcomeViewController) {
+    tabsController?.view.transform = .init(translationX: 0, y: 60)
+    welcomeViewController.willMove(toParent: nil)
+    UIView.animate(withDuration: 0.2) {
+      self.tabsController?.view.transform = .identity
+      welcomeViewController.view.alpha = 0
+    } completion: { _ in
+      welcomeViewController.view.removeFromSuperview()
+      welcomeViewController.removeFromParent()
+    }
   }
 }

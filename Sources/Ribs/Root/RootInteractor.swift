@@ -9,10 +9,19 @@ protocol RootRouting: Routing {
 
 protocol RootPresentable: Presentable {
   func showError()
+  func showFailure()
+  func showWelcome(for year: Year)
 }
 
 class RootInteractor: PresentableInteractor<RootPresentable> {
   var router: RootRouting?
+
+  private let services: RootServices
+
+  init(presenter: RootPresentable, services: RootServices) {
+    self.services = services
+    super.init(presenter: presenter)
+  }
 
   override func didBecomeActive() {
     super.didBecomeActive()
@@ -58,9 +67,15 @@ class RootInteractor: PresentableInteractor<RootPresentable> {
       #else
       services = Services(persistenceService: persistenceService)
       #endif
+
       router?.attach(withServices: services)
+
+      if launchService.didLaunchAfterInstall {
+        let year = type(of: services.yearsService).current
+        presenter.showWelcome(for: year)
+      }
     } catch {
-      // TODO: show error with link to appstore
+      presenter.showFailure()
     }
   }
 }
@@ -73,5 +88,19 @@ extension RootInteractor: RootInteractable {
 
   func mapDidError(_: Error) {
     router?.removeMap()
+  }
+}
+
+extension RootInteractor: RootPresentableListener {
+  func openAppStore() {
+    if let url = URL.fosdemAppStore {
+      services.openService.open(url, completion: nil)
+    }
+  }
+}
+
+private extension URL {
+  static var fosdemAppStore: URL? {
+    URL(string: "https://itunes.apple.com/it/app/id1513719757")
   }
 }

@@ -8,7 +8,11 @@ protocol RootBuilders {
   var scheduleBuilder: ScheduleBuildable { get }
 }
 
-protocol RootDependency: Dependency, RootBuilders {}
+protocol RootServices {
+  var openService: OpenServiceProtocol { get }
+}
+
+protocol RootDependency: Dependency, RootBuilders, RootServices {}
 
 protocol RootBuildable: Buildable {
   func build() -> LaunchRouting
@@ -17,9 +21,10 @@ protocol RootBuildable: Buildable {
 class RootBuilder: Builder<RootDependency> {
   func build() -> LaunchRouting {
     let viewController = RootViewController()
-    let interactor = RootInteractor(presenter: viewController)
+    let interactor = RootInteractor(presenter: viewController, services: dependency)
     let router = RootRouter(builders: dependency, interactor: interactor, viewController: viewController)
     interactor.router = router
+    viewController.listener = interactor
     return router
   }
 }
