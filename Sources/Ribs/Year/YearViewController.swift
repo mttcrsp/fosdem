@@ -67,6 +67,7 @@ extension YearViewController: YearPresentable {
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
+    show(eventsViewController, sender: nil)
   }
 }
 
