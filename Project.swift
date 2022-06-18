@@ -14,6 +14,11 @@ let mockolo = TargetScript.pre(
   name: "Mockolo"
 )
 
+let needleScript = TargetScript.pre(
+  script: "export SOURCEKIT_LOGGING=0 && needle generate Sources/NeedleGenerated.swift Sources/",
+  name: "Needle"
+)
+
 let swiftFormat = TargetScript.post(
   script: "swiftformat .",
   name: "SwiftFormat"
@@ -74,7 +79,7 @@ let app = Target(
   ]),
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
-  scripts: isCI ? [] : [mockolo, swiftFormat],
+  scripts: isCI ? [] : [mockolo, needleScript, swiftFormat],
   dependencies: [
     .package(product: "GRDB"),
     .package(product: "NeedleFoundation"),

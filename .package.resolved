@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "needle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/uber/needle",
+      "state" : {
+        "branch" : "master",
+        "revision" : "d9239a86ff4768f3349eefafce410f415f6b1ce5"
+      }
+    },
+    {
       "identity" : "ribs",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/uber/ribs",
