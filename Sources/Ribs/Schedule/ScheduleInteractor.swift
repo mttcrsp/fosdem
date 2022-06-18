@@ -2,6 +2,7 @@ import Foundation
 import RIBs
 
 protocol ScheduleRouting: ViewableRouting {
+  func attachSearch(_ arguments: SearchArguments)
   func routeToTrack(_ track: Track?)
   func routeToSearchResult(_ event: Event)
   func routeBackFromSearchResult()
@@ -39,6 +40,13 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
 
   override func didBecomeActive() {
     super.didBecomeActive()
+
+    let arguments = SearchArguments(
+      persistenceService: services.persistenceService,
+      favoritesService: services.favoritesService
+    )
+
+    router?.attachSearch(arguments)
     presenter.year = type(of: services.yearsService).current
     services.tracksService.delegate = self
     services.tracksService.loadTracks()

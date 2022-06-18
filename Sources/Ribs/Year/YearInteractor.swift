@@ -2,6 +2,7 @@ import Dispatch
 import RIBs
 
 protocol YearRouting: ViewableRouting {
+  func attachSearch(_ arguments: SearchArguments)
   func routeToEvent(_ event: Event)
   func routeToSearchResult(_ event: Event)
 }
@@ -40,7 +41,14 @@ final class YearInteractor: PresentableInteractor<YearPresentable> {
     presenter.year = arguments.year
 
     do {
-      persistenceService = try services.yearsService.makePersistenceService(forYear: arguments.year)
+      let persistenceService = try services.yearsService.makePersistenceService(forYear: arguments.year)
+      self.persistenceService = persistenceService
+
+      let arguments = SearchArguments(
+        persistenceService: persistenceService,
+        favoritesService: nil
+      )
+      router?.attachSearch(arguments)
     } catch {
       listener?.yearDidError(error)
     }

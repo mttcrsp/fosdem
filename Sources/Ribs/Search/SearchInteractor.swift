@@ -3,6 +3,7 @@ import RIBs
 
 protocol SearchPresentable: Presentable {
   var events: [Event] { get set }
+  var allowsFavoriting: Bool { get set }
   var configuration: SearchPresentableConfiguration { get set }
 }
 
@@ -13,11 +14,16 @@ protocol SearchListener: AnyObject {
 final class SearchInteractor: PresentableInteractor<SearchPresentable> {
   weak var listener: SearchListener?
 
-  private let services: SearchServices
+  private let arguments: SearchArguments
 
-  init(presenter: SearchPresentable, services: SearchServices) {
-    self.services = services
+  init(arguments: SearchArguments, presenter: SearchPresentable) {
+    self.arguments = arguments
     super.init(presenter: presenter)
+  }
+
+  override func didBecomeActive() {
+    super.didBecomeActive()
+    presenter.allowsFavoriting = arguments.favoritesService != nil
   }
 }
 
@@ -30,7 +36,7 @@ extension SearchInteractor: SearchPresentableListener {
     }
 
     let operation = EventsForSearch(query: query)
-    services.persistenceService.performRead(operation) { [weak self] result in
+    arguments.persistenceService.performRead(operation) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case .failure:
@@ -49,14 +55,16 @@ extension SearchInteractor: SearchPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    services.favoritesService.canFavorite(event)
+    arguments.favoritesService?.canFavorite(event) ?? false
   }
 
   func toggleFavorite(_ event: Event) {
+    guard let favoritesService = arguments.favoritesService else { return }
+
     if canFavorite(event) {
-      services.favoritesService.addEvent(withIdentifier: event.id)
+      favoritesService.addEvent(withIdentifier: event.id)
     } else {
-      services.favoritesService.removeEvent(withIdentifier: event.id)
+      favoritesService.removeEvent(withIdentifier: event.id)
     }
   }
 }

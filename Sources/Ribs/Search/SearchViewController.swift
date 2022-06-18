@@ -14,7 +14,7 @@ protocol SearchPresentableListener: AnyObject {
   func canFavorite(_ event: Event) -> Bool
 }
 
-final class SearchViewController: UISearchController, ViewControllable, SearchPresentable {
+final class SearchViewController: UISearchController, ViewControllable {
   weak var listener: SearchPresentableListener?
 
   var events: [Event] = [] {
@@ -34,8 +34,6 @@ final class SearchViewController: UISearchController, ViewControllable, SearchPr
     searchBar.placeholder = L10n.More.Search.prompt
     searchResultsUpdater = self
 
-    eventsViewController.favoritesDataSource = self
-    eventsViewController.favoritesDelegate = self
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
@@ -44,6 +42,16 @@ final class SearchViewController: UISearchController, ViewControllable, SearchPr
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+}
+
+extension SearchViewController: SearchPresentable {
+  var allowsFavoriting: Bool {
+    get { eventsViewController?.favoritesDelegate != nil }
+    set {
+      eventsViewController?.favoritesDelegate = self
+      eventsViewController?.favoritesDataSource = self
+    }
   }
 }
 
@@ -92,6 +100,11 @@ private extension SearchViewController {
     eventsViewController?.view.isHidden = configuration.isViewHidden
     eventsViewController?.emptyBackgroundTitle = configuration.emptyBackgroundTitle
     eventsViewController?.emptyBackgroundMessage = configuration.emptyBackgroundMessage
+  }
+
+  func didChangeAllowsFavoriting() {
+    eventsViewController?.favoritesDataSource = self
+    eventsViewController?.favoritesDelegate = self
   }
 }
 

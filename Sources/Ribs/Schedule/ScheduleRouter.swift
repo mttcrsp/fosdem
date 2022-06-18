@@ -18,17 +18,15 @@ final class ScheduleRouter: ViewableRouter<ScheduleInteractable, ScheduleViewCon
     self.builders = builders
     super.init(interactor: interactor, viewController: viewController)
   }
-
-  override func didLoad() {
-    super.didLoad()
-
-    let searchRouter = builders.searchBuilder.build(withListener: interactor)
-    attachChild(searchRouter)
-    viewController.addSearch(searchRouter.viewControllable)
-  }
 }
 
 extension ScheduleRouter: ScheduleRouting {
+  func attachSearch(_ arguments: SearchArguments) {
+    let searchRouter = builders.searchBuilder.build(withArguments: arguments, listener: interactor)
+    attachChild(searchRouter)
+    viewController.addSearch(searchRouter.viewControllable)
+  }
+
   func routeToTrack(_ track: Track?) {
     if let trackRouter = trackRouter {
       detachChild(trackRouter)
