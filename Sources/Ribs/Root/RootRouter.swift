@@ -57,6 +57,9 @@ extension RootRouter: RootRouting {
   }
 
   func removeMap() {
-    viewController.removeMap()
+    if let mapRouter = mapRouter {
+      detachChild(mapRouter)
+      viewController.removeMap()
+    }
   }
 }

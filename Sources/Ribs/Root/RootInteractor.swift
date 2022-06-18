@@ -73,6 +73,5 @@ extension RootInteractor: RootInteractable {
 
   func mapDidError(_: Error) {
     router?.removeMap()
-    presenter.showError()
   }
 }
