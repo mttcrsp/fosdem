@@ -42,6 +42,10 @@ final class RootComponent: BootstrapComponent {
     shared { OpenService() }
   }
 
+  var playbackService: PlaybackServiceProtocol {
+    shared { PlaybackService() }
+  }
+
   var timeService: TimeServiceProtocol {
     shared { TimeService() }
   }
@@ -66,8 +70,8 @@ extension RootComponent: AgendaDependency {
 }
 
 extension RootComponent: MoreDependency {
-  func buildMoreRouter() -> ViewableRouting {
-    MoreBuilder(componentBuilder: { MoreComponent(parent: self) })
+  func buildMoreRouter(withPersistenceService persistenceService: PersistenceServiceProtocol) -> ViewableRouting {
+    MoreBuilder(componentBuilder: { MoreComponent(parent: self, persistenceService: persistenceService) })
       .build()
   }
 }

@@ -1,30 +1,28 @@
+import NeedleFoundation
 import RIBs
 
-protocol VideosBuilders {
-  var eventBuilder: EventBuildable { get }
-}
-
-protocol VideosServices {
+protocol VideosDependency: NeedleFoundation.Dependency {
+  var persistenceService: PersistenceServiceProtocol { get }
   var playbackService: PlaybackServiceProtocol { get }
-  var videosService: VideosServiceProtocol { get }
 }
 
-protocol VideosDependency: Dependency, VideosBuilders, VideosServices {}
+final class VideosComponent: NeedleFoundation.Component<VideosDependency> {
+  var videosService: VideosServiceProtocol {
+    shared { VideosService(playbackService: dependency.playbackService, persistenceService: dependency.persistenceService) }
+  }
 
-protocol VideosListener: AnyObject {
-  func videosDidError(_ error: Error)
-  func videosDidDismiss()
+  var eventBuilder: EventBuildable { fatalError() }
 }
 
 protocol VideosBuildable: Buildable {
-  func build(withListener listener: VideosListener) -> VideosRouting
+  func finalStageBuild(withDynamicDependency dynamicDependency: VideosListener) -> VideosRouting
 }
 
-final class VideosBuilder: Builder<VideosDependency>, VideosBuildable {
-  func build(withListener listener: VideosListener) -> VideosRouting {
+final class VideosBuilder: MultiStageComponentizedBuilder<VideosComponent, VideosRouting, VideosListener>, VideosBuildable {
+  override func finalStageBuild(with component: VideosComponent, _ listener: VideosListener) -> VideosRouting {
     let viewController = VideosViewController()
-    let interactor = VideosInteractor(presenter: viewController, services: dependency)
-    let router = VideosRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = VideosInteractor(component: component, presenter: viewController)
+    let router = VideosRouter(component: component, interactor: interactor, viewController: viewController)
     interactor.listener = listener
     interactor.router = router
     viewController.listener = interactor

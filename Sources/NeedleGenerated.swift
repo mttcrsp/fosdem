@@ -16,6 +16,9 @@ public func registerProviderFactories() {
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent") { component in
     MoreDependency8687d23345095611bcfeProvider(component: component)
   }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent->VideosComponent") { component in
+    VideosDependency3ccf734c2404aef4d105Provider(component: component)
+  }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MapComponent") { component in
     MapDependency7dfd1288fd22c9a72c37Provider(component: component)
   }
@@ -82,6 +85,30 @@ private class MoreDependency8687d23345095611bcfeBaseProvider: MoreDependency {
 private class MoreDependency8687d23345095611bcfeProvider: MoreDependency8687d23345095611bcfeBaseProvider {
   init(component: NeedleFoundation.Scope) {
     super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
+
+private class VideosDependency3ccf734c2404aef4d105BaseProvider: VideosDependency {
+  var persistenceService: PersistenceServiceProtocol {
+    moreComponent.persistenceService
+  }
+
+  var playbackService: PlaybackServiceProtocol {
+    rootComponent.playbackService
+  }
+
+  private let moreComponent: MoreComponent
+  private let rootComponent: RootComponent
+  init(moreComponent: MoreComponent, rootComponent: RootComponent) {
+    self.moreComponent = moreComponent
+    self.rootComponent = rootComponent
+  }
+}
+
+/// ^->RootComponent->MoreComponent->VideosComponent
+private class VideosDependency3ccf734c2404aef4d105Provider: VideosDependency3ccf734c2404aef4d105BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(moreComponent: component.parent as! MoreComponent, rootComponent: component.parent.parent as! RootComponent)
   }
 }
 

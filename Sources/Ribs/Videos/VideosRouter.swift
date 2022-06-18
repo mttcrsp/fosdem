@@ -7,10 +7,10 @@ protocol VideosViewControllable: ViewControllable {
 final class VideosRouter: ViewableRouter<Interactable, VideosViewControllable> {
   private var eventRouter: ViewableRouting?
 
-  private let builders: VideosBuilders
+  private let component: VideosComponent
 
-  init(builders: VideosBuilders, interactor: Interactable, viewController: VideosViewControllable) {
-    self.builders = builders
+  init(component: VideosComponent, interactor: Interactable, viewController: VideosViewControllable) {
+    self.component = component
     super.init(interactor: interactor, viewController: viewController)
   }
 }
@@ -23,7 +23,7 @@ extension VideosRouter: VideosRouting {
     }
 
     if let event = event {
-      let eventRouter = builders.eventBuilder.build(with: .init(event: event))
+      let eventRouter = component.eventBuilder.build(with: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
       viewController.showEvent(eventRouter.viewControllable)

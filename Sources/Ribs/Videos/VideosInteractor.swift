@@ -1,6 +1,11 @@
 import Foundation
 import RIBs
 
+protocol VideosListener: AnyObject {
+  func videosDidError(_ error: Error)
+  func videosDidDismiss()
+}
+
 protocol VideosRouting: ViewableRouting {
   func routeToEvent(_ event: Event?)
 }
@@ -16,10 +21,10 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
 
   private var observer: NSObjectProtocol?
 
-  private let services: VideosServices
+  private let component: VideosComponent
 
-  init(presenter: VideosPresentable, services: VideosServices) {
-    self.services = services
+  init(component: VideosComponent, presenter: VideosPresentable) {
+    self.component = component
     super.init(presenter: presenter)
   }
 
@@ -27,7 +32,7 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
     super.didBecomeActive()
 
     loadVideos()
-    observer = services.playbackService.addObserver { [weak self] in
+    observer = component.playbackService.addObserver { [weak self] in
       self?.loadVideos()
     }
   }
@@ -36,14 +41,14 @@ final class VideosInteractor: PresentableInteractor<VideosPresentable> {
     super.willResignActive()
 
     if let observer = observer {
-      services.playbackService.removeObserver(observer)
+      component.playbackService.removeObserver(observer)
     }
   }
 }
 
 extension VideosInteractor: VideosPresentableListener {
   func delete(_ event: Event) {
-    services.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
+    component.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
   }
 
   func select(_ event: Event) {
@@ -57,7 +62,7 @@ extension VideosInteractor: VideosPresentableListener {
 
 private extension VideosInteractor {
   func loadVideos() {
-    services.videosService.loadVideos { [weak self] result in
+    component.videosService.loadVideos { [weak self] result in
       switch result {
       case let .failure(error):
         self?.listener?.videosDidError(error)

@@ -26,7 +26,6 @@ class Services {
   private(set) lazy var searchBuilder: SearchBuildable = SearchBuilder(dependency: self)
   private(set) lazy var soonBuilder: SoonBuildable = SoonBuilder(dependency: self)
   private(set) lazy var trackBuilder: TrackBuildable = TrackBuilder(dependency: self)
-  private(set) lazy var videosBuilder: VideosBuildable = VideosBuilder(dependency: self)
   private(set) lazy var yearBuilder: YearBuildable = YearBuilder(dependency: self)
   private(set) lazy var yearsBuilder: YearsBuildable = YearsBuilder(dependency: self)
 

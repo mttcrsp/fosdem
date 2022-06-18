@@ -11,7 +11,20 @@ protocol MoreDependency: NeedleFoundation.Dependency {
 
 final class MoreComponent: NeedleFoundation.Component<MoreDependency> {
   var yearsBuilder: YearsBuildable { fatalError() }
-  var videosBuilder: VideosBuildable { fatalError() }
+
+  let persistenceService: PersistenceServiceProtocol
+
+  init(parent: Scope, persistenceService: PersistenceServiceProtocol) {
+    self.persistenceService = persistenceService
+    super.init(parent: parent)
+  }
+}
+
+extension MoreComponent {
+  func buildVideosRouter(withListener listener: VideosListener) -> VideosRouting {
+    VideosBuilder(componentBuilder: { VideosComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: listener)
+  }
 }
 
 protocol MoreBuildable: Buildable {

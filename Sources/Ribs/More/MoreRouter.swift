@@ -21,7 +21,7 @@ final class MoreRouter: ViewableRouter<MoreInteractable, MoreViewControllable> {
 
 extension MoreRouter: MoreRouting {
   func routeToVideos() {
-    let videosRouter = component.videosBuilder.build(withListener: interactor)
+    let videosRouter = component.buildVideosRouter(withListener: interactor)
     self.videosRouter = videosRouter
     attachChild(videosRouter)
     viewController.showVideos(videosRouter.viewControllable)

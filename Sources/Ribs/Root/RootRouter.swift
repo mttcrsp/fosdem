@@ -35,7 +35,7 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
 
-    let moreRouter = component.buildMoreRouter()
+    let moreRouter = component.buildMoreRouter(withPersistenceService: persistenceService)
     self.moreRouter = moreRouter
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)
