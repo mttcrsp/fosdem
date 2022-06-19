@@ -18,7 +18,7 @@ final class MoreComponent: NeedleFoundation.Component<MoreDependency> {
     self.persistenceService = persistenceService
     super.init(parent: parent)
   }
-  
+
   func buildVideosRouter(withListener listener: VideosListener) -> VideosRouting {
     VideosBuilder(componentBuilder: { VideosComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: listener)

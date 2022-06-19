@@ -5,15 +5,11 @@ protocol YearsDependency: NeedleFoundation.Dependency {
   var networkService: NetworkService { get }
 }
 
-final class YearsComponent: NeedleFoundation.Component<YearsDependency> {}
-
-extension YearsComponent {
+final class YearsComponent: NeedleFoundation.Component<YearsDependency> {
   var yearsService: YearsServiceProtocol {
     shared { YearsService(networkService: dependency.networkService) }
   }
-}
 
-extension YearsComponent {
   func buildYearRouter(withArguments arguments: YearArguments, listener: YearListener) -> YearRouting {
     YearBuilder(componentBuilder: { YearComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: (arguments, listener))

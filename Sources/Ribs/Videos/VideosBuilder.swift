@@ -10,7 +10,7 @@ final class VideosComponent: NeedleFoundation.Component<VideosDependency> {
   var videosService: VideosServiceProtocol {
     shared { VideosService(playbackService: dependency.playbackService, persistenceService: dependency.persistenceService) }
   }
-  
+
   func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
     EventBuilder(componentBuilder: { EventComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: arguments)
