@@ -57,13 +57,14 @@ final class EventView: UIStackView {
       setCustomSpacing(28, after: videoButton)
 
       constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
-    } else if showsLivestream {
+    } else if event.links.contains(where: \.isLivestream) {
       let livestreamAction = #selector(didTapLivestream)
       let livestreamButton = RoundedButton()
       livestreamButton.accessibilityIdentifier = "livestream"
       livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
       livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
       livestreamButton.setTitle(L10n.Event.livestream, for: .normal)
+      livestreamButton.isHidden = true
       self.livestreamButton = livestreamButton
       addArrangedSubview(livestreamButton)
       setCustomSpacing(28, after: livestreamButton)

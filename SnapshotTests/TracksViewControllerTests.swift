@@ -107,8 +107,8 @@ final class TracksViewControllerTestsTests: XCTestCase {
 
     unfavoriteAction.handler(unfavoriteAction, UIView()) { _ in }
     XCTAssertEqual(
-      favoritesDelegate.tracksViewControllerArgValues.map(\.1),
-      [Track(name: "1", day: 1, date: date)]
+      favoritesDelegate.tracksViewControllerArgValues.map(\.1.name),
+      ["1"]
     )
 
     let favoriteIndexPath = IndexPath(row: 2, section: 1)
@@ -117,8 +117,8 @@ final class TracksViewControllerTestsTests: XCTestCase {
 
     favoriteAction.handler(favoriteAction, UIView()) { _ in }
     XCTAssertEqual(
-      favoritesDelegate.tracksViewControllerArgValues.map(\.1),
-      [Track(name: "2", day: 1, date: date)]
+      favoritesDelegate.tracksViewControllerArgValues.map(\.1.name),
+      ["1", "2"]
     )
   }
 
