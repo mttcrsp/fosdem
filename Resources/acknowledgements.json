@@ -8,8 +8,16 @@
     "url": "https://github.com/uber/mockolo"
   },
   {
+    "name": "Needle",
+    "url": "https://github.com/uber/needle"
+  },
+  {
     "name": "Periphery",
     "url": "https://github.com/peripheryapp/periphery"
+  },
+  {
+    "name": "RIBs",
+    "url": "https://github.com/uber/ribs"
   },
   {
     "name": "SnapshotTesting",
