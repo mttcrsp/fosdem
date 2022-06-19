@@ -14,14 +14,12 @@ final class AgendaComponent: NeedleFoundation.Component<AgendaDependency> {
     super.init(parent: parent)
   }
 
-  func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
+  var eventBuilder: EventBuildable {
     EventBuilder(componentBuilder: { EventComponent(parent: self) })
-      .finalStageBuild(withDynamicDependency: arguments)
   }
 
-  func buildSoonRouter(withListener listener: SoonListener) -> SoonRouting {
+  var soonBuilder: SoonBuildable {
     SoonBuilder(componentBuilder: { SoonComponent(parent: self) })
-      .finalStageBuild(withDynamicDependency: listener)
   }
 }
 
