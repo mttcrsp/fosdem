@@ -15,23 +15,19 @@ final class ScheduleComponent: NeedleFoundation.Component<ScheduleDependency> {
     self.persistenceService = persistenceService
     super.init(parent: parent)
   }
-}
-
-extension ScheduleComponent {
+  
   var tracksService: TracksServiceProtocol {
     shared { TracksService(favoritesService: dependency.favoritesService, persistenceService: persistenceService) }
   }
-}
-
-extension ScheduleComponent {
-  func buildTrackRouter(withArguments arguments: TrackArguments, listener: TrackListener) -> ViewableRouting {
-    TrackBuilder(componentBuilder: { TrackComponent(parent: self) })
-      .finalStageBuild(withDynamicDependency: (arguments, listener))
-  }
-
+  
   func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
     EventBuilder(componentBuilder: { EventComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: arguments)
+  }
+  
+  func buildTrackRouter(withArguments arguments: TrackArguments, listener: TrackListener) -> ViewableRouting {
+    TrackBuilder(componentBuilder: { TrackComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: (arguments, listener))
   }
 }
 
