@@ -11,8 +11,13 @@ final class SoonComponent: NeedleFoundation.Component<SoonDependency> {
   var soonService: SoonServiceProtocol {
     shared { SoonService(timeService: dependency.timeService, persistenceService: dependency.persistenceService) }
   }
+}
 
-  var eventBuilder: EventBuildable { fatalError() }
+extension SoonComponent {
+  func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
+    EventBuilder(componentBuilder: { EventComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: arguments)
+  }
 }
 
 protocol SoonBuildable: Buildable {

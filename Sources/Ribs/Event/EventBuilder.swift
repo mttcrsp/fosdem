@@ -1,4 +1,5 @@
 import Foundation
+import NeedleFoundation
 import RIBs
 
 struct EventArguments {
@@ -11,7 +12,7 @@ struct EventArguments {
   }
 }
 
-protocol EventServices {
+protocol EventDependency: NeedleFoundation.Dependency {
   var player: AVPlayerProtocol { get }
   var audioSession: AVAudioSessionProtocol { get }
   var favoritesService: FavoritesServiceProtocol { get }
@@ -20,16 +21,16 @@ protocol EventServices {
   var timeService: TimeServiceProtocol { get }
 }
 
-protocol EventDependency: Dependency, EventServices {}
+final class EventComponent: NeedleFoundation.Component<EventDependency> {}
 
 protocol EventBuildable {
-  func build(with arguments: EventArguments) -> ViewableRouting
+  func finalStageBuild(withDynamicDependency dynamicDependency: EventArguments) -> ViewableRouting
 }
 
-final class EventBuilder: Builder<EventDependency>, EventBuildable {
-  func build(with arguments: EventArguments) -> ViewableRouting {
+final class EventBuilder: MultiStageComponentizedBuilder<EventComponent, ViewableRouting, EventArguments>, EventBuildable {
+  override func finalStageBuild(with component: EventComponent, _ arguments: EventArguments) -> ViewableRouting {
     let viewController = EventRootViewController(event: arguments.event)
-    let interactor = EventInteractor(arguments: arguments, presenter: viewController, services: dependency)
+    let interactor = EventInteractor(arguments: arguments, component: component, presenter: viewController)
     let router = ViewableRouter(interactor: interactor, viewController: viewController)
     viewController.listener = interactor
     return router

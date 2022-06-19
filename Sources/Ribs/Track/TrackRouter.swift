@@ -23,7 +23,7 @@ extension TrackRouter: TrackRouting {
     }
 
     if let event = event {
-      let eventRouter = component.eventBuilder.build(with: .init(event: event))
+      let eventRouter = component.buildEventRouter(withArguments: .init(event: event))
       self.eventRouter = eventRouter
       attachChild(eventRouter)
       viewController.showEvent(eventRouter.viewControllable)

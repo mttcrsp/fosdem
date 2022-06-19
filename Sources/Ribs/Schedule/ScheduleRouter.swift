@@ -47,7 +47,7 @@ extension ScheduleRouter: ScheduleRouting {
       self.searchResultRouter = nil
     }
 
-    let searchResultRouter = component.eventBuilder.build(with: .init(event: event))
+    let searchResultRouter = component.buildEventRouter(withArguments: .init(event: event))
     self.searchResultRouter = searchResultRouter
     attachChild(searchResultRouter)
     viewController.showSearchResult(searchResultRouter.viewControllable)

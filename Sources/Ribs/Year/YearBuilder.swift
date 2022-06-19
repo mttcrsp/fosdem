@@ -10,7 +10,11 @@ protocol YearDependency: NeedleFoundation.Dependency {
 }
 
 final class YearComponent: NeedleFoundation.Component<YearDependency> {
-  var eventBuilder: EventBuildable { fatalError() }
+  func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
+    EventBuilder(componentBuilder: { EventComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: arguments)
+  }
+
   var searchBuilder: SearchBuildable { fatalError() }
 }
 

@@ -1,3 +1,5 @@
+import AVFAudio
+import AVFoundation
 import Foundation
 import NeedleFoundation
 import RIBs
@@ -74,5 +76,19 @@ extension RootComponent {
   func buildScheduleRouter(withPersistenceService persistenceService: PersistenceServiceProtocol) -> ViewableRouting {
     ScheduleBuilder(componentBuilder: { ScheduleComponent(parent: self, persistenceService: persistenceService) })
       .build()
+  }
+}
+
+extension RootComponent {
+  var audioSession: AVAudioSessionProtocol {
+    shared { AVAudioSession.sharedInstance() }
+  }
+
+  var notificationCenter: NotificationCenter {
+    shared { .default }
+  }
+
+  var player: AVPlayerProtocol {
+    shared { AVPlayer() }
   }
 }

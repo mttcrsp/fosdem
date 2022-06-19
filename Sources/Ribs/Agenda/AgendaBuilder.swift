@@ -13,16 +13,17 @@ final class AgendaComponent: NeedleFoundation.Component<AgendaDependency> {
     self.persistenceService = persistenceService
     super.init(parent: parent)
   }
-
-  var eventBuilder: EventBuildable {
-    fatalError()
-  }
 }
 
 extension AgendaComponent {
   func buildSoonRouter(withListener listener: SoonListener) -> SoonRouting {
     SoonBuilder(componentBuilder: { SoonComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: listener)
+  }
+
+  func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
+    EventBuilder(componentBuilder: { EventComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: arguments)
   }
 }
 

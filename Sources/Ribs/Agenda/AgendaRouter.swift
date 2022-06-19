@@ -26,7 +26,7 @@ final class AgendaRouter: ViewableRouter<AgendaInteractable, AgendaViewControlla
     }
 
     if let event = event {
-      let router = component.eventBuilder.build(with: .init(event: event))
+      let router = component.buildEventRouter(withArguments: .init(event: event))
       attachChild(router)
       viewController.showDetail(router.viewControllable)
       eventRouter = router

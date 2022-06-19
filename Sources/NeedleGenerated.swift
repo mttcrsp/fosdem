@@ -1,5 +1,7 @@
 
 
+import AVFAudio
+import AVFoundation
 import Foundation
 import NeedleFoundation
 import RIBs
@@ -39,6 +41,24 @@ public func registerProviderFactories() {
   }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->AgendaComponent") { component in
     AgendaDependency232d2546a089120fcfacProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->ScheduleComponent->EventComponent") { component in
+    EventDependencye5a21d82d937e54bd2e3Provider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->ScheduleComponent->TrackComponent->EventComponent") { component in
+    EventDependencyaeb7f456efa60b28b73aProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent->VideosComponent->EventComponent") { component in
+    EventDependencyb8f99399bf6feb3e43cdProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->AgendaComponent->SoonComponent->EventComponent") { component in
+    EventDependency67e2f2add8e1e9f6919aProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent->YearsComponent->YearComponent->EventComponent") { component in
+    EventDependencyf0410e86b6055dafd9beProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->AgendaComponent->EventComponent") { component in
+    EventDependency41a87b3fa9d0ea861680Provider(component: component)
   }
 }
 
@@ -261,5 +281,78 @@ private class AgendaDependency232d2546a089120fcfacBaseProvider: AgendaDependency
 private class AgendaDependency232d2546a089120fcfacProvider: AgendaDependency232d2546a089120fcfacBaseProvider {
   init(component: NeedleFoundation.Scope) {
     super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
+
+private class EventDependencye5a21d82d937e54bd2e3BaseProvider: EventDependency {
+  var player: AVPlayerProtocol {
+    rootComponent.player
+  }
+
+  var audioSession: AVAudioSessionProtocol {
+    rootComponent.audioSession
+  }
+
+  var favoritesService: FavoritesServiceProtocol {
+    rootComponent.favoritesService
+  }
+
+  var notificationCenter: NotificationCenter {
+    rootComponent.notificationCenter
+  }
+
+  var playbackService: PlaybackServiceProtocol {
+    rootComponent.playbackService
+  }
+
+  var timeService: TimeServiceProtocol {
+    rootComponent.timeService
+  }
+
+  private let rootComponent: RootComponent
+  init(rootComponent: RootComponent) {
+    self.rootComponent = rootComponent
+  }
+}
+
+/// ^->RootComponent->ScheduleComponent->EventComponent
+private class EventDependencye5a21d82d937e54bd2e3Provider: EventDependencye5a21d82d937e54bd2e3BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent as! RootComponent)
+  }
+}
+
+/// ^->RootComponent->ScheduleComponent->TrackComponent->EventComponent
+private class EventDependencyaeb7f456efa60b28b73aProvider: EventDependencye5a21d82d937e54bd2e3BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent.parent as! RootComponent)
+  }
+}
+
+/// ^->RootComponent->MoreComponent->VideosComponent->EventComponent
+private class EventDependencyb8f99399bf6feb3e43cdProvider: EventDependencye5a21d82d937e54bd2e3BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent.parent as! RootComponent)
+  }
+}
+
+/// ^->RootComponent->AgendaComponent->SoonComponent->EventComponent
+private class EventDependency67e2f2add8e1e9f6919aProvider: EventDependencye5a21d82d937e54bd2e3BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent.parent as! RootComponent)
+  }
+}
+
+/// ^->RootComponent->MoreComponent->YearsComponent->YearComponent->EventComponent
+private class EventDependencyf0410e86b6055dafd9beProvider: EventDependencye5a21d82d937e54bd2e3BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent.parent.parent as! RootComponent)
+  }
+}
+
+/// ^->RootComponent->AgendaComponent->EventComponent
+private class EventDependency41a87b3fa9d0ea861680Provider: EventDependencye5a21d82d937e54bd2e3BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent as! RootComponent)
   }
 }

@@ -14,11 +14,11 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
   private var timeObserver: Any?
 
   private let arguments: EventArguments
-  private let services: EventServices
+  private let component: EventComponent
 
-  init(arguments: EventArguments, presenter: EventPresentable, services: EventServices) {
+  init(arguments: EventArguments, component: EventComponent, presenter: EventPresentable) {
     self.arguments = arguments
-    self.services = services
+    self.component = component
     super.init(presenter: presenter)
   }
 
@@ -26,15 +26,15 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
     super.didBecomeActive()
 
     let hasLivestream = event.links.contains(where: \.isLivestream)
-    let isLivestreamToday = event.isSameDay(as: services.timeService.now)
+    let isLivestreamToday = event.isSameDay(as: component.timeService.now)
     presenter.showsLivestream = hasLivestream && isLivestreamToday
     presenter.allowsFavoriting = arguments.allowsFavoriting
-    presenter.playbackPosition = services.playbackService.playbackPosition(forEventWithIdentifier: event.id)
+    presenter.playbackPosition = component.playbackService.playbackPosition(forEventWithIdentifier: event.id)
 
-    presenter.showsFavorite = !services.favoritesService.canFavorite(event)
-    favoritesObserver = services.favoritesService.addObserverForEvents { [weak self] _ in
+    presenter.showsFavorite = !component.favoritesService.canFavorite(event)
+    favoritesObserver = component.favoritesService.addObserverForEvents { [weak self] _ in
       if let self = self {
-        self.presenter.showsFavorite = !self.services.favoritesService.canFavorite(self.event)
+        self.presenter.showsFavorite = !self.component.favoritesService.canFavorite(self.event)
       }
     }
   }
@@ -43,19 +43,19 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
     super.willResignActive()
 
     if let favoritesObserver = favoritesObserver {
-      services.favoritesService.removeObserver(favoritesObserver)
+      component.favoritesService.removeObserver(favoritesObserver)
     }
 
     if let finishObserver = finishObserver {
-      services.notificationCenter.removeObserver(finishObserver)
+      component.notificationCenter.removeObserver(finishObserver)
     }
 
     if let timeObserver = timeObserver {
-      services.player.removeTimeObserver(timeObserver)
+      component.player.removeTimeObserver(timeObserver)
     }
 
     do {
-      try services.audioSession.setActive(false, options: [])
+      try component.audioSession.setActive(false, options: [])
     } catch {
       assertionFailure(error.localizedDescription)
     }
@@ -64,48 +64,48 @@ final class EventInteractor: PresentableInteractor<EventPresentable> {
 
 extension EventInteractor: EventPresentableListener {
   func toggleFavorite() {
-    services.favoritesService.toggleFavorite(event)
+    component.favoritesService.toggleFavorite(event)
   }
 
   func beginFullScreenPlayerPresentation() {
     let eventID = event.id
 
     do {
-      try services.audioSession.setCategory(.playback)
-      try services.audioSession.setActive(true, options: [])
+      try component.audioSession.setCategory(.playback)
+      try component.audioSession.setActive(true, options: [])
     } catch {
       assertionFailure(error.localizedDescription)
     }
 
     let intervalScale = CMTimeScale(NSEC_PER_SEC)
     let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
-    timeObserver = services.player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+    timeObserver = component.player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
       let position = PlaybackPosition.at(time.seconds)
-      self?.services.playbackService.setPlaybackPosition(position, forEventWithIdentifier: eventID)
+      self?.component.playbackService.setPlaybackPosition(position, forEventWithIdentifier: eventID)
       self?.presenter.playbackPosition = position
     }
 
-    finishObserver = services.notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
+    finishObserver = component.notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
       let position = PlaybackPosition.end
-      self?.services.playbackService.setPlaybackPosition(position, forEventWithIdentifier: eventID)
+      self?.component.playbackService.setPlaybackPosition(position, forEventWithIdentifier: eventID)
       self?.presenter.playbackPosition = position
     }
 
-    if case let .at(seconds) = services.playbackService.playbackPosition(forEventWithIdentifier: eventID) {
+    if case let .at(seconds) = component.playbackService.playbackPosition(forEventWithIdentifier: eventID) {
       let timeScale = CMTimeScale(NSEC_PER_SEC)
       let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
-      services.player.seek(to: time)
+      component.player.seek(to: time)
     }
   }
 
   func endFullScreenPlayerPresentation() {
     if let timeObserver = timeObserver {
-      services.player.removeTimeObserver(timeObserver)
+      component.player.removeTimeObserver(timeObserver)
       self.timeObserver = nil
     }
 
     if let finishObserver = finishObserver {
-      services.notificationCenter.removeObserver(finishObserver)
+      component.notificationCenter.removeObserver(finishObserver)
       self.finishObserver = nil
     }
   }

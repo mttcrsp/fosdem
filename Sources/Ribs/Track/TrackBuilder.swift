@@ -11,7 +11,10 @@ protocol TrackDependency: NeedleFoundation.Dependency {
 }
 
 final class TrackComponent: NeedleFoundation.Component<TrackDependency> {
-  var eventBuilder: EventBuildable { fatalError() }
+  func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
+    EventBuilder(componentBuilder: { EventComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: arguments)
+  }
 }
 
 protocol TrackBuildable: Buildable {

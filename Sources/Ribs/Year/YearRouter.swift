@@ -54,6 +54,6 @@ extension YearRouter: YearRouting {
 
 private extension YearRouter {
   func makeEventRouter(for event: Event) -> ViewableRouting {
-    component.eventBuilder.build(with: .init(event: event, allowsFavoriting: false))
+    component.buildEventRouter(withArguments: .init(event: event, allowsFavoriting: false))
   }
 }
