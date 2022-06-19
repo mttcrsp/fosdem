@@ -24,7 +24,7 @@ extension YearsRouter: YearsRouting {
       self.yearRouter = nil
     }
 
-    let yearRouter = component.yearBuilder.build(with: .init(year: year), listener: interactor)
+    let yearRouter = component.buildYearRouter(withArguments: .init(year: year), listener: interactor)
     self.yearRouter = yearRouter
     attachChild(yearRouter)
     viewController.showYear(yearRouter.viewControllable)

@@ -1,30 +1,29 @@
+import NeedleFoundation
 import RIBs
-
-protocol YearBuilders {
-  var eventBuilder: EventBuildable { get }
-  var searchBuilder: SearchBuildable { get }
-}
-
-protocol YearServices {
-  var yearsService: YearsServiceProtocol { get }
-}
-
-protocol YearDependency: Dependency, YearBuilders, YearServices {}
 
 struct YearArguments {
   let year: Year
 }
 
-protocol YearBuildable: Buildable {
-  func build(with arguments: YearArguments, listener: YearListener) -> YearRouting
+protocol YearDependency: NeedleFoundation.Dependency {
+  var yearsService: YearsServiceProtocol { get }
 }
 
-final class YearBuilder: Builder<YearDependency>, YearBuildable {
-  func build(with arguments: YearArguments, listener: YearListener) -> YearRouting {
+final class YearComponent: NeedleFoundation.Component<YearDependency> {
+  var eventBuilder: EventBuildable { fatalError() }
+  var searchBuilder: SearchBuildable { fatalError() }
+}
+
+protocol YearBuildable: Buildable {
+  func finalStageBuild(withDynamicDependency dynamicDependency: (YearArguments, YearListener)) -> YearRouting
+}
+
+final class YearBuilder: MultiStageComponentizedBuilder<YearComponent, YearRouting, (YearArguments, YearListener)>, YearBuildable {
+  override func finalStageBuild(with component: YearComponent, _ dynamicDependency: (arguments: YearArguments, listener: YearListener)) -> YearRouting {
     let viewController = YearViewController()
-    let interactor = YearInteractor(arguments: arguments, presenter: viewController, services: dependency)
-    let router = YearRouter(builders: dependency, interactor: interactor, viewController: viewController)
-    interactor.listener = listener
+    let interactor = YearInteractor(arguments: dynamicDependency.arguments, component: component, presenter: viewController)
+    let router = YearRouter(component: component, interactor: interactor, viewController: viewController)
+    interactor.listener = dynamicDependency.listener
     interactor.router = router
     viewController.listener = interactor
     return router

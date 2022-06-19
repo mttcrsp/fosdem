@@ -31,6 +31,9 @@ public func registerProviderFactories() {
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->AgendaComponent->SoonComponent") { component in
     SoonDependency9a2a455ed39148b6e961Provider(component: component)
   }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent->YearsComponent->YearComponent") { component in
+    YearDependencyeb270672d5cc37d51804Provider(component: component)
+  }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent") { component in
     EmptyDependencyProvider(component: component)
   }
@@ -218,6 +221,24 @@ private class SoonDependency9a2a455ed39148b6e961BaseProvider: SoonDependency {
 private class SoonDependency9a2a455ed39148b6e961Provider: SoonDependency9a2a455ed39148b6e961BaseProvider {
   init(component: NeedleFoundation.Scope) {
     super.init(agendaComponent: component.parent as! AgendaComponent, rootComponent: component.parent.parent as! RootComponent)
+  }
+}
+
+private class YearDependencyeb270672d5cc37d51804BaseProvider: YearDependency {
+  var yearsService: YearsServiceProtocol {
+    yearsComponent.yearsService
+  }
+
+  private let yearsComponent: YearsComponent
+  init(yearsComponent: YearsComponent) {
+    self.yearsComponent = yearsComponent
+  }
+}
+
+/// ^->RootComponent->MoreComponent->YearsComponent->YearComponent
+private class YearDependencyeb270672d5cc37d51804Provider: YearDependencyeb270672d5cc37d51804BaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(yearsComponent: component.parent as! YearsComponent)
   }
 }
 
