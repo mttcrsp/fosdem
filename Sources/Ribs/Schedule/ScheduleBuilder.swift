@@ -7,8 +7,6 @@ protocol ScheduleDependency: NeedleFoundation.Dependency {
 }
 
 final class ScheduleComponent: NeedleFoundation.Component<ScheduleDependency> {
-  var searchBuilder: SearchBuildable { fatalError() }
-
   let persistenceService: PersistenceServiceProtocol
 
   init(parent: Scope, persistenceService: PersistenceServiceProtocol) {
@@ -23,6 +21,11 @@ final class ScheduleComponent: NeedleFoundation.Component<ScheduleDependency> {
   func buildEventRouter(withArguments arguments: EventArguments) -> ViewableRouting {
     EventBuilder(componentBuilder: { EventComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: arguments)
+  }
+
+  func buildSearchRouter(withArguments arguments: SearchArguments, listener: SearchListener) -> ViewableRouting {
+    SearchBuilder(componentBuilder: { SearchComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: (arguments, listener))
   }
 
   func buildTrackRouter(withArguments arguments: TrackArguments, listener: TrackListener) -> ViewableRouting {

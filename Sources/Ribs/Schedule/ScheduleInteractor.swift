@@ -41,12 +41,7 @@ final class ScheduleInteractor: PresentableInteractor<SchedulePresentable> {
   override func didBecomeActive() {
     super.didBecomeActive()
 
-    let arguments = SearchArguments(
-      persistenceService: component.persistenceService,
-      favoritesService: component.favoritesService
-    )
-
-    router?.attachSearch(arguments)
+    router?.attachSearch(.init(persistenceService: component.persistenceService))
     presenter.year = type(of: component.yearsService).current
     component.tracksService.delegate = self
     component.tracksService.loadTracks()

@@ -24,6 +24,12 @@ public func registerProviderFactories() {
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent") { component in
     MoreDependency8687d23345095611bcfeProvider(component: component)
   }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->ScheduleComponent->SearchComponent") { component in
+    SearchDependencyc33cf2c8f3510b07232fProvider(component: component)
+  }
+  __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent->YearsComponent->YearComponent->SearchComponent") { component in
+    SearchDependency99bfbde7e2baae72f55dProvider(component: component)
+  }
   __DependencyProviderRegistry.instance.registerDependencyProviderFactory(for: "^->RootComponent->MoreComponent->VideosComponent") { component in
     VideosDependency3ccf734c2404aef4d105Provider(component: component)
   }
@@ -159,6 +165,31 @@ private class MoreDependency8687d23345095611bcfeBaseProvider: MoreDependency {
 private class MoreDependency8687d23345095611bcfeProvider: MoreDependency8687d23345095611bcfeBaseProvider {
   init(component: NeedleFoundation.Scope) {
     super.init(rootComponent: component.parent as! RootComponent)
+  }
+}
+
+private class SearchDependencyc33cf2c8f3510b07232fBaseProvider: SearchDependency {
+  var favoritesService: FavoritesServiceProtocol {
+    rootComponent.favoritesService
+  }
+
+  private let rootComponent: RootComponent
+  init(rootComponent: RootComponent) {
+    self.rootComponent = rootComponent
+  }
+}
+
+/// ^->RootComponent->ScheduleComponent->SearchComponent
+private class SearchDependencyc33cf2c8f3510b07232fProvider: SearchDependencyc33cf2c8f3510b07232fBaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent as! RootComponent)
+  }
+}
+
+/// ^->RootComponent->MoreComponent->YearsComponent->YearComponent->SearchComponent
+private class SearchDependency99bfbde7e2baae72f55dProvider: SearchDependencyc33cf2c8f3510b07232fBaseProvider {
+  init(component: NeedleFoundation.Scope) {
+    super.init(rootComponent: component.parent.parent.parent.parent as! RootComponent)
   }
 }
 

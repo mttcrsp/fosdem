@@ -15,15 +15,17 @@ final class SearchInteractor: PresentableInteractor<SearchPresentable> {
   weak var listener: SearchListener?
 
   private let arguments: SearchArguments
+  private let component: SearchComponent
 
-  init(arguments: SearchArguments, presenter: SearchPresentable) {
+  init(arguments: SearchArguments, component: SearchComponent, presenter: SearchPresentable) {
     self.arguments = arguments
+    self.component = component
     super.init(presenter: presenter)
   }
 
   override func didBecomeActive() {
     super.didBecomeActive()
-    presenter.allowsFavoriting = arguments.favoritesService != nil
+    presenter.allowsFavoriting = arguments.allowsFavoriting
   }
 }
 
@@ -55,16 +57,14 @@ extension SearchInteractor: SearchPresentableListener {
   }
 
   func canFavorite(_ event: Event) -> Bool {
-    arguments.favoritesService?.canFavorite(event) ?? false
+    component.favoritesService.canFavorite(event)
   }
 
   func toggleFavorite(_ event: Event) {
-    guard let favoritesService = arguments.favoritesService else { return }
-
     if canFavorite(event) {
-      favoritesService.addEvent(withIdentifier: event.id)
+      component.favoritesService.addEvent(withIdentifier: event.id)
     } else {
-      favoritesService.removeEvent(withIdentifier: event.id)
+      component.favoritesService.removeEvent(withIdentifier: event.id)
     }
   }
 }

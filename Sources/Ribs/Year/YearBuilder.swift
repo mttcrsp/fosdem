@@ -15,7 +15,10 @@ final class YearComponent: NeedleFoundation.Component<YearDependency> {
       .finalStageBuild(withDynamicDependency: arguments)
   }
 
-  var searchBuilder: SearchBuildable { fatalError() }
+  func buildSearchRouter(withArguments arguments: SearchArguments, listener: SearchListener) -> ViewableRouting {
+    SearchBuilder(componentBuilder: { SearchComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: (arguments, listener))
+  }
 }
 
 protocol YearBuildable: Buildable {

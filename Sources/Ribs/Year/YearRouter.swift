@@ -22,7 +22,7 @@ final class YearRouter: ViewableRouter<YearInteractable, YearViewControllable> {
 
 extension YearRouter: YearRouting {
   func attachSearch(_ arguments: SearchArguments) {
-    let searchRouter = component.searchBuilder.build(withArguments: arguments, listener: interactor)
+    let searchRouter = component.buildSearchRouter(withArguments: arguments, listener: interactor)
     attachChild(searchRouter)
     viewController.addSearch(searchRouter.viewControllable)
   }

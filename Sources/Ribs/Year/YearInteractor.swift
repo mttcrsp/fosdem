@@ -43,12 +43,7 @@ final class YearInteractor: PresentableInteractor<YearPresentable> {
     do {
       let persistenceService = try component.yearsService.makePersistenceService(forYear: arguments.year)
       self.persistenceService = persistenceService
-
-      let arguments = SearchArguments(
-        persistenceService: persistenceService,
-        favoritesService: nil
-      )
-      router?.attachSearch(arguments)
+      router?.attachSearch(.init(persistenceService: persistenceService, allowsFavoriting: false))
     } catch {
       listener?.yearDidError(error)
     }
