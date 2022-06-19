@@ -70,12 +70,19 @@ final class EventsViewControllerTests: XCTestCase {
     method_exchangeImplementations(originalMethod, swizzledMethod)
 
     liveDataSource.eventsViewControllerHandler = { _, _ in false }
-    eventsViewController.reloadLiveStatus()
+    // Ideally, this should be tested using `reloadLiveStatus`. Unfortunately,
+    // though `reloadLiveStatus` cannot actually be tested with snapshot tests
+    // as it relies on `-[UITableView indexPathsForVisibleRows]` which does not
+    // report the correct values with the presentation mechanism used during
+    // snapshots
+    //
+    //  eventsViewController.reloadLiveStatus()
+    eventsViewController.reloadData()
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
 
     let event2 = try makeEvent2()
     liveDataSource.eventsViewControllerHandler = { _, event in event == event2 }
-    eventsViewController.reloadLiveStatus()
+    eventsViewController.reloadData()
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
 
     method_exchangeImplementations(swizzledMethod, originalMethod)
@@ -103,8 +110,8 @@ final class EventsViewControllerTests: XCTestCase {
 
     unfavoriteAction.handler(unfavoriteAction, UIView()) { _ in }
     XCTAssertEqual(
-      favoritesDelegate.eventsViewControllerArgValues.map(\.1),
-      [event1]
+      favoritesDelegate.eventsViewControllerArgValues.map(\.1.id),
+      [event1.id]
     )
 
     favoritesDataSource.eventsViewControllerHandler = { _, _ in true }
@@ -115,8 +122,8 @@ final class EventsViewControllerTests: XCTestCase {
 
     favoriteAction.handler(favoriteAction, UIView()) { _ in }
     XCTAssertEqual(
-      favoritesDelegate.eventsViewControllerArgValues.map(\.1),
-      [event2]
+      favoritesDelegate.eventsViewControllerArgValues.map(\.1.id),
+      [event1.id, event2.id]
     )
   }
 
