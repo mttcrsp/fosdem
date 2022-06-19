@@ -107,7 +107,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
 
     unfavoriteAction.handler(unfavoriteAction, UIView()) { _ in }
     XCTAssertEqual(
-      favoritesDelegate.tracksViewControllerDidUnfavoriteArgValues.map(\.1),
+      favoritesDelegate.tracksViewControllerArgValues.map(\.1),
       [Track(name: "1", day: 1, date: date)]
     )
 

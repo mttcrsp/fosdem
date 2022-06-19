@@ -7,7 +7,7 @@ final class InfoServiceTests: XCTestCase {
     let htmlString = #"<p>standard <strong>bold</strong> <strong><a href="https://www.fosdem.org">link</a></strong></p>"#
     let htmlData = Data(htmlString.utf8)
 
-    let bundle = InfoServiceBundleMock()
+    let bundle = BundleServiceProtocolMock()
     bundle.dataHandler = { _, _ in htmlData }
 
     let expectation = self.expectation(description: #function)

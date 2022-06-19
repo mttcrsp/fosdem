@@ -7,54 +7,37 @@ final class EventViewControllerTests: XCTestCase {
   private let size = CGSize(width: 375, height: 1024)
 
   func testAppearance() throws {
-    let dataSource = EventViewControllerDataSourceMock()
-    dataSource.eventViewControllerHandler = { _, _ in .beginning }
-
-    let eventViewController = EventViewController()
-    eventViewController.event = try .withVideo()
-    eventViewController.dataSource = dataSource
+    let eventViewController = EventViewController(event: try .withVideo())
     eventViewController.view.tintColor = .fos_label
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
-    dataSource.eventViewControllerHandler = { _, _ in .at(9) }
-    eventViewController.reloadPlaybackPosition()
+    eventViewController.playbackPosition = .at(9)
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
-    dataSource.eventViewControllerHandler = { _, _ in .end }
-    eventViewController.reloadPlaybackPosition()
+    eventViewController.playbackPosition = .end
     assertSnapshot(matching: eventViewController, as: .image(size: size))
-
-    if #available(iOS 13.0, *) {
-      let eventViewController = EventViewController(style: .insetGrouped)
-      eventViewController.event = try .withVideo()
-      eventViewController.dataSource = dataSource
-      eventViewController.view.tintColor = .fos_label
-      assertSnapshot(matching: eventViewController, as: .image(size: size))
-    }
   }
 
   func testEvents() throws {
     let delegate = EventViewControllerDelegateMock()
 
-    var eventViewController = EventViewController()
+    var eventViewController = EventViewController(event: try .withVideo())
     eventViewController.delegate = delegate
-    eventViewController.event = try .withVideo()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
     let attachmentView = eventViewController.view.findSubview(ofType: EventAttachmentView.self)
     attachmentView?.sendActions(for: .touchUpInside)
     XCTAssertEqual(delegate.eventViewControllerCallCount, 1)
     XCTAssertEqual(delegate.eventViewControllerArgValues.first?.0, eventViewController)
-    XCTAssertEqual(delegate.eventViewControllerArgValues.first?.1, eventViewController.event?.attachments.first)
+    XCTAssertEqual(delegate.eventViewControllerArgValues.first?.1, eventViewController.event.attachments.first)
 
     let videoButton = eventViewController.view.findSubview(ofType: RoundedButton.self, accessibilityIdentifier: "play")
     videoButton?.sendActions(for: .touchUpInside)
     XCTAssertEqual(delegate.eventViewControllerDidTapVideoArgValues, [eventViewController])
 
-    eventViewController = EventViewController()
+    eventViewController = EventViewController(event: try .withLivestream())
     eventViewController.delegate = delegate
     eventViewController.showsLivestream = true
-    eventViewController.event = try .withLivestream()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
     XCTAssertTrue(eventViewController.showsLivestream)
 

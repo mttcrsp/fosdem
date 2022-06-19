@@ -7,7 +7,7 @@ final class BuildingsServiceTests: XCTestCase {
     let building = "aw"
     let data = try BundleDataLoader().data(forResource: building, withExtension: "json")
 
-    let bundle = BuildingsServiceBundleMock()
+    let bundle = BundleServiceProtocolMock()
     bundle.dataHandler = { _, _ in data }
 
     let service = BuildingsService(bundleService: bundle, queue: .main)
@@ -24,7 +24,7 @@ final class BuildingsServiceTests: XCTestCase {
 
   func testLoadBuildingsMissingData() {
     let error = NSError(domain: "test", code: 1)
-    let bundle = BuildingsServiceBundleMock()
+    let bundle = BundleServiceProtocolMock()
     bundle.dataHandler = { _, _ in throw error }
 
     let service = BuildingsService(bundleService: bundle, queue: .main)

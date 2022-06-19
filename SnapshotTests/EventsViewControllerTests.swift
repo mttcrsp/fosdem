@@ -103,7 +103,7 @@ final class EventsViewControllerTests: XCTestCase {
 
     unfavoriteAction.handler(unfavoriteAction, UIView()) { _ in }
     XCTAssertEqual(
-      favoritesDelegate.eventsViewControllerDidUnfavoriteArgValues.map(\.1),
+      favoritesDelegate.eventsViewControllerArgValues.map(\.1),
       [event1]
     )
 
@@ -130,16 +130,16 @@ final class EventsViewControllerTests: XCTestCase {
     eventsViewController.dataSource = dataSource
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
 
-    eventsViewController.beginUpdates()
-    eventsViewController.deleteEvent(at: 0)
-    dataSource.eventsHandler = { _ in [event1] }
-    eventsViewController.endUpdates()
+    eventsViewController.performBatchUpdates {
+      eventsViewController.deleteEvent(at: 0)
+      dataSource.eventsHandler = { _ in [event1] }
+    }
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
 
-    eventsViewController.beginUpdates()
-    eventsViewController.insertEvent(at: 0)
-    dataSource.eventsHandler = { _ in [event2, event1] }
-    eventsViewController.endUpdates()
+    eventsViewController.performBatchUpdates {
+      eventsViewController.insertEvent(at: 0)
+      dataSource.eventsHandler = { _ in [event2, event1] }
+    }
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
   }
 

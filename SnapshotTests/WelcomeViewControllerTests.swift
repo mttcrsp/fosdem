@@ -5,7 +5,8 @@ import XCTest
 
 final class WelcomeViewControllerTests: XCTestCase {
   func testAppearance() throws {
-    let welcomeViewController = WelcomeViewController(year: 2021)
+    let welcomeViewController = WelcomeViewController()
+    welcomeViewController.year = 2021
     welcomeViewController.view.tintColor = .fos_label
     assertSnapshot(matching: welcomeViewController, as: .image(on: .iPhone8Plus))
 
@@ -19,7 +20,8 @@ final class WelcomeViewControllerTests: XCTestCase {
   func testEvents() throws {
     let delegate = WelcomeViewControllerDelegateMock()
 
-    let welcomeViewController = WelcomeViewController(year: 2021)
+    let welcomeViewController = WelcomeViewController()
+    welcomeViewController.year = 2021
     welcomeViewController.showsContinue = true
     welcomeViewController.delegate = delegate
 

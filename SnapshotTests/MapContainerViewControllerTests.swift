@@ -6,7 +6,7 @@ import XCTest
 
 final class MapRootViewControllerTests: XCTestCase {
   func testAppearance() throws {
-    let delegate = MapRootViewControllerDelegateMock()
+    let delegate = ContainerViewControllerDelegateMock()
     delegate.containerViewControllerHandler = { containerViewController, _ in
       guard let view = containerViewController.view else { return .zero }
 
@@ -45,7 +45,7 @@ final class MapRootViewControllerTests: XCTestCase {
   }
 
   func testScrolling() throws {
-    let delegate = MapRootViewControllerDelegateMock()
+    let delegate = ContainerViewControllerDelegateMock()
     delegate.containerViewControllerHandler = { containerViewController, _ in
       guard let view = containerViewController.view else { return .zero }
 
