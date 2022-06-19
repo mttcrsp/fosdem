@@ -25,6 +25,11 @@ extension MoreComponent {
     VideosBuilder(componentBuilder: { VideosComponent(parent: self) })
       .finalStageBuild(withDynamicDependency: listener)
   }
+
+  func buildYearsRouter(withListener listener: YearsListener) -> YearsRouting {
+    YearsBuilder(componentBuilder: { YearsComponent(parent: self) })
+      .finalStageBuild(withDynamicDependency: listener)
+  }
 }
 
 protocol MoreBuildable: Buildable {

@@ -35,7 +35,7 @@ extension MoreRouter: MoreRouting {
   }
 
   func routeToYears() {
-    let yearsRouter = component.yearsBuilder.build(withListener: interactor)
+    let yearsRouter = component.buildYearsRouter(withListener: interactor)
     self.yearsRouter = yearsRouter
     attachChild(yearsRouter)
     viewController.showYears(yearsRouter.viewControllable)

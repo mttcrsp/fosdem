@@ -25,16 +25,16 @@ final class YearsInteractor: PresentableInteractor<YearsPresentable> {
   private var pendingTask: NetworkServiceTask?
   private var pendingYear: Year?
 
-  private let services: YearsServices
+  private let component: YearsComponent
 
-  init(presenter: YearsPresentable, services: YearsServices) {
-    self.services = services
+  init(component: YearsComponent, presenter: YearsPresentable) {
+    self.component = component
     super.init(presenter: presenter)
   }
 
   override func didBecomeActive() {
     super.didBecomeActive()
-    presenter.years = Array(type(of: services.yearsService).all).reversed()
+    presenter.years = Array(type(of: component.yearsService).all).reversed()
   }
 }
 
@@ -48,7 +48,7 @@ extension YearsInteractor: YearsPresentableListener {
     case .completed:
       downloadDidSucceed(for: year)
     case .available:
-      let task = services.yearsService.downloadYear(year) { [weak self] error in
+      let task = component.yearsService.downloadYear(year) { [weak self] error in
         DispatchQueue.main.async {
           self?.pendingYear = nil
           self?.pendingTask = nil
@@ -71,7 +71,7 @@ extension YearsInteractor: YearsPresentableListener {
   func downloadState(for year: Year) -> YearDownloadState {
     if pendingYear == year {
       return .inProgress
-    } else if services.yearsService.isYearDownloaded(year) {
+    } else if component.yearsService.isYearDownloaded(year) {
       return .completed
     } else {
       return .available

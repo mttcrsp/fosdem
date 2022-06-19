@@ -1,24 +1,29 @@
+import NeedleFoundation
 import RIBs
 
-protocol YearsBuilders {
-  var yearBuilder: YearBuildable { get }
+protocol YearsDependency: NeedleFoundation.Dependency {
+  var networkService: NetworkService { get }
 }
 
-protocol YearsServices {
-  var yearsService: YearsServiceProtocol { get }
+final class YearsComponent: NeedleFoundation.Component<YearsDependency> {
+  var yearBuilder: YearBuildable { fatalError() }
 }
 
-protocol YearsDependency: Dependency, YearsBuilders, YearsServices {}
+extension YearsComponent {
+  var yearsService: YearsServiceProtocol {
+    shared { YearsService(networkService: dependency.networkService) }
+  }
+}
 
 protocol YearsBuildable: Buildable {
-  func build(withListener listener: YearsListener) -> YearsRouting
+  func finalStageBuild(withDynamicDependency dynamicDependency: YearsListener) -> YearsRouting
 }
 
-final class YearsBuilder: Builder<YearsDependency>, YearsBuildable {
-  func build(withListener listener: YearsListener) -> YearsRouting {
+final class YearsBuilder: MultiStageComponentizedBuilder<YearsComponent, YearsRouting, YearsListener>, YearsBuildable {
+  override func finalStageBuild(with component: YearsComponent, _ listener: YearsListener) -> YearsRouting {
     let viewController = YearsRootViewController()
-    let interactor = YearsInteractor(presenter: viewController, services: dependency)
-    let router = YearsRouter(builders: dependency, interactor: interactor, viewController: viewController)
+    let interactor = YearsInteractor(component: component, presenter: viewController)
+    let router = YearsRouter(component: component, interactor: interactor, viewController: viewController)
     interactor.router = router
     interactor.listener = listener
     viewController.listener = interactor
