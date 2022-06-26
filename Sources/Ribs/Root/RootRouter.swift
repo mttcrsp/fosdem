@@ -17,30 +17,36 @@ class RootRouter: LaunchRouter<RootInteractable, RootViewControllable> {
   private var moreRouter: ViewableRouting?
   private var scheduleRouter: ViewableRouting?
 
-  private let component: RootComponent
-
-  init(component: RootComponent, interactor: RootInteractable, viewController: RootViewControllable) {
-    self.component = component
+  private let agendaBuilder: AgendaBuildable
+  private let mapBuilder: MapBuildable
+  private let moreBuilder: MoreBuildable
+  private let scheduleBuilder: ScheduleBuildable
+  
+  init(component: RootComponent, interactor: RootInteractable, viewController: RootViewControllable, agendaBuilder: AgendaBuildable, mapBuilder: MapBuildable, moreBuilder: MoreBuildable, scheduleBuilder: ScheduleBuildable) {
+    self.agendaBuilder = agendaBuilder
+    self.mapBuilder = mapBuilder
+    self.moreBuilder = moreBuilder
+    self.scheduleBuilder = scheduleBuilder
     super.init(interactor: interactor, viewController: viewController)
   }
 
   func attach(withDynamicBuildDependency persistenceService: PersistenceServiceProtocol) {
-    let scheduleRouter = component.buildScheduleRouter(withPersistenceService: persistenceService)
+    let scheduleRouter = scheduleBuilder.build()
     self.scheduleRouter = scheduleRouter
     attachChild(scheduleRouter)
     viewController.addSchedule(scheduleRouter.viewControllable)
 
-    let agendaRouter = component.buildAgendaRouter(withPersistenceService: persistenceService, listener: interactor)
+    let agendaRouter = agendaBuilder.build(withListener: interactor)
     self.agendaRouter = agendaRouter
     attachChild(agendaRouter)
     viewController.addAgenda(agendaRouter.viewControllable)
 
-    let moreRouter = component.buildMoreRouter(withPersistenceService: persistenceService)
+    let moreRouter = moreBuilder.build()
     self.moreRouter = moreRouter
     attachChild(moreRouter)
     viewController.addMore(moreRouter.viewControllable)
 
-    let mapRouter = component.buildMapRouter(withListener: interactor)
+    let mapRouter = mapBuilder.build(withListener: interactor)
     self.mapRouter = mapRouter
     attachChild(mapRouter)
     viewController.addMap(mapRouter.viewControllable)

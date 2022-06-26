@@ -15,55 +15,88 @@ protocol PersistenceServiceMigration {
 }
 
 final class PersistenceService {
-  private let database: DatabaseQueue
+  private var database: DatabaseQueue?
 
-  init(path: String?, migrations: [PersistenceServiceMigration]) throws {
+  private let path: String?
+  private let migrations: [PersistenceServiceMigration]
+  
+  init(path: String?, migrations: [PersistenceServiceMigration]) {
+    self.path = path
+    self.migrations = migrations
+  }
+  
+  private func withDatabase<Output>(_ operation: @escaping (DatabaseQueue) throws -> Output) throws -> Output {
+    if let database = database {
+      return try operation(database)
+    }
+    
+    let database: DatabaseQueue
     if let path = path {
       database = try DatabaseQueue(path: path)
     } else {
       database = DatabaseQueue()
     }
-
+    
     var migrator = DatabaseMigrator()
     for migration in migrations {
       migrator.registerMigration(migration.identifier, migrate: migration.perform)
     }
     try migrator.migrate(database)
+    
+    self.database = database
+    
+    return try operation(database)
   }
 
   func performWriteSync(_ write: PersistenceServiceWrite) throws {
-    try database.write(write.perform)
+    try withDatabase { database in
+      try database.write(write.perform)
+    }
   }
 
   func performReadSync<Read: PersistenceServiceRead>(_ read: Read) throws -> Read.Model {
-    try database.read(read.perform)
+    try withDatabase { database in
+      try database.read(read.perform)
+    }
   }
 
   func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void) {
-    database.asyncWrite({ database in
-      try write.perform(in: database)
-    }, completion: { _, result in
-      switch result {
-      case .success:
-        completion(nil)
-      case let .failure(error):
-        completion(error)
+    do {
+      try withDatabase { database in
+        database.asyncWrite({ database in
+          try write.perform(in: database)
+        }, completion: { _, result in
+          switch result {
+          case .success:
+            completion(nil)
+          case let .failure(error):
+            completion(error)
+          }
+        })
       }
-    })
+    } catch {
+      completion(error)
+    }
   }
 
   func performRead<Read: PersistenceServiceRead>(_ read: Read, completion: @escaping (Result<Read.Model, Error>) -> Void) {
-    database.asyncRead { result in
-      switch result {
-      case let .failure(error):
-        completion(.failure(error))
-      case let .success(database):
-        do {
-          completion(.success(try read.perform(in: database)))
-        } catch {
-          completion(.failure(error))
+    do {
+      try withDatabase { database in
+        database.asyncRead { result in
+          switch result {
+          case let .failure(error):
+            completion(.failure(error))
+          case let .success(database):
+            do {
+              completion(.success(try read.perform(in: database)))
+            } catch {
+              completion(.failure(error))
+            }
+          }
         }
       }
+    } catch {
+      completion(.failure(error))
     }
   }
 }

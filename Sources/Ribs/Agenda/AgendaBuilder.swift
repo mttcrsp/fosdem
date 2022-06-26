@@ -24,7 +24,7 @@ final class AgendaComponent: NeedleFoundation.Component<AgendaDependency> {
 }
 
 protocol AgendaBuildable {
-  func finalStageBuild(with component: AgendaComponent, _ listener: AgendaListener) -> ViewableRouting
+  func build(withListener listener: AgendaListener) -> ViewableRouting
 }
 
 final class AgendaBuilder: MultiStageComponentizedBuilder<AgendaComponent, ViewableRouting, AgendaListener>, AgendaBuildable {
@@ -36,5 +36,9 @@ final class AgendaBuilder: MultiStageComponentizedBuilder<AgendaComponent, Viewa
     interactor.listener = listener
     viewController.listener = interactor
     return router
+  }
+  
+  func build(withListener listener: AgendaListener) -> ViewableRouting {
+    finalStageBuild(withDynamicDependency: listener)
   }
 }

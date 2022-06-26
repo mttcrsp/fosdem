@@ -12,7 +12,7 @@ protocol MapDependency: NeedleFoundation.Dependency {
 final class MapComponent: NeedleFoundation.Component<MapDependency> {}
 
 protocol MapBuildable: Buildable {
-  func finalStageBuild(withDynamicDependency dynamicDependency: MapListener) -> ViewableRouting
+  func build(withListener listener: MapListener) -> ViewableRouting
 }
 
 class MapBuilder: MultiStageComponentizedBuilder<MapComponent, ViewableRouting, MapListener>, MapBuildable {
@@ -23,5 +23,9 @@ class MapBuilder: MultiStageComponentizedBuilder<MapComponent, ViewableRouting, 
     interactor.listener = listener
     viewController.listener = interactor
     return router
+  }
+  
+  func build(withListener listener: MapListener) -> ViewableRouting {
+    finalStageBuild(withDynamicDependency: listener)
   }
 }
