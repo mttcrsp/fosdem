@@ -46,12 +46,6 @@ final class MapControllerTests: XCTestCase {
         return true
       }
 
-      settings.launch()
-      settings.cells["Privacy"].tap()
-      settings.cells["Location Services"].tap()
-      settings.staticTexts["com.mttcrsp.fosdem"].tap()
-      settings.staticTexts["LOCATION_SERVICES_AUTH_NOT_DETERMINED"].tap()
-
       app.activate()
       app.mapButton.tap()
       locationButton.tap()
