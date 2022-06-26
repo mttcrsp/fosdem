@@ -15,7 +15,7 @@ jobs:
       - name: Run Tuist
         run: tuist up && tuist generate
       - name: Run unit, snapshot, and UI tests
-        run: tuist test -d 'iPhone 8 Plus'
+        run: tuist test -d 'iPhone 8 Plus' --skip-ui-tests
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
