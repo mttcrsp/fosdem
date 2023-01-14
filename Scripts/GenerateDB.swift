@@ -2,7 +2,7 @@ import Foundation
 
 @main
 enum GenerateDB {
-  static let year = 2022
+  static let year = 2023
 
   static func main() {
     var result: Result<Schedule, Error>!
