@@ -14,7 +14,7 @@ final class BuildingsServiceTests: XCTestCase {
     let expectation = self.expectation(description: #function)
 
     service.loadBuildings { buildings, error in
-      XCTAssertEqual(buildings.count, 6)
+      XCTAssertEqual(buildings.count, 7)
       XCTAssertNil(error)
       expectation.fulfill()
     }

@@ -11,8 +11,8 @@ final class BuildingsEditorViewController: UIViewController {
 
   private lazy var mapView: MKMapView = {
     let center = CLLocationCoordinate2D(
-      latitude: 50.81356218080725,
-      longitude: 4.382498714271662
+      latitude: 50.814761337413529,
+      longitude: 4.3805486489229963
     )
 
     let mapView = MKMapView()

@@ -178,7 +178,7 @@ private extension XCUIApplication {
   }
 
   var areAllBuildingsVisibile: Bool {
-    for identifier in ["AW", "F", "J", "H", "U", "K"] {
+    for identifier in ["AW", "F", "J", "H", "U", "K", "S"] {
       if !buildingView(forIdentifier: identifier).exists {
         return false
       }
