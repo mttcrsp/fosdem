@@ -37,7 +37,7 @@ let app = Target(
   deploymentTarget: .iOS(targetVersion: "11.0", devices: [.iphone, .ipad]),
   infoPlist: .extendingDefault(with: [
     "CFBundleVersion": "1",
-    "CFBundleShortVersionString": "1.3.0",
+    "CFBundleShortVersionString": "1.4.0",
     "UIBackgroundModes": .array(["audio"]),
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UILaunchStoryboardName": .string("LaunchScreen"),
