@@ -4,7 +4,7 @@ import XCTest
 
 final class BuildingTests: XCTestCase {
   func testDecode() throws {
-    let resources = ["j", "aw", "f1", "h", "j", "k", "u"]
+    let resources = ["j", "aw", "f", "h", "j", "k", "u"]
 
     for resource in resources {
       let data = try BundleDataLoader().data(forResource: resource, withExtension: "json")

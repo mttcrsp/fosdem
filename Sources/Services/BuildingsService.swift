@@ -19,7 +19,7 @@ final class BuildingsService {
 
       var buildings: [Building] = []
 
-      let resources = ["aw", "f1", "h", "j", "k", "u"]
+      let resources = ["aw", "f", "h", "j", "k", "u"]
       for resource in resources {
         do {
           let buildingData = try self.bundleService.data(forResource: resource, withExtension: "json")

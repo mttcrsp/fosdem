@@ -170,7 +170,7 @@ private extension XCUIApplication {
   }
 
   var noBlueprintBuildingView: XCUIElement {
-    buildingView(forIdentifier: "F1")
+    buildingView(forIdentifier: "F")
   }
 
   var pageIndicator: XCUIElement {
@@ -178,7 +178,7 @@ private extension XCUIApplication {
   }
 
   var areAllBuildingsVisibile: Bool {
-    for identifier in ["AW", "F1", "J", "H", "U", "K"] {
+    for identifier in ["AW", "F", "J", "H", "U", "K"] {
       if !buildingView(forIdentifier: identifier).exists {
         return false
       }
