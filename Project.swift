@@ -138,8 +138,8 @@ let dbGenerator = Target(
     "Sources/Extensions/FOSDEMStrings+Extensions.swift",
     "Sources/Extensions/DateFormatter+Extensions.swift",
     "Sources/Extensions/DateComponentsFormatter+Extensions.swift",
-    "Derived/Sources/Strings+FOSDEM.swift",
-    "Derived/Sources/Bundle+FOSDEM.swift",
+    "Derived/Sources/TuistBundle+FOSDEM.swift",
+    "Derived/Sources/TuistStrings+FOSDEM.swift",
   ],
   scripts: [swiftFormat],
   dependencies: [.package(product: "GRDB")]
