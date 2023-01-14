@@ -1,25 +1,23 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "GRDB",
-        "repositoryURL": "https://github.com/mttcrsp/GRDB.swift",
-        "state": {
-          "branch": "master",
-          "revision": "8cbcac3bd015d0a279305c6202a89de3d0042d9c",
-          "version": null
-        }
-      },
-      {
-        "package": "SnapshotTesting",
-        "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
-        "state": {
-          "branch": null,
-          "revision": "c466812aa2e22898f27557e2e780d3aad7a27203",
-          "version": "1.8.2"
-        }
+  "pins" : [
+    {
+      "identity" : "grdb.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mttcrsp/GRDB.swift",
+      "state" : {
+        "branch" : "master",
+        "revision" : "ebe3dc35991b7b9e3a451ffdf0acd9f00ab4ecd9"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "swift-snapshot-testing",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-snapshot-testing.git",
+      "state" : {
+        "revision" : "c466812aa2e22898f27557e2e780d3aad7a27203",
+        "version" : "1.8.2"
+      }
+    }
+  ],
+  "version" : 2
 }
