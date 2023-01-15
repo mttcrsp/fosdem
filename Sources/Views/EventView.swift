@@ -3,7 +3,7 @@ import UIKit
 protocol EventViewDelegate: AnyObject {
   func eventViewDidTapVideo(_ eventView: EventView)
   func eventViewDidTapLivestream(_ eventView: EventView)
-  func eventView(_ eventView: EventView, didSelect attachment: Attachment)
+  func eventView(_ eventView: EventView, didSelect url: URL)
 }
 
 protocol EventViewDataSource: AnyObject {
@@ -194,6 +194,7 @@ final class EventView: UIStackView {
 
   @objc private func didTapAdditionalItem(_ itemView: EventAdditionsItemView) {
     if let item = itemView.item {
+      delegate?.eventView(self, didSelect: item.url)
     }
   }
 }

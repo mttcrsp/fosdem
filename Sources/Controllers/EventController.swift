@@ -152,8 +152,8 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
     }
   }
 
-  func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment) {
-    let attachmentViewController = makeAttachmentViewController(for: attachment)
+  func eventViewController(_ eventViewController: EventViewController, didSelect url: URL) {
+    let attachmentViewController = makeSafariViewController(for: url)
     eventViewController.present(attachmentViewController, animated: true)
   }
 
@@ -231,7 +231,7 @@ private extension EventController {
     return playerViewController
   }
 
-  private func makeAttachmentViewController(for attachment: Attachment) -> UIViewController {
-    dependencies.navigationService.makeSafariViewController(with: attachment.url)
+  private func makeSafariViewController(for url: URL) -> UIViewController {
+    dependencies.navigationService.makeSafariViewController(with: url)
   }
 }

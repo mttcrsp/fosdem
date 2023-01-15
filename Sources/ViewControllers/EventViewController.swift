@@ -4,7 +4,7 @@ import UIKit
 protocol EventViewControllerDelegate: AnyObject {
   func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
-  func eventViewController(_ eventViewController: EventViewController, didSelect attachment: Attachment)
+  func eventViewController(_ eventViewController: EventViewController, didSelect url: URL)
 }
 
 /// @mockable
@@ -84,8 +84,8 @@ extension EventViewController: EventViewDelegate, EventViewDataSource {
     delegate?.eventViewControllerDidTapVideo(self)
   }
 
-  func eventView(_: EventView, didSelect attachment: Attachment) {
-    delegate?.eventViewController(self, didSelect: attachment)
+  func eventView(_: EventView, didSelect url: URL) {
+    delegate?.eventViewController(self, didSelect: url)
   }
 
   func eventView(_: EventView, playbackPositionFor event: Event) -> PlaybackPosition {
