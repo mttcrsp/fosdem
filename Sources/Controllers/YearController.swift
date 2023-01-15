@@ -32,13 +32,10 @@ final class YearController: TracksViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    #if !targetEnvironment(macCatalyst)
-    view.backgroundColor = .groupTableViewBackground
-    #endif
-
     delegate = self
     dataSource = self
     definesPresentationContext = true
+    view.backgroundColor = .fos_systemGroupedBackground
     addSearchViewController(makeSearchController())
 
     persistenceService.performRead(AllTracksOrderedByName()) { result in

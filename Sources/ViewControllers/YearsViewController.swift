@@ -95,7 +95,9 @@ private extension UITableViewCell {
   }
 
   private var preferredIndicatorStyle: UIActivityIndicatorView.Style {
-    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle == .dark {
+    if #available(iOS 13.0, *) {
+      return .medium
+    } else if traitCollection.userInterfaceStyle == .dark {
       return .white
     } else {
       return .gray

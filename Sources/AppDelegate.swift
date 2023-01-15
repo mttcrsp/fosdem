@@ -38,7 +38,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   private func didChangePendingNetworkRequests() {
     #if !targetEnvironment(macCatalyst)
-    UIApplication.shared.isNetworkActivityIndicatorVisible = pendingNetworkRequests > 0
+    if #available(iOS 13.0, *) {} else {
+      UIApplication.shared.isNetworkActivityIndicatorVisible = pendingNetworkRequests > 0
+    }
     #endif
   }
 
