@@ -36,7 +36,7 @@ let app = Target(
   bundleId: "com.mttcrsp.fosdem",
   deploymentTarget: .iOS(targetVersion: "11.0", devices: [.iphone, .ipad]),
   infoPlist: .extendingDefault(with: [
-    "CFBundleVersion": "1",
+    "CFBundleVersion": "2",
     "CFBundleShortVersionString": "1.4.0",
     "UIBackgroundModes": .array(["audio"]),
     "ITSAppUsesNonExemptEncryption": .boolean(false),
