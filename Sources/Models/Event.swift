@@ -21,7 +21,7 @@ struct Event: Codable {
 
 extension Event {
   var video: Link? {
-    links.first { link in link.url?.pathExtension == "mp4" }
+    links.first { link in link.isMP4Video }
   }
 
   func isLive(at timestamp: Date) -> Bool {
