@@ -25,6 +25,8 @@
 "event.video.accessibility.end" = "Replay recording";
 // Title for a section that contains the abstract for an event
 "event.abstract" = "Abstract";
+// Title for a section that contains the list of useful links for an event
+"event.links" = "Useful links";
 // Title for a section that contains the list of attachments for an event
 "event.attachments" = "Attachments";
 // An accessibility label reporting the name of the speakers for an event

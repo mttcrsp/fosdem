@@ -1,8 +1,23 @@
 import UIKit
 
-final class EventAttachmentView: UIControl {
-  var attachment: Attachment? {
-    didSet { didChangeAttachment() }
+struct EventAdditionsGroup {
+  let title: String
+  let image: UIImage?
+  let items: [EventAdditionsItem]
+}
+
+struct EventAdditionsItem {
+  let title: String
+  let url: URL
+}
+
+final class EventAdditionsItemView: UIControl {
+  var group: EventAdditionsGroup? {
+    didSet { didChangeGroup() }
+  }
+
+  var item: EventAdditionsItem? {
+    didSet { didChangeItem() }
   }
 
   private let label = UILabel()
@@ -17,9 +32,7 @@ final class EventAttachmentView: UIControl {
     label.numberOfLines = 0
     label.adjustsFontForContentSizeCategory = true
     label.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: [.traitItalic])
-
     imageView.contentMode = .center
-    imageView.image = .fos_systemImage(withName: "arrow.down.circle")
 
     for subview in [imageView, label] {
       subview.translatesAutoresizingMaskIntoConstraints = false
@@ -44,17 +57,49 @@ final class EventAttachmentView: UIControl {
     fatalError("init(coder:) has not been implemented")
   }
 
-  class func canDisplay(_ attachment: Attachment) -> Bool {
-    attachment.title != nil
-  }
-
   override var isHighlighted: Bool {
     didSet { alpha = isHighlighted ? 0.5 : 1 }
   }
 
-  private func didChangeAttachment() {
-    accessibilityLabel = attachment?.title
-    label.text = attachment?.title
+  private func didChangeItem() {
+    accessibilityLabel = item?.title
+    label.text = item?.title
+  }
+
+  private func didChangeGroup() {
+    imageView.image = group?.image
+  }
+}
+
+extension EventAdditionsGroup {
+  init(attachments: [Attachment]) {
+    image = .fos_systemImage(withName: "arrow.down.circle")
+    items = attachments.compactMap(EventAdditionsItem.init)
+    title = FOSDEMStrings.Event.attachments
+  }
+
+  init(links: [Link]) {
+    image = .fos_systemImage(withName: "link")
+    items = links.compactMap(EventAdditionsItem.init)
+    title = FOSDEMStrings.Event.links
+  }
+}
+
+extension EventAdditionsItem {
+  init?(link: Link) {
+    if let url = link.url, !link.isFeedback, !link.isLivestream, !link.isVideo {
+      self.init(title: link.name, url: url)
+    } else {
+      return nil
+    }
+  }
+
+  init?(attachment: Attachment) {
+    if let title = attachment.title {
+      self.init(title: title, url: attachment.url)
+    } else {
+      return nil
+    }
   }
 }
 

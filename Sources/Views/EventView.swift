@@ -147,26 +147,32 @@ final class EventView: UIStackView {
       addArrangedSubview(summaryLabel)
     }
 
-    let attachments = event.attachments.filter(EventAttachmentView.canDisplay)
+    let groups: [EventAdditionsGroup] = [
+      .init(links: event.links),
+      .init(attachments: event.attachments),
+    ]
 
-    if !attachments.isEmpty {
-      let attachmentsLabel = UILabel()
-      attachmentsLabel.font = .fos_preferredFont(forTextStyle: .headline)
-      attachmentsLabel.text = L10n.Event.attachments
-      attachmentsLabel.adjustsFontForContentSizeCategory = true
-      attachmentsLabel.numberOfLines = 0
-      addArrangedSubview(attachmentsLabel)
-      setCustomSpacing(22, after: attachmentsLabel)
-    }
+    for group in groups {
+      if !group.items.isEmpty {
+        let groupLabel = UILabel()
+        groupLabel.font = .fos_preferredFont(forTextStyle: .headline)
+        groupLabel.text = group.title
+        groupLabel.adjustsFontForContentSizeCategory = true
+        groupLabel.numberOfLines = 0
+        addArrangedSubview(groupLabel)
+        setCustomSpacing(22, after: groupLabel)
+      }
 
-    for attachment in attachments {
-      let attachmentAction = #selector(didTapAttachment(_:))
-      let attachmentView = EventAttachmentView()
-      attachmentView.attachment = attachment
-      attachmentView.addTarget(self, action: attachmentAction, for: .touchUpInside)
-      addArrangedSubview(attachmentView)
+      for item in group.items {
+        let itemAction = #selector(didTapAdditionalItem(_:))
+        let itemView = EventAdditionsItemView()
+        itemView.item = item
+        itemView.group = group
+        itemView.addTarget(self, action: itemAction, for: .touchUpInside)
+        addArrangedSubview(itemView)
 
-      constraints.append(attachmentView.widthAnchor.constraint(equalTo: widthAnchor))
+        constraints.append(itemView.widthAnchor.constraint(equalTo: widthAnchor))
+      }
     }
 
     accessibilityElements = subviews
@@ -186,9 +192,8 @@ final class EventView: UIStackView {
     delegate?.eventViewDidTapVideo(self)
   }
 
-  @objc private func didTapAttachment(_ attachmentView: EventAttachmentView) {
-    if let attachment = attachmentView.attachment {
-      delegate?.eventView(self, didSelect: attachment)
+  @objc private func didTapAdditionalItem(_ itemView: EventAdditionsItemView) {
+    if let item = itemView.item {
     }
   }
 }

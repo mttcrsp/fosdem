@@ -41,7 +41,7 @@ final class EventViewControllerTests: XCTestCase {
     eventViewController.event = try .withVideo()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
-    let attachmentView = eventViewController.view.findSubview(ofType: EventAttachmentView.self)
+    let attachmentView = eventViewController.view.findSubview(ofType: EventAdditionView.self)
     attachmentView?.sendActions(for: .touchUpInside)
     XCTAssertEqual(delegate.eventViewControllerCallCount, 1)
     XCTAssertEqual(delegate.eventViewControllerArgValues.first?.0, eventViewController)
