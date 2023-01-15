@@ -7,7 +7,7 @@ class Services {
   let openService: OpenServiceProtocol = OpenService()
   let playbackService: PlaybackServiceProtocol = PlaybackService()
   let favoritesService: FavoritesServiceProtocol = FavoritesService()
-  let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
+  let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService.liveValue
 
   private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)

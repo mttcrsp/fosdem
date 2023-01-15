@@ -1,32 +1,47 @@
+import Dependencies
 import Foundation
+import XCTestDynamicOverlay
 
-final class AcknowledgementsService {
+struct AcknowledgementsService {
+  var loadAcknowledgements: () throws -> [Acknowledgement]
+}
+
+extension AcknowledgementsService {
   enum Error: CustomNSError {
     case resourceNotFound
   }
+}
 
-  private let dataProvider: AcknowledgementsServiceDataProvider
-  private let bundle: AcknowledgementsServiceBundle
+extension AcknowledgementsService {
+  init(bundle: AcknowledgementsServiceBundle, dataProvider: AcknowledgementsServiceDataProvider) {
+    loadAcknowledgements = {
+      guard let url = bundle.url(forResource: "acknowledgements", withExtension: "json") else {
+        throw Error.resourceNotFound
+      }
 
-  init(bundle: AcknowledgementsServiceBundle = Bundle.main, dataProvider: AcknowledgementsServiceDataProvider = AcknowledgementsServiceData()) {
-    self.dataProvider = dataProvider
-    self.bundle = bundle
-  }
-
-  func loadAcknowledgements() throws -> [Acknowledgement] {
-    guard let url = bundle.url(forResource: "acknowledgements", withExtension: "json") else {
-      throw Error.resourceNotFound
+      let data = try dataProvider.data(withContentsOf: url)
+      let decoder = JSONDecoder()
+      return try decoder.decode([Acknowledgement].self, from: data)
     }
-
-    let data = try dataProvider.data(withContentsOf: url)
-    let decoder = JSONDecoder()
-    return try decoder.decode([Acknowledgement].self, from: data)
   }
+}
+
+extension AcknowledgementsService: DependencyKey {
+  static var liveValue = AcknowledgementsService(
+    bundle: Bundle.main,
+    dataProvider: AcknowledgementsServiceData()
+  )
+
+  #if DEBUG
+  static var testValue = AcknowledgementsService(
+    loadAcknowledgements: unimplemented("\(Self.self).loadAcknowledgements")
+  )
+  #endif
 }
 
 /// @mockable
 protocol AcknowledgementsServiceProtocol {
-  func loadAcknowledgements() throws -> [Acknowledgement]
+  var loadAcknowledgements: () throws -> [Acknowledgement] { get }
 }
 
 extension AcknowledgementsService: AcknowledgementsServiceProtocol {}
