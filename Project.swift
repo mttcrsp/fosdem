@@ -41,6 +41,10 @@ let app = Target(
     "UIBackgroundModes": .array(["audio"]),
     "ITSAppUsesNonExemptEncryption": .boolean(false),
     "UILaunchStoryboardName": .string("LaunchScreen"),
+    "UIApplicationSceneManifest": .dictionary([
+      "UIApplicationSupportsMultipleScenes": .boolean(false),
+      "UISceneConfigurations": .dictionary([:]),
+    ]),
     "NSAppTransportSecurity": .dictionary([
       "NSAllowsArbitraryLoads": .boolean(true),
     ]),
