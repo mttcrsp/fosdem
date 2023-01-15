@@ -122,16 +122,14 @@ final class EventView: UIStackView {
     addArrangedSubview(dateView)
     setCustomSpacing(28, after: dateView)
 
-    if let subtitle = event.subtitle {
+    if let abstract = event.formattedAbstract {
       let subtitleLabel = UILabel()
       subtitleLabel.font = .fos_preferredFont(forTextStyle: .headline)
       subtitleLabel.adjustsFontForContentSizeCategory = true
       subtitleLabel.numberOfLines = 0
-      subtitleLabel.text = subtitle
+      subtitleLabel.text = event.subtitle ?? FOSDEMStrings.Event.abstract
       addArrangedSubview(subtitleLabel)
-    }
 
-    if let abstract = event.formattedAbstract {
       let abstractLabel = UILabel()
       abstractLabel.font = .fos_preferredFont(forTextStyle: .body)
       abstractLabel.adjustsFontForContentSizeCategory = true

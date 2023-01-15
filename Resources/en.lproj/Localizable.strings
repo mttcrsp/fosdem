@@ -23,6 +23,8 @@
 "event.video.accessibility.at" = "Resume recording";
 // An accessibility label for a button that starts playback of a video that was already played by the user
 "event.video.accessibility.end" = "Replay recording";
+// Title for a section that contains the abstract for an event
+"event.abstract" = "Abstract";
 // Title for a section that contains the list of attachments for an event
 "event.attachments" = "Attachments";
 // An accessibility label reporting the name of the speakers for an event
