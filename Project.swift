@@ -19,6 +19,11 @@ let swiftFormat = TargetScript.post(
   name: "SwiftFormat"
 )
 
+let composableArchitecture = Package.remote(
+  url: "https://github.com/pointfreeco/swift-composable-architecture",
+  requirement: .exact(.init(0, 49, 2))
+)
+
 let grdb = Package.remote(
   url: "https://github.com/mttcrsp/GRDB.swift",
   requirement: .branch("master")
@@ -34,7 +39,7 @@ let app = Target(
   platform: .iOS,
   product: .app,
   bundleId: "com.mttcrsp.fosdem",
-  deploymentTarget: .iOS(targetVersion: "11.0", devices: [.iphone, .ipad]),
+  deploymentTarget: .iOS(targetVersion: "13.0", devices: [.iphone, .ipad]),
   infoPlist: .extendingDefault(with: [
     "CFBundleVersion": "2",
     "CFBundleShortVersionString": "1.4.0",
@@ -64,7 +69,10 @@ let app = Target(
   sources: ["Sources/**/*"],
   resources: ["Resources/**/*"],
   scripts: isCI ? [] : [mockolo, swiftFormat],
-  dependencies: [.package(product: "GRDB")],
+  dependencies: [
+    .package(product: "GRDB"),
+    .package(product: "ComposableArchitecture"),
+  ],
   settings: .settings(base: [
     "DEVELOPMENT_TEAM": "3CM92FF2C5",
     "PRODUCT_MODULE_NAME": "Fosdem",
@@ -153,7 +161,7 @@ let project = Project(
   name: "FOSDEM",
   organizationName: "com.mttcrsp.fosdem",
   options: .options(automaticSchemesOptions: .enabled(codeCoverageEnabled: true)),
-  packages: [grdb, snapshotTesting],
+  packages: [grdb, snapshotTesting, composableArchitecture],
   settings: .settings(base: ["SWIFT_TREAT_WARNINGS_AS_ERRORS": "YES"]),
   targets: [app, appTests, appUITests, appSnapshotTests, dbGenerator]
 )
