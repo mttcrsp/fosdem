@@ -4,7 +4,7 @@ import XCTest
 final class BundleDataLoader {
   private let bundle: Bundle
 
-  init(bundle: Bundle = .module) {
+  init(bundle: Bundle = Bundle(for: BundleDataLoader.self)) {
     self.bundle = bundle
   }
 
