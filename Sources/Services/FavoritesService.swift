@@ -8,12 +8,12 @@ final class FavoritesService {
     self.userDefaults = userDefaults
   }
 
-  var tracksIdentifiers: Set<String> {
+  private(set) var tracksIdentifiers: Set<String> {
     get { userDefaults.tracksIdentifiers }
     set { userDefaults.tracksIdentifiers = newValue }
   }
 
-  var eventsIdentifiers: Set<Int> {
+  private(set) var eventsIdentifiers: Set<Int> {
     get { userDefaults.eventsIdentifiers }
     set { userDefaults.eventsIdentifiers = newValue }
   }
@@ -131,8 +131,8 @@ private extension Notification.Name {
 
 /// @mockable
 protocol FavoritesServiceProtocol {
-  var tracksIdentifiers: Set<String> { get set }
-  var eventsIdentifiers: Set<Int> { get set }
+  var tracksIdentifiers: Set<String> { get }
+  var eventsIdentifiers: Set<Int> { get }
 
   func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol
   func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol
