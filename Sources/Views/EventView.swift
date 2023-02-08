@@ -127,7 +127,7 @@ final class EventView: UIStackView {
       subtitleLabel.font = .fos_preferredFont(forTextStyle: .headline)
       subtitleLabel.adjustsFontForContentSizeCategory = true
       subtitleLabel.numberOfLines = 0
-      subtitleLabel.text = event.subtitle ?? FOSDEMStrings.Event.abstract
+      subtitleLabel.text = event.subtitle ?? L10n.Event.abstract
       addArrangedSubview(subtitleLabel)
 
       let abstractLabel = UILabel()

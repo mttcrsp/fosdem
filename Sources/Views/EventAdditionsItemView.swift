@@ -75,13 +75,13 @@ extension EventAdditionsGroup {
   init(attachments: [Attachment]) {
     image = .fos_systemImage(withName: "arrow.down.circle")
     items = attachments.compactMap(EventAdditionsItem.init)
-    title = FOSDEMStrings.Event.attachments
+    title = L10n.Event.attachments
   }
 
   init(links: [Link]) {
     image = .fos_systemImage(withName: "link")
     items = links.compactMap(EventAdditionsItem.init)
-    title = FOSDEMStrings.Event.links
+    title = L10n.Event.links
   }
 }
 
