@@ -3,7 +3,6 @@
 ![CI](https://github.com/mttcrsp/fosdem/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/mttcrsp/fosdem/branch/main/graph/badge.svg?token=fKaqxmEQC7)](https://codecov.io/gh/mttcrsp/fosdem)
 [![MIT license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/wikimedia/wikipedia-ios/develop/LICENSE.txt)
-[![Tuist badge](https://img.shields.io/badge/Powered%20by-Tuist-blue)](https://tuist.io)
 
 # Fosdem.app
 
@@ -21,9 +20,8 @@ The app is compatible with iOS 11+ iPhone/iPad devices and provides support for 
 
 ## Contributing
 
-Contributions in the form of code, issues and feature requests are welcome! To get started with development install [Tuist](https://tuist.io/docs/commands/up/) and execute `tuist up & tuist generate`.
+Contributions in the form of code, issues and feature requests are welcome! To get started with development, run `brew bundle && make generate_project`.
 
 ## Acknowledgements
 
-Fosdem.app is powered by the following open source projects: [GRDB.swift](https://github.com/groue/GRDB.swift), [Mockolo](https://github.com/uber/mockolo), [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing), [Periphery](https://github.com/peripheryapp/periphery), [SwiftFormat](https://github.com/nicklockwood/SwiftFormat), [Tuist](https://github.com/tuist/tuist), [xcparse](https://github.com/ChargePoint/xcparse).
-g
+Fosdem.app is powered by the following open source projects: [GRDB.swift](https://github.com/groue/GRDB.swift), [Mockolo](https://github.com/uber/mockolo), [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing), [Periphery](https://github.com/peripheryapp/periphery), [SwiftFormat](https://github.com/nicklockwood/SwiftFormat), [XcodeGen](https://github.com/yonaskolb/XcodeGen), [xcparse](https://github.com/ChargePoint/xcparse).

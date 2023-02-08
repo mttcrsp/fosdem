@@ -21,7 +21,7 @@ final class PersistenceService {
     if let path = path {
       database = try DatabaseQueue(path: path)
     } else {
-      database = DatabaseQueue()
+      database = try DatabaseQueue()
     }
 
     var migrator = DatabaseMigrator()

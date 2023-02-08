@@ -1,0 +1,141 @@
+name: FOSDEM
+
+packages:
+  GRDB:
+    url: https://github.com/mttcrsp/GRDB.swift
+    branch: master
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing.git
+    exactVersion: 1.8.2
+
+options:
+  bundleIdPrefix: com.mttcrsp.fosdem
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "11.0"
+  transitivelyLinkDependencies: true
+  preGenCommand: make run_mockolo run_swiftgen
+
+settings:
+  DEVELOPMENT_TEAM: "3CM92FF2C5"
+
+targets:
+  FOSDEM:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+      - Resources
+    dependencies:
+      - package: GRDB
+    settings:
+      CURRENT_PROJECT_VERSION: 2
+      INFOPLIST_FILE: Resources/Info.plist
+      MARKETING_VERSION: 1.4.0
+      PRODUCT_BUNDLE_IDENTIFIER: com.mttcrsp.fosdem
+      PRODUCT_MODULE_NAME: Fosdem
+    scheme:
+      environmentVariables:
+        ENABLE_ONBOARDING: "1"
+        ENABLE_SCHEDULE_UPDATES: "1"
+      gatherCoverageData: true
+      testTargets:
+        - name: Tests
+          randomExecutionOrder: true
+        - name: SnapshotTests
+          randomExecutionOrder: true
+        - name: UITests
+          randomExecutionOrder: true
+    preBuildScripts:
+      - script: make run_swiftformat
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false
+
+  Tests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: '11.0'
+    sources:
+      - Tests
+      - Mocks
+      - Resources/Buildings
+    dependencies:
+      - target: FOSDEM
+    preBuildScripts:
+      - script: make run_swiftformat
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false
+    settings:
+      ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
+      GENERATE_INFOPLIST_FILE: YES
+      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FOSDEM.app/FOSDEM"
+
+  SnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: '11.0'
+    sources:
+      - path: SnapshotTests
+        excludes:
+          - __Snapshots__
+      - Mocks
+    dependencies:
+      - target: FOSDEM
+      - package: SnapshotTesting
+    preBuildScripts:
+      - script: make run_swiftformat
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false
+    settings:
+      ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
+      GENERATE_INFOPLIST_FILE: YES
+      TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FOSDEM.app/FOSDEM"
+
+  UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: '11.0'
+    sources:
+    - UITests
+    - Tests/BundleDataLoader.swift
+    dependencies:
+    - target: FOSDEM
+    preBuildScripts:
+      - script: make run_swiftformat
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+
+  GenerateDB:
+    type: tool
+    platform: macOS
+    deploymentTarget: '10.13'
+    sources:
+    - Sources/Derived/Strings.swift
+    - Sources/Models/Conference.swift
+    - Sources/Models/Room.swift
+    - Sources/Models/Day.swift
+    - Sources/Models/Attachment.swift
+    - Sources/Models/Link.swift
+    - Sources/Models/ScheduleXMLParser.swift
+    - Sources/Models/Event.swift
+    - Sources/Models/Track.swift
+    - Sources/Models/Person.swift
+    - Sources/Models/Participation.swift
+    - Sources/Models/Schedule.swift
+    - Sources/Models/Queries/ImportSchedule.swift
+    - Sources/Models/Requests/ScheduleRequest.swift
+    - Sources/Models/Tables
+    - Sources/Models/Migrations
+    - Sources/Services/PersistenceService.swift
+    - Sources/Services/NetworkService.swift
+    - Sources/Extensions/DateComponentsFormatter+Extensions.swift
+    - Sources/Extensions/DateFormatter+Extensions.swift
+    - Scripts/GenerateDB.swift
+    dependencies:
+    - package: GRDB
+    preBuildScripts:
+      - script: make run_swiftformat
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false

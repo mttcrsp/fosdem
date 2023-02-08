@@ -1,4 +1,4 @@
-brew "tuist"
+brew "xcodegen"
 brew "swiftformat"
 brew "chargepoint/xcparse/xcparse"
 
