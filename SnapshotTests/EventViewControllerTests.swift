@@ -41,11 +41,11 @@ final class EventViewControllerTests: XCTestCase {
     eventViewController.event = try .withVideo()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
-    let attachmentView = eventViewController.view.findSubview(ofType: EventAdditionView.self)
+    let attachmentView = eventViewController.view.findSubview(ofType: EventAdditionsItemView.self)
     attachmentView?.sendActions(for: .touchUpInside)
     XCTAssertEqual(delegate.eventViewControllerCallCount, 1)
     XCTAssertEqual(delegate.eventViewControllerArgValues.first?.0, eventViewController)
-    XCTAssertEqual(delegate.eventViewControllerArgValues.first?.1, eventViewController.event?.attachments.first)
+    XCTAssertEqual(delegate.eventViewControllerArgValues.first?.1, eventViewController.event?.attachments.first?.url)
 
     let videoButton = eventViewController.view.findSubview(ofType: RoundedButton.self, accessibilityIdentifier: "play")
     videoButton?.sendActions(for: .touchUpInside)
