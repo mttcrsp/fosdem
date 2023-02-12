@@ -29,6 +29,7 @@ targets:
     dependencies:
       - package: GRDB
     settings:
+      CODE_SIGN_ENTITLEMENTS: Resources/FOSDEM.entitlements
       CURRENT_PROJECT_VERSION: 2
       INFOPLIST_FILE: Resources/Info.plist
       MARKETING_VERSION: 1.4.0
