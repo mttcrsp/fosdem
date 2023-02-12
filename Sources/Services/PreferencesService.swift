@@ -28,7 +28,7 @@ final class PreferencesService {
   }
 
   func addObserver(forKey key: String, using handler: @escaping () -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: nil) { notification in
+    notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: .main) { notification in
       if let changedKey = notification.userInfo?["key"] as? String, changedKey == key {
         handler()
       }

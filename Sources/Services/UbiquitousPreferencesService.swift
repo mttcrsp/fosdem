@@ -24,7 +24,7 @@ final class UbiquitousPreferencesService {
   }
 
   func addObserver(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: nil) { notification in
+    notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: .main) { notification in
       if let changedKeys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] {
         for key in changedKeys {
           handler(key)
