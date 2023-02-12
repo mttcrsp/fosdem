@@ -2,10 +2,11 @@ import Foundation
 
 protocol TracksServiceDelegate: AnyObject {
   func tracksServiceDidUpdateTracks(_ tracksService: TracksService)
-
   func tracksService(_ tracksService: TracksService, performBatchUpdates updates: () -> Void)
-  func tracksService(_ tracksService: TracksService, insertFavoriteWith identifier: String)
-  func tracksService(_ tracksService: TracksService, deleteFavoriteWith identifier: String)
+  func tracksService(_ tracksService: TracksService, didInsertFavoriteAt index: Int)
+  func tracksService(_ tracksService: TracksService, didDeleteFavoriteAt index: Int)
+  func tracksServiceDidInsertFirstFavorite(_ tracksService: TracksService)
+  func tracksServiceDidDeleteLastFavorite(_ tracksService: TracksService)
 }
 
 final class TracksService {
@@ -30,8 +31,8 @@ final class TracksService {
   }
 
   func loadTracks() {
-    observation = favoritesService.addObserverForTracks { [weak self] identifier in
-      self?.didToggleTrack(withIdentifier: identifier)
+    observation = favoritesService.addObserverForTracks { [weak self] in
+      self?.didUpdateFavoriteTracks()
     }
 
     persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
@@ -83,14 +84,16 @@ final class TracksService {
     }
   }
 
-  private func didToggleTrack(withIdentifier identifier: String) {
-    let isFavorite = favoritesService.tracksIdentifiers.contains(identifier)
+  private func didUpdateFavoriteTracks() {
+    var oldTracks = filteredFavoriteTracks[.all]?.map(\.name) ?? []
+    let newTracks = favoritesService.tracksIdentifiers.sorted { lhs, rhs in
+      lhs.lowercased() < rhs.lowercased()
+    }
+
+    let deletesIdentifiers = Set(oldTracks).subtracting(Set(newTracks))
+    let insertsIdentifiers = Set(newTracks).subtracting(Set(oldTracks))
 
     let updates = {
-      if !isFavorite {
-        self.delegate?.tracksService(self, deleteFavoriteWith: identifier)
-      }
-
       self.filteredFavoriteTracks = [:]
       for track in self.tracks where self.favoritesService.contains(track) {
         let filter = TracksFilter.day(track.day)
@@ -98,8 +101,23 @@ final class TracksService {
         self.filteredFavoriteTracks[filter, default: []].append(track)
       }
 
-      if isFavorite {
-        self.delegate?.tracksService(self, insertFavoriteWith: identifier)
+      switch (oldTracks.isEmpty, newTracks.isEmpty) {
+      case (true, false):
+        self.delegate?.tracksServiceDidInsertFirstFavorite(self)
+      case (false, true):
+        self.delegate?.tracksServiceDidDeleteLastFavorite(self)
+      default:
+        break
+      }
+
+      for (index, track) in oldTracks.enumerated().reversed() where deletesIdentifiers.contains(track) {
+        self.delegate?.tracksService(self, didDeleteFavoriteAt: index)
+        oldTracks.remove(at: index)
+      }
+
+      for (index, track) in newTracks.enumerated() where insertsIdentifiers.contains(track) {
+        self.delegate?.tracksService(self, didInsertFavoriteAt: index)
+        oldTracks.insert(track, at: index)
       }
     }
 

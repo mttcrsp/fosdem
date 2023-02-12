@@ -42,10 +42,10 @@ final class AgendaController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    reloadFavoriteEvents()
+    reloadFavoriteEvents(animated: false)
     observations = [
-      dependencies.favoritesService.addObserverForEvents { [weak self] identifier in
-        self?.reloadFavoriteEvents(forUpdateToEventWithIdentifier: identifier)
+      dependencies.favoritesService.addObserverForEvents { [weak self] in
+        self?.reloadFavoriteEvents(animated: true)
       },
       dependencies.timeService.addObserver { [weak self] in
         self?.reloadLiveStatus()
@@ -65,7 +65,7 @@ final class AgendaController: UIViewController {
     agendaViewController?.reloadLiveStatus()
   }
 
-  private func reloadFavoriteEvents(forUpdateToEventWithIdentifier identifier: Int? = nil) {
+  private func reloadFavoriteEvents(animated: Bool) {
     let identifiers = dependencies.favoritesService.eventsIdentifiers
 
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
@@ -81,7 +81,7 @@ final class AgendaController: UIViewController {
         case let .failure(error):
           self?.loadingDidFail(with: error)
         case let .success(events):
-          self?.loadingDidSucceed(with: events, updatedEventIdentifier: identifier)
+          self?.loadingDidSucceed(with: events, animated: animated)
         }
       }
     }
@@ -91,18 +91,25 @@ final class AgendaController: UIViewController {
     didError?(self, error)
   }
 
-  private func loadingDidSucceed(with events: [Event], updatedEventIdentifier: Int?) {
-    if let id = updatedEventIdentifier {
-      let oldEvents = self.events
+  private func loadingDidSucceed(with events: [Event], animated: Bool) {
+    if animated {
+      var oldEvents = self.events
       let newEvents = events
+      let deletesEvents = Set(oldEvents).subtracting(newEvents)
+      let insertsEvents = Set(newEvents).subtracting(oldEvents)
 
       agendaViewController?.beginUpdates()
+
       self.events = newEvents
-      if let index = newEvents.firstIndex(where: { event in event.id == id }) {
-        agendaViewController?.insertEvent(at: index)
-      } else if let index = oldEvents.firstIndex(where: { event in event.id == id }) {
+      for (index, event) in oldEvents.enumerated().reversed() where deletesEvents.contains(event) {
         agendaViewController?.deleteEvent(at: index)
+        oldEvents.remove(at: index)
       }
+      for (index, event) in newEvents.enumerated() where insertsEvents.contains(event) {
+        agendaViewController?.insertEvent(at: index)
+        oldEvents.insert(event, at: index)
+      }
+
       agendaViewController?.endUpdates()
     } else {
       self.events = events

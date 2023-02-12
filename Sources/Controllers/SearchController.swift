@@ -103,20 +103,20 @@ extension SearchController: TracksServiceDelegate {
     tracksViewController?.performBatchUpdates(updates)
   }
 
-  func tracksService(_: TracksService, insertFavoriteWith identifier: String) {
-    if filteredFavoriteTracks.count == 1 {
-      tracksViewController?.insertFavoritesSection()
-    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
-      tracksViewController?.insertFavorite(at: index)
-    }
+  func tracksServiceDidInsertFirstFavorite(_: TracksService) {
+    tracksViewController?.insertFavoritesSection()
   }
 
-  func tracksService(_: TracksService, deleteFavoriteWith identifier: String) {
-    if filteredFavoriteTracks.count == 1 {
-      tracksViewController?.deleteFavoritesSection()
-    } else if let index = filteredFavoriteTracks.firstIndex(where: { track in track.name == identifier }) {
-      tracksViewController?.deleteFavorite(at: index)
-    }
+  func tracksServiceDidDeleteLastFavorite(_: TracksService) {
+    tracksViewController?.deleteFavoritesSection()
+  }
+
+  func tracksService(_: TracksService, didInsertFavoriteAt index: Int) {
+    tracksViewController?.insertFavorite(at: index)
+  }
+
+  func tracksService(_: TracksService, didDeleteFavoriteAt index: Int) {
+    tracksViewController?.deleteFavorite(at: index)
   }
 }
 
@@ -411,7 +411,7 @@ private extension SearchController {
       eventsViewController.navigationItem.largeTitleDisplayMode = .never
     }
 
-    observation = dependencies.favoritesService.addObserverForTracks { [weak favoriteButton, weak self] _ in
+    observation = dependencies.favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in
       favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
       favoriteButton?.title = self?.favoriteTitle
     }

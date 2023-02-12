@@ -121,7 +121,7 @@ final class EventController: UIViewController {
     favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
     navigationItem.rightBarButtonItem = favoriteButton
 
-    favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] _ in
+    favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
       favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
       favoriteButton?.title = self?.favoriteTitle
     }

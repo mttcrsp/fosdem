@@ -41,19 +41,15 @@ final class FavoritesService {
     }
   }
 
-  func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil) { notification in
-      if let id = notification.userInfo?["id"] as? Int {
-        handler(id)
-      }
+  func addObserverForEvents(_ handler: @escaping () -> Void) -> NSObjectProtocol {
+    notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil) { _ in
+      handler()
     }
   }
 
-  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil) { notification in
-      if let id = notification.userInfo?["id"] as? String {
-        handler(id)
-      }
+  func addObserverForTracks(_ handler: @escaping () -> Void) -> NSObjectProtocol {
+    notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: .main) { _ in
+      handler()
     }
   }
 
@@ -101,37 +97,29 @@ final class FavoritesService {
 extension FavoritesService {
   func addEvent(withIdentifier identifier: Int) {
     eventsIdentifiers.insert(identifier)
-    notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
+    notificationCenter.post(.init(name: .favoriteEventsDidChange))
   }
 
   func addTrack(withIdentifier identifier: String) {
     tracksIdentifiers.insert(identifier)
-    notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
+    notificationCenter.post(.init(name: .favoriteTracksDidChange))
   }
 
   func removeEvent(withIdentifier identifier: Int) {
     eventsIdentifiers.remove(identifier)
-    notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
+    notificationCenter.post(.init(name: .favoriteEventsDidChange))
   }
 
   func removeTrack(withIdentifier identifier: String) {
     tracksIdentifiers.remove(identifier)
-    notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
+    notificationCenter.post(.init(name: .favoriteTracksDidChange))
   }
 
   func removeAllTracksAndEvents() {
-    let eventsIdentifiers = self.eventsIdentifiers
-    let tracksIdentifiers = self.tracksIdentifiers
-
-    self.eventsIdentifiers.removeAll()
-    self.tracksIdentifiers.removeAll()
-
-    for identifier in eventsIdentifiers {
-      notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
-    }
-    for identifier in tracksIdentifiers {
-      notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
-    }
+    eventsIdentifiers.removeAll()
+    tracksIdentifiers.removeAll()
+    notificationCenter.post(.init(name: .favoriteEventsDidChange))
+    notificationCenter.post(.init(name: .favoriteTracksDidChange))
   }
 
   func contains(_ event: Event) -> Bool {
@@ -193,21 +181,13 @@ private extension FavoritesService {
     case .updateRemote:
       ubiquitousPreferencesService.set(localValue, forKey: key)
     case .updateLocal:
-      let oldEventsIdentifiers = eventsIdentifiers
-      let oldTracksIdentifiers = tracksIdentifiers
       preferencesService.set(remoteValue, forKey: key)
-      let newEventsIdentifiers = eventsIdentifiers
-      let newTracksIdentifiers = tracksIdentifiers
 
       switch key {
       case .favoriteEventsKey:
-        for identifier in oldEventsIdentifiers.symmetricDifference(newEventsIdentifiers) {
-          notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
-        }
+        notificationCenter.post(.init(name: .favoriteEventsDidChange))
       case .favoriteTracksKey:
-        for identifier in oldTracksIdentifiers.symmetricDifference(newTracksIdentifiers) {
-          notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
-        }
+        notificationCenter.post(.init(name: .favoriteTracksDidChange))
       default:
         break
       }
@@ -256,8 +236,8 @@ protocol FavoritesServiceProtocol {
   var eventsIdentifiers: Set<Int> { get }
   var tracksIdentifiers: Set<String> { get }
 
-  func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol
-  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol
+  func addObserverForEvents(_ handler: @escaping () -> Void) -> NSObjectProtocol
+  func addObserverForTracks(_ handler: @escaping () -> Void) -> NSObjectProtocol
   func removeObserver(_ observer: NSObjectProtocol)
 
   func addEvent(withIdentifier identifier: Int)
