@@ -112,3 +112,7 @@ protocol UbiquitousPreferencesServiceProtocol {
 }
 
 extension UbiquitousPreferencesService: UbiquitousPreferencesServiceProtocol {}
+
+protocol HasUbiquitousPreferencesService {
+  var ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol { get }
+}

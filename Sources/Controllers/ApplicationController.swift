@@ -1,7 +1,7 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService & HasOpenService
+  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService & HasOpenService & HasFavoritesService & HasUbiquitousPreferencesService
 
   private weak var tabsController: UITabBarController?
 
@@ -63,6 +63,8 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .fos_systemGroupedBackground
 
+    dependencies.ubiquitousPreferencesService.startMonitoring()
+    dependencies.favoritesService.startMonitoring()
     dependencies.scheduleService.startUpdating()
     dependencies.updateService.detectUpdates {
       DispatchQueue.main.async { [weak self] in
