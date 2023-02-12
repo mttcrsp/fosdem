@@ -6,8 +6,9 @@ class Services {
   let bundleService = BundleService()
   let openService: OpenServiceProtocol = OpenService()
   let playbackService: PlaybackServiceProtocol = PlaybackService()
-  let favoritesService: FavoritesServiceProtocol = FavoritesService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
+  let preferencesService: PreferencesServiceProtocol = PreferencesService()
+  let ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol = UbiquitousPreferencesService()
 
   private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
@@ -18,6 +19,7 @@ class Services {
   private(set) lazy var videosService: VideosServiceProtocol = VideosService(playbackService: playbackService, persistenceService: _persistenceService)
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
   private(set) lazy var scheduleService: ScheduleServiceProtocol = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
+  private(set) lazy var favoritesService: FavoritesServiceProtocol = FavoritesService(fosdemYear: YearsService.current, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService)
 
   private(set) lazy var networkService: NetworkService = {
     let session = URLSession.shared
@@ -38,9 +40,6 @@ class Services {
     launchService = LaunchService(fosdemYear: YearsService.current)
     try launchService.detectStatus()
 
-    if launchService.didLaunchAfterFosdemYearChange {
-      favoritesService.removeAllTracksAndEvents()
-    }
     let preloadService = try PreloadService()
     // Remove the database after each update as the new database might contain
     // updates even if the year did not change.
@@ -64,6 +63,10 @@ class Services {
     try preloadService.preloadDatabaseIfNeeded()
 
     _persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
+
+    if launchService.didLaunchAfterFosdemYearChange {
+      favoritesService.removeAllTracksAndEvents()
+    }
   }
 }
 

@@ -12,11 +12,11 @@ final class LaunchService {
   private(set) var didLaunchAfterInstall = false
   private(set) var didLaunchAfterFosdemYearChange = false
 
-  private let fosdemYear: Int
+  private let fosdemYear: Year
   private let bundle: LaunchServiceBundle
   private let defaults: LaunchServiceDefaults
 
-  init(fosdemYear: Int, bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
+  init(fosdemYear: Year, bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
     self.bundle = bundle
     self.defaults = defaults
     self.fosdemYear = fosdemYear

@@ -1,78 +1,136 @@
 import Foundation
 
 final class FavoritesService {
-  private let userDefaults: FavoritesServiceDefaults
   private let notificationCenter = NotificationCenter()
+  private let preferencesService: PreferencesServiceProtocol
+  private let ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol
+  private var ubiquitousObserver: NSObjectProtocol?
+  private let fosdemYear: Year
 
-  init(userDefaults: FavoritesServiceDefaults = UserDefaults.standard) {
-    self.userDefaults = userDefaults
-  }
-
-  private(set) var tracksIdentifiers: Set<String> {
-    get { userDefaults.tracksIdentifiers }
-    set { userDefaults.tracksIdentifiers = newValue }
+  init(fosdemYear: Year, preferencesService: PreferencesServiceProtocol, ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol) {
+    self.fosdemYear = fosdemYear
+    self.preferencesService = preferencesService
+    self.ubiquitousPreferencesService = ubiquitousPreferencesService
   }
 
   private(set) var eventsIdentifiers: Set<Int> {
-    get { userDefaults.eventsIdentifiers }
-    set { userDefaults.eventsIdentifiers = newValue }
+    get {
+      if let dictionary = value(forKey: .favoriteEventsKey) as? [String: Any], let array = dictionary["identifiers"] as? [Int], dictionary["year"] as? Year == fosdemYear {
+        return Set(array)
+      } else {
+        return []
+      }
+    }
+    set {
+      let value: [String: Any] = ["year": fosdemYear, "identifiers": Array(newValue)]
+      set(value, forKey: .favoriteEventsKey)
+    }
   }
 
-  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil, using: { notification in
-      if let identifier = notification.userInfo?["identifier"] as? String {
-        handler(identifier)
+  private(set) var tracksIdentifiers: Set<String> {
+    get {
+      if let dictionary = value(forKey: .favoriteTracksKey) as? [String: Any], let array = dictionary["identifiers"] as? [String], dictionary["year"] as? Year == fosdemYear {
+        return Set(array)
+      } else {
+        return []
       }
-    })
+    }
+    set {
+      let value: [String: Any] = ["year": fosdemYear, "identifiers": Array(newValue)]
+      set(value, forKey: .favoriteTracksKey)
+    }
   }
 
   func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil, using: { notification in
-      if let identifier = notification.userInfo?["identifier"] as? Int {
-        handler(identifier)
+    notificationCenter.addObserver(forName: .favoriteEventsDidChange, object: nil, queue: nil) { notification in
+      if let id = notification.userInfo?["id"] as? Int {
+        handler(id)
       }
-    })
+    }
+  }
+
+  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
+    notificationCenter.addObserver(forName: .favoriteTracksDidChange, object: nil, queue: nil) { notification in
+      if let id = notification.userInfo?["id"] as? String {
+        handler(id)
+      }
+    }
   }
 
   func removeObserver(_ observer: NSObjectProtocol) {
     notificationCenter.removeObserver(observer)
   }
 
-  func addTrack(withIdentifier identifier: String) {
-    let (inserted, _) = tracksIdentifiers.insert(identifier)
-    if inserted {
-      let userInfo = ["identifier": identifier]
-      let notification = Notification(name: .favoriteTracksDidChange, userInfo: userInfo)
-      notificationCenter.post(notification)
+  func startMonitoring() {
+    let fosdemYear = fosdemYear
+    let policy: (FavoritesMerge) -> FavoritesMergePolicy = { merge in
+      guard let remote = merge.remote,
+            let remoteDictionary = remote.value as? [String: Any],
+            let remoteYear = remoteDictionary["year"] as? Int,
+            remoteYear == fosdemYear
+      else {
+        return .updateRemote
+      }
+
+      guard let local = merge.local,
+            let localDictionary = local.value as? [String: Any],
+            let localYear = localDictionary["year"] as? Int,
+            localYear == fosdemYear
+      else {
+        return .updateLocal
+      }
+
+      if remote.updatedAt > local.updatedAt {
+        return .updateLocal
+      } else {
+        return .updateRemote
+      }
     }
+
+    internalStartMonitoringRemote(withMergePolicies: [
+      .favoriteEventsKey: policy,
+      .favoriteTracksKey: policy,
+    ])
   }
 
-  func removeTrack(withIdentifier identifier: String) {
-    if let _ = tracksIdentifiers.remove(identifier) {
-      let userInfo = ["identifier": identifier]
-      let notification = Notification(name: .favoriteTracksDidChange, userInfo: userInfo)
-      notificationCenter.post(notification)
-    }
+  func stopMonitoring() {
+    internalStopMonitoringRemote()
   }
+}
 
-  func contains(_ track: Track) -> Bool {
-    tracksIdentifiers.contains(track.name)
-  }
-
+extension FavoritesService {
   func addEvent(withIdentifier identifier: Int) {
-    let (inserted, _) = eventsIdentifiers.insert(identifier)
-    if inserted {
-      let userInfo = ["identifier": identifier]
-      let notification = Notification(name: .favoriteEventsDidChange, userInfo: userInfo)
-      notificationCenter.post(notification)
-    }
+    eventsIdentifiers.insert(identifier)
+    notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
+  }
+
+  func addTrack(withIdentifier identifier: String) {
+    tracksIdentifiers.insert(identifier)
+    notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
   }
 
   func removeEvent(withIdentifier identifier: Int) {
-    if let _ = eventsIdentifiers.remove(identifier) {
-      let userInfo = ["identifier": identifier]
-      let notification = Notification(name: .favoriteEventsDidChange, userInfo: userInfo)
-      notificationCenter.post(notification)
+    eventsIdentifiers.remove(identifier)
+    notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
+  }
+
+  func removeTrack(withIdentifier identifier: String) {
+    tracksIdentifiers.remove(identifier)
+    notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
+  }
+
+  func removeAllTracksAndEvents() {
+    let eventsIdentifiers = self.eventsIdentifiers
+    let tracksIdentifiers = self.tracksIdentifiers
+
+    self.eventsIdentifiers.removeAll()
+    self.tracksIdentifiers.removeAll()
+
+    for identifier in eventsIdentifiers {
+      notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
+    }
+    for identifier in tracksIdentifiers {
+      notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
     }
   }
 
@@ -80,84 +138,141 @@ final class FavoritesService {
     eventsIdentifiers.contains(event.id)
   }
 
-  func removeAllTracksAndEvents() {
-    for identifier in tracksIdentifiers {
-      removeTrack(withIdentifier: identifier)
+  func contains(_ track: Track) -> Bool {
+    tracksIdentifiers.contains(track.name)
+  }
+}
+
+private extension FavoritesService {
+  func value(forKey key: String) -> Any? {
+    if let dictionary = preferencesService.value(forKey: key) as? [String: Any] {
+      return dictionary["value"]
+    } else {
+      return nil
+    }
+  }
+
+  func set(_ value: Any?, forKey key: String) {
+    let dictionary = ["value": value as Any, "updatedAt": Date()]
+    preferencesService.set(dictionary, forKey: key)
+    ubiquitousPreferencesService.set(dictionary, forKey: key)
+  }
+
+  func removeValue(forKey key: String) {
+    preferencesService.removeValue(forKey: key)
+    ubiquitousPreferencesService.removeValue(forKey: key)
+  }
+
+  func internalStartMonitoringRemote(withMergePolicies policies: [String: (FavoritesMerge) -> FavoritesMergePolicy]) {
+    guard ubiquitousObserver == nil else {
+      return assertionFailure("Attempted to start monitoring on already active favorites service \(self)")
     }
 
-    for identifier in eventsIdentifiers {
-      removeEvent(withIdentifier: identifier)
+    ubiquitousObserver = ubiquitousPreferencesService.addObserver { [weak self] key in
+      self?.didChangeRemoveValue(forKey: key, with: policies)
+    }
+  }
+
+  func internalStopMonitoringRemote() {
+    guard let observer = ubiquitousObserver else {
+      return assertionFailure("Attempted to stop monitoring on inactive favorites service \(self)")
+    }
+
+    ubiquitousPreferencesService.removeObserver(observer)
+  }
+
+  private func didChangeRemoveValue(forKey key: String, with policies: [String: (FavoritesMerge) -> FavoritesMergePolicy]) {
+    guard let policy = policies[key] else { return }
+
+    let remoteValue = ubiquitousPreferencesService.value(forKey: key)
+    let remote = FavoritesMergeValue(value: remoteValue as Any)
+    let localValue = preferencesService.value(forKey: key)
+    let local = FavoritesMergeValue(value: localValue as Any)
+    let merge = FavoritesMerge(local: local, remote: remote)
+    switch policy(merge) {
+    case .updateRemote:
+      ubiquitousPreferencesService.set(localValue, forKey: key)
+    case .updateLocal:
+      let oldEventsIdentifiers = eventsIdentifiers
+      let oldTracksIdentifiers = tracksIdentifiers
+      preferencesService.set(remoteValue, forKey: key)
+      let newEventsIdentifiers = eventsIdentifiers
+      let newTracksIdentifiers = tracksIdentifiers
+
+      switch key {
+      case .favoriteEventsKey:
+        for identifier in oldEventsIdentifiers.symmetricDifference(newEventsIdentifiers) {
+          notificationCenter.post(.init(name: .favoriteEventsDidChange, userInfo: ["id": identifier]))
+        }
+      case .favoriteTracksKey:
+        for identifier in oldTracksIdentifiers.symmetricDifference(newTracksIdentifiers) {
+          notificationCenter.post(.init(name: .favoriteTracksDidChange, userInfo: ["id": identifier]))
+        }
+      default:
+        break
+      }
     }
   }
 }
 
-private extension FavoritesServiceDefaults {
-  var tracksIdentifiers: Set<String> {
-    get {
-      let object = value(forKey: .favoriteTracksKey)
-      let array = object as? [String] ?? []
-      return Set(array)
-    }
-    set {
-      let array = Array(newValue)
-      let arrayPlist = NSArray(array: array)
-      set(arrayPlist, forKey: .favoriteTracksKey)
-    }
-  }
+private enum FavoritesMergePolicy {
+  case updateLocal, updateRemote
+}
 
-  var eventsIdentifiers: Set<Int> {
-    get {
-      let object = value(forKey: .favoriteEventsKey)
-      let array = object as? [Int] ?? []
-      return Set(array)
-    }
-    set {
-      let array = Array(newValue)
-      let arrayPlist = NSArray(array: array)
-      set(arrayPlist, forKey: .favoriteEventsKey)
+private struct FavoritesMerge {
+  let local: FavoritesMergeValue?
+  let remote: FavoritesMergeValue?
+}
+
+private struct FavoritesMergeValue {
+  let value: Any?
+  let updatedAt: Date
+}
+
+private extension FavoritesMergeValue {
+  init?(value: Any) {
+    if let dictionary = value as? [String: Any], let updatedAt = dictionary["updatedAt"] as? Date {
+      self.init(value: dictionary["value"], updatedAt: updatedAt)
+    } else {
+      return nil
     }
   }
 }
 
 private extension String {
-  static var favoriteTracksKey: String { #function }
-  static var favoriteEventsKey: String { #function }
+  static let favoriteEventsKey = "com.mttcrsp.ansia.FavoritesService.favoriteEvents"
+  static let favoriteTracksKey = "com.mttcrsp.ansia.FavoritesService.favoriteTracks"
 }
 
 private extension Notification.Name {
-  static var favoriteTracksDidChange: Notification.Name { Notification.Name(#function) }
-  static var favoriteEventsDidChange: Notification.Name { Notification.Name(#function) }
-}
-
-/// @mockable
-protocol FavoritesServiceProtocol {
-  var tracksIdentifiers: Set<String> { get }
-  var eventsIdentifiers: Set<Int> { get }
-
-  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol
-  func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol
-  func removeObserver(_ observer: NSObjectProtocol)
-
-  func addTrack(withIdentifier identifier: String)
-  func removeTrack(withIdentifier identifier: String)
-  func contains(_ track: Track) -> Bool
-
-  func addEvent(withIdentifier identifier: Int)
-  func removeEvent(withIdentifier identifier: Int)
-  func contains(_ event: Event) -> Bool
-
-  func removeAllTracksAndEvents()
+  static var favoriteEventsDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesService.favoriteEventsDidChange")
+  static var favoriteTracksDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesService.favoriteTracksDidChange")
 }
 
 extension FavoritesService: FavoritesServiceProtocol {}
 
 /// @mockable
-protocol FavoritesServiceDefaults: AnyObject {
-  func value(forKey key: String) -> Any?
-  func set(_ value: Any?, forKey defaultName: String)
-}
+protocol FavoritesServiceProtocol {
+  var eventsIdentifiers: Set<Int> { get }
+  var tracksIdentifiers: Set<String> { get }
 
-extension UserDefaults: FavoritesServiceDefaults {}
+  func addObserverForEvents(_ handler: @escaping (Int) -> Void) -> NSObjectProtocol
+  func addObserverForTracks(_ handler: @escaping (String) -> Void) -> NSObjectProtocol
+  func removeObserver(_ observer: NSObjectProtocol)
+
+  func addEvent(withIdentifier identifier: Int)
+  func addTrack(withIdentifier identifier: String)
+
+  func removeEvent(withIdentifier identifier: Int)
+  func removeTrack(withIdentifier identifier: String)
+  func removeAllTracksAndEvents()
+
+  func contains(_ event: Event) -> Bool
+  func contains(_ track: Track) -> Bool
+
+  func startMonitoring()
+  func stopMonitoring()
+}
 
 protocol HasFavoritesService {
   var favoritesService: FavoritesServiceProtocol { get }

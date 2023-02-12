@@ -1,10 +1,10 @@
-import Foundation
+import UIKit
 
 final class UbiquitousPreferencesService {
   private let notificationCenter = NotificationCenter()
   private let ubiquitousStore: UbiquitousPreferencesServiceStore
   private let ubiquitousNotificationCenter: NotificationCenter
-  private var ubiquitousObserver: NSObjectProtocol?
+  private var ubiquitousObservers: [NSObjectProtocol] = []
 
   init(ubiquitousStore: UbiquitousPreferencesServiceStore = NSUbiquitousKeyValueStore.default, ubiquitousNotificationCenter: NotificationCenter = .default) {
     self.ubiquitousStore = ubiquitousStore
@@ -38,22 +38,29 @@ final class UbiquitousPreferencesService {
   }
 
   func startMonitoring() {
-    guard ubiquitousObserver == nil else {
+    guard ubiquitousObservers.isEmpty else {
       return assertionFailure("Attempted to start monitoring on already active ubiquitous preferences service \(self)")
     }
 
-    ubiquitousObserver = ubiquitousNotificationCenter.addObserver(forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil, queue: nil) { [weak self] notification in
-      self?.didChangeExternally(notification)
-    }
+    ubiquitousObservers = [
+      ubiquitousNotificationCenter.addObserver(forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil, queue: nil) { [weak self] notification in
+        self?.didChangeExternally(notification)
+      },
+      ubiquitousNotificationCenter.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
+        self?.ubiquitousStore.synchronize()
+      },
+    ]
     ubiquitousStore.synchronize()
   }
 
   func stopMonitoring() {
-    guard let observer = ubiquitousObserver else {
+    guard !ubiquitousObservers.isEmpty else {
       return assertionFailure("Attempted to stop monitoring on inactive ubiquitous preferences service \(self)")
     }
 
-    ubiquitousNotificationCenter.removeObserver(observer)
+    for observer in ubiquitousObservers {
+      ubiquitousNotificationCenter.removeObserver(observer)
+    }
   }
 
   private func didChangeExternally(_ notification: Notification) {
@@ -91,6 +98,7 @@ protocol UbiquitousPreferencesServiceStore {
 
 extension NSUbiquitousKeyValueStore: UbiquitousPreferencesServiceStore {}
 
+/// @mockable
 protocol UbiquitousPreferencesServiceProtocol {
   func set(_ value: Any?, forKey key: String)
   func value(forKey key: String) -> Any?
