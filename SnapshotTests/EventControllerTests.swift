@@ -72,7 +72,7 @@ final class EventControllerTests: XCTestCase {
     dependencies.favoritesService = favoritesService
 
     let token = NSObject()
-    var observer: ((Int) -> Void)?
+    var observer: (() -> Void)?
     favoritesService.addObserverForEventsHandler = { receivedObserver in
       observer = receivedObserver
       return token
@@ -84,12 +84,12 @@ final class EventControllerTests: XCTestCase {
       assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
       XCTAssertEqual(favoritesService.addObserverForEventsCallCount, 1)
 
-      favoritesService.containsEventHandler = { _ in true }
-      observer?(eventController.event.id)
+      favoritesService.containsHandler = { _ in true }
+      observer?()
       assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
-      favoritesService.containsEventHandler = { _ in false }
-      observer?(eventController.event.id)
+      favoritesService.containsHandler = { _ in false }
+      observer?()
       assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
       // Kill UINavigationController -> EventController reference to force
@@ -116,11 +116,11 @@ final class EventControllerTests: XCTestCase {
     let target = try XCTUnwrap(favoriteButton?.target)
     let action = try XCTUnwrap(favoriteButton?.action)
 
-    favoritesService.containsEventHandler = { _ in false }
+    favoritesService.containsHandler = { _ in false }
     _ = target.perform(action)
     XCTAssertEqual(favoritesService.addEventArgValues, [eventID])
 
-    favoritesService.containsEventHandler = { _ in true }
+    favoritesService.containsHandler = { _ in true }
     _ = target.perform(action)
     XCTAssertEqual(favoritesService.removeEventArgValues, [eventID])
   }

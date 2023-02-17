@@ -5,10 +5,12 @@ final class FavoritesService {
   private let preferencesService: PreferencesServiceProtocol
   private let ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol
   private var ubiquitousObserver: NSObjectProtocol?
+  private let timeService: TimeServiceProtocol
   private let fosdemYear: Year
 
-  init(fosdemYear: Year, preferencesService: PreferencesServiceProtocol, ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol) {
+  init(fosdemYear: Year, preferencesService: PreferencesServiceProtocol, ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol, timeService: TimeServiceProtocol) {
     self.fosdemYear = fosdemYear
+    self.timeService = timeService
     self.preferencesService = preferencesService
     self.ubiquitousPreferencesService = ubiquitousPreferencesService
   }
@@ -147,7 +149,7 @@ private extension FavoritesService {
   }
 
   func set(_ value: Any?, forKey key: String) {
-    let dictionary = ["value": value as Any, "updatedAt": Date()]
+    let dictionary = ["value": value as Any, "updatedAt": timeService.now]
     preferencesService.set(dictionary, forKey: key)
     ubiquitousPreferencesService.set(dictionary, forKey: key)
   }

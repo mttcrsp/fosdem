@@ -19,7 +19,7 @@ class Services {
   private(set) lazy var videosService: VideosServiceProtocol = VideosService(playbackService: playbackService, persistenceService: _persistenceService)
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
   private(set) lazy var scheduleService: ScheduleServiceProtocol = ScheduleService(fosdemYear: YearsService.current, networkService: networkService, persistenceService: _persistenceService)
-  private(set) lazy var favoritesService: FavoritesServiceProtocol = FavoritesService(fosdemYear: YearsService.current, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService)
+  private(set) lazy var favoritesService: FavoritesServiceProtocol = FavoritesService(fosdemYear: YearsService.current, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService, timeService: timeService)
 
   private(set) lazy var networkService: NetworkService = {
     let session = URLSession.shared
