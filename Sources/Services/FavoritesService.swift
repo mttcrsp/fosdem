@@ -96,23 +96,29 @@ final class FavoritesService {
 
 extension FavoritesService {
   func addEvent(withIdentifier identifier: Int) {
-    eventsIdentifiers.insert(identifier)
-    notificationCenter.post(.init(name: .favoriteEventsDidChange))
+    let (inserted, _) = eventsIdentifiers.insert(identifier)
+    if inserted {
+      notificationCenter.post(.init(name: .favoriteEventsDidChange))
+    }
   }
 
   func addTrack(withIdentifier identifier: String) {
-    tracksIdentifiers.insert(identifier)
-    notificationCenter.post(.init(name: .favoriteTracksDidChange))
+    let (inserted, _) = tracksIdentifiers.insert(identifier)
+    if inserted {
+      notificationCenter.post(.init(name: .favoriteTracksDidChange))
+    }
   }
 
   func removeEvent(withIdentifier identifier: Int) {
-    eventsIdentifiers.remove(identifier)
-    notificationCenter.post(.init(name: .favoriteEventsDidChange))
+    if let _ = eventsIdentifiers.remove(identifier) {
+      notificationCenter.post(.init(name: .favoriteEventsDidChange))
+    }
   }
 
   func removeTrack(withIdentifier identifier: String) {
-    tracksIdentifiers.remove(identifier)
-    notificationCenter.post(.init(name: .favoriteTracksDidChange))
+    if let _ = tracksIdentifiers.remove(identifier) {
+      notificationCenter.post(.init(name: .favoriteTracksDidChange))
+    }
   }
 
   func removeAllTracksAndEvents() {
