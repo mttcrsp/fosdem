@@ -183,6 +183,17 @@ private extension FavoritesService {
       return assertionFailure("Attempted to start monitoring on already active favorites service \(self)")
     }
 
+    for key in [.favoriteEventsKey, .favoriteTracksKey] as [String] {
+      if preferencesService.value(forKey: key) == nil {
+        if let value = ubiquitousPreferencesService.value(forKey: key) {
+          preferencesService.set(value, forKey: key)
+          if let name = notificationNameForKey[key] {
+            notificationCenter.post(.init(name: name))
+          }
+        }
+      }
+    }
+
     ubiquitousObserver = ubiquitousPreferencesService.addObserver { [weak self] key in
       self?.didChangeRemoveValue(forKey: key, with: policies)
     }
@@ -209,16 +220,17 @@ private extension FavoritesService {
       ubiquitousPreferencesService.set(localValue, forKey: key)
     case .updateLocal:
       preferencesService.set(remoteValue, forKey: key)
-
-      switch key {
-      case .favoriteEventsKey:
-        notificationCenter.post(.init(name: .favoriteEventsDidChange))
-      case .favoriteTracksKey:
-        notificationCenter.post(.init(name: .favoriteTracksDidChange))
-      default:
-        break
+      if let name = notificationNameForKey[key] {
+        notificationCenter.post(.init(name: name))
       }
     }
+  }
+
+  private var notificationNameForKey: [String: Notification.Name] {
+    [
+      .favoriteEventsKey: .favoriteEventsDidChange,
+      .favoriteTracksKey: .favoriteTracksDidChange,
+    ]
   }
 }
 
