@@ -16,7 +16,7 @@ FOSDEM.app is a full featured iOS application that lets you organise your visit 
 - Build up an agenda with your favorite events to quickly see what is coming up next
 - Get access to slides and all material provided by speakers
 
-The app is compatible with iOS 11+ iPhone/iPad devices and provides support for dynamic type, VoiceOver and Dark Mode.
+The app is compatible with iOS 11+ iPhone/iPad devices and Mac computers with Apple silicon, and provides support for dynamic type, VoiceOver and Dark Mode.
 
 ## Contributing
 
