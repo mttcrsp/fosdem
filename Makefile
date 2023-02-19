@@ -30,3 +30,9 @@ run_swiftgen:
 	swiftgen run xcassets Resources/* \
 		-t swift5 \
 		-o Sources/Derived/Assets.swift
+
+test:
+	xcodebuild \
+		-scheme FOSDEM \
+		-destination 'platform=iOS Simulator,OS=16.2,name=iPhone 8 Plus' \
+		test | xcbeautify

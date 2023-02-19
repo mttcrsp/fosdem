@@ -1,6 +1,4 @@
-brew "xcodegen"
+brew "mockolo"
 brew "swiftformat"
-brew "chargepoint/xcparse/xcparse"
-
-tap "peripheryapp/periphery"
-cask "periphery"
+brew "xcbeautify"
+brew "xcodegen"
