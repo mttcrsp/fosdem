@@ -7,12 +7,14 @@ final class FavoritesService {
   private var ubiquitousObserver: NSObjectProtocol?
   private let timeService: TimeServiceProtocol
   private let fosdemYear: Year
+  private let userDefaults: FavoritesServiceDefaults
 
-  init(fosdemYear: Year, preferencesService: PreferencesServiceProtocol, ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol, timeService: TimeServiceProtocol) {
+  init(fosdemYear: Year, preferencesService: PreferencesServiceProtocol, ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol, timeService: TimeServiceProtocol, userDefaults: FavoritesServiceDefaults = UserDefaults.standard) {
     self.fosdemYear = fosdemYear
     self.timeService = timeService
     self.preferencesService = preferencesService
     self.ubiquitousPreferencesService = ubiquitousPreferencesService
+    self.userDefaults = userDefaults
   }
 
   private(set) var eventsIdentifiers: Set<Int> {
@@ -139,6 +141,23 @@ extension FavoritesService {
   }
 }
 
+extension FavoritesService {
+  func migrate() {
+    let favoriteEventsKey = "favoriteEventsKey"
+    let favoriteTracksKey = "favoriteTracksKey"
+
+    if let eventsIdentifiers = userDefaults.value(forKey: favoriteEventsKey) as? [Int] {
+      self.eventsIdentifiers = Set(eventsIdentifiers)
+      userDefaults.removeObject(forKey: favoriteEventsKey)
+    }
+
+    if let tracksIdentifiers = userDefaults.value(forKey: favoriteTracksKey) as? [String] {
+      self.tracksIdentifiers = Set(tracksIdentifiers)
+      userDefaults.removeObject(forKey: favoriteTracksKey)
+    }
+  }
+}
+
 private extension FavoritesService {
   func value(forKey key: String) -> Any? {
     if let dictionary = preferencesService.value(forKey: key) as? [String: Any] {
@@ -260,7 +279,17 @@ protocol FavoritesServiceProtocol {
 
   func startMonitoring()
   func stopMonitoring()
+
+  func migrate()
 }
+
+/// @mockable
+protocol FavoritesServiceDefaults: AnyObject {
+  func value(forKey key: String) -> Any?
+  func removeObject(forKey defaultName: String)
+}
+
+extension UserDefaults: FavoritesServiceDefaults {}
 
 protocol HasFavoritesService {
   var favoritesService: FavoritesServiceProtocol { get }

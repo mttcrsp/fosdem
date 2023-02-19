@@ -240,6 +240,26 @@ final class FavoritesServiceTests: XCTestCase {
 
     service.stopMonitoring()
   }
+
+  func testMigrate() {
+    let userDefaults = FavoritesServiceDefaultsMock()
+    userDefaults.valueHandler = { key in
+      switch key {
+      case "favoriteEventsKey":
+        return [1, 2, 3]
+      case "favoriteTracksKey":
+        return ["4", "5"]
+      default:
+        return nil
+      }
+    }
+
+    let service = FavoritesService(fosdemYear: 2023, preferencesService: makePreferencesService(), ubiquitousPreferencesService: makeUbiquitousPreferencesService(), timeService: TimeServiceProtocolMock(), userDefaults: userDefaults)
+    service.migrate()
+    XCTAssertEqual(service.eventsIdentifiers, [1, 2, 3])
+    XCTAssertEqual(service.tracksIdentifiers, ["4", "5"])
+    XCTAssertEqual(userDefaults.removeObjectArgValues, ["favoriteEventsKey", "favoriteTracksKey"])
+  }
 }
 
 private extension FavoritesServiceTests {

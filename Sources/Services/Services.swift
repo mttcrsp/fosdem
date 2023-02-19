@@ -67,6 +67,7 @@ class Services {
     if launchService.didLaunchAfterFosdemYearChange {
       favoritesService.removeAllTracksAndEvents()
     }
+    favoritesService.migrate()
   }
 }
 
