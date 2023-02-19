@@ -9,22 +9,13 @@ final class MapViewControllerTests: XCTestCase {
     let mapViewController = MapViewController()
 
     // MKMapView will load data from the network and update its appearance
-    // dynamically. To make sure that these updates do not interefere with
-    // testing, the MKMapView instance managed by MapViewController is covered
-    // by a view with a solid background color.
-    let coverView = UIView()
-    coverView.backgroundColor = .red
-    coverView.translatesAutoresizingMaskIntoConstraints = false
-
+    // dynamically. This dynamic updates make snapshot testing impossible. Also,
+    // on iOS 16.2, attempting to get a snapshot of a hierarchy that contains a
+    // MKMapView leads to a crash in ERROR_CGDataProvider_BufferIsNotReadable.
+    // To work around both of these issues, the MKMapView instance managed by
+    // MapViewController is removed from the hierarchy.
     let mapView = try XCTUnwrap(mapViewController.view.findSubview(ofType: MKMapView.self))
-    mapView.addSubview(coverView)
-
-    NSLayoutConstraint.activate([
-      coverView.topAnchor.constraint(equalTo: mapView.topAnchor),
-      coverView.bottomAnchor.constraint(equalTo: mapView.bottomAnchor),
-      coverView.leadingAnchor.constraint(equalTo: mapView.leadingAnchor),
-      coverView.trailingAnchor.constraint(equalTo: mapView.trailingAnchor),
-    ])
+    mapView.removeFromSuperview()
 
     XCTAssertNotNil(mapViewController.view.findSubview(ofType: UIView.self, accessibilityLabel: L10n.Map.location))
     assertSnapshot(matching: mapViewController, as: .image(on: .iPhone8Plus))
