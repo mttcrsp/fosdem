@@ -13,12 +13,10 @@ final class YearController: TracksViewController {
   private var events: [Event] = []
   var results: [Event] = []
 
-  private let year: Int
   private let dependencies: Dependencies
   let persistenceService: PersistenceServiceProtocol
 
-  init(year: Int, persistenceService: PersistenceServiceProtocol, dependencies: Dependencies) {
-    self.year = year
+  init(persistenceService: PersistenceServiceProtocol, dependencies: Dependencies) {
     self.dependencies = dependencies
     self.persistenceService = persistenceService
     super.init(nibName: nil, bundle: nil)

@@ -89,7 +89,7 @@ extension NavigationService {
   }
 
   func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping ErrorHandler) -> UIViewController {
-    let yearController = YearController(year: year, persistenceService: persistenceService, dependencies: services)
+    let yearController = YearController(persistenceService: persistenceService, dependencies: services)
     yearController.navigationItem.largeTitleDisplayMode = .never
     yearController.title = year.description
     yearController.didError = didError
