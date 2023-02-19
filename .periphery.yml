@@ -1,0 +1,6 @@
+project: FOSDEM.xcodeproj
+schemes:
+- FOSDEM
+- GRDB-Package
+targets:
+- FOSDEM
