@@ -195,9 +195,9 @@ final class FavoritesServiceTests: XCTestCase {
 
     service.startMonitoring()
 
-    let value1 = FavoritesValue(identifiers: [1] as Set<Int>, year: 2022, updatedAt: date1)
-    let value2 = FavoritesValue(identifiers: [2] as Set<Int>, year: 2023, updatedAt: date1)
-    let value3 = FavoritesValue(identifiers: [3] as Set<Int>, year: 2023, updatedAt: date2)
+    let value1 = FavoritesValue(identifiers: [1], year: 2022, updatedAt: date1)
+    let value2 = FavoritesValue(identifiers: [2], year: 2023, updatedAt: date1)
+    let value3 = FavoritesValue(identifiers: [3], year: 2023, updatedAt: date2)
 
     preferencesService.valueHandler = { _ in value1.dictionaryValue }
     ubiquitousPreferencesService.valueHandler = { _ in value2.dictionaryValue }
@@ -234,35 +234,139 @@ final class FavoritesServiceTests: XCTestCase {
     service.stopMonitoring()
   }
 
-  func testStartMonitoringInitialSync() {
+  func testStartMonitoringMissingValues() {
+    let events = FavoritesValue(identifiers: [1], year: 2023, updatedAt: .init())
+    let tracks = FavoritesValue(identifiers: ["2"], year: 2023, updatedAt: .init())
+
     let ubiquitousPreferencesService = UbiquitousPreferencesServiceProtocolMock()
-    let preferencesService = makePreferencesService()
-    let service = FavoritesService(fosdemYear: 2023, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService, timeService: TimeServiceProtocolMock())
-
-    let value1 = FavoritesValue(identifiers: [1] as Set<Int>, year: 2023, updatedAt: .init())
-    let value2 = FavoritesValue(identifiers: ["2"] as Set<String>, year: 2023, updatedAt: .init())
-
     ubiquitousPreferencesService.addObserverHandler = { _ in NSObject() }
     ubiquitousPreferencesService.valueHandler = { key in
       switch key {
       case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
-        return value1.dictionaryValue
+        return events.dictionaryValue
       case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
-        return value2.dictionaryValue
+        return tracks.dictionaryValue
       default:
         return nil
       }
     }
 
+    let preferencesService = makePreferencesService()
+    let service = FavoritesService(fosdemYear: 2023, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService, timeService: TimeServiceProtocolMock())
     service.startMonitoring()
-    XCTAssertEqual(preferencesService.setArgValues.map(\.0) as? [NSDictionary], [
-      value1.dictionaryValue as NSDictionary,
-      value2.dictionaryValue as NSDictionary,
+    XCTAssertEqual(service.eventsIdentifiers, Set(events.identifiers))
+    XCTAssertEqual(service.tracksIdentifiers, Set(tracks.identifiers))
+    XCTAssertTrue(ubiquitousPreferencesService.setArgValues.isEmpty)
+  }
+
+  func testStartMonitoringMatchingRemote() {
+    let events = FavoritesValue(identifiers: [1], year: 2023, updatedAt: .init())
+    let tracks = FavoritesValue(identifiers: ["2"], year: 2023, updatedAt: .init())
+    let valueHandler: (String) -> Any? = { key in
+      switch key {
+      case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
+        return events.dictionaryValue
+      case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
+        return tracks.dictionaryValue
+      default:
+        return nil
+      }
+    }
+
+    let ubiquitousPreferencesService = UbiquitousPreferencesServiceProtocolMock()
+    ubiquitousPreferencesService.addObserverHandler = { _ in NSObject() }
+    ubiquitousPreferencesService.valueHandler = valueHandler
+
+    let preferencesService = PreferencesServiceProtocolMock()
+    preferencesService.valueHandler = valueHandler
+
+    let service = FavoritesService(fosdemYear: 2023, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService, timeService: TimeServiceProtocolMock())
+    service.startMonitoring()
+    XCTAssertTrue(preferencesService.setArgValues.isEmpty)
+    XCTAssertTrue(ubiquitousPreferencesService.setArgValues.isEmpty)
+  }
+
+  func testStartMonitoringNewerRemote() {
+    let date = Date()
+    let newEvents = FavoritesValue(identifiers: [1], year: 2023, updatedAt: date)
+    let oldEvents = FavoritesValue(identifiers: [2], year: 2022, updatedAt: date)
+    let newTracks = FavoritesValue(identifiers: ["3"], year: 2023, updatedAt: date)
+    let oldTracks = FavoritesValue(identifiers: ["4"], year: 2023, updatedAt: date.addingTimeInterval(-60))
+
+    let ubiquitousPreferencesService = UbiquitousPreferencesServiceProtocolMock()
+    ubiquitousPreferencesService.addObserverHandler = { _ in NSObject() }
+    ubiquitousPreferencesService.valueHandler = { key in
+      switch key {
+      case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
+        return newEvents.dictionaryValue
+      case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
+        return newTracks.dictionaryValue
+      default:
+        return nil
+      }
+    }
+
+    let preferencesService = makePreferencesService(withInitialValues: [
+      "com.mttcrsp.ansia.FavoritesService.favoriteEvents": oldEvents.dictionaryValue,
+      "com.mttcrsp.ansia.FavoritesService.favoriteTracks": oldTracks.dictionaryValue,
     ])
-    XCTAssertEqual(preferencesService.setArgValues.map(\.1), [
-      "com.mttcrsp.ansia.FavoritesService.favoriteEvents",
-      "com.mttcrsp.ansia.FavoritesService.favoriteTracks",
-    ])
+
+    let service = FavoritesService(fosdemYear: 2023, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService, timeService: TimeServiceProtocolMock())
+    service.startMonitoring()
+    XCTAssertEqual(service.eventsIdentifiers, Set(newEvents.identifiers))
+    XCTAssertEqual(service.tracksIdentifiers, Set(newTracks.identifiers))
+    XCTAssertTrue(ubiquitousPreferencesService.setArgValues.isEmpty)
+  }
+
+  func testStartMonitoringOlderRemote() {
+    let date = Date()
+    let newEvents = FavoritesValue(identifiers: [1], year: 2023, updatedAt: date)
+    let oldEvents = FavoritesValue(identifiers: [2], year: 2022, updatedAt: date)
+    let newTracks = FavoritesValue(identifiers: ["3"], year: 2023, updatedAt: date)
+    let oldTracks = FavoritesValue(identifiers: ["4"], year: 2023, updatedAt: date.addingTimeInterval(-60))
+
+    let ubiquitousPreferencesService = UbiquitousPreferencesServiceProtocolMock()
+    ubiquitousPreferencesService.addObserverHandler = { _ in NSObject() }
+    ubiquitousPreferencesService.valueHandler = { key in
+      switch key {
+      case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
+        return oldEvents.dictionaryValue
+      case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
+        return oldTracks.dictionaryValue
+      default:
+        return nil
+      }
+    }
+
+    let preferencesService = PreferencesServiceProtocolMock()
+    preferencesService.valueHandler = { key in
+      switch key {
+      case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
+        return newEvents.dictionaryValue
+      case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
+        return newTracks.dictionaryValue
+      default:
+        return nil
+      }
+    }
+
+    let service = FavoritesService(fosdemYear: 2023, preferencesService: preferencesService, ubiquitousPreferencesService: ubiquitousPreferencesService, timeService: TimeServiceProtocolMock())
+    service.startMonitoring()
+
+    XCTAssertTrue(preferencesService.setArgValues.isEmpty)
+    XCTAssertEqual(ubiquitousPreferencesService.setArgValues.count, 2)
+    XCTAssertTrue(
+      ubiquitousPreferencesService.setArgValues.contains { argValues in
+        argValues.0 as? NSDictionary == newEvents.dictionaryValue as NSDictionary &&
+          argValues.1 == "com.mttcrsp.ansia.FavoritesService.favoriteEvents"
+      }
+    )
+    XCTAssertTrue(
+      ubiquitousPreferencesService.setArgValues.contains { argValues in
+        argValues.0 as? NSDictionary == newTracks.dictionaryValue as NSDictionary &&
+          argValues.1 == "com.mttcrsp.ansia.FavoritesService.favoriteTracks"
+      }
+    )
   }
 
   func testMigrate() {
@@ -294,8 +398,8 @@ private extension FavoritesServiceTests {
     }
   }
 
-  func makePreferencesService() -> PreferencesServiceProtocolMock {
-    var storage: [String: Any] = [:]
+  func makePreferencesService(withInitialValues values: [String: Any] = [:]) -> PreferencesServiceProtocolMock {
+    var storage = values
     let preferencesService = PreferencesServiceProtocolMock()
     preferencesService.setHandler = { value, key in storage[key] = value }
     preferencesService.valueHandler = { key in storage[key] }

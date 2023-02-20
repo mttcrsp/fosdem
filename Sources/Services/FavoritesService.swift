@@ -62,39 +62,25 @@ final class FavoritesService {
   }
 
   func startMonitoring() {
-    let fosdemYear = fosdemYear
-    let policy: (FavoritesMerge) -> FavoritesMergePolicy = { merge in
-      guard let remote = merge.remote,
-            let remoteDictionary = remote.value as? [String: Any],
-            let remoteYear = remoteDictionary["year"] as? Int,
-            remoteYear == fosdemYear
-      else {
-        return .updateRemote
-      }
-
-      guard let local = merge.local,
-            let localDictionary = local.value as? [String: Any],
-            let localYear = localDictionary["year"] as? Int,
-            localYear == fosdemYear
-      else {
-        return .updateLocal
-      }
-
-      if remote.updatedAt > local.updatedAt {
-        return .updateLocal
-      } else {
-        return .updateRemote
-      }
+    guard ubiquitousObserver == nil else {
+      return assertionFailure("Attempted to start monitoring on already active favorites service \(self)")
     }
 
-    internalStartMonitoringRemote(withMergePolicies: [
-      .favoriteEventsKey: policy,
-      .favoriteTracksKey: policy,
-    ])
+    for key in notificationNameForKey.keys {
+      syncValue(forKey: key)
+    }
+
+    ubiquitousObserver = ubiquitousPreferencesService.addObserver { [weak self] key in
+      self?.syncValue(forKey: key)
+    }
   }
 
   func stopMonitoring() {
-    internalStopMonitoringRemote()
+    guard let observer = ubiquitousObserver else {
+      return assertionFailure("Attempted to stop monitoring on inactive favorites service \(self)")
+    }
+
+    ubiquitousPreferencesService.removeObserver(observer)
   }
 }
 
@@ -178,51 +164,51 @@ private extension FavoritesService {
     ubiquitousPreferencesService.removeValue(forKey: key)
   }
 
-  func internalStartMonitoringRemote(withMergePolicies policies: [String: (FavoritesMerge) -> FavoritesMergePolicy]) {
-    guard ubiquitousObserver == nil else {
-      return assertionFailure("Attempted to start monitoring on already active favorites service \(self)")
-    }
-
-    for key in [.favoriteEventsKey, .favoriteTracksKey] as [String] {
-      if preferencesService.value(forKey: key) == nil {
-        if let value = ubiquitousPreferencesService.value(forKey: key) {
-          preferencesService.set(value, forKey: key)
-          if let name = notificationNameForKey[key] {
-            notificationCenter.post(.init(name: name))
-          }
-        }
-      }
-    }
-
-    ubiquitousObserver = ubiquitousPreferencesService.addObserver { [weak self] key in
-      self?.didChangeRemoveValue(forKey: key, with: policies)
-    }
-  }
-
-  func internalStopMonitoringRemote() {
-    guard let observer = ubiquitousObserver else {
-      return assertionFailure("Attempted to stop monitoring on inactive favorites service \(self)")
-    }
-
-    ubiquitousPreferencesService.removeObserver(observer)
-  }
-
-  private func didChangeRemoveValue(forKey key: String, with policies: [String: (FavoritesMerge) -> FavoritesMergePolicy]) {
-    guard let policy = policies[key] else { return }
-
+  private func syncValue(forKey key: String) {
+    guard let notificationName = notificationNameForKey[key] else { return }
     let remoteValue = ubiquitousPreferencesService.value(forKey: key)
     let remote = FavoritesMergeValue(value: remoteValue as Any)
     let localValue = preferencesService.value(forKey: key)
     let local = FavoritesMergeValue(value: localValue as Any)
     let merge = FavoritesMerge(local: local, remote: remote)
-    switch policy(merge) {
+    switch policy(for: merge) {
+    case .ignore:
+      break
     case .updateRemote:
       ubiquitousPreferencesService.set(localValue, forKey: key)
     case .updateLocal:
       preferencesService.set(remoteValue, forKey: key)
-      if let name = notificationNameForKey[key] {
-        notificationCenter.post(.init(name: name))
-      }
+      notificationCenter.post(.init(name: notificationName))
+    }
+  }
+
+  private func policy(for merge: FavoritesMerge) -> FavoritesMergePolicy {
+    if merge.remote == nil, merge.local == nil {
+      return .ignore
+    }
+
+    guard let remote = merge.remote,
+          let remoteDictionary = remote.value as? [String: Any],
+          let remoteYear = remoteDictionary["year"] as? Int,
+          remoteYear == fosdemYear
+    else {
+      return .updateRemote
+    }
+
+    guard let local = merge.local,
+          let localDictionary = local.value as? [String: Any],
+          let localYear = localDictionary["year"] as? Int,
+          localYear == fosdemYear
+    else {
+      return .updateLocal
+    }
+
+    if remote.updatedAt == local.updatedAt {
+      return .ignore
+    } else if remote.updatedAt > local.updatedAt {
+      return .updateLocal
+    } else {
+      return .updateRemote
     }
   }
 
@@ -235,7 +221,9 @@ private extension FavoritesService {
 }
 
 private enum FavoritesMergePolicy {
-  case updateLocal, updateRemote
+  case ignore
+  case updateLocal
+  case updateRemote
 }
 
 private struct FavoritesMerge {
