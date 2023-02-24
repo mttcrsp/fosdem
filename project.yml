@@ -20,6 +20,13 @@ options:
 settings:
   DEVELOPMENT_TEAM: "3CM92FF2C5"
 
+targetTemplates:
+  Formattable:
+    preBuildScripts:
+      - script: make run_swiftformat
+        name: SwiftFormat
+        basedOnDependencyAnalysis: false
+
 targets:
   FOSDEM:
     type: application
@@ -48,10 +55,8 @@ targets:
           randomExecutionOrder: true
         - name: UITests
           randomExecutionOrder: true
-    preBuildScripts:
-      - script: make run_swiftformat
-        name: SwiftFormat
-        basedOnDependencyAnalysis: false
+    templates:
+      - Formattable
 
   Tests:
     type: bundle.unit-test
@@ -82,14 +87,12 @@ targets:
     dependencies:
       - target: FOSDEM
       - package: SnapshotTesting
-    preBuildScripts:
-      - script: make run_swiftformat
-        name: SwiftFormat
-        basedOnDependencyAnalysis: false
     settings:
       ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
       GENERATE_INFOPLIST_FILE: YES
       TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FOSDEM.app/FOSDEM"
+    templates:
+      - Formattable
 
   UITests:
     type: bundle.ui-testing
@@ -99,12 +102,10 @@ targets:
     - App/Tests/BundleDataLoader.swift
     dependencies:
     - target: FOSDEM
-    preBuildScripts:
-      - script: make run_swiftformat
-        name: SwiftFormat
-        basedOnDependencyAnalysis: false
     settings:
       GENERATE_INFOPLIST_FILE: YES
+    templates:
+      - Formattable
 
   GenerateDB:
     type: tool
@@ -132,8 +133,6 @@ targets:
     - App/Sources/Extensions/DateFormatter+Extensions.swift
     - Scripts/GenerateDB.swift
     dependencies:
-    - package: GRDB
-    preBuildScripts:
-      - script: make run_swiftformat
-        name: SwiftFormat
-        basedOnDependencyAnalysis: false
+      - package: GRDB
+    templates:
+      - Formattable
