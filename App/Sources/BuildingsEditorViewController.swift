@@ -1,5 +1,6 @@
 #if DEBUG
 
+import CoreUI
 import MapKit
 import UIKit
 

@@ -1,3 +1,4 @@
+import CoreUI
 import UIKit
 
 final class FullscreenBlueprintViewController: UIViewController {

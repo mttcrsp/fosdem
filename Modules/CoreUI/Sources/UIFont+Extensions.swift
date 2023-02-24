@@ -1,6 +1,6 @@
 import UIKit
 
-extension UIFont {
+public extension UIFont {
   class func fos_preferredFont(forTextStyle style: UIFont.TextStyle, withSymbolicTraits traits: UIFontDescriptor.SymbolicTraits = []) -> UIFont {
     let descriptorOriginal = UIFontDescriptor.preferredFontDescriptor(withTextStyle: style)
     let descriptor = descriptorOriginal.withSymbolicTraits(traits) ?? descriptorOriginal

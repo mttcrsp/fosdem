@@ -1,17 +1,17 @@
 import UIKit
 
-final class ScrollImageView: UIScrollView {
+public final class ScrollImageView: UIScrollView {
   private let imageView = UIImageView()
 
-  var image: UIImage? {
+  public var image: UIImage? {
     didSet { didChangeImage() }
   }
 
-  override var frame: CGRect {
+  override public var frame: CGRect {
     didSet { reloadZoomScales() }
   }
 
-  override init(frame: CGRect) {
+  override public init(frame: CGRect) {
     super.init(frame: frame)
 
     delegate = self
@@ -32,7 +32,7 @@ final class ScrollImageView: UIScrollView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func layoutSubviews() {
+  override public func layoutSubviews() {
     super.layoutSubviews()
 
     guard bounds.size != .zero else { return }
@@ -105,11 +105,11 @@ final class ScrollImageView: UIScrollView {
 }
 
 extension ScrollImageView: UIScrollViewDelegate {
-  func viewForZooming(in _: UIScrollView) -> UIView? {
+  public func viewForZooming(in _: UIScrollView) -> UIView? {
     imageView
   }
 
-  func scrollViewDidZoom(_: UIScrollView) {
+  public func scrollViewDidZoom(_: UIScrollView) {
     setNeedsLayout()
     layoutIfNeeded()
   }

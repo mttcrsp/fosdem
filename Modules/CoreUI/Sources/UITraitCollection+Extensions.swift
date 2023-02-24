@@ -1,6 +1,6 @@
 import UIKit
 
-extension UITraitCollection {
+public extension UITraitCollection {
   var fos_hasRegularSizeClasses: Bool {
     horizontalSizeClass == .regular && verticalSizeClass == .regular
   }

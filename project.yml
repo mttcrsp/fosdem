@@ -36,6 +36,7 @@ targets:
       - App/Resources
     dependencies:
       - package: GRDB
+      - target: CoreUI
     settings:
       CODE_SIGN_ENTITLEMENTS: App/Resources/FOSDEM.entitlements
       CURRENT_PROJECT_VERSION: 2
@@ -102,6 +103,16 @@ targets:
     - App/Tests/BundleDataLoader.swift
     dependencies:
     - target: FOSDEM
+    settings:
+      GENERATE_INFOPLIST_FILE: YES
+    templates:
+      - Formattable
+  
+  CoreUI:
+    type: framework
+    platform: iOS
+    sources:
+    - Modules/CoreUI/Sources
     settings:
       GENERATE_INFOPLIST_FILE: YES
     templates:

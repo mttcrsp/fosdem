@@ -1,11 +1,11 @@
 import UIKit
 
-final class RoundedButton: UIButton {
+public final class RoundedButton: UIButton {
   private lazy var size = CGSize(width: 1, height: 1)
   private lazy var rect = CGRect(origin: .zero, size: size)
   private lazy var renderer = UIGraphicsImageRenderer(size: size)
 
-  override init(frame: CGRect) {
+  override public init(frame: CGRect) {
     super.init(frame: frame)
     commonInit()
   }
@@ -28,13 +28,13 @@ final class RoundedButton: UIButton {
     titleLabel?.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
   }
 
-  override func tintColorDidChange() {
+  override public func tintColorDidChange() {
     super.tintColorDidChange()
     setBackgroundImage(makeNormalImage(), for: .normal)
     setBackgroundImage(makeHighlightedImage(), for: .highlighted)
   }
 
-  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+  override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
     if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
