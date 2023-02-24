@@ -1,3 +1,0 @@
-#!/bin/sh
-
-wget https://github.com/uber/mockolo/releases/download/1.4.1/mockolo.tar.gz && gunzip -c mockolo.tar.gz | tar xopf - && rm mockolo.tar.gz
