@@ -13,6 +13,7 @@ options:
   createIntermediateGroups: true
   deploymentTarget:
     iOS: "11.0"
+    macOS: '10.13'
   transitivelyLinkDependencies: true
   preGenCommand: make run_mockolo run_swiftgen
 
@@ -55,7 +56,6 @@ targets:
   Tests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: '11.0'
     sources:
       - App/Tests
       - App/Mocks
@@ -74,7 +74,6 @@ targets:
   SnapshotTests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: '11.0'
     sources:
       - path: App/SnapshotTests
         excludes:
@@ -95,7 +94,6 @@ targets:
   UITests:
     type: bundle.ui-testing
     platform: iOS
-    deploymentTarget: '11.0'
     sources:
     - App/UITests
     - App/Tests/BundleDataLoader.swift
@@ -111,7 +109,6 @@ targets:
   GenerateDB:
     type: tool
     platform: macOS
-    deploymentTarget: '10.13'
     sources:
     - App/Sources/Derived/Strings.swift
     - App/Sources/Models/Conference.swift
