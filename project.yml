@@ -24,14 +24,14 @@ targets:
     type: application
     platform: iOS
     sources:
-      - Sources
-      - Resources
+      - App/Sources
+      - App/Resources
     dependencies:
       - package: GRDB
     settings:
-      CODE_SIGN_ENTITLEMENTS: Resources/FOSDEM.entitlements
+      CODE_SIGN_ENTITLEMENTS: App/Resources/FOSDEM.entitlements
       CURRENT_PROJECT_VERSION: 2
-      INFOPLIST_FILE: Resources/Info.plist
+      INFOPLIST_FILE: App/Resources/Info.plist
       MARKETING_VERSION: 1.4.0
       PRODUCT_BUNDLE_IDENTIFIER: com.mttcrsp.fosdem
       PRODUCT_MODULE_NAME: Fosdem
@@ -57,9 +57,9 @@ targets:
     platform: iOS
     deploymentTarget: '11.0'
     sources:
-      - Tests
-      - Mocks
-      - Resources/Buildings
+      - App/Tests
+      - App/Mocks
+      - App/Resources/Buildings
     dependencies:
       - target: FOSDEM
     preBuildScripts:
@@ -76,10 +76,10 @@ targets:
     platform: iOS
     deploymentTarget: '11.0'
     sources:
-      - path: SnapshotTests
+      - path: App/SnapshotTests
         excludes:
           - __Snapshots__
-      - Mocks
+      - App/Mocks
     dependencies:
       - target: FOSDEM
       - package: SnapshotTesting
@@ -97,8 +97,8 @@ targets:
     platform: iOS
     deploymentTarget: '11.0'
     sources:
-    - UITests
-    - Tests/BundleDataLoader.swift
+    - App/UITests
+    - App/Tests/BundleDataLoader.swift
     dependencies:
     - target: FOSDEM
     preBuildScripts:
@@ -113,26 +113,26 @@ targets:
     platform: macOS
     deploymentTarget: '10.13'
     sources:
-    - Sources/Derived/Strings.swift
-    - Sources/Models/Conference.swift
-    - Sources/Models/Room.swift
-    - Sources/Models/Day.swift
-    - Sources/Models/Attachment.swift
-    - Sources/Models/Link.swift
-    - Sources/Models/ScheduleXMLParser.swift
-    - Sources/Models/Event.swift
-    - Sources/Models/Track.swift
-    - Sources/Models/Person.swift
-    - Sources/Models/Participation.swift
-    - Sources/Models/Schedule.swift
-    - Sources/Models/Queries/ImportSchedule.swift
-    - Sources/Models/Requests/ScheduleRequest.swift
-    - Sources/Models/Tables
-    - Sources/Models/Migrations
-    - Sources/Services/PersistenceService.swift
-    - Sources/Services/NetworkService.swift
-    - Sources/Extensions/DateComponentsFormatter+Extensions.swift
-    - Sources/Extensions/DateFormatter+Extensions.swift
+    - App/Sources/Derived/Strings.swift
+    - App/Sources/Models/Conference.swift
+    - App/Sources/Models/Room.swift
+    - App/Sources/Models/Day.swift
+    - App/Sources/Models/Attachment.swift
+    - App/Sources/Models/Link.swift
+    - App/Sources/Models/ScheduleXMLParser.swift
+    - App/Sources/Models/Event.swift
+    - App/Sources/Models/Track.swift
+    - App/Sources/Models/Person.swift
+    - App/Sources/Models/Participation.swift
+    - App/Sources/Models/Schedule.swift
+    - App/Sources/Models/Queries/ImportSchedule.swift
+    - App/Sources/Models/Requests/ScheduleRequest.swift
+    - App/Sources/Models/Tables
+    - App/Sources/Models/Migrations
+    - App/Sources/Services/PersistenceService.swift
+    - App/Sources/Services/NetworkService.swift
+    - App/Sources/Extensions/DateComponentsFormatter+Extensions.swift
+    - App/Sources/Extensions/DateFormatter+Extensions.swift
     - Scripts/GenerateDB.swift
     dependencies:
     - package: GRDB

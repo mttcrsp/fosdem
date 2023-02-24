@@ -4,13 +4,13 @@ generate_project:
 	xcodegen
 
 run_mockolo:
-	if [ ! -f "Mocks" ]; then \
-		mkdir Mocks/ && \
-		touch Mocks/Mockolo.swift; \
+	if [ ! -f "App/Mocks" ]; then \
+		mkdir App/Mocks/ && \
+		touch App/Mocks/Mockolo.swift; \
 	fi; \
 	mockolo \
-		--sourcedirs Sources/ \
-		--destination Mocks/Mockolo.swift \
+		--sourcedirs App/Sources/ \
+		--destination App/Mocks/Mockolo.swift \
 		--testable-imports Fosdem \
 		--mock-final \
 		--enable-args-history
@@ -21,15 +21,15 @@ run_swiftformat::
 	fi
 
 run_swiftgen:
-	if [ ! -f "Sources/Derived" ]; then \
-		mkdir Sources/Derived; \
+	if [ ! -f "App/Sources/Derived" ]; then \
+		mkdir App/Sources/Derived; \
 	fi; \
-	swiftgen run strings Resources/* \
+	swiftgen run strings App/Resources/* \
 		-t structured-swift5 \
-		-o Sources/Derived/Strings.swift
-	swiftgen run xcassets Resources/* \
+		-o App/Sources/Derived/Strings.swift
+	swiftgen run xcassets App/Resources/* \
 		-t swift5 \
-		-o Sources/Derived/Assets.swift
+		-o App/Sources/Derived/Assets.swift
 
 test:
 	xcodebuild \

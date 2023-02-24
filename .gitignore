@@ -3,7 +3,7 @@
 *.xcworkspace
 
 # Mockolo
-Mocks/Mockolo.swift
+**/Mockolo.swift
 
 # Tuist derived files
 graph.dot
