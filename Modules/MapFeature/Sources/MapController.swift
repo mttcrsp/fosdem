@@ -1,10 +1,27 @@
 import CoreLocation
 import UIKit
 
-final class MapController: MapContainerViewController {
-  typealias Dependencies = HasBuildingsService & HasOpenService
+/// @mockable
+public protocol BundleService {
+  func data(forResource name: String?, withExtension ext: String?) throws -> Data
+}
 
-  var didError: ((MapController, Error) -> Void)?
+/// @mockable
+public protocol OpenService {
+  func open(_ url: URL, completion: ((Bool) -> Void)?)
+}
+
+public struct MapControllerDependencies {
+  let buildingsService: BuildingsService
+  let openService: OpenService
+  public init(bundleService: BundleService, openService: OpenService) {
+    buildingsService = BuildingsServiceImpl(bundleService: bundleService)
+    self.openService = openService
+  }
+}
+
+public final class MapController: MapContainerViewController {
+  public var didError: ((MapController, Error) -> Void)?
 
   private weak var mapViewController: MapViewController?
   private weak var embeddedBlueprintsViewController: BlueprintsViewController?
@@ -16,9 +33,8 @@ final class MapController: MapContainerViewController {
   private let notificationCenter = NotificationCenter.default
   private let locationManager = CLLocationManager()
 
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
+  private let dependencies: MapControllerDependencies
+  public init(dependencies: MapControllerDependencies) {
     self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
 
@@ -38,7 +54,7 @@ final class MapController: MapContainerViewController {
     }
   }
 
-  override func viewDidLoad() {
+  override public func viewDidLoad() {
     super.viewDidLoad()
 
     containerDelegate = self
@@ -213,7 +229,7 @@ extension MapController: BlueprintsViewControllerDelegate {
 }
 
 extension MapController: CLLocationManagerDelegate {
-  func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+  public func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     mapViewController?.setAuthorizationStatus(status)
   }
 }

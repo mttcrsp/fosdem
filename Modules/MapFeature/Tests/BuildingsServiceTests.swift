@@ -1,5 +1,5 @@
 @testable
-import Fosdem
+import MapFeature
 import XCTest
 
 final class BuildingsServiceTests: XCTestCase {
@@ -7,10 +7,10 @@ final class BuildingsServiceTests: XCTestCase {
     let building = "aw"
     let data = try BundleDataLoader().data(forResource: building, withExtension: "json")
 
-    let bundle = BuildingsServiceBundleMock()
+    let bundle = BundleServiceMock()
     bundle.dataHandler = { _, _ in data }
 
-    let service = BuildingsService(bundleService: bundle, queue: .main)
+    let service = BuildingsServiceImpl(bundleService: bundle, queue: .main)
     let expectation = self.expectation(description: #function)
 
     service.loadBuildings { buildings, error in
@@ -24,15 +24,15 @@ final class BuildingsServiceTests: XCTestCase {
 
   func testLoadBuildingsMissingData() {
     let error = NSError(domain: "test", code: 1)
-    let bundle = BuildingsServiceBundleMock()
+    let bundle = BundleServiceMock()
     bundle.dataHandler = { _, _ in throw error }
 
-    let service = BuildingsService(bundleService: bundle, queue: .main)
+    let service = BuildingsServiceImpl(bundleService: bundle, queue: .main)
     let expectation = self.expectation(description: #function)
 
     service.loadBuildings { buildings, error in
       let error1 = error as NSError?
-      let error2 = BuildingsService.Error.missingData as NSError
+      let error2 = BuildingsServiceError.missingData as NSError
 
       XCTAssertTrue(buildings.isEmpty)
       XCTAssertEqual(error1, error2)

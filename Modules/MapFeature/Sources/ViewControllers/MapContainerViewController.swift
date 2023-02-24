@@ -14,7 +14,7 @@ extension MapContainerViewControllerDelegate {
   func containerViewController(_: MapContainerViewController, didHide _: UIViewController) {}
 }
 
-class MapContainerViewController: UIViewController {
+public class MapContainerViewController: UIViewController {
   enum ScrollDirection {
     case horizontal, vertical
   }
@@ -62,7 +62,7 @@ class MapContainerViewController: UIViewController {
     }
   }
 
-  override func viewDidLoad() {
+  override public func viewDidLoad() {
     super.viewDidLoad()
 
     view.addSubview(scrollView)
@@ -79,7 +79,7 @@ class MapContainerViewController: UIViewController {
     }
   }
 
-  override func viewDidLayoutSubviews() {
+  override public func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
 
     masterViewController?.view.frame = view.bounds
@@ -120,7 +120,7 @@ class MapContainerViewController: UIViewController {
     updateDetailViewControllerVisibility()
   }
 
-  override func overrideTraitCollection(forChild childViewController: UIViewController) -> UITraitCollection? {
+  override public func overrideTraitCollection(forChild childViewController: UIViewController) -> UITraitCollection? {
     guard var traitCollection = super.overrideTraitCollection(forChild: childViewController) else {
       return nil
     }
@@ -198,7 +198,7 @@ class MapContainerViewController: UIViewController {
 }
 
 extension MapContainerViewController: UIScrollViewDelegate {
-  func scrollViewWillEndDragging(_: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+  public func scrollViewWillEndDragging(_: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
     guard let detailViewController = detailViewController else { return }
 
     switch scrollDirection {
@@ -247,7 +247,7 @@ extension MapContainerViewController: UIScrollViewDelegate {
     targetContentOffset.pointee = CGPoint(x: preferX1 ? x1 : x2, y: 0)
   }
 
-  func scrollViewDidEndDecelerating(_: UIScrollView) {
+  public func scrollViewDidEndDecelerating(_: UIScrollView) {
     guard let detailViewController = detailViewController, let window = detailViewController.view.window else { return }
 
     let detailView = detailViewController.view as UIView

@@ -1,4 +1,5 @@
 import AVKit
+import MapFeature
 import SafariServices
 
 final class NavigationService {
@@ -37,11 +38,14 @@ extension NavigationService {
   }
 
   func makeMapViewController(didError: @escaping ErrorHandler) -> UIViewController {
-    let mapController = MapController(dependencies: services)
+    let mapController = MapController(dependencies: .init(
+      bundleService: services.bundleService,
+      openService: services.openService as! OpenService
+    ))
+    mapController.didError = didError
     mapController.tabBarItem.accessibilityIdentifier = "map"
     mapController.tabBarItem.image = .fos_systemImage(withName: "map")
-    mapController.title = L10n.Map.title
-    mapController.didError = didError
+    mapController.title = MapFeature.L10n.Map.title
     return mapController
   }
 
@@ -159,3 +163,7 @@ extension AVPlayerViewController: AVPlayerViewControllerProtocol {}
 protocol HasNavigationService {
   var navigationService: NavigationServiceProtocol { get }
 }
+
+extension BundleService: MapFeature.BundleService {}
+
+extension OpenService: MapFeature.OpenService {}

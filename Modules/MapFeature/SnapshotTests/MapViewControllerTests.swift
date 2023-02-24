@@ -1,7 +1,8 @@
 @testable
-import Fosdem
+import MapFeature
 import MapKit
 import SnapshotTesting
+import SnapshotTestsKit
 import XCTest
 
 final class MapViewControllerTests: XCTestCase {

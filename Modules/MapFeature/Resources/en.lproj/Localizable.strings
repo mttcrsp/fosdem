@@ -1,0 +1,33 @@
+/// MARK: - Map
+
+// Title for a tab where the user can see the map of the FOSDEM venue
+"map.title" = "Map";
+// A button that restores the original appearance of a map
+"map.reset" = "Reset map";
+// An accessibility label describing the map annotation of a building
+"map.building" = "Building %@";
+// A button that will allow the user to see its current position on a map of the venue
+"map.location" = "Display my location";
+// A button that will allow the user to authorize access to location services for the app
+"map.location.enable" = "Enable location services";
+// A button that will allow the user to revoke access to location services for the app
+"map.location.disable" = "Disable Location services";
+// Title for a screen that displays blueprints for a given building
+"map.blueprint.title" = "Building %@";
+// A short message reporting that no blueprints are available for the building that was selected by the user
+"map.blueprint.empty" = "No blueprint available";
+
+/// MARK: - Location
+
+// Title for an alert that allows the user to authorize access to location services for the app
+"location.title.enable" = "Enable location services";
+// Title for an alert that allows the user revoke access to location services for the app
+"location.title.disable" = "Disable Location services";
+// An instructional message reporting that by authorizing access to location services the user will be able to see its position on the map
+"location.message.enable" = "By enabling location services you will be able to see your current position on the map";
+// An instructional message reporting that the user will be able to reauthorize access to location services at a later time
+"location.message.disable" = "You will always be able to renable them later";
+// A button that lets the user cancel the current action
+"location.dismiss" = "Cancel";
+// A button that will present a the settings screen for the app
+"location.confirm" = "Open settings";

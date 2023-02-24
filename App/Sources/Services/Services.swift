@@ -14,7 +14,6 @@ class Services {
   private(set) lazy var infoService: InfoServiceProtocol = InfoService(bundleService: bundleService)
   private(set) lazy var yearsService: YearsServiceProtocol = YearsService(networkService: networkService)
   private(set) lazy var updateService: UpdateServiceProtocol = UpdateService(networkService: networkService)
-  private(set) lazy var buildingsService: BuildingsServiceProtocol = BuildingsService(bundleService: bundleService)
   private(set) lazy var soonService: SoonServiceProtocol = SoonService(timeService: timeService, persistenceService: _persistenceService)
   private(set) lazy var videosService: VideosServiceProtocol = VideosService(playbackService: playbackService, persistenceService: _persistenceService)
   private(set) lazy var tracksService: TracksServiceProtocol = TracksService(favoritesService: favoritesService, persistenceService: _persistenceService)
@@ -71,7 +70,7 @@ class Services {
   }
 }
 
-extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasNavigationService, HasAcknowledgementsService, HasUbiquitousPreferencesService {}
+extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasFavoritesService, HasNavigationService, HasAcknowledgementsService, HasUbiquitousPreferencesService {}
 
 extension Services: HasPersistenceService {
   var persistenceService: PersistenceServiceProtocol {

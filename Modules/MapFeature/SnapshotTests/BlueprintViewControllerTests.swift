@@ -1,5 +1,5 @@
 @testable
-import Fosdem
+import MapFeature
 import SnapshotTesting
 import XCTest
 

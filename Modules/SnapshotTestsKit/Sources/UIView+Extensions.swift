@@ -1,6 +1,6 @@
 import UIKit
 
-extension UIView {
+public extension UIView {
   func findSubview<Subview: UIView>(ofType type: Subview.Type, accessibilityIdentifier: String) -> Subview? {
     findSubview(ofType: type, matching: { subview in subview.accessibilityIdentifier == accessibilityIdentifier })
   }

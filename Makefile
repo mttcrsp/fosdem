@@ -14,6 +14,16 @@ run_mockolo:
 		--testable-imports Fosdem \
 		--mock-final \
 		--enable-args-history
+	if [ ! -f "Modules/MapFeature/Mocks" ]; then \
+		mkdir Modules/MapFeature/Mocks/ && \
+		touch Modules/MapFeature/Mocks/Mockolo.swift; \
+	fi; \
+	mockolo \
+		--sourcedirs Modules/MapFeature/Sources/ \
+		--destination Modules/MapFeature/Mocks/Mockolo.swift \
+		--testable-imports MapFeature \
+		--mock-final \
+		--enable-args-history
 
 run_swiftformat::
 	if [ -z "$(IS_CI)" ]; then \
@@ -27,9 +37,16 @@ run_swiftgen:
 	swiftgen run strings App/Resources/* \
 		-t structured-swift5 \
 		-o App/Sources/Derived/Strings.swift
-	swiftgen run xcassets App/Resources/* \
+	swiftgen run xcassets App/Resources/* ; \
 		-t swift5 \
-		-o App/Sources/Derived/Assets.swift
+		-o App/Sources/Derived/Assets.swift ; \
+	if [ ! -f "Modules/MapFeature/Sources/Derived" ]; then \
+		mkdir Modules/MapFeature/Sources/Derived; \
+	fi; \
+	swiftgen run strings Modules/MapFeature/Resources/* \
+		-t structured-swift5 \
+		-o Modules/MapFeature/Sources/Derived/Strings.swift \
+		--param publicAccess ;
 
 test:
 	xcodebuild \
