@@ -33,9 +33,21 @@ extension Link {
 }
 
 extension Link {
-  var isFeedback: Bool {
+  var isAddition: Bool {
+    !isFeedback && !isChat && !isLivestream && !isVideo
+  }
+
+  private var isFeedback: Bool {
     if let url {
       return url.host == "submission.fosdem.org" && url.pathComponents.contains("feedback")
+    } else {
+      return false
+    }
+  }
+
+  private var isChat: Bool {
+    if let url {
+      return url.absoluteString.contains("chat.fosdem.org")
     } else {
       return false
     }

@@ -87,7 +87,7 @@ extension EventAdditionsGroup {
 
 extension EventAdditionsItem {
   init?(link: Link) {
-    if let url = link.url, !link.isFeedback, !link.isLivestream, !link.isVideo {
+    if let url = link.url, link.isAddition {
       self.init(title: link.name, url: url)
     } else {
       return nil
