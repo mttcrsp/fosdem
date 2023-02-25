@@ -185,7 +185,7 @@ private extension Link {
     // Links returned by the FOSDEM API are sometimes malformed. Most of the
     // time the issue is caused by some leftover whitespaces at the end of
     // the URL.
-    self.init(name: name, url: URL(string: href))
+    self.init(name: name, url: URLComponents(string: href)?.url)
   }
 }
 
@@ -221,7 +221,7 @@ private extension Attachment {
       throw Error(element: "attachment type", value: typeRawValue)
     }
 
-    guard let url = URL(string: href) else {
+    guard let url = URLComponents(string: href)?.url else {
       throw Error(element: "attachment url", value: href)
     }
 
