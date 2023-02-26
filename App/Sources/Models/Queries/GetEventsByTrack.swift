@@ -1,6 +1,6 @@
 import GRDB
 
-struct EventsForTrack: PersistenceServiceRead {
+struct GetEventsByTrack: PersistenceServiceRead {
   let track: String
 
   func perform(in database: Database) throws -> [Event] {

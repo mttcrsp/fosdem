@@ -81,7 +81,7 @@ final class YearsServiceTests: XCTestCase {
     XCTAssertEqual(fileManager.createDirectoryArgValues.map(\.1), [true])
     XCTAssertEqual(fileManager.createFileArgValues.map(\.0), ["/test/2021.sqlite"])
     XCTAssertEqual(fileManager.createFileArgValues.map(\.1), [nil])
-    XCTAssertTrue(yearPersistenceService.performWriteArgValues.first is ImportSchedule)
+    XCTAssertTrue(yearPersistenceService.performWriteArgValues.first is UpsertSchedule)
   }
 
   func testDownloadYearNetworkError() {

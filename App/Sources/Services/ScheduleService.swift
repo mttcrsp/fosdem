@@ -59,7 +59,7 @@ final class ScheduleService {
       guard self.isEnabled else { return }
       #endif
 
-      let operation = ImportSchedule(schedule: schedule)
+      let operation = UpsertSchedule(schedule: schedule)
       self.persistenceService.performWrite(operation) { [weak self] error in
 
         assert(error == nil)

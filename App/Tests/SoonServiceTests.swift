@@ -25,8 +25,8 @@ final class SoonServiceTests: XCTestCase {
       result = receivedResult
     }
 
-    let request1 = request as? EventsStartingIn30Minutes
-    let request2 = EventsStartingIn30Minutes(now: timeService.now)
+    let request1 = request as? GetEventsStartingIn30Minutes
+    let request2 = GetEventsStartingIn30Minutes(now: timeService.now)
     XCTAssertEqual(request1, request2)
 
     if case let .success(events) = result {

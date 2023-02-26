@@ -19,7 +19,7 @@ final class TracksService {
   }
 
   func loadConfiguration(_ completion: @escaping (TracksConfiguration) -> Void) {
-    persistenceService.performRead(AllTracksOrderedByName()) { [weak self] result in
+    persistenceService.performRead(GetAllTracks()) { [weak self] result in
       guard case let .success(tracks) = result, let self else { return }
 
       var configuration = TracksConfiguration()

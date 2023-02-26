@@ -8,7 +8,7 @@ final class SoonService {
   }
 
   func loadEvents(completion: @escaping (Result<[Event], Error>) -> Void) {
-    let operation = EventsStartingIn30Minutes(now: timeService.now)
+    let operation = GetEventsStartingIn30Minutes(now: timeService.now)
     persistenceService.performRead(operation, completion: completion)
   }
 }

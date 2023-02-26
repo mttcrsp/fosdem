@@ -21,7 +21,7 @@ final class VideosService {
 
     group.enter()
     let watchedIdentifiers = playbackService.watched
-    let watchedOperation = EventsForIdentifiers(identifiers: watchedIdentifiers)
+    let watchedOperation = GetEventsByIdentifiers(identifiers: watchedIdentifiers)
     persistenceService.performRead(watchedOperation) { result in
       switch result {
       case let .failure(error):
@@ -34,7 +34,7 @@ final class VideosService {
 
     group.enter()
     let watchingIdentifiers = playbackService.watching
-    let watchingOperation = EventsForIdentifiers(identifiers: watchingIdentifiers)
+    let watchingOperation = GetEventsByIdentifiers(identifiers: watchingIdentifiers)
     persistenceService.performRead(watchingOperation) { result in
       switch result {
       case let .failure(error):

@@ -1,7 +1,7 @@
 import Foundation
 import GRDB
 
-struct EventsStartingIn30Minutes: PersistenceServiceRead, Equatable {
+struct GetEventsStartingIn30Minutes: PersistenceServiceRead, Equatable {
   let now: Date
 
   func perform(in database: Database) throws -> [Event] {

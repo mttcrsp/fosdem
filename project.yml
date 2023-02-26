@@ -123,7 +123,7 @@ targets:
     - App/Sources/Models/Person.swift
     - App/Sources/Models/Participation.swift
     - App/Sources/Models/Schedule.swift
-    - App/Sources/Models/Queries/ImportSchedule.swift
+    - App/Sources/Models/Queries/UpsertSchedule.swift
     - App/Sources/Models/Requests/ScheduleRequest.swift
     - App/Sources/Models/Tables
     - App/Sources/Models/Migrations

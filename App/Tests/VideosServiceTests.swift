@@ -28,8 +28,8 @@ final class VideosServiceTests: XCTestCase {
 
     let argsValues = persistenceService.performReadArgValues
     XCTAssertEqual(argsValues.count, 2)
-    XCTAssertEqual(argsValues.last as? EventsForIdentifiers, .init(identifiers: [1, 2]))
-    XCTAssertEqual(argsValues.first as? EventsForIdentifiers, .init(identifiers: [3, 4]))
+    XCTAssertEqual(argsValues.last as? GetEventsByIdentifiers, .init(identifiers: [1, 2]))
+    XCTAssertEqual(argsValues.first as? GetEventsByIdentifiers, .init(identifiers: [3, 4]))
   }
 
   func testLoadErrorWatched() throws {

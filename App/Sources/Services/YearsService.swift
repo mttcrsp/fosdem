@@ -37,7 +37,7 @@ final class YearsService {
           let yearPath = try self.path(forYear: year)
           self.fileManager.createFile(atPath: yearPath, contents: nil, attributes: nil)
 
-          let operation = ImportSchedule(schedule: schedule)
+          let operation = UpsertSchedule(schedule: schedule)
           let persistenceService = try self.makePersistenceService(forYear: year)
           persistenceService.performWrite(operation, completion: completion)
         } catch {

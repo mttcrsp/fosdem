@@ -25,7 +25,7 @@ final class QueriesTests: XCTestCase {
     let day2 = Day(index: 2, date: .init(), events: [event4, event3])
     let schedule = Schedule(conference: conference, days: [day1, day2])
 
-    let operation = ImportSchedule(schedule: schedule)
+    let operation = UpsertSchedule(schedule: schedule)
     let service = try makePersistenceService()
     try service.performWriteSync(operation)
   }
@@ -42,7 +42,7 @@ final class QueriesTests: XCTestCase {
     let day2 = Day.make(index: 2, date: date, events: [event3, event4, event5, event6])
     let schedule = Schedule.make(days: [day1, day2])
 
-    let query = AllTracksOrderedByName()
+    let query = GetAllTracks()
     let service = try makePersistentService(with: schedule)
     let tracks = try service.performReadSync(query)
 
@@ -63,7 +63,7 @@ final class QueriesTests: XCTestCase {
     let event5 = Event.make(id: 5, track: "4")
     let schedule = Schedule.make(days: [.make(events: [event1, event2, event3, event4, event5])])
 
-    let query = EventsForTrack(track: "3")
+    let query = GetEventsByTrack(track: "3")
     let service = try makePersistentService(with: schedule)
     let events = try service.performReadSync(query)
 
@@ -77,7 +77,7 @@ final class QueriesTests: XCTestCase {
     let event4 = Event.make(id: 4)
     let schedule = Schedule.make(days: [.make(events: [event1, event2, event3, event4])])
 
-    let query = EventsForIdentifiers(identifiers: [2, 3])
+    let query = GetEventsByIdentifiers(identifiers: [2, 3])
     let service = try makePersistentService(with: schedule)
     let events = try service.performReadSync(query)
 
@@ -95,7 +95,7 @@ final class QueriesTests: XCTestCase {
     let allEvents = [event1, event2, event3, event4, event5, event6, event7]
     let schedule = Schedule.make(days: [.make(events: allEvents)])
 
-    let query = EventsForSearch(query: "query")
+    let query = GetEventsBySearch(query: "query")
     let service = try makePersistentService(with: schedule)
     let events = try service.performReadSync(query)
 
@@ -116,7 +116,7 @@ final class QueriesTests: XCTestCase {
     let event5 = Event.make(id: 5, date: date5)
     let schedule = Schedule.make(days: [.make(events: [event1, event2, event3, event4, event5])])
 
-    let query = EventsStartingIn30Minutes(now: date1)
+    let query = GetEventsStartingIn30Minutes(now: date1)
     let service = try makePersistentService(with: schedule)
     let events = try service.performReadSync(query)
 
@@ -128,7 +128,7 @@ final class QueriesTests: XCTestCase {
   }
 
   private func makePersistentService(with schedule: Schedule) throws -> PersistenceService {
-    let operation = ImportSchedule(schedule: schedule)
+    let operation = UpsertSchedule(schedule: schedule)
     let service = try makePersistenceService()
     try service.performWriteSync(operation)
     return service

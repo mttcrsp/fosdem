@@ -37,7 +37,7 @@ final class TracksServiceTests: XCTestCase {
 
     waitForExpectations(timeout: 1)
 
-    XCTAssertEqual(read as? AllTracksOrderedByName, .init())
+    XCTAssertEqual(read as? GetAllTracks, .init())
     XCTAssertEqual(configuration?.filters, [.all, .day(1), .day(2)])
 
     XCTAssertEqual(configuration?.filteredTracks.count, 3)

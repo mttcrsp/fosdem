@@ -1,6 +1,6 @@
 import GRDB
 
-struct ImportSchedule: PersistenceServiceWrite {
+struct UpsertSchedule: PersistenceServiceWrite {
   let schedule: Schedule
 
   func perform(in database: Database) throws {

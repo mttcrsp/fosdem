@@ -39,7 +39,7 @@ final class YearController: TracksViewController {
     definesPresentationContext = true
     addSearchViewController(makeSearchController())
 
-    persistenceService.performRead(AllTracksOrderedByName()) { result in
+    persistenceService.performRead(GetAllTracks()) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):
@@ -79,7 +79,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
     tracksViewController.show(eventsViewController, sender: nil)
 
     events = []
-    persistenceService.performRead(EventsForTrack(track: track.name)) { result in
+    persistenceService.performRead(GetEventsByTrack(track: track.name)) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):

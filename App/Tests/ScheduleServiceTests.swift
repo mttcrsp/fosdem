@@ -34,7 +34,7 @@ final class ScheduleServiceTests: XCTestCase {
 
     networkCompletion?(.success(makeSchedule()))
     XCTAssertNotNil(persistenceCompletion)
-    XCTAssert(persistenceService.performWriteArgValues.first is ImportSchedule)
+    XCTAssert(persistenceService.performWriteArgValues.first is UpsertSchedule)
 
     persistenceCompletion?(nil)
     XCTAssertGreaterThan(defaults.setCallCount, 0)
