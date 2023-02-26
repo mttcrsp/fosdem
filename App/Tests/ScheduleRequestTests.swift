@@ -13,7 +13,7 @@ final class ScheduleRequestTests: XCTestCase {
     XCTAssertNoThrow(try request.decode(data, response: nil))
   }
 
-  func testNotFound() throws {
+  func testNotFound() {
     let request = ScheduleRequest(year: 2020)
     let response = HTTPURLResponse(url: request.url, statusCode: 404, httpVersion: nil, headerFields: nil)
     XCTAssertThrowsError(try request.decode(Data(), response: response)) { error in
