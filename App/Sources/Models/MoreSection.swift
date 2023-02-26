@@ -23,7 +23,7 @@ extension MoreSection {
       return [.history, .devrooms, .transportation]
     #if DEBUG
     case .debug:
-      return [.time]
+      return [.overrideTime, .generateDatabase]
     #endif
     }
   }

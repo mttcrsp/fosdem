@@ -1,10 +1,6 @@
 import UIKit
 
 enum MoreItem: String, CaseIterable {
-  #if DEBUG
-  case time
-  #endif
-
   case code
   case legal
   case years
@@ -13,6 +9,11 @@ enum MoreItem: String, CaseIterable {
   case devrooms
   case transportation
   case acknowledgements
+
+  #if DEBUG
+  case overrideTime
+  case generateDatabase
+  #endif
 }
 
 extension MoreItem {
@@ -37,8 +38,10 @@ extension MoreItem {
       let upperBound = YearsService.all.upperBound
       return L10n.Years.item(lowerBound, upperBound)
     #if DEBUG
-    case .time:
+    case .overrideTime:
       return "Override current time"
+    case .generateDatabase:
+      return "Generate database"
     #endif
     }
   }
@@ -62,7 +65,7 @@ extension MoreItem {
     case .acknowledgements:
       return Asset.More.document.image
     #if DEBUG
-    case .time:
+    case .overrideTime, .generateDatabase:
       return nil
     #endif
     }
@@ -81,7 +84,7 @@ extension MoreItem {
     case .code, .years, .video, .acknowledgements:
       return nil
     #if DEBUG
-    case .time:
+    case .overrideTime, .generateDatabase:
       return nil
     #endif
     }

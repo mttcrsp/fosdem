@@ -72,10 +72,13 @@ extension MoreController: MoreViewControllerDelegate {
     case .history, .legal, .devrooms:
       self.moreViewController(moreViewController, didSelectInfoItem: item)
     #if DEBUG
-    case .time:
+    case .overrideTime:
       let date = dependencies.timeService.now
       let dateViewController = makeDateViewController(for: date)
       moreViewController.present(dateViewController, animated: true)
+    case .generateDatabase:
+      let databaseViewController = makeDatabaseViewController()
+      moreViewController.present(databaseViewController, animated: true)
     #endif
     }
   }
@@ -209,6 +212,16 @@ private extension MoreController {
     timeViewController.delegate = self
     timeViewController.date = date
     return timeViewController
+  }
+
+  private func makeDatabaseViewController() -> UIAlertController {
+    let title = "Generate database", message = "Specify the year you want to generate a database for"
+    let databaseViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    databaseViewController.addAction(.init(title: "Cancel", style: .cancel))
+    databaseViewController.addAction(.init(title: "Generate", style: .default) { _ in
+      GenerateDatabaseService().generate { dump($0) }
+    })
+    return databaseViewController
   }
   #endif
 }
