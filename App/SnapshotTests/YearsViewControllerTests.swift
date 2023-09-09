@@ -27,13 +27,11 @@ final class YearsViewControllerTests: XCTestCase {
     yearsViewController.reloadDownloadState(at: 2)
     assertSnapshot(matching: yearsViewController, as: .image(on: .iPhone8Plus))
 
-    if #available(iOS 13.0, *) {
-      yearsViewController.overrideUserInterfaceStyle = .dark
-      yearsViewController.reloadDownloadState(at: 0)
-      yearsViewController.reloadDownloadState(at: 1)
-      yearsViewController.reloadDownloadState(at: 2)
-      assertSnapshot(matching: yearsViewController, as: .image(on: .iPhone8Plus))
-    }
+    yearsViewController.overrideUserInterfaceStyle = .dark
+    yearsViewController.reloadDownloadState(at: 0)
+    yearsViewController.reloadDownloadState(at: 1)
+    yearsViewController.reloadDownloadState(at: 2)
+    assertSnapshot(matching: yearsViewController, as: .image(on: .iPhone8Plus))
   }
 
   func testEvents() throws {

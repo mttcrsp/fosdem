@@ -207,12 +207,7 @@ extension EventController: AVPlayerViewControllerDelegate {
 
 private extension EventController {
   func makeEventViewController(for event: Event) -> EventViewController {
-    var style: UITableView.Style = .plain
-    if #available(iOS 13.0, *), traitCollection.userInterfaceIdiom == .pad {
-      style = .insetGrouped
-    }
-
-    let eventViewController = EventViewController(style: style)
+    let eventViewController = EventViewController(style: .insetGrouped)
     eventViewController.showsLivestream = hasLivestream && isEventToday
     eventViewController.dataSource = self
     eventViewController.delegate = self

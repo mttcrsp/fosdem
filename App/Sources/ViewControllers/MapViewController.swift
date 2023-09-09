@@ -76,7 +76,7 @@ final class MapViewController: UIViewController {
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
-    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+    if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
       for annotation in mapView.annotations {
         let annotationView = mapView.view(for: annotation) as? MKMarkerAnnotationView
         annotationView?.markerTintColor = mapView.tintColor
@@ -143,11 +143,9 @@ final class MapViewController: UIViewController {
       mapView.addAnnotation(building)
     }
 
-    if #available(iOS 13.0, *) {
-      let region = MKCoordinateRegion(preferredMapRect)
-      let boundary = MKMapView.CameraBoundary(coordinateRegion: region)
-      mapView.cameraBoundary = boundary
-    }
+    let region = MKCoordinateRegion(preferredMapRect)
+    let boundary = MKMapView.CameraBoundary(coordinateRegion: region)
+    mapView.cameraBoundary = boundary
 
     resetCamera(animated: false)
   }

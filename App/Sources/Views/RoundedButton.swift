@@ -37,7 +37,7 @@ final class RoundedButton: UIButton {
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
-    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+    if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
       setBackgroundImage(makeNormalImage(), for: .normal)
       setBackgroundImage(makeHighlightedImage(), for: .highlighted)
     }

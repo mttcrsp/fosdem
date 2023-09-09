@@ -24,13 +24,11 @@ final class EventViewControllerTests: XCTestCase {
     eventViewController.reloadPlaybackPosition()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
-    if #available(iOS 13.0, *) {
-      let eventViewController = EventViewController(style: .insetGrouped)
-      eventViewController.event = try .withVideo()
-      eventViewController.dataSource = dataSource
-      eventViewController.view.tintColor = .fos_label
-      assertSnapshot(matching: eventViewController, as: .image(size: size))
-    }
+    let eventViewController = EventViewController(style: .insetGrouped)
+    eventViewController.event = try .withVideo()
+    eventViewController.dataSource = dataSource
+    eventViewController.view.tintColor = .label
+    assertSnapshot(matching: eventViewController, as: .image(size: size))
   }
 
   func testEvents() throws {

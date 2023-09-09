@@ -25,7 +25,7 @@ final class EmbeddedBlueprintViewController: UIViewController {
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
 
-    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+    if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
       didChangeBlueprint()
     }
   }
@@ -36,7 +36,7 @@ final class EmbeddedBlueprintViewController: UIViewController {
       return
     }
 
-    if #available(iOS 12.0, *), traitCollection.userInterfaceStyle == .dark {
+    if traitCollection.userInterfaceStyle == .dark {
       imageView.image = image.inverted
     } else {
       imageView.image = image

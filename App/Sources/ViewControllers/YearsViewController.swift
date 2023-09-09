@@ -75,10 +75,7 @@ private extension UITableViewCell {
     accessibilityIdentifier = year.description
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     textLabel?.text = L10n.Years.year(year)
-
-    if #available(iOS 13.0, *) {
-      imageView?.image = UIImage(systemName: "\(year % 2000).circle.fill")
-    }
+    imageView?.image = UIImage(systemName: "\(year % 2000).circle.fill")
   }
 
   func setDownloadState(_ state: YearDownloadState) {

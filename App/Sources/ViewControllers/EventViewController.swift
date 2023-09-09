@@ -57,7 +57,7 @@ final class EventViewController: UITableViewController {
   }
 
   private var isAdaptive: Bool {
-    if #available(iOS 13.0, *), tableView.style == .insetGrouped {
+    if tableView.style == .insetGrouped {
       return false
     } else {
       return true

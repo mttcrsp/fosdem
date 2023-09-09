@@ -125,7 +125,7 @@ class MapContainerViewController: UIViewController {
       return nil
     }
 
-    if #available(iOS 13.0, *), childViewController == detailViewController {
+    if childViewController == detailViewController {
       traitCollection = UITraitCollection(traitsFrom: [traitCollection, UITraitCollection(userInterfaceLevel: .elevated)])
     }
 
