@@ -40,11 +40,7 @@ final class MapViewController: UIViewController {
     mapView.showsCompass = false
     mapView.isPitchEnabled = false
     mapView.showsUserLocation = true
-    #if targetEnvironment(macCatalyst)
     mapView.pointOfInterestFilter = .none
-    #else
-    mapView.showsPointsOfInterest = false
-    #endif
     mapView.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMarkerAnnotationView.reuseIdentifier)
 
     controlsView.delegate = self

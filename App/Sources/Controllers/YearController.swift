@@ -30,9 +30,7 @@ final class YearController: TracksViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    #if !targetEnvironment(macCatalyst)
-    view.backgroundColor = .groupTableViewBackground
-    #endif
+    view.backgroundColor = .systemGroupedBackground
 
     delegate = self
     dataSource = self
