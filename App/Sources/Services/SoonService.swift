@@ -1,21 +1,19 @@
-final class SoonService {
-  private let persistenceService: PersistenceServiceProtocol
-  private let timeService: TimeServiceProtocol
+struct SoonService {
+  var loadEvents: (@escaping (Result<[Event], Error>) -> Void) -> Void
+}
 
+extension SoonService {
   init(timeService: TimeServiceProtocol, persistenceService: PersistenceServiceProtocol) {
-    self.persistenceService = persistenceService
-    self.timeService = timeService
-  }
-
-  func loadEvents(completion: @escaping (Result<[Event], Error>) -> Void) {
-    let operation = GetEventsStartingIn30Minutes(now: timeService.now)
-    persistenceService.performRead(operation, completion: completion)
+    loadEvents = { completion in
+      let operation = GetEventsStartingIn30Minutes(now: timeService.now)
+      persistenceService.performRead(operation, completion: completion)
+    }
   }
 }
 
 // @mockable
 protocol SoonServiceProtocol {
-  func loadEvents(completion: @escaping (Result<[Event], Error>) -> Void)
+  var loadEvents: (@escaping (Result<[Event], Error>) -> Void) -> Void { get }
 }
 
 extension SoonService: SoonServiceProtocol {}
