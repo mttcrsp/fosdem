@@ -1,13 +1,5 @@
 name: FOSDEM
 
-packages:
-  GRDB:
-    url: https://github.com/mttcrsp/GRDB.swift
-    branch: master
-  SnapshotTesting:
-    url: https://github.com/pointfreeco/swift-snapshot-testing.git
-    exactVersion: 1.8.2
-
 options:
   bundleIdPrefix: com.mttcrsp.fosdem
   createIntermediateGroups: true
@@ -35,7 +27,7 @@ targets:
       - App/Sources
       - App/Resources
     dependencies:
-      - package: GRDB
+      - framework: Vendor/GRDB.xcframework
     settings:
       CODE_SIGN_ENTITLEMENTS: App/Resources/FOSDEM.entitlements
       CURRENT_PROJECT_VERSION: 1
@@ -86,7 +78,7 @@ targets:
       - App/Mocks
     dependencies:
       - target: FOSDEM
-      - package: SnapshotTesting
+      - framework: Vendor/SnapshotTesting.xcframework
     settings:
       ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
       GENERATE_INFOPLIST_FILE: YES
