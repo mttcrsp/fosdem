@@ -158,7 +158,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
   }
 
   func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
-    dependencies.playbackService.playbackPosition(forEventWithIdentifier: event.id)
+    dependencies.playbackService.playbackPosition(event.id)
   }
 }
 
@@ -176,16 +176,16 @@ extension EventController: AVPlayerViewControllerDelegate {
     let intervalScale = CMTimeScale(NSEC_PER_SEC)
     let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
     timeObserver = playerViewController.player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-      self?.dependencies.playbackService.setPlaybackPosition(.at(time.seconds), forEventWithIdentifier: event.id)
+      self?.dependencies.playbackService.setPlaybackPosition(.at(time.seconds), event.id)
       self?.eventViewController?.reloadPlaybackPosition()
     }
 
     finishObserver = notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
-      self?.dependencies.playbackService.setPlaybackPosition(.end, forEventWithIdentifier: event.id)
+      self?.dependencies.playbackService.setPlaybackPosition(.end, event.id)
       self?.eventViewController?.reloadPlaybackPosition()
     }
 
-    if case let .at(seconds) = dependencies.playbackService.playbackPosition(forEventWithIdentifier: event.id) {
+    if case let .at(seconds) = dependencies.playbackService.playbackPosition(event.id) {
       let timeScale = CMTimeScale(NSEC_PER_SEC)
       let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
       playerViewController.player?.seek(to: time)

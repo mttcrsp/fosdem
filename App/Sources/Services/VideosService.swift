@@ -20,7 +20,7 @@ final class VideosService {
     var watched: [Event]?
 
     group.enter()
-    let watchedIdentifiers = playbackService.watched
+    let watchedIdentifiers = playbackService.watched()
     let watchedOperation = GetEventsByIdentifiers(identifiers: watchedIdentifiers)
     persistenceService.performRead(watchedOperation) { result in
       switch result {
@@ -33,7 +33,7 @@ final class VideosService {
     }
 
     group.enter()
-    let watchingIdentifiers = playbackService.watching
+    let watchingIdentifiers = playbackService.watching()
     let watchingOperation = GetEventsByIdentifiers(identifiers: watchingIdentifiers)
     persistenceService.performRead(watchingOperation) { result in
       switch result {

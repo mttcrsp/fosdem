@@ -122,7 +122,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
 
 extension VideosController: EventsViewControllerDeleteDelegate {
   func eventsViewController(_: EventsViewController, didDelete event: Event) {
-    dependencies.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
+    dependencies.playbackService.setPlaybackPosition(.beginning, event.id)
   }
 }
 

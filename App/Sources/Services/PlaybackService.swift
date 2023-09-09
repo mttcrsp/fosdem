@@ -6,94 +6,104 @@ enum PlaybackPosition: Equatable {
   case end
 }
 
-final class PlaybackService {
-  var watching: Set<Int> {
-    Set(progress.keys.compactMap(Int.init))
-  }
+struct PlaybackService {
+  var watching: () -> Set<Int>
+  var watched: () -> Set<Int>
 
-  private(set) var watched: Set<Int> {
-    get { userDefaults.watched }
-    set { userDefaults.watched = newValue }
-  }
+  var setPlaybackPosition: (PlaybackPosition, Int) -> Void
+  var playbackPosition: (Int) -> PlaybackPosition
 
-  private var progress: [String: Double] {
-    get { userDefaults.watching }
-    set { userDefaults.watching = newValue }
-  }
+  var addObserver: (@escaping () -> Void) -> NSObjectProtocol
+  var removeObserver: (NSObjectProtocol) -> Void
+}
 
-  private let userDefaults: PlaybackServiceDefaults
-  private let notificationCenter = NotificationCenter()
-
+extension PlaybackService {
   init(userDefaults: PlaybackServiceDefaults = UserDefaults.standard) {
-    self.userDefaults = userDefaults
-  }
+    let notificationCenter = NotificationCenter()
 
-  func setPlaybackPosition(_ position: PlaybackPosition, forEventWithIdentifier identifier: Int) {
-    var didChangeWatchStatus = false
+    func updateWatched(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
+      var didChange = false
 
-    if updateWatched(with: position, forEventWithIdentifier: identifier) {
-      didChangeWatchStatus = true
+      switch position {
+      case .beginning, .at:
+        let value = watched.remove(identifier)
+        didChange = value != nil
+      case .end:
+        let (inserted, _) = watched.insert(identifier)
+        didChange = inserted
+      }
+
+      return didChange
     }
 
-    if updateProgress(with: position, forEventWithIdentifier: identifier) {
-      didChangeWatchStatus = true
+    func updateProgress(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
+      var didChange = false
+
+      switch position {
+      case .beginning, .end:
+        let value = progress.removeValue(forKey: identifier.description)
+        didChange = value != nil
+      case let .at(seconds):
+        let value = progress.updateValue(seconds, forKey: identifier.description)
+        didChange = value == nil
+      }
+
+      return didChange
     }
 
-    if didChangeWatchStatus {
-      notificationCenter.post(Notification(name: .watchStatusChanged))
-    }
-  }
-
-  func playbackPosition(forEventWithIdentifier identifier: Int) -> PlaybackPosition {
-    if watched.contains(identifier) {
-      return .end
+    watching = {
+      Set(progress.keys.compactMap(Int.init))
     }
 
-    if let seconds = progress[identifier.description] {
-      return .at(seconds)
+    var watched: Set<Int> {
+      get { userDefaults.watched }
+      set { userDefaults.watched = newValue }
     }
 
-    return .beginning
-  }
+    self.watched = { watched }
 
-  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .watchStatusChanged, object: nil, queue: nil) { _ in
-      handler()
-    }
-  }
-
-  func removeObserver(_ observer: NSObjectProtocol) {
-    notificationCenter.removeObserver(observer)
-  }
-
-  private func updateWatched(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
-    var didChange = false
-
-    switch position {
-    case .beginning, .at:
-      let value = watched.remove(identifier)
-      didChange = value != nil
-    case .end:
-      let (inserted, _) = watched.insert(identifier)
-      didChange = inserted
+    var progress: [String: Double] {
+      get { userDefaults.watching }
+      set { userDefaults.watching = newValue }
     }
 
-    return didChange
-  }
+    setPlaybackPosition = { position, identifier in
+      var didChangeWatchStatus = false
 
-  private func updateProgress(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
-    var didChange = false
+      if updateWatched(with: position, forEventWithIdentifier: identifier) {
+        didChangeWatchStatus = true
+      }
 
-    switch position {
-    case .beginning, .end:
-      let value = progress.removeValue(forKey: identifier.description)
-      didChange = value != nil
-    case let .at(seconds):
-      let value = progress.updateValue(seconds, forKey: identifier.description)
-      didChange = value == nil
+      if updateProgress(with: position, forEventWithIdentifier: identifier) {
+        didChangeWatchStatus = true
+      }
+
+      if didChangeWatchStatus {
+        notificationCenter.post(Notification(name: .watchStatusChanged))
+      }
     }
 
-    return didChange
+    playbackPosition = { identifier in
+      if watched.contains(identifier) {
+        return .end
+      }
+
+      if let seconds = progress[identifier.description] {
+        return .at(seconds)
+      }
+
+      return .beginning
+    }
+
+    addObserver = { handler in
+      notificationCenter.addObserver(forName: .watchStatusChanged, object: nil, queue: nil) { _ in
+        handler()
+      }
+    }
+
+    removeObserver = { observer in
+      notificationCenter.removeObserver(observer)
+    }
   }
 }
 
@@ -134,14 +144,14 @@ private extension Notification.Name {
 
 /// @mockable
 protocol PlaybackServiceProtocol {
-  var watching: Set<Int> { get }
-  var watched: Set<Int> { get }
+  var watching: () -> Set<Int> { get }
+  var watched: () -> Set<Int> { get }
 
-  func setPlaybackPosition(_ position: PlaybackPosition, forEventWithIdentifier identifier: Int)
-  func playbackPosition(forEventWithIdentifier identifier: Int) -> PlaybackPosition
+  var setPlaybackPosition: (PlaybackPosition, Int) -> Void { get }
+  var playbackPosition: (Int) -> PlaybackPosition { get }
 
-  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol
-  func removeObserver(_ observer: NSObjectProtocol)
+  var addObserver: (@escaping () -> Void) -> NSObjectProtocol { get }
+  var removeObserver: (NSObjectProtocol) -> Void { get }
 }
 
 extension PlaybackService: PlaybackServiceProtocol {}
