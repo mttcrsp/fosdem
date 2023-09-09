@@ -22,7 +22,7 @@ final class InfoController: TextViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    dependencies.infoService.loadAttributedText(for: info) { result in
+    dependencies.infoService.loadAttributedText(info) { result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 

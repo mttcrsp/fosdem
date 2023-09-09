@@ -6,58 +6,54 @@ enum Info: String {
   case legal
 }
 
-final class InfoService {
-  private let queue: DispatchQueue
-  private let bundleService: InfoServiceBundle
+struct InfoService {
+  var loadAttributedText: (Info, @escaping (Result<NSAttributedString, Error>) -> Void) -> Void
+}
 
+extension InfoService {
   init(queue: DispatchQueue = .global(), bundleService: InfoServiceBundle) {
-    self.bundleService = bundleService
-    self.queue = queue
-  }
+    loadAttributedText = { info, completion in
+      queue.async {
+        do {
+          let attributedData = try bundleService.data(info.resource, "html")
+          let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
 
-  func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Error>) -> Void) {
-    queue.async { [weak self] in
-      do {
-        guard let self = self else { return }
+          let string = attributedText.string
+          let lowerbound = string.startIndex
+          let upperbound = string.endIndex
+          let range = NSRange(lowerbound ..< upperbound, in: string)
 
-        let attributedData = try self.bundleService.data(info.resource, "html")
-        let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
+          var boldRanges: [NSRange] = []
+          var linkRanges: [NSRange] = []
 
-        let string = attributedText.string
-        let lowerbound = string.startIndex
-        let upperbound = string.endIndex
-        let range = NSRange(lowerbound ..< upperbound, in: string)
-
-        var boldRanges: [NSRange] = []
-        var linkRanges: [NSRange] = []
-
-        attributedText.enumerateAttributes(in: range) { attributes, range, _ in
-          if attributes.containsLinkAttribute {
-            linkRanges.append(range)
-          } else if attributes.containsBoldAttribute {
-            boldRanges.append(range)
+          attributedText.enumerateAttributes(in: range) { attributes, range, _ in
+            if attributes.containsLinkAttribute {
+              linkRanges.append(range)
+            } else if attributes.containsBoldAttribute {
+              boldRanges.append(range)
+            }
           }
-        }
 
-        let boldFont = UIFont.fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
-        let bodyFont = UIFont.fos_preferredFont(forTextStyle: .body)
+          let boldFont = UIFont.fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
+          let bodyFont = UIFont.fos_preferredFont(forTextStyle: .body)
 
-        attributedText.addAttribute(.font, value: bodyFont, range: range)
-        attributedText.addAttribute(.foregroundColor, value: UIColor.label, range: range)
-
-        for range in boldRanges {
-          attributedText.removeAttribute(.font, range: range)
-          attributedText.addAttribute(.font, value: boldFont, range: range)
-        }
-
-        for range in linkRanges {
-          attributedText.removeAttribute(.font, range: range)
           attributedText.addAttribute(.font, value: bodyFont, range: range)
-        }
+          attributedText.addAttribute(.foregroundColor, value: UIColor.label, range: range)
 
-        completion(.success(attributedText))
-      } catch {
-        completion(.failure(error))
+          for range in boldRanges {
+            attributedText.removeAttribute(.font, range: range)
+            attributedText.addAttribute(.font, value: boldFont, range: range)
+          }
+
+          for range in linkRanges {
+            attributedText.removeAttribute(.font, range: range)
+            attributedText.addAttribute(.font, value: bodyFont, range: range)
+          }
+
+          completion(.success(attributedText))
+        } catch {
+          completion(.failure(error))
+        }
       }
     }
   }
@@ -109,7 +105,7 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
 
 /// @mockable
 protocol InfoServiceProtocol {
-  func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Error>) -> Void)
+  var loadAttributedText: (Info, @escaping (Result<NSAttributedString, Error>) -> Void) -> Void { get }
 }
 
 extension InfoService: InfoServiceProtocol {}
