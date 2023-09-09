@@ -7,61 +7,57 @@ struct TracksConfiguration: Equatable {
   var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 }
 
-final class TracksService {
-  private var observation: NSObjectProtocol?
+struct TracksService {
+  var loadConfiguration: (@escaping (TracksConfiguration) -> Void) -> Void
+}
 
-  private let favoritesService: FavoritesServiceProtocol
-  private let persistenceService: PersistenceServiceProtocol
-
+extension TracksService {
   init(favoritesService: FavoritesServiceProtocol, persistenceService: PersistenceServiceProtocol) {
-    self.persistenceService = persistenceService
-    self.favoritesService = favoritesService
-  }
+    loadConfiguration = { completion in
+      persistenceService.performRead(GetAllTracks()) { result in
+        guard case let .success(tracks) = result else { return }
 
-  func loadConfiguration(_ completion: @escaping (TracksConfiguration) -> Void) {
-    persistenceService.performRead(GetAllTracks()) { [weak self] result in
-      guard case let .success(tracks) = result, let self else { return }
+        var configuration = TracksConfiguration()
+        var filters: Set<TracksFilter> = [.all]
 
-      var configuration = TracksConfiguration()
-      var filters: Set<TracksFilter> = [.all]
-
-      for (offset, track) in tracks.enumerated() {
-        let filter = TracksFilter.day(track.day)
-        filters.insert(filter)
-        configuration.filteredTracks[.all, default: []].append(track)
-        configuration.filteredTracks[filter, default: []].append(track)
-
-        if self.favoritesService.contains(track) {
-          configuration.filteredFavoriteTracks[.all, default: []].append(track)
-          configuration.filteredFavoriteTracks[filter, default: []].append(track)
-        }
-
-        if let initial = track.name.first, configuration.filteredIndexTitles[.all, default: [:]][String(initial)] == nil {
-          configuration.filteredIndexTitles[.all, default: [:]][String(initial)] = offset
-        }
-      }
-
-      for filter in filters.filter({ filter in filter != .all }) {
-        let tracks = configuration.filteredTracks[filter] ?? []
         for (offset, track) in tracks.enumerated() {
-          if let initial = track.name.first, configuration.filteredIndexTitles[filter, default: [:]][String(initial)] == nil {
-            configuration.filteredIndexTitles[filter, default: [:]][String(initial)] = offset
+          let filter = TracksFilter.day(track.day)
+          filters.insert(filter)
+          configuration.filteredTracks[.all, default: []].append(track)
+          configuration.filteredTracks[filter, default: []].append(track)
+
+          if favoritesService.contains(track) {
+            configuration.filteredFavoriteTracks[.all, default: []].append(track)
+            configuration.filteredFavoriteTracks[filter, default: []].append(track)
+          }
+
+          if let initial = track.name.first, configuration.filteredIndexTitles[.all, default: [:]][String(initial)] == nil {
+            configuration.filteredIndexTitles[.all, default: [:]][String(initial)] = offset
           }
         }
-      }
 
-      configuration.filters = filters.sorted()
+        for filter in filters.filter({ filter in filter != .all }) {
+          let tracks = configuration.filteredTracks[filter] ?? []
+          for (offset, track) in tracks.enumerated() {
+            if let initial = track.name.first, configuration.filteredIndexTitles[filter, default: [:]][String(initial)] == nil {
+              configuration.filteredIndexTitles[filter, default: [:]][String(initial)] = offset
+            }
+          }
+        }
 
-      DispatchQueue.main.async {
-        completion(configuration)
+        configuration.filters = filters.sorted()
+
+        DispatchQueue.main.async {
+          completion(configuration)
+        }
       }
     }
   }
 }
 
 /// @mockable
-protocol TracksServiceProtocol: AnyObject {
-  func loadConfiguration(_ completion: @escaping (TracksConfiguration) -> Void)
+protocol TracksServiceProtocol {
+  var loadConfiguration: (@escaping (TracksConfiguration) -> Void) -> Void { get }
 }
 
 extension TracksService: TracksServiceProtocol {}
