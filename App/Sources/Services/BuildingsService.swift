@@ -1,40 +1,36 @@
 import Foundation
 
-final class BuildingsService {
+struct BuildingsService {
   enum Error: CustomNSError {
     case missingData, partialData
   }
 
-  private let bundleService: BuildingsServiceBundle
-  private let queue: DispatchQueue
+  var loadBuildings: (@escaping ([Building], Error?) -> Void) -> Void
+}
 
+extension BuildingsService {
   init(bundleService: BuildingsServiceBundle, queue: DispatchQueue = .global()) {
-    self.bundleService = bundleService
-    self.queue = queue
-  }
+    loadBuildings = { completion in
+      queue.async {
+        var buildings: [Building] = []
 
-  func loadBuildings(completion: @escaping ([Building], Error?) -> Void) {
-    queue.async { [weak self] in
-      guard let self = self else { return }
+        let resources = ["aw", "f", "h", "j", "k", "u", "s"]
+        for resource in resources {
+          do {
+            let buildingData = try bundleService.data(forResource: resource, withExtension: "json")
+            let building = try JSONDecoder().decode(Building.self, from: buildingData)
+            buildings.append(building)
+          } catch {}
+        }
 
-      var buildings: [Building] = []
-
-      let resources = ["aw", "f", "h", "j", "k", "u", "s"]
-      for resource in resources {
-        do {
-          let buildingData = try self.bundleService.data(forResource: resource, withExtension: "json")
-          let building = try JSONDecoder().decode(Building.self, from: buildingData)
-          buildings.append(building)
-        } catch {}
-      }
-
-      switch buildings.count {
-      case resources.count:
-        completion(buildings, nil)
-      case 0:
-        completion([], .missingData)
-      case _:
-        completion(buildings, .partialData)
+        switch buildings.count {
+        case resources.count:
+          completion(buildings, nil)
+        case 0:
+          completion([], .missingData)
+        case _:
+          completion(buildings, .partialData)
+        }
       }
     }
   }
@@ -42,7 +38,7 @@ final class BuildingsService {
 
 /// @mockable
 protocol BuildingsServiceProtocol {
-  func loadBuildings(completion: @escaping ([Building], BuildingsService.Error?) -> Void)
+  var loadBuildings: (@escaping ([Building], BuildingsService.Error?) -> Void) -> Void { get }
 }
 
 extension BuildingsService: BuildingsServiceProtocol {}
