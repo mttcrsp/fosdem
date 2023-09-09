@@ -99,9 +99,9 @@ final class EventController: UIViewController {
 
   @objc private func didToggleFavorite() {
     if isEventFavorite {
-      dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+      dependencies.favoritesService.removeEvent(event.id)
     } else {
-      dependencies.favoritesService.addEvent(withIdentifier: event.id)
+      dependencies.favoritesService.addEvent(event.id)
     }
   }
 

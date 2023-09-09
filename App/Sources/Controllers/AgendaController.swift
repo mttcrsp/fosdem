@@ -66,7 +66,7 @@ final class AgendaController: UIViewController {
   }
 
   private func reloadFavoriteEvents(animated: Bool) {
-    let identifiers = dependencies.favoritesService.eventsIdentifiers
+    let identifiers = dependencies.favoritesService.eventsIdentifiers()
 
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
       rootViewController = makeAgendaNavigationController()
@@ -230,11 +230,11 @@ extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewC
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
+    dependencies.favoritesService.addEvent(event.id)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+    dependencies.favoritesService.removeEvent(event.id)
   }
 }
 

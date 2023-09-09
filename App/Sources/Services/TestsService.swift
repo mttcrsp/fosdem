@@ -146,22 +146,22 @@ private struct OverrideVideo: PostInitCommand {
 
 private extension FavoritesServiceProtocol {
   func setTracksIdentifiers(_ newTracksIdentifiers: Set<String>) {
-    for identifier in tracksIdentifiers {
-      removeTrack(withIdentifier: identifier)
+    for identifier in tracksIdentifiers() {
+      removeTrack(identifier)
     }
 
     for identifier in newTracksIdentifiers {
-      addTrack(withIdentifier: identifier)
+      addTrack(identifier)
     }
   }
 
   func setEventsIdentifiers(_ newEventsIdentifiers: Set<Int>) {
-    for identifier in eventsIdentifiers {
-      removeEvent(withIdentifier: identifier)
+    for identifier in eventsIdentifiers() {
+      removeEvent(identifier)
     }
 
     for identifier in newEventsIdentifiers {
-      addEvent(withIdentifier: identifier)
+      addEvent(identifier)
     }
   }
 }

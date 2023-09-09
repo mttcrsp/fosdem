@@ -264,11 +264,11 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
   }
 
   func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-    dependencies.favoritesService.addTrack(withIdentifier: track.name)
+    dependencies.favoritesService.addTrack(track.name)
   }
 
   func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-    dependencies.favoritesService.removeTrack(withIdentifier: track.name)
+    dependencies.favoritesService.removeTrack(track.name)
   }
 }
 
@@ -329,20 +329,20 @@ extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewC
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
+    dependencies.favoritesService.addEvent(event.id)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+    dependencies.favoritesService.removeEvent(event.id)
   }
 
   @objc private func didToggleFavorite() {
     guard let selectedTrack = selectedTrack else { return }
 
     if dependencies.favoritesService.contains(selectedTrack) {
-      dependencies.favoritesService.removeTrack(withIdentifier: selectedTrack.name)
+      dependencies.favoritesService.removeTrack(selectedTrack.name)
     } else {
-      dependencies.favoritesService.addTrack(withIdentifier: selectedTrack.name)
+      dependencies.favoritesService.addTrack(selectedTrack.name)
     }
   }
 }
