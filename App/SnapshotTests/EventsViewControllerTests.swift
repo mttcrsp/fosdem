@@ -17,7 +17,7 @@ final class EventsViewControllerTests: XCTestCase {
     let title = [String](repeating: "title", count: 10).joined(separator: " ")
     let message = [String](repeating: "message", count: 10).joined(separator: " ")
 
-    let eventsViewController = EventsViewController(style: .fos_insetGrouped)
+    let eventsViewController = EventsViewController(style: .insetGrouped)
     eventsViewController.view.tintColor = .label
     eventsViewController.emptyBackgroundTitle = title
     eventsViewController.emptyBackgroundMessage = message
@@ -32,7 +32,7 @@ final class EventsViewControllerTests: XCTestCase {
   }
 
   func testEvents() throws {
-    let eventsViewController = EventsViewController(style: .fos_insetGrouped)
+    let eventsViewController = EventsViewController(style: .insetGrouped)
 
     let dataSource = try makeDataSource()
     eventsViewController.dataSource = dataSource
@@ -59,7 +59,7 @@ final class EventsViewControllerTests: XCTestCase {
     liveDataSource.eventsViewControllerHandler = { _, _ in true }
 
     let dataSource = try makeDataSource()
-    let eventsViewController = EventsViewController(style: .fos_insetGrouped)
+    let eventsViewController = EventsViewController(style: .insetGrouped)
     eventsViewController.view.tintColor = .label
     eventsViewController.liveDataSource = liveDataSource
     eventsViewController.dataSource = dataSource
@@ -88,7 +88,7 @@ final class EventsViewControllerTests: XCTestCase {
     let event1 = try makeEvent1()
     let event2 = try makeEvent2()
 
-    let eventsViewController = EventsViewController(style: .fos_insetGrouped)
+    let eventsViewController = EventsViewController(style: .insetGrouped)
     eventsViewController.favoritesDataSource = favoritesDataSource
     eventsViewController.favoritesDelegate = favoritesDelegate
     eventsViewController.dataSource = dataSource
@@ -126,7 +126,7 @@ final class EventsViewControllerTests: XCTestCase {
     let dataSource = EventsViewControllerDataSourceMock()
     dataSource.eventsHandler = { _ in [event1, event2] }
 
-    let eventsViewController = EventsViewController(style: .fos_insetGrouped)
+    let eventsViewController = EventsViewController(style: .insetGrouped)
     eventsViewController.dataSource = dataSource
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
 
@@ -159,7 +159,7 @@ final class EventsViewControllerTests: XCTestCase {
     let swizzledMethod = try XCTUnwrap(class_getInstanceMethod(UITableView.self, #selector(UITableView.fos_selectRow(at:animated:scrollPosition:))))
     method_exchangeImplementations(originalMethod, swizzledMethod)
 
-    let eventsViewController = EventsViewController(style: .fos_insetGrouped)
+    let eventsViewController = EventsViewController(style: .insetGrouped)
     eventsViewController.dataSource = dataSource
     eventsViewController.select(try XCTUnwrap(events.last))
     XCTAssertEqual(UITableView.animated, true)

@@ -10,7 +10,7 @@ final class AcknowledgementsViewControllerTests: XCTestCase {
   ])
 
   func testAppearance() throws {
-    let acknowledgementsViewController = AcknowledgementsViewController(style: .fos_insetGrouped)
+    let acknowledgementsViewController = AcknowledgementsViewController(style: .insetGrouped)
     acknowledgementsViewController.dataSource = dataSource
     assertSnapshot(matching: acknowledgementsViewController, as: .image(on: .iPhone8Plus))
   }

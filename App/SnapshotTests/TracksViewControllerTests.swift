@@ -35,7 +35,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
   }()
 
   func testAppearance() throws {
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.favoritesDataSource = favoritesDataSource
     tracksViewController.indexDataSource = indexDataSource
     tracksViewController.dataSource = dataSource
@@ -45,7 +45,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
   func testEvents() throws {
     let delegate = TracksViewControllerDelegateMock()
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.favoritesDataSource = favoritesDataSource
     tracksViewController.indexDataSource = indexDataSource
     tracksViewController.dataSource = dataSource
@@ -74,7 +74,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
   func testIndexEvents() throws {
     let indexDelegate = TracksViewControllerIndexDelegateMock()
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.favoritesDataSource = favoritesDataSource
     tracksViewController.indexDataSource = indexDataSource
     tracksViewController.indexDelegate = indexDelegate
@@ -93,7 +93,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
   func testFavoritesEventsSwipe() throws {
     let favoritesDelegate = TracksViewControllerFavoritesDelegateMock()
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.favoritesDataSource = favoritesDataSource
     tracksViewController.favoritesDelegate = favoritesDelegate
     tracksViewController.indexDataSource = indexDataSource
@@ -130,7 +130,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
       Track(name: indexPath.row.description, day: indexPath.section, date: self.date)
     }
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.dataSource = dataSource
     tracksViewController.reloadData()
     assertSnapshot(matching: tracksViewController, as: .image(on: .iPhone8Plus))
@@ -148,7 +148,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
       Track(name: indexPath.row.description, day: indexPath.section, date: self.date)
     }
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.dataSource = dataSource
     assertSnapshot(matching: tracksViewController, as: .image(on: .iPhone8Plus))
 
@@ -184,7 +184,7 @@ final class TracksViewControllerTestsTests: XCTestCase {
       Track(name: indexPath.row.description, day: indexPath.section, date: self.date)
     }
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.dataSource = dataSource
     tracksViewController.scrollToRow(at: IndexPath(row: 80, section: 0), at: .middle, animated: false)
     assertSnapshot(matching: tracksViewController, as: .image(on: .iPhone8Plus))

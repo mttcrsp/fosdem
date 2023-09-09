@@ -9,7 +9,7 @@ class TransportationController: UINavigationController {
     self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
 
-    var style = UITableView.Style.fos_insetGrouped
+    var style = UITableView.Style.insetGrouped
     if traitCollection.userInterfaceIdiom == .phone {
       style = .grouped
     }

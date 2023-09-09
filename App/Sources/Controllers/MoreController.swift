@@ -164,7 +164,7 @@ extension MoreController: UIPopoverPresentationControllerDelegate, DateViewContr
 private extension MoreController {
   private var preferredDetailViewControllerStyle: UITableView.Style {
     if traitCollection.userInterfaceIdiom == .pad {
-      return .fos_insetGrouped
+      return .insetGrouped
     } else {
       return .grouped
     }

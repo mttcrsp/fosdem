@@ -361,7 +361,7 @@ private extension SearchController {
     filtersButton.accessibilityIdentifier = "filters"
     self.filtersButton = filtersButton
 
-    let tracksViewController = TracksViewController(style: .fos_insetGrouped)
+    let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.title = L10n.Search.title
     tracksViewController.navigationItem.rightBarButtonItem = filtersButton
     tracksViewController.navigationItem.largeTitleDisplayMode = .always
@@ -420,7 +420,7 @@ private extension SearchController {
 
     let style: UITableView.Style
     if traitCollection.userInterfaceIdiom == .pad {
-      style = .fos_insetGrouped
+      style = .insetGrouped
     } else {
       style = .grouped
     }

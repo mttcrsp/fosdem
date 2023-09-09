@@ -5,7 +5,7 @@ import XCTest
 
 final class TransportationViewControllerTests: XCTestCase {
   func testAppearance() throws {
-    let transportationViewController = TransportationViewController(style: .fos_insetGrouped)
+    let transportationViewController = TransportationViewController(style: .insetGrouped)
     assertSnapshot(matching: transportationViewController, as: .image(on: .iPhone8Plus))
   }
 
