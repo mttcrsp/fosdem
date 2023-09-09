@@ -1,27 +1,17 @@
+import Dependencies
 import UIKit
 
 final class YearsController: YearsViewController {
-  typealias Dependencies = HasYearsClient & HasNavigationClient
+  @Dependency(\.navigationClient) var navigationClient
+  @Dependency(\.yearsClient) var yearsClient
 
   var didError: ((UIViewController, Error) -> Void)?
 
   private var pendingYear: Year?
   private var pendingTask: NetworkClientTask?
 
-  private let dependencies: Dependencies
-
-  init(style: UITableView.Style, dependencies: Dependencies) {
-    self.dependencies = dependencies
-    super.init(style: style)
-  }
-
   deinit {
     pendingTask?.cancel()
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
   }
 
   override func viewDidLoad() {
@@ -34,7 +24,7 @@ final class YearsController: YearsViewController {
 
 private extension YearsController {
   func makeYearViewController(forYear year: Int, with persistenceClient: PersistenceClientProtocol) -> UIViewController {
-    dependencies.navigationClient.makeYearViewController(year, persistenceClient) { [weak self] viewController, error in
+    navigationClient.makeYearViewController(year, persistenceClient) { [weak self] viewController, error in
       self?.didError?(viewController, error)
     }
   }
@@ -49,13 +39,13 @@ private extension YearsController {
 
 extension YearsController: YearsViewControllerDataSource, YearsViewControllerDelegate {
   private var years: [Year] {
-    Array(type(of: dependencies.yearsClient).all).reversed()
+    Array(type(of: yearsClient).all).reversed()
   }
 
   private func downloadState(for year: Year) -> YearDownloadState {
     if pendingYear == year {
       return .inProgress
-    } else if dependencies.yearsClient.isYearDownloaded(year) {
+    } else if yearsClient.isYearDownloaded(year) {
       return .completed
     } else {
       return .available
@@ -99,7 +89,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
     case .completed:
       onSuccess()
     case .available:
-      let task = dependencies.yearsClient.downloadYear(year) { [weak self, weak yearsViewController] error in
+      let task = yearsClient.downloadYear(year) { [weak self, weak yearsViewController] error in
         DispatchQueue.main.async {
           if let error = error {
             onFailure(error)
@@ -124,7 +114,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
 
   func yearsViewController(_ yearsViewController: YearsViewController, loadingDidSucceedFor year: Int, retryHandler: @escaping () -> Void) {
     do {
-      let persistenceClient = try dependencies.yearsClient.makePersistenceClient(year)
+      let persistenceClient = try yearsClient.makePersistenceClient(year)
       let yearViewController = makeYearViewController(forYear: year, with: persistenceClient)
       yearsViewController.show(yearViewController, sender: nil)
     } catch {

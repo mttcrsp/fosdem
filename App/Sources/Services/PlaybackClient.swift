@@ -163,7 +163,3 @@ protocol PlaybackClientDefaults: AnyObject {
 }
 
 extension UserDefaults: PlaybackClientDefaults {}
-
-protocol HasPlaybackClient {
-  var playbackClient: PlaybackClientProtocol { get }
-}

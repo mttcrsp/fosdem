@@ -1,21 +1,18 @@
+import Dependencies
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationClient & HasLaunchClient & HasTimeClient & HasUpdateClient & HasScheduleClient & HasYearsClient & HasOpenClient & HasFavoritesClient & HasUbiquitousPreferencesClient
+  @Dependency(\.favoritesClient) var favoritesClient
+  @Dependency(\.launchClient) var launchClient
+  @Dependency(\.navigationClient) var navigationClient
+  @Dependency(\.openClient) var openClient
+  @Dependency(\.scheduleClient) var scheduleClient
+  @Dependency(\.timeClient) var timeClient
+  @Dependency(\.ubiquitousPreferencesClient) var ubiquitousPreferencesClient
+  @Dependency(\.updateClient) var updateClient
+  @Dependency(\.yearsClient) var yearsClient
 
   private weak var tabsController: UITabBarController?
-
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 
   private var previouslySelectedViewController: String? {
     get { UserDefaults.standard.selectedViewController }
@@ -40,7 +37,7 @@ final class ApplicationController: UIViewController {
     super.viewDidLoad()
 
     var viewControllers: [UIViewController] = [makeTabsController()]
-    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchClient.didLaunchAfterInstall() {
+    if traitCollection.userInterfaceIdiom == .phone, launchClient.didLaunchAfterInstall() {
       viewControllers.append(makeWelcomeViewController())
     }
 
@@ -63,10 +60,10 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .systemGroupedBackground
 
-    dependencies.ubiquitousPreferencesClient.startMonitoring()
-    dependencies.favoritesClient.startMonitoring()
-    dependencies.scheduleClient.startUpdating()
-    dependencies.updateClient.detectUpdates {
+    ubiquitousPreferencesClient.startMonitoring()
+    favoritesClient.startMonitoring()
+    scheduleClient.startUpdating()
+    updateClient.detectUpdates {
       DispatchQueue.main.async { [weak self] in
         if let self = self {
           let updateViewController = self.makeUpdateViewController()
@@ -77,12 +74,12 @@ final class ApplicationController: UIViewController {
   }
 
   func applicationDidBecomeActive() {
-    dependencies.timeClient.startMonitoring()
-    dependencies.scheduleClient.startUpdating()
+    timeClient.startMonitoring()
+    scheduleClient.startUpdating()
   }
 
   func applicationWillResignActive() {
-    dependencies.timeClient.stopMonitoring()
+    timeClient.stopMonitoring()
   }
 
   @objc private func didSelectPrevTab() {
@@ -101,7 +98,7 @@ final class ApplicationController: UIViewController {
 
   private func didTapUpdate() {
     if let url = URL.fosdemAppStore {
-      dependencies.openClient.open(url, nil)
+      openClient.open(url, nil)
     }
   }
 }
@@ -128,27 +125,27 @@ private extension ApplicationController {
   }
 
   func makeSearchController() -> UIViewController {
-    dependencies.navigationClient.makeSearchViewController()
+    navigationClient.makeSearchViewController()
   }
 
   func makeAgendaController() -> UIViewController {
-    dependencies.navigationClient.makeAgendaViewController { [weak self] viewController, error in
+    navigationClient.makeAgendaViewController { [weak self] viewController, error in
       self?.agendaController(viewController, didError: error)
     }
   }
 
   func makeMapController() -> UIViewController {
-    dependencies.navigationClient.makeMapViewController { [weak self] viewController, error in
+    navigationClient.makeMapViewController { [weak self] viewController, error in
       self?.mapController(viewController, didError: error)
     }
   }
 
   func makeMoreController() -> UIViewController {
-    dependencies.navigationClient.makeMoreViewController()
+    navigationClient.makeMoreViewController()
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsClient).current)
+    let welcomeViewController = WelcomeViewController(year: type(of: yearsClient).current)
     welcomeViewController.showsContinue = true
     welcomeViewController.delegate = self
     return welcomeViewController

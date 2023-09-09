@@ -96,7 +96,3 @@ protocol LaunchClientDefaults: AnyObject {
 }
 
 extension UserDefaults: LaunchClientDefaults {}
-
-protocol HasLaunchClient {
-  var launchClient: LaunchClientProtocol { get }
-}

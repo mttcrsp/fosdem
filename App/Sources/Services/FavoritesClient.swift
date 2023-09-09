@@ -21,11 +21,10 @@ struct FavoritesClient {
 }
 
 extension FavoritesClient {
-  init(fosdemYear _: Year, preferencesClient: PreferencesClientProtocol, ubiquitousPreferencesClient: UbiquitousPreferencesClientProtocol, timeClient: TimeClientProtocol, userDefaults: FavoritesClientDefaults = UserDefaults.standard) {
+  init(year: Year = YearsClient.current, preferencesClient: PreferencesClientProtocol, ubiquitousPreferencesClient: UbiquitousPreferencesClientProtocol, timeClient: TimeClientProtocol, userDefaults: FavoritesClientDefaults = UserDefaults.standard) {
     let notificationCenter = NotificationCenter()
     var ubiquitousObserver: NSObjectProtocol?
 
-    let year = YearsClient.current
     let favoriteEventsKey = "com.mttcrsp.ansia.FavoritesClient.favoriteEvents"
     let favoriteTracksKey = "com.mttcrsp.ansia.FavoritesClient.favoriteTracks"
     let favoriteEventsDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesClient.favoriteEventsDidChange")
@@ -295,7 +294,3 @@ protocol FavoritesClientDefaults: AnyObject {
 }
 
 extension UserDefaults: FavoritesClientDefaults {}
-
-protocol HasFavoritesClient {
-  var favoritesClient: FavoritesClientProtocol { get }
-}

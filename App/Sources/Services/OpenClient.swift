@@ -25,7 +25,3 @@ protocol OpenClientApplication {
 }
 
 extension UIApplication: OpenClientApplication {}
-
-protocol HasOpenClient {
-  var openClient: OpenClientProtocol { get }
-}

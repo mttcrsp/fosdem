@@ -55,7 +55,3 @@ protocol VideosClientProtocol {
 }
 
 extension VideosClient: VideosClientProtocol {}
-
-protocol HasVideosClient {
-  var videosClient: VideosClientProtocol { get }
-}

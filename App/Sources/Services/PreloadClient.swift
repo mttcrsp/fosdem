@@ -11,7 +11,7 @@ extension PreloadClient {
     case resourceNotFound
   }
 
-  init(bundle: PreloadClientBundle = Bundle.main, fileManager: PreloadClientFile = FileManager.default) throws {
+  init(bundle: PreloadClientBundle = Bundle.main, fileManager: PreloadClientFile = FileManager.default) {
     let fileName = "db", fileExtension = "sqlite"
 
     func oldPath() throws -> String {

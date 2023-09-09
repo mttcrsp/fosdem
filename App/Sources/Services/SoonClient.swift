@@ -16,7 +16,3 @@ protocol SoonClientProtocol {
 }
 
 extension SoonClient: SoonClientProtocol {}
-
-protocol HasSoonClient {
-  var soonClient: SoonClientProtocol { get }
-}

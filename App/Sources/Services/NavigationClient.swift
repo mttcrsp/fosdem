@@ -26,9 +26,9 @@ struct NavigationClient {
 }
 
 extension NavigationClient {
-  init(clients: Clients) {
+  init() {
     makeSearchViewController = {
-      let searchController = SearchController(dependencies: clients)
+      let searchController = SearchController()
       searchController.tabBarItem.accessibilityIdentifier = "search"
       searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
       searchController.title = L10n.Search.title
@@ -39,7 +39,7 @@ extension NavigationClient {
     }
 
     makeAgendaViewController = { didError in
-      let agendaController = AgendaController(dependencies: clients)
+      let agendaController = AgendaController()
       agendaController.tabBarItem.accessibilityIdentifier = "agenda"
       agendaController.tabBarItem.image = UIImage(systemName: "calendar")
       agendaController.title = L10n.Agenda.title
@@ -48,7 +48,7 @@ extension NavigationClient {
     }
 
     makeMapViewController = { didError in
-      let mapController = MapController(dependencies: clients)
+      let mapController = MapController()
       mapController.tabBarItem.accessibilityIdentifier = "map"
       mapController.tabBarItem.image = UIImage(systemName: "map")
       mapController.title = L10n.Map.title
@@ -57,7 +57,7 @@ extension NavigationClient {
     }
 
     makeMoreViewController = {
-      let moreController = MoreController(dependencies: clients)
+      let moreController = MoreController()
       moreController.tabBarItem.accessibilityIdentifier = "more"
       moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
       moreController.title = L10n.More.title
@@ -68,29 +68,29 @@ extension NavigationClient {
     }
 
     makeEventViewController = { event in
-      EventController(event: event, dependencies: clients)
+      EventController(event: event)
     }
 
     makePastEventViewController = { event in
-      let eventController = EventController(event: event, dependencies: clients)
+      let eventController = EventController(event: event)
       eventController.showsFavoriteButton = false
       return eventController
     }
 
     makeVideosViewController = { didError in
-      let videosController = VideosController(dependencies: clients)
+      let videosController = VideosController()
       videosController.didError = didError
       return videosController
     }
 
     makeYearsViewController = { style, didError in
-      let yearsController = YearsController(style: style, dependencies: clients)
+      let yearsController = YearsController(style: style)
       yearsController.didError = didError
       return yearsController
     }
 
     makeYearViewController = { year, persistenceClient, didError in
-      let yearController = YearController(persistenceClient: persistenceClient, dependencies: clients)
+      let yearController = YearController(persistenceClient: persistenceClient)
       yearController.navigationItem.largeTitleDisplayMode = .never
       yearController.title = year.description
       yearController.didError = didError
@@ -98,7 +98,7 @@ extension NavigationClient {
     }
 
     makeInfoViewController = { title, info, didError in
-      let infoController = InfoController(info: info, dependencies: clients)
+      let infoController = InfoController(info: info)
       infoController.accessibilityIdentifier = info.accessibilityIdentifier
       infoController.didError = didError
       infoController.title = title
@@ -114,7 +114,7 @@ extension NavigationClient {
     }
 
     makeTransportationViewController = {
-      TransportationController(dependencies: clients)
+      TransportationController()
     }
   }
 }
@@ -149,7 +149,3 @@ protocol AVPlayerViewControllerProtocol: AnyObject {
 }
 
 extension AVPlayerViewController: AVPlayerViewControllerProtocol {}
-
-protocol HasNavigationClient {
-  var navigationClient: NavigationClientProtocol { get }
-}

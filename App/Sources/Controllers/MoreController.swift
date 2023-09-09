@@ -1,27 +1,16 @@
+import Dependencies
 import UIKit
 
 final class MoreController: UISplitViewController {
-  typealias Dependencies = HasNavigationClient & HasAcknowledgementsClient & HasYearsClient & HasTimeClient & HasOpenClient
+  @Dependency(\.acknowledgementsClient) var acknowledgementsClient
+  @Dependency(\.navigationClient) var navigationClient
+  @Dependency(\.openClient) var openClient
+  @Dependency(\.timeClient) var timeClient
+  @Dependency(\.yearsClient) var yearsClient
 
   private weak var moreViewController: MoreViewController?
 
   private(set) var acknowledgements: [Acknowledgement] = []
-
-  #if DEBUG
-  private var dependencies: Dependencies
-  #else
-  private let dependencies: Dependencies
-  #endif
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 
   func popToRootViewController() {
     if traitCollection.horizontalSizeClass == .compact {
@@ -77,7 +66,7 @@ extension MoreController: MoreViewControllerDelegate {
       self.moreViewController(moreViewController, didSelectInfoItem: item)
     #if DEBUG
     case .overrideTime:
-      let date = dependencies.timeClient.now()
+      let date = timeClient.now()
       let dateViewController = makeDateViewController(for: date)
       moreViewController.present(dateViewController, animated: true)
     case .generateDatabase:
@@ -89,7 +78,7 @@ extension MoreController: MoreViewControllerDelegate {
 
   private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
     do {
-      acknowledgements = try dependencies.acknowledgementsClient.loadAcknowledgements()
+      acknowledgements = try acknowledgementsClient.loadAcknowledgements()
       let acknowledgementsViewController = makeAcknowledgementsViewController()
       let navigationController = UINavigationController(rootViewController: acknowledgementsViewController)
       showDetailViewController(navigationController)
@@ -119,7 +108,7 @@ extension MoreController: MoreViewControllerDelegate {
 
   private func moreViewControllerDidSelectCode(_ moreViewController: MoreViewController) {
     if let url = URL.fosdemGithub {
-      dependencies.openClient.open(url) { [weak moreViewController] _ in
+      openClient.open(url) { [weak moreViewController] _ in
         moreViewController?.deselectSelectedRow(animated: true)
       }
     }
@@ -151,7 +140,7 @@ extension MoreController: MoreViewControllerDelegate {
 
 extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
   func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
-    dependencies.openClient.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
+    openClient.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
       acknowledgementsViewController?.deselectSelectedRow(animated: true)
     }
   }
@@ -159,8 +148,8 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
 
 #if DEBUG
 extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
-  func dateViewControllerDidChange(_ dateViewController: DateViewController) {
-    dependencies.timeClient.now = { dateViewController.date }
+  func dateViewControllerDidChange(_: DateViewController) {
+    // timeClient.now = { dateViewController.date }
   }
 }
 #endif
@@ -191,19 +180,19 @@ private extension MoreController {
   }
 
   private func makeYearsViewController(didError: @escaping NavigationClient.ErrorHandler) -> UIViewController {
-    dependencies.navigationClient.makeYearsViewController(preferredDetailViewControllerStyle, didError)
+    navigationClient.makeYearsViewController(preferredDetailViewControllerStyle, didError)
   }
 
   private func makeTransportationViewController() -> UIViewController {
-    dependencies.navigationClient.makeTransportationViewController()
+    navigationClient.makeTransportationViewController()
   }
 
   private func makeVideosViewController(didError: @escaping NavigationClient.ErrorHandler) -> UIViewController {
-    dependencies.navigationClient.makeVideosViewController(didError)
+    navigationClient.makeVideosViewController(didError)
   }
 
   private func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationClient.ErrorHandler) -> UIViewController {
-    dependencies.navigationClient.makeInfoViewController(title, info, didError)
+    navigationClient.makeInfoViewController(title, info, didError)
   }
 
   private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {

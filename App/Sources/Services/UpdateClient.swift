@@ -51,7 +51,3 @@ protocol UpdateClientNetwork {
 }
 
 extension NetworkClient: UpdateClientNetwork {}
-
-protocol HasUpdateClient {
-  var updateClient: UpdateClientProtocol { get }
-}

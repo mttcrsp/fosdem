@@ -11,7 +11,7 @@ struct InfoClient {
 }
 
 extension InfoClient {
-  init(queue: DispatchQueue = .global(), bundleClient: InfoClientBundle) {
+  init(queue: DispatchQueue = .global(), bundleClient: BundleClient) {
     loadAttributedText = { info, completion in
       queue.async {
         do {
@@ -109,12 +109,3 @@ protocol InfoClientProtocol {
 }
 
 extension InfoClient: InfoClientProtocol {}
-
-/// @mockable
-protocol InfoClientBundle {
-  var data: (String?, String?) throws -> Data { get }
-}
-
-protocol HasInfoClient {
-  var infoClient: InfoClientProtocol { get }
-}

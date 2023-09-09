@@ -102,7 +102,3 @@ protocol ScheduleClientPersistence {
 }
 
 extension PersistenceClient: ScheduleClientPersistence {}
-
-protocol HasScheduleClient {
-  var scheduleClient: ScheduleClientProtocol { get }
-}

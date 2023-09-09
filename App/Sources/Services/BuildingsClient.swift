@@ -49,7 +49,3 @@ protocol BuildingsClientBundle {
 }
 
 extension BundleClient: BuildingsClientBundle {}
-
-protocol HasBuildingsClient {
-  var buildingsClient: BuildingsClientProtocol { get }
-}

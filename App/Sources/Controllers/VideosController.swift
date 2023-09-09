@@ -1,7 +1,10 @@
+import Dependencies
 import UIKit
 
 final class VideosController: UIPageViewController {
-  typealias Dependencies = HasVideosClient & HasPlaybackClient & HasNavigationClient
+  @Dependency(\.navigationClient) var navigationClient
+  @Dependency(\.playbackClient) var playbackClient
+  @Dependency(\.videosClient) var videosClient
 
   var didError: ((VideosController, Error) -> Void)?
 
@@ -13,21 +16,9 @@ final class VideosController: UIPageViewController {
   private var watchedEvents: [Event] = []
   private var observer: NSObjectProtocol?
 
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
-    super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
   deinit {
     if let observer = observer {
-      dependencies.playbackClient.removeObserver(observer)
+      playbackClient.removeObserver(observer)
     }
   }
 
@@ -60,13 +51,13 @@ final class VideosController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
 
     reloadData()
-    observer = dependencies.playbackClient.addObserver { [weak self] in
+    observer = playbackClient.addObserver { [weak self] in
       self?.reloadData()
     }
   }
 
   private func reloadData() {
-    dependencies.videosClient.loadVideos { [weak self] result in
+    videosClient.loadVideos { [weak self] result in
       guard let self = self else { return }
 
       switch result {
@@ -122,7 +113,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
 
 extension VideosController: EventsViewControllerDeleteDelegate {
   func eventsViewController(_: EventsViewController, didDelete event: Event) {
-    dependencies.playbackClient.setPlaybackPosition(.beginning, event.id)
+    playbackClient.setPlaybackPosition(.beginning, event.id)
   }
 }
 
@@ -180,6 +171,6 @@ private extension VideosController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationClient.makeEventViewController(event)
+    navigationClient.makeEventViewController(event)
   }
 }

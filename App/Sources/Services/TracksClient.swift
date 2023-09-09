@@ -61,7 +61,3 @@ protocol TracksClientProtocol {
 }
 
 extension TracksClient: TracksClientProtocol {}
-
-protocol HasTracksClient {
-  var tracksClient: TracksClientProtocol { get }
-}

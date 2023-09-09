@@ -12,7 +12,7 @@ struct NetworkClient {
 }
 
 extension NetworkClient {
-  init(session: NetworkClientSession) {
+  init(session: NetworkClientSession = URLSession.shared) {
     @discardableResult
     func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkClientTask {
       let task = session.dataTask(with: request.httpRequest) { data, response, error in

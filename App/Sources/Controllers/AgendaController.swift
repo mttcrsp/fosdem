@@ -1,7 +1,12 @@
+import Dependencies
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasNavigationClient & HasFavoritesClient & HasPersistenceClient & HasTimeClient & HasSoonClient
+  @Dependency(\.favoritesClient) var favoritesClient
+  @Dependency(\.navigationClient) var navigationClient
+  @Dependency(\.persistenceClient) var persistenceClient
+  @Dependency(\.soonClient) var soonClient
+  @Dependency(\.timeClient) var timeClient
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -16,18 +21,6 @@ final class AgendaController: UIViewController {
   private var observations: [NSObjectProtocol] = []
   private var eventsStartingSoon: [Event] = []
   private var events: [Event] = []
-
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
-    super.init(nibName: nil, bundle: nil)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 
   private var isMissingSecondaryViewController: Bool {
     eventViewController == nil
@@ -44,10 +37,10 @@ final class AgendaController: UIViewController {
 
     reloadFavoriteEvents(animated: false)
     observations = [
-      dependencies.favoritesClient.addObserverForEvents { [weak self] in
+      favoritesClient.addObserverForEvents { [weak self] in
         self?.reloadFavoriteEvents(animated: true)
       },
-      dependencies.timeClient.addObserver { [weak self] in
+      timeClient.addObserver { [weak self] in
         self?.reloadLiveStatus()
       },
     ]
@@ -66,7 +59,7 @@ final class AgendaController: UIViewController {
   }
 
   private func reloadFavoriteEvents(animated: Bool) {
-    let identifiers = dependencies.favoritesClient.eventsIdentifiers()
+    let identifiers = favoritesClient.eventsIdentifiers()
 
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
       rootViewController = makeAgendaNavigationController()
@@ -74,7 +67,7 @@ final class AgendaController: UIViewController {
       rootViewController = makeAgendaSplitViewController()
     }
 
-    dependencies.persistenceClient.eventsByIdentifier(identifiers) { result in
+    persistenceClient.eventsByIdentifier(identifiers) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):
@@ -126,7 +119,7 @@ final class AgendaController: UIViewController {
   }
 
   @objc private func didTapSoon() {
-    dependencies.soonClient.loadEvents { result in
+    soonClient.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
@@ -225,21 +218,21 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 
 extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    !dependencies.favoritesClient.contains(event)
+    !favoritesClient.contains(event)
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    dependencies.favoritesClient.addEvent(event.id)
+    favoritesClient.addEvent(event.id)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    dependencies.favoritesClient.removeEvent(event.id)
+    favoritesClient.removeEvent(event.id)
   }
 }
 
 extension AgendaController: EventsViewControllerLiveDataSource {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeClient.now())
+    eventsViewController == agendaViewController && event.isLive(at: timeClient.now())
   }
 }
 
@@ -300,14 +293,14 @@ private extension AgendaController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationClient.makeEventViewController(event)
+    let eventViewController = navigationClient.makeEventViewController(event)
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
     return eventViewController
   }
 
   func makeSoonEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationClient.makeEventViewController(event)
+    let eventViewController = navigationClient.makeEventViewController(event)
     eventViewController.fos_eventID = event.id
     return eventViewController
   }

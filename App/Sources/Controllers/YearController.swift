@@ -1,7 +1,8 @@
+import Dependencies
 import UIKit
 
 final class YearController: TracksViewController {
-  typealias Dependencies = HasNavigationClient
+  @Dependency(\.navigationClient) var navigationClient
 
   var didError: ((YearController, Error) -> Void)?
 
@@ -13,11 +14,9 @@ final class YearController: TracksViewController {
   private var events: [Event] = []
   var results: [Event] = []
 
-  private let dependencies: Dependencies
   let persistenceClient: PersistenceClientProtocol
 
-  init(persistenceClient: PersistenceClientProtocol, dependencies: Dependencies) {
-    self.dependencies = dependencies
+  init(persistenceClient: PersistenceClientProtocol) {
     self.persistenceClient = persistenceClient
     super.init(nibName: nil, bundle: nil)
   }
@@ -159,6 +158,6 @@ private extension YearController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationClient.makePastEventViewController(event)
+    navigationClient.makePastEventViewController(event)
   }
 }

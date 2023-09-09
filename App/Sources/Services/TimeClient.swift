@@ -81,7 +81,3 @@ protocol TimeClientTimer {
 protocol TimeClientProvider {
   func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (TimeClientTimer) -> Void) -> TimeClientTimer
 }
-
-protocol HasTimeClient {
-  var timeClient: TimeClientProtocol { get set }
-}

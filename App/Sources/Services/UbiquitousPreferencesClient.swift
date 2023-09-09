@@ -120,7 +120,3 @@ protocol UbiquitousPreferencesClientProtocol {
 }
 
 extension UbiquitousPreferencesClient: UbiquitousPreferencesClientProtocol {}
-
-protocol HasUbiquitousPreferencesClient {
-  var ubiquitousPreferencesClient: UbiquitousPreferencesClientProtocol { get }
-}

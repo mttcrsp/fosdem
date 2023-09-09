@@ -1,12 +1,11 @@
+import Dependencies
 import UIKit
 
 class TransportationController: UINavigationController {
-  typealias Dependencies = HasNavigationClient & HasOpenClient
+  @Dependency(\.navigationClient) var navigationClient
+  @Dependency(\.openClient) var openClient
 
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
+  init() {
     super.init(nibName: nil, bundle: nil)
 
     var style = UITableView.Style.insetGrouped
@@ -35,7 +34,7 @@ extension TransportationController: TransportationViewControllerDelegate {
       self.transportationViewController(transportationViewController, didSelect: .ulbGoogleMaps)
     case .bus, .car, .taxi, .plane, .train, .shuttle:
       if let info = item.info {
-        let infoViewController = dependencies.navigationClient.makeInfoViewController(item.title, info) { [weak self] _, _ in
+        let infoViewController = navigationClient.makeInfoViewController(item.title, info) { [weak self] _, _ in
           self?.transportationViewControllerDidFailPresentation(transportationViewController)
         }
         transportationViewController.show(infoViewController, sender: nil)
@@ -46,7 +45,7 @@ extension TransportationController: TransportationViewControllerDelegate {
   }
 
   private func transportationViewController(_ transportationViewController: TransportationViewController, didSelect directionsURL: URL) {
-    dependencies.openClient.open(directionsURL) { [weak transportationViewController] _ in
+    openClient.open(directionsURL) { [weak transportationViewController] _ in
       transportationViewController?.deselectSelectedRow(animated: true)
     }
   }

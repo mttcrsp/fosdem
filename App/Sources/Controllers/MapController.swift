@@ -1,8 +1,10 @@
 import CoreLocation
+import Dependencies
 import UIKit
 
 final class MapController: MapContainerViewController {
-  typealias Dependencies = HasBuildingsClient & HasOpenClient
+  @Dependency(\.buildingsClient) var buildingsClient
+  @Dependency(\.openClient) var openClient
 
   var didError: ((MapController, Error) -> Void)?
 
@@ -16,10 +18,7 @@ final class MapController: MapContainerViewController {
   private let notificationCenter = NotificationCenter.default
   private let locationManager = CLLocationManager()
 
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
+  init() {
     super.init(nibName: nil, bundle: nil)
 
     observer = notificationCenter.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
@@ -51,7 +50,7 @@ final class MapController: MapContainerViewController {
 
     locationManager.delegate = self
 
-    dependencies.buildingsClient.loadBuildings { buildings, error in
+    buildingsClient.loadBuildings { buildings, error in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
@@ -81,7 +80,7 @@ final class MapController: MapContainerViewController {
 
   private func didTapLocationSettings() {
     if let url = URL(string: UIApplication.openSettingsURLString) {
-      dependencies.openClient.open(url, nil)
+      openClient.open(url, nil)
     }
   }
 }

@@ -196,8 +196,6 @@ extension PersistenceClient {
     }
     #endif
   }
-
-  static let liveValue = Self()
 }
 
 extension Event: PersistableRecord, FetchableRecord {
@@ -348,7 +346,3 @@ protocol PersistenceClientProtocol {
 }
 
 extension PersistenceClient: PersistenceClientProtocol {}
-
-protocol HasPersistenceClient {
-  var persistenceClient: PersistenceClientProtocol { get }
-}

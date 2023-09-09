@@ -109,7 +109,3 @@ protocol YearsClientFile {
 }
 
 extension FileManager: YearsClientFile {}
-
-protocol HasYearsClient {
-  var yearsClient: YearsClientProtocol { get }
-}
