@@ -43,13 +43,13 @@ class Services {
     let preloadService = try PreloadService()
     // Remove the database after each update as the new database might contain
     // updates even if the year did not change.
-    if launchService.didLaunchAfterUpdate {
+    if launchService.didLaunchAfterUpdate() {
       try preloadService.removeDatabase()
     }
     // In the 2020 release, installs and updates where not being recorded. This
     // means that users updating from 2020 to new version will be registered as
     // new installs. The database also needs to be removed for those users too.
-    if launchService.didLaunchAfterInstall {
+    if launchService.didLaunchAfterInstall() {
       do {
         try preloadService.removeDatabase()
       } catch {
@@ -64,7 +64,7 @@ class Services {
 
     _persistenceService = try PersistenceService(path: preloadService.databasePath, migrations: .allMigrations)
 
-    if launchService.didLaunchAfterFosdemYearChange {
+    if launchService.didLaunchAfterFosdemYearChange() {
       favoritesService.removeAllTracksAndEvents()
     }
     favoritesService.migrate()

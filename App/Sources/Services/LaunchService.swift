@@ -1,56 +1,61 @@
 import Foundation
 
-final class LaunchService {
+struct LaunchService {
   enum Error: CustomNSError {
     case versionDetectionFailed
   }
 
+  var didLaunchAfterUpdate: () -> Bool
+  var didLaunchAfterInstall: () -> Bool
+  var didLaunchAfterFosdemYearChange: () -> Bool
+  var detectStatus: () throws -> Void
+  #if DEBUG
+  var markAsLaunched: () -> Void
+  #endif
+}
+
+extension LaunchService {
   static let latestFosdemYearKey = "LATEST_FOSDEM_YEAR"
   static let latestBundleShortVersionKey = "LATEST_BUNDLE_SHORT_VERSION"
 
-  private(set) var didLaunchAfterUpdate = false
-  private(set) var didLaunchAfterInstall = false
-  private(set) var didLaunchAfterFosdemYearChange = false
+  init(fosdemYear: Year = 2023, bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
+    var didLaunchAfterUpdate = false
+    var didLaunchAfterInstall = false
+    var didLaunchAfterFosdemYearChange = false
+    self.didLaunchAfterUpdate = { didLaunchAfterUpdate }
+    self.didLaunchAfterInstall = { didLaunchAfterInstall }
+    self.didLaunchAfterFosdemYearChange = { didLaunchAfterFosdemYearChange }
 
-  private let fosdemYear: Year
-  private let bundle: LaunchServiceBundle
-  private let defaults: LaunchServiceDefaults
+    detectStatus = {
+      guard let bundleShortVersion = bundle.bundleShortVersion else {
+        throw Error.versionDetectionFailed
+      }
 
-  init(fosdemYear: Year, bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
-    self.bundle = bundle
-    self.defaults = defaults
-    self.fosdemYear = fosdemYear
-  }
+      switch defaults.latestBundleShortVersion {
+      case .some(bundleShortVersion):
+        didLaunchAfterUpdate = false
+        didLaunchAfterInstall = false
+      case .some:
+        didLaunchAfterUpdate = true
+        didLaunchAfterInstall = false
+      case nil:
+        didLaunchAfterUpdate = false
+        didLaunchAfterInstall = true
+      }
 
-  func detectStatus() throws {
-    guard let bundleShortVersion = bundle.bundleShortVersion else {
-      throw Error.versionDetectionFailed
+      didLaunchAfterFosdemYearChange = !didLaunchAfterInstall && defaults.latestFosdemYear != fosdemYear
+
+      defaults.latestFosdemYear = fosdemYear
+      defaults.latestBundleShortVersion = bundleShortVersion
     }
 
-    switch defaults.latestBundleShortVersion {
-    case .some(bundleShortVersion):
-      didLaunchAfterUpdate = false
-      didLaunchAfterInstall = false
-    case .some:
-      didLaunchAfterUpdate = true
-      didLaunchAfterInstall = false
-    case nil:
-      didLaunchAfterUpdate = false
-      didLaunchAfterInstall = true
+    #if DEBUG
+    markAsLaunched = {
+      defaults.latestFosdemYear = fosdemYear
+      defaults.latestBundleShortVersion = bundle.bundleShortVersion
     }
-
-    didLaunchAfterFosdemYearChange = !didLaunchAfterInstall && defaults.latestFosdemYear != fosdemYear
-
-    defaults.latestFosdemYear = fosdemYear
-    defaults.latestBundleShortVersion = bundleShortVersion
+    #endif
   }
-
-  #if DEBUG
-  func markAsLaunched() {
-    defaults.latestFosdemYear = fosdemYear
-    defaults.latestBundleShortVersion = bundle.bundleShortVersion
-  }
-  #endif
 }
 
 extension LaunchServiceDefaults {
@@ -67,13 +72,13 @@ extension LaunchServiceDefaults {
 
 /// @mockable
 protocol LaunchServiceProtocol {
-  var didLaunchAfterUpdate: Bool { get }
-  var didLaunchAfterInstall: Bool { get }
-  var didLaunchAfterFosdemYearChange: Bool { get }
+  var didLaunchAfterUpdate: () -> Bool { get }
+  var didLaunchAfterInstall: () -> Bool { get }
+  var didLaunchAfterFosdemYearChange: () -> Bool { get }
 
-  func detectStatus() throws
+  var detectStatus: () throws -> Void { get }
   #if DEBUG
-  func markAsLaunched()
+  var markAsLaunched: () -> Void { get }
   #endif
 }
 

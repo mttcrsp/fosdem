@@ -40,7 +40,7 @@ final class ApplicationController: UIViewController {
     super.viewDidLoad()
 
     var viewControllers: [UIViewController] = [makeTabsController()]
-    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall {
+    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall() {
       viewControllers.append(makeWelcomeViewController())
     }
 
