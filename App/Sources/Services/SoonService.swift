@@ -5,7 +5,7 @@ struct SoonService {
 extension SoonService {
   init(timeService: TimeServiceProtocol, persistenceService: PersistenceServiceProtocol) {
     loadEvents = { completion in
-      let operation = GetEventsStartingIn30Minutes(now: timeService.now)
+      let operation = GetEventsStartingIn30Minutes(now: timeService.now())
       persistenceService.performRead(operation, completion: completion)
     }
   }

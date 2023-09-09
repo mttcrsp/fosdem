@@ -7,7 +7,11 @@ final class MoreController: UISplitViewController {
 
   private(set) var acknowledgements: [Acknowledgement] = []
 
+  #if DEBUG
+  private var dependencies: Dependencies
+  #else
   private let dependencies: Dependencies
+  #endif
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
@@ -73,7 +77,7 @@ extension MoreController: MoreViewControllerDelegate {
       self.moreViewController(moreViewController, didSelectInfoItem: item)
     #if DEBUG
     case .overrideTime:
-      let date = dependencies.timeService.now
+      let date = dependencies.timeService.now()
       let dateViewController = makeDateViewController(for: date)
       moreViewController.present(dateViewController, animated: true)
     case .generateDatabase:
@@ -156,7 +160,7 @@ extension MoreController: AcknowledgementsViewControllerDataSource, Acknowledgem
 #if DEBUG
 extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
   func dateViewControllerDidChange(_ dateViewController: DateViewController) {
-    dependencies.timeService.now = dateViewController.date
+    dependencies.timeService.now = { dateViewController.date }
   }
 }
 #endif

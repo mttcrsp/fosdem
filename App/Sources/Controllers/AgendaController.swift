@@ -240,7 +240,7 @@ extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewC
 
 extension AgendaController: EventsViewControllerLiveDataSource {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeService.now)
+    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeService.now())
   }
 }
 

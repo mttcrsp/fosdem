@@ -1,51 +1,47 @@
 import Foundation
 
-final class TimeService {
-  private var timer: TimeServiceTimer?
+struct TimeService {
+  var now: () -> Date
+  var startMonitoring: () -> Void
+  var stopMonitoring: () -> Void
+  var addObserver: (@escaping () -> Void) -> NSObjectProtocol
+}
 
-  #if DEBUG
-  var now: Date
-  #else
-  var now: Date { Date() }
-  #endif
-
-  private let notificationCenter = NotificationCenter()
-  private let timerProvider: TimeServiceProvider
-  private let timeInterval: TimeInterval
-
+extension TimeService {
   init(timeInterval: TimeInterval = 10, timerProvider: TimeServiceProvider = TimeServiceTimerProvider()) {
-    self.timerProvider = timerProvider
-    self.timeInterval = timeInterval
+    let notificationCenter = NotificationCenter()
 
-    #if DEBUG
-    let calendar = Calendar.autoupdatingCurrent
-    let timeZone = TimeZone(identifier: "Europe/Brussels")
-    let components = DateComponents(timeZone: timeZone, year: 2023, month: 2, day: 4, hour: 12, minute: 45)
-    now = calendar.date(from: components) ?? Date()
-    #endif
-  }
-
-  deinit {
-    timer?.invalidate()
-  }
-
-  func startMonitoring() {
-    timer = timerProvider.scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
-      self?.timerDidFire()
+    func timerDidFire() {
+      notificationCenter.post(Notification(name: .timeDidChange))
     }
-  }
 
-  func stopMonitoring() {
-    timer?.invalidate()
-    timer = nil
-  }
+    var timer: TimeServiceTimer?
 
-  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .timeDidChange, object: nil, queue: nil, using: { _ in handler() })
-  }
+    startMonitoring = {
+      timer = timerProvider.scheduledTimer(withTimeInterval: timeInterval, repeats: true) { _ in
+        timerDidFire()
+      }
+    }
 
-  private func timerDidFire() {
-    notificationCenter.post(Notification(name: .timeDidChange))
+    stopMonitoring = {
+      timer?.invalidate()
+      timer = nil
+    }
+
+    addObserver = { handler in
+      notificationCenter.addObserver(forName: .timeDidChange, object: nil, queue: nil, using: { _ in handler() })
+    }
+
+    now = {
+      #if DEBUG
+      let calendar = Calendar.autoupdatingCurrent
+      let timeZone = TimeZone(identifier: "Europe/Brussels")
+      let components = DateComponents(timeZone: timeZone, year: 2023, month: 2, day: 4, hour: 12, minute: 45)
+      return calendar.date(from: components) ?? Date()
+      #else
+      return Date()
+      #endif
+    }
   }
 }
 
@@ -62,16 +58,16 @@ private extension Notification.Name {
 }
 
 /// @mockable
-protocol TimeServiceProtocol: AnyObject {
+protocol TimeServiceProtocol {
   #if DEBUG
-  var now: Date { get set }
+  var now: () -> Date { get set }
   #else
-  var now: Date { get }
+  var now: () -> Date { get }
   #endif
 
-  func startMonitoring()
-  func stopMonitoring()
-  func addObserver(_ handler: @escaping () -> Void) -> NSObjectProtocol
+  var startMonitoring: () -> Void { get }
+  var stopMonitoring: () -> Void { get }
+  var addObserver: (@escaping () -> Void) -> NSObjectProtocol { get }
 }
 
 extension TimeService: TimeServiceProtocol {}
@@ -87,5 +83,5 @@ protocol TimeServiceProvider {
 }
 
 protocol HasTimeService {
-  var timeService: TimeServiceProtocol { get }
+  var timeService: TimeServiceProtocol { get set }
 }

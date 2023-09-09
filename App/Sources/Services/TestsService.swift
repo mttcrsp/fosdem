@@ -103,7 +103,7 @@ private struct OverrideTimeServiceInterval: PostInitCommand {
 private struct OverrideDate: PostInitCommand {
   static func perform(with services: Services, environment: [String: String]) {
     guard let value = environment["OVERRIDE_NOW"], let interval = Double(value) else { return }
-    services.timeService.now = Date(timeIntervalSince1970: interval)
+    services.timeService.now = { Date(timeIntervalSince1970: interval) }
   }
 }
 
@@ -120,7 +120,7 @@ private struct OverrideDates: PostInitCommand {
 
     var flag = true
     timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
-      services.timeService.now = flag ? date1 : date2
+      services.timeService.now = { flag ? date1 : date2 }
       flag.toggle()
     }
   }

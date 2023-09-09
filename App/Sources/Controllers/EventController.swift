@@ -72,7 +72,7 @@ final class EventController: UIViewController {
   }
 
   private var isEventToday: Bool {
-    event.isSameDay(as: dependencies.timeService.now)
+    event.isSameDay(as: dependencies.timeService.now())
   }
 
   private var hasLivestream: Bool {
