@@ -19,8 +19,8 @@ final class RoundedButton: UIButton {
     layer.cornerRadius = 4
     layer.masksToBounds = true
 
-    imageView?.tintColor = .fos_systemBackground
-    setTitleColor(.fos_systemBackground, for: .normal)
+    imageView?.tintColor = .systemBackground
+    setTitleColor(.systemBackground, for: .normal)
     setBackgroundImage(makeNormalImage(), for: .normal)
     setBackgroundImage(makeHighlightedImage(), for: .highlighted)
 

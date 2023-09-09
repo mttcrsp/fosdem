@@ -13,7 +13,7 @@ final class EventViewControllerTests: XCTestCase {
     let eventViewController = EventViewController()
     eventViewController.event = try .withVideo()
     eventViewController.dataSource = dataSource
-    eventViewController.view.tintColor = .fos_label
+    eventViewController.view.tintColor = .label
     assertSnapshot(matching: eventViewController, as: .image(size: size))
 
     dataSource.eventViewControllerHandler = { _, _ in .at(9) }

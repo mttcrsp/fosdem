@@ -6,7 +6,7 @@ import XCTest
 final class WelcomeViewControllerTests: XCTestCase {
   func testAppearance() throws {
     let welcomeViewController = WelcomeViewController(year: 2021)
-    welcomeViewController.view.tintColor = .fos_label
+    welcomeViewController.view.tintColor = .label
     assertSnapshot(matching: welcomeViewController, as: .image(on: .iPhone8Plus))
 
     welcomeViewController.showsContinue = true

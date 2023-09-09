@@ -6,7 +6,7 @@ import XCTest
 final class MoreViewControllerTests: XCTestCase {
   func testAppearance() throws {
     let moreViewController = MoreViewController(style: .fos_insetGrouped)
-    moreViewController.view.tintColor = .fos_label
+    moreViewController.view.tintColor = .label
     assertSnapshot(matching: moreViewController, as: .image(on: .iPhone8Plus))
   }
 

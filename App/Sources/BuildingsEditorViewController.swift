@@ -25,7 +25,7 @@ final class BuildingsEditorViewController: UIViewController {
 
   private lazy var centerView: UIView = {
     let view = UIView()
-    view.backgroundColor = .fos_label
+    view.backgroundColor = .label
     view.frame.size = .init(width: 1, height: 1)
     return view
   }()

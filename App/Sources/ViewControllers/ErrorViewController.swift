@@ -25,11 +25,11 @@ final class ErrorViewController: UIViewController {
       label.textAlignment = .center
     }
 
-    titleLabel.textColor = .fos_label
+    titleLabel.textColor = .label
     titleLabel.text = L10n.Error.Functionality.title
     titleLabel.font = .fos_preferredFont(forTextStyle: .title2, withSymbolicTraits: [.traitBold, .traitItalic])
 
-    messageLabel.textColor = .fos_secondaryLabel
+    messageLabel.textColor = .secondaryLabel
     messageLabel.font = .fos_preferredFont(forTextStyle: .headline)
     messageLabel.text = L10n.Error.Functionality.message
 
@@ -47,7 +47,7 @@ final class ErrorViewController: UIViewController {
 
     view.addSubview(stackView)
     view.addSubview(actionButton)
-    view.backgroundColor = .fos_systemBackground
+    view.backgroundColor = .systemBackground
 
     NSLayoutConstraint.activate([
       stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),

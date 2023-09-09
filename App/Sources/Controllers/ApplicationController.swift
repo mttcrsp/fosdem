@@ -61,7 +61,7 @@ final class ApplicationController: UIViewController {
 
     NSLayoutConstraint.activate(constraints)
 
-    view.backgroundColor = .fos_systemGroupedBackground
+    view.backgroundColor = .systemGroupedBackground
 
     dependencies.ubiquitousPreferencesService.startMonitoring()
     dependencies.favoritesService.startMonitoring()

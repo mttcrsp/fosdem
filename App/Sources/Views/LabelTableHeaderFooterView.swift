@@ -21,7 +21,7 @@ final class LabelTableHeaderFooterView: UITableViewHeaderFooterView {
   override init(reuseIdentifier: String?) {
     super.init(reuseIdentifier: reuseIdentifier)
     label.numberOfLines = 0
-    label.textColor = .fos_secondaryLabel
+    label.textColor = .secondaryLabel
     label.adjustsFontForContentSizeCategory = true
     label.translatesAutoresizingMaskIntoConstraints = false
     label.font = .fos_preferredFont(forTextStyle: .callout)

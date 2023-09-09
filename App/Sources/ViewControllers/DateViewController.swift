@@ -20,7 +20,7 @@ final class DateViewController: UIViewController {
     super.viewDidLoad()
 
     view.addSubview(datePicker)
-    view.backgroundColor = .fos_systemBackground
+    view.backgroundColor = .systemBackground
 
     datePicker.translatesAutoresizingMaskIntoConstraints = false
     datePicker.addTarget(self, action: #selector(didChangeDate), for: .valueChanged)

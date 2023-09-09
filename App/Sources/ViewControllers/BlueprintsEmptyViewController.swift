@@ -7,10 +7,10 @@ class BlueprintsEmptyViewController: UIViewController {
     super.viewDidLoad()
 
     view.addSubview(label)
-    view.backgroundColor = .fos_tertiarySystemBackground
+    view.backgroundColor = .tertiarySystemBackground
 
     label.textAlignment = .center
-    label.textColor = .fos_secondaryLabel
+    label.textColor = .secondaryLabel
     label.accessibilityIdentifier = "empty_blueprints"
     label.text = L10n.Map.Blueprint.empty
     label.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitItalic)

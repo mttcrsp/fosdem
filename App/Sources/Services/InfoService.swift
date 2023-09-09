@@ -43,7 +43,7 @@ final class InfoService {
         let bodyFont = UIFont.fos_preferredFont(forTextStyle: .body)
 
         attributedText.addAttribute(.font, value: bodyFont, range: range)
-        attributedText.addAttribute(.foregroundColor, value: UIColor.fos_label, range: range)
+        attributedText.addAttribute(.foregroundColor, value: UIColor.label, range: range)
 
         for range in boldRanges {
           attributedText.removeAttribute(.font, range: range)

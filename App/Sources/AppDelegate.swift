@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     let window = UIWindow()
-    window.tintColor = .fos_label
+    window.tintColor = .label
     window.rootViewController = rootViewController
     window.makeKeyAndVisible()
     self.window = window

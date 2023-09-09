@@ -24,7 +24,7 @@ final class TrackView: UIView {
     accessibilityTraits = .staticText
 
     layer.borderWidth = 1
-    layer.borderColor = UIColor.fos_label.cgColor
+    layer.borderColor = UIColor.label.cgColor
     layer.cornerRadius = 4
 
     label.font = .fos_preferredFont(forTextStyle: .callout)
@@ -43,7 +43,7 @@ final class TrackView: UIView {
     super.traitCollectionDidChange(previousTraitCollection)
 
     if #available(iOS 12.0, *), traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
-      layer.borderColor = UIColor.fos_label.cgColor
+      layer.borderColor = UIColor.label.cgColor
     }
   }
 

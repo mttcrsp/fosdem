@@ -32,10 +32,10 @@ final class MapControlsView: UIView {
     resetButton.title = L10n.Map.reset
 
     let separatorView = UIView()
-    separatorView.backgroundColor = .fos_separator
+    separatorView.backgroundColor = .separator
 
     let backgroundView = UIView()
-    backgroundView.backgroundColor = .fos_tertiarySystemBackground
+    backgroundView.backgroundColor = .tertiarySystemBackground
     backgroundView.translatesAutoresizingMaskIntoConstraints = false
     backgroundView.layer.cornerRadius = 8
     backgroundView.layer.shadowRadius = 8

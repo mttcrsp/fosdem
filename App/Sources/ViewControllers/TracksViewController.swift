@@ -146,7 +146,7 @@ class TracksViewController: UITableViewController {
     view.accessibilityIdentifier = indexDataSource?.tracksViewController(self, accessibilityIdentifierForSectionAt: section)
     view.text = indexDataSource?.tracksViewController(self, titleForSectionAt: section)
     view.font = .fos_preferredFont(forTextStyle: .headline)
-    view.textColor = .fos_label
+    view.textColor = .label
     return view
   }
 

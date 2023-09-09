@@ -6,7 +6,7 @@ import XCTest
 final class ErrorViewControllerTests: XCTestCase {
   func testAppearance() throws {
     let errorViewController = ErrorViewController()
-    errorViewController.view.tintColor = .fos_label
+    errorViewController.view.tintColor = .label
     assertSnapshot(matching: errorViewController, as: .image(on: .iPhone8Plus))
 
     errorViewController.showsAppStoreButton = true

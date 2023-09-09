@@ -59,7 +59,7 @@ final class BlueprintsViewController: UIPageViewController {
     dataSource = self
 
     view.addGestureRecognizer(fullscreenRecognizer)
-    view.backgroundColor = .fos_tertiarySystemBackground
+    view.backgroundColor = .tertiarySystemBackground
     view.accessibilityIdentifier = style.accessibilityIdentifier
 
     let dismissAction = #selector(didTapDismiss)
@@ -71,14 +71,14 @@ final class BlueprintsViewController: UIPageViewController {
     guard style == .fullscreen else { return }
 
     pageControl.hidesForSinglePage = true
-    pageControl.currentPageIndicatorTintColor = .fos_label
-    pageControl.pageIndicatorTintColor = .fos_quaternaryLabel
+    pageControl.currentPageIndicatorTintColor = .label
+    pageControl.pageIndicatorTintColor = .quaternaryLabel
     pageControl.translatesAutoresizingMaskIntoConstraints = false
 
     let pageBackgroundView = UIView()
     pageBackgroundView.alpha = 0.8
     pageBackgroundView.layer.cornerRadius = 4
-    pageBackgroundView.backgroundColor = .fos_tertiarySystemBackground
+    pageBackgroundView.backgroundColor = .tertiarySystemBackground
     pageBackgroundView.translatesAutoresizingMaskIntoConstraints = false
 
     view.addSubview(pageControl)

@@ -118,10 +118,10 @@ final class WelcomeViewController: UIViewController {
 
   private func makeAttributedText() -> NSAttributedString {
     let titleFont: UIFont = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
-    let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.fos_label]
+    let titleAttributes: [NSAttributedString.Key: Any] = [.font: titleFont, .foregroundColor: UIColor.label]
     let titleString = L10n.Welcome.title(year)
     let messageFont: UIFont = .fos_preferredFont(forTextStyle: .title3, withSymbolicTraits: .traitItalic)
-    let messageAttributes: [NSAttributedString.Key: Any] = [.font: messageFont, .foregroundColor: UIColor.fos_label]
+    let messageAttributes: [NSAttributedString.Key: Any] = [.font: messageFont, .foregroundColor: UIColor.label]
     let messageString = L10n.Welcome.message
 
     let attributedTitle = NSAttributedString(string: titleString, attributes: titleAttributes)

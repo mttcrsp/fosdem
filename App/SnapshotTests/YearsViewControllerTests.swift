@@ -18,7 +18,7 @@ final class YearsViewControllerTests: XCTestCase {
 
     let yearsViewController = YearsViewController()
     yearsViewController.dataSource = dataSource1
-    yearsViewController.view.tintColor = .fos_label
+    yearsViewController.view.tintColor = .label
     assertSnapshot(matching: yearsViewController, as: .image(on: .iPhone8Plus))
 
     yearsViewController.dataSource = dataSource2

@@ -36,7 +36,7 @@ final class VideosController: UIPageViewController {
 
     delegate = self
     dataSource = self
-    view.backgroundColor = .fos_systemBackground
+    view.backgroundColor = .systemBackground
 
     let watchedTitle = L10n.Recent.Video.watched
     let watchingTitle = L10n.Recent.Video.watching

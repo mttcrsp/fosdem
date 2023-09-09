@@ -19,7 +19,7 @@ final class TableBackgroundView: UIView {
 
     for label in [titleLabel, messageLabel] {
       label.numberOfLines = 0
-      label.textColor = .fos_label
+      label.textColor = .label
       label.textAlignment = .center
       label.adjustsFontForContentSizeCategory = true
     }

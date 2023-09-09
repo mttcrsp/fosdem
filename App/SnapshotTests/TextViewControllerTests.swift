@@ -6,14 +6,14 @@ import XCTest
 final class TextViewControllerTests: XCTestCase {
   func testAppearance() throws {
     let textViewController = TextViewController()
-    textViewController.view.tintColor = .fos_label
+    textViewController.view.tintColor = .label
     textViewController.attributedText = NSAttributedString(string: "something")
     assertSnapshot(matching: textViewController, as: .image(on: .iPhone8Plus))
   }
 
   func testAccessibilityIdentifier() {
     let textViewController = TextViewController()
-    textViewController.view.tintColor = .fos_label
+    textViewController.view.tintColor = .label
     textViewController.attributedText = NSAttributedString(string: "something")
     textViewController.accessibilityIdentifier = "1"
 

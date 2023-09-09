@@ -18,7 +18,7 @@ final class EventsViewControllerTests: XCTestCase {
     let message = [String](repeating: "message", count: 10).joined(separator: " ")
 
     let eventsViewController = EventsViewController(style: .fos_insetGrouped)
-    eventsViewController.view.tintColor = .fos_label
+    eventsViewController.view.tintColor = .label
     eventsViewController.emptyBackgroundTitle = title
     eventsViewController.emptyBackgroundMessage = message
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
@@ -60,7 +60,7 @@ final class EventsViewControllerTests: XCTestCase {
 
     let dataSource = try makeDataSource()
     let eventsViewController = EventsViewController(style: .fos_insetGrouped)
-    eventsViewController.view.tintColor = .fos_label
+    eventsViewController.view.tintColor = .label
     eventsViewController.liveDataSource = liveDataSource
     eventsViewController.dataSource = dataSource
     assertSnapshot(matching: eventsViewController, as: .image(on: .iPhone8Plus))
