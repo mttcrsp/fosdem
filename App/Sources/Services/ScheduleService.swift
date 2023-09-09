@@ -1,79 +1,63 @@
 import Foundation
 
-final class ScheduleService {
+struct ScheduleService {
+  var startUpdating: () -> Void
+  var stopUpdating: () -> Void
+
   #if DEBUG
-  private var isEnabled = true
+  var disable: () -> Void
   #endif
+}
 
-  private var timer: Timer?
-  private var isUpdating = false
+extension ScheduleService {
+  init(fosdemYear: Int = 2023, networkService: ScheduleServiceNetwork, persistenceService: ScheduleServicePersistence, defaults: ScheduleServiceDefaults = UserDefaults.standard, timeInterval: TimeInterval = 60 * 60) {
+    #if DEBUG
+    var isEnabled = true
+    disable = { isEnabled = false }
+    #endif
 
-  private let fosdemYear: Int
-  private let timeInterval: TimeInterval
-  private let defaults: ScheduleServiceDefaults
-  private let networkService: ScheduleServiceNetwork
-  private let persistenceService: ScheduleServicePersistence
+    var timer: Timer?
+    var isUpdating = false
 
-  init(fosdemYear: Int, networkService: ScheduleServiceNetwork, persistenceService: ScheduleServicePersistence, defaults: ScheduleServiceDefaults = UserDefaults.standard, timeInterval: TimeInterval = 60 * 60) {
-    self.defaults = defaults
-    self.fosdemYear = fosdemYear
-    self.timeInterval = timeInterval
-    self.networkService = networkService
-    self.persistenceService = persistenceService
-  }
-
-  deinit {
-    timer?.invalidate()
-  }
-
-  func startUpdating() {
-    performUpdate()
-    timer = timer ?? .scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] _ in
-      self?.performUpdate()
+    var latestUpdate: Date {
+      get { defaults.latestScheduleUpdate ?? .distantPast }
+      set { defaults.latestScheduleUpdate = newValue }
     }
-  }
 
-  func stopUpdating() {
-    timer?.invalidate()
-    timer = nil
-  }
+    func performUpdate() {
+      let shouldPerformUpdate = abs(latestUpdate.timeIntervalSinceNow) >= timeInterval
+      guard shouldPerformUpdate, !isUpdating else { return }
+      isUpdating = true
 
-  private var latestUpdate: Date {
-    get { defaults.latestScheduleUpdate ?? .distantPast }
-    set { defaults.latestScheduleUpdate = newValue }
-  }
+      let request = ScheduleRequest(year: fosdemYear)
+      networkService.perform(request) { result in
+        guard case let .success(schedule) = result else { return }
 
-  private var shouldPerformUpdate: Bool {
-    abs(latestUpdate.timeIntervalSinceNow) >= timeInterval
-  }
+        #if DEBUG
+        guard isEnabled else { return }
+        #endif
 
-  private func performUpdate() {
-    guard shouldPerformUpdate, !isUpdating else { return }
-    isUpdating = true
-
-    let request = ScheduleRequest(year: fosdemYear)
-    networkService.perform(request) { [weak self] result in
-      guard case let .success(schedule) = result, let self = self else { return }
-
-      #if DEBUG
-      guard self.isEnabled else { return }
-      #endif
-
-      let operation = UpsertSchedule(schedule: schedule)
-      self.persistenceService.performWrite(operation) { [weak self] error in
-
-        assert(error == nil)
-        self?.isUpdating = false
-        self?.latestUpdate = Date()
+        let operation = UpsertSchedule(schedule: schedule)
+        persistenceService.performWrite(operation) { error in
+          assert(error == nil)
+          isUpdating = false
+          latestUpdate = Date()
+        }
       }
     }
-  }
 
-  #if DEBUG
-  func disable() {
-    isEnabled = false
+    startUpdating = {
+      performUpdate()
+      timer = timer ?? .scheduledTimer(withTimeInterval: timeInterval, repeats: true) { _ in
+        performUpdate()
+      }
+    }
+
+    stopUpdating = {
+      timer?.invalidate()
+      timer = nil
+    }
   }
-  #endif
 }
 
 private extension ScheduleServiceDefaults {
@@ -89,11 +73,11 @@ private extension String {
 
 /// @mockable
 protocol ScheduleServiceProtocol {
-  func startUpdating()
-  func stopUpdating()
+  var startUpdating: () -> Void { get }
+  var stopUpdating: () -> Void { get }
 
   #if DEBUG
-  func disable()
+  var disable: () -> Void { get }
   #endif
 }
 
