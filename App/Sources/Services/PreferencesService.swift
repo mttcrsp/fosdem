@@ -1,42 +1,45 @@
 import Foundation
 
-final class PreferencesService {
-  private let notificationCenter: NotificationCenter
-  private let userDefaults: UserDefaults
+struct PreferencesService {
+  var set: (Any?, String) -> Void
+  var value: (String) -> Any?
+  var removeValue: (String) -> Void
 
+  var addObserver: (String, @escaping () -> Void) -> NSObjectProtocol
+  var removeObserver: (NSObjectProtocol) -> Void
+}
+
+extension PreferencesService {
   init(notificationCenter: NotificationCenter = .default, userDefaults: UserDefaults = .standard) {
-    self.notificationCenter = notificationCenter
-    self.userDefaults = userDefaults
-  }
+    set = { value, key in
+      userDefaults.set(value, forKey: key)
 
-  func set(_ value: Any?, forKey key: String) {
-    userDefaults.set(value, forKey: key)
+      let notification = Notification(name: .didChangeValue, userInfo: ["key": key])
+      notificationCenter.post(notification)
+    }
 
-    let notification = Notification(name: .didChangeValue, userInfo: ["key": key])
-    notificationCenter.post(notification)
-  }
+    value = { key in
+      userDefaults.object(forKey: key)
+    }
 
-  func value(forKey key: String) -> Any? {
-    userDefaults.object(forKey: key)
-  }
+    removeValue = { key in
+      userDefaults.removeObject(forKey: key)
 
-  func removeValue(forKey key: String) {
-    userDefaults.removeObject(forKey: key)
+      let notification = Notification(name: .didChangeValue, userInfo: ["key": key])
+      notificationCenter.post(notification)
+    }
 
-    let notification = Notification(name: .didChangeValue, userInfo: ["key": key])
-    notificationCenter.post(notification)
-  }
-
-  func addObserver(forKey key: String, using handler: @escaping () -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: .main) { notification in
-      if let changedKey = notification.userInfo?["key"] as? String, changedKey == key {
-        handler()
+    addObserver = { key, handler in
+      notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: .main) { notification in
+        if let changedKey = notification.userInfo?["key"] as? String, changedKey == key {
+          handler()
+        }
       }
     }
-  }
 
-  func removeObserver(_ observer: NSObjectProtocol) {
-    notificationCenter.removeObserver(observer)
+    removeObserver = { observer in
+      notificationCenter.removeObserver(observer)
+    }
   }
 }
 
@@ -46,12 +49,12 @@ private extension Notification.Name {
 
 /// @mockable
 protocol PreferencesServiceProtocol {
-  func set(_ value: Any?, forKey key: String)
-  func value(forKey key: String) -> Any?
-  func removeValue(forKey key: String)
+  var set: (Any?, String) -> Void { get }
+  var value: (String) -> Any? { get }
+  var removeValue: (String) -> Void { get }
 
-  func addObserver(forKey key: String, using handler: @escaping () -> Void) -> NSObjectProtocol
-  func removeObserver(_ observer: NSObjectProtocol)
+  var addObserver: (String, @escaping () -> Void) -> NSObjectProtocol { get }
+  var removeObserver: (NSObjectProtocol) -> Void { get }
 }
 
 extension PreferencesService: PreferencesServiceProtocol {}

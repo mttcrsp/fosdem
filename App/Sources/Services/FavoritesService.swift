@@ -146,7 +146,7 @@ extension FavoritesService {
 
 private extension FavoritesService {
   func value(forKey key: String) -> Any? {
-    if let dictionary = preferencesService.value(forKey: key) as? [String: Any] {
+    if let dictionary = preferencesService.value(key) as? [String: Any] {
       return dictionary["value"]
     } else {
       return nil
@@ -155,12 +155,12 @@ private extension FavoritesService {
 
   func set(_ value: Any?, forKey key: String) {
     let dictionary = ["value": value as Any, "updatedAt": timeService.now]
-    preferencesService.set(dictionary, forKey: key)
+    preferencesService.set(dictionary, key)
     ubiquitousPreferencesService.set(dictionary, forKey: key)
   }
 
   func removeValue(forKey key: String) {
-    preferencesService.removeValue(forKey: key)
+    preferencesService.removeValue(key)
     ubiquitousPreferencesService.removeValue(forKey: key)
   }
 
@@ -168,7 +168,7 @@ private extension FavoritesService {
     guard let notificationName = notificationNameForKey[key] else { return }
     let remoteValue = ubiquitousPreferencesService.value(forKey: key)
     let remote = FavoritesMergeValue(value: remoteValue as Any)
-    let localValue = preferencesService.value(forKey: key)
+    let localValue = preferencesService.value(key)
     let local = FavoritesMergeValue(value: localValue as Any)
     let merge = FavoritesMerge(local: local, remote: remote)
     switch policy(for: merge) {
@@ -177,7 +177,7 @@ private extension FavoritesService {
     case .updateRemote:
       ubiquitousPreferencesService.set(localValue, forKey: key)
     case .updateLocal:
-      preferencesService.set(remoteValue, forKey: key)
+      preferencesService.set(remoteValue, key)
       notificationCenter.post(.init(name: notificationName))
     }
   }
