@@ -81,7 +81,7 @@ final class MapController: MapContainerViewController {
 
   private func didTapLocationSettings() {
     if let url = URL(string: UIApplication.openSettingsURLString) {
-      dependencies.openService.open(url, completion: nil)
+      dependencies.openService.open(url, nil)
     }
   }
 }

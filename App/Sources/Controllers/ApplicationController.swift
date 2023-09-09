@@ -101,7 +101,7 @@ final class ApplicationController: UIViewController {
 
   private func didTapUpdate() {
     if let url = URL.fosdemAppStore {
-      dependencies.openService.open(url, completion: nil)
+      dependencies.openService.open(url, nil)
     }
   }
 }

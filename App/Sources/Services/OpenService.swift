@@ -1,20 +1,20 @@
 import UIKit
 
-final class OpenService {
-  private let application: OpenServiceApplication
+struct OpenService {
+  var open: (URL, ((Bool) -> Void)?) -> Void
+}
 
+extension OpenService {
   init(application: OpenServiceApplication = UIApplication.shared) {
-    self.application = application
-  }
-
-  func open(_ url: URL, completion: ((Bool) -> Void)?) {
-    application.open(url, options: [:], completionHandler: completion)
+    open = { url, completion in
+      application.open(url, options: [:], completionHandler: completion)
+    }
   }
 }
 
 /// @mockable
 protocol OpenServiceProtocol {
-  func open(_ url: URL, completion: ((Bool) -> Void)?)
+  var open: (URL, ((Bool) -> Void)?) -> Void { get }
 }
 
 extension OpenService: OpenServiceProtocol {}
