@@ -15,8 +15,7 @@ extension UpdateService {
         return assertionFailure("Failed to acquire short bundle version from bundle \(bundle)")
       }
 
-      let request = AppStoreSearchRequest()
-      networkService.perform(request) { result in
+      networkService.getFosdemApp { result in
         guard case let .success(response) = result else { return }
 
         guard let result = response.results.first(where: { result in result.bundleIdentifier == bundleIdentifier }) else {
@@ -48,8 +47,7 @@ extension Bundle: UpdateServiceBundle {}
 
 /// @mockable
 protocol UpdateServiceNetwork {
-  @discardableResult
-  func perform(_ request: AppStoreSearchRequest, completion: @escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> NetworkServiceTask
+  var getFosdemApp: (@escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> Void { get }
 }
 
 extension NetworkService: UpdateServiceNetwork {}

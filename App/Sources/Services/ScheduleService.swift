@@ -29,8 +29,7 @@ extension ScheduleService {
       guard shouldPerformUpdate, !isUpdating else { return }
       isUpdating = true
 
-      let request = ScheduleRequest(year: fosdemYear)
-      networkService.perform(request) { result in
+      _ = networkService.getSchedule(fosdemYear) { result in
         guard case let .success(schedule) = result else { return }
 
         #if DEBUG
@@ -92,8 +91,7 @@ extension UserDefaults: ScheduleServiceDefaults {}
 
 /// @mockable
 protocol ScheduleServiceNetwork {
-  @discardableResult
-  func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
+  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask { get }
 }
 
 extension NetworkService: ScheduleServiceNetwork {}

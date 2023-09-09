@@ -12,7 +12,7 @@ extension GenerateDatabaseService {
         .appendingPathComponent("db")
         .appendingPathExtension("sqlite")
 
-      networkService.perform(ScheduleRequest(year: YearsService.current)) { result in
+      _ = networkService.getSchedule(YearsService.current) { result in
         switch result {
         case let .failure(error):
           completion(.failure(error))

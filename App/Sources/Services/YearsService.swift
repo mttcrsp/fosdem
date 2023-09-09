@@ -38,10 +38,9 @@ extension YearsService {
     self.makePersistenceService = makePersistenceService
 
     downloadYear = { year, completion in
-      let request = ScheduleRequest(year: year)
-      return networkService.perform(request) { result in
+      networkService.getSchedule(year) { result in
         switch result {
-        case .failure(ScheduleRequest.Error.notFound):
+        case .failure(GetSchedule.Error.notFound):
           completion(Error.yearNotAvailable)
         case let .failure(error):
           completion(error)
@@ -82,8 +81,7 @@ extension YearsService: YearsServiceProtocol {}
 
 /// @mockable
 protocol YearsServiceNetwork {
-  @discardableResult
-  func perform(_ request: ScheduleRequest, completion: @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
+  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask { get }
 }
 
 extension NetworkService: YearsServiceNetwork {}
