@@ -27,7 +27,18 @@ targets:
       - App/Sources
       - App/Resources
     dependencies:
+      - framework: Vendor/CasePaths.xcframework 
+      - framework: Vendor/Clocks.xcframework 
+      - framework: Vendor/CombineSchedulers.xcframework 
+      - framework: Vendor/ComposableArchitecture.xcframework 
+      - framework: Vendor/ConcurrencyExtras.xcframework 
+      - framework: Vendor/CustomDump.xcframework 
+      - framework: Vendor/Dependencies.xcframework 
       - framework: Vendor/GRDB.xcframework
+      - framework: Vendor/IdentifiedCollections.xcframework 
+      - framework: Vendor/OrderedCollections.xcframework 
+      - framework: Vendor/SwiftUINavigationCore.xcframework 
+      - framework: Vendor/XCTestDynamicOverlay.xcframework
     settings:
       CODE_SIGN_ENTITLEMENTS: App/Resources/FOSDEM.entitlements
       CURRENT_PROJECT_VERSION: 1
