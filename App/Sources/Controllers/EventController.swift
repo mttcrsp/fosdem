@@ -227,6 +227,6 @@ private extension EventController {
   }
 
   private func makeSafariViewController(for url: URL) -> UIViewController {
-    dependencies.navigationService.makeSafariViewController(with: url)
+    dependencies.navigationService.makeSafariViewController(url)
   }
 }

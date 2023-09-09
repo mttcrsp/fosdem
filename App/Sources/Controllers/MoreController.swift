@@ -191,7 +191,7 @@ private extension MoreController {
   }
 
   private func makeYearsViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
-    dependencies.navigationService.makeYearsViewController(withStyle: preferredDetailViewControllerStyle, didError: didError)
+    dependencies.navigationService.makeYearsViewController(preferredDetailViewControllerStyle, didError)
   }
 
   private func makeTransportationViewController() -> UIViewController {
@@ -199,11 +199,11 @@ private extension MoreController {
   }
 
   private func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
-    dependencies.navigationService.makeVideosViewController(didError: didError)
+    dependencies.navigationService.makeVideosViewController(didError)
   }
 
   private func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
-    dependencies.navigationService.makeInfoViewController(withTitle: title, info: info, didError: didError)
+    dependencies.navigationService.makeInfoViewController(title, info, didError)
   }
 
   private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {

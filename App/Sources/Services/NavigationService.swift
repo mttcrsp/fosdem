@@ -1,141 +1,143 @@
 import AVKit
 import SafariServices
 
-final class NavigationService {
+struct NavigationService {
   typealias ErrorHandler = (UIViewController, Error) -> Void
 
-  private unowned var services: Services!
-
-  init(services: Services) {
-    self.services = services
-  }
-}
-
-extension NavigationService {
-  func makeSearchViewController() -> UIViewController {
-    let searchController = SearchController(dependencies: services)
-    searchController.tabBarItem.accessibilityIdentifier = "search"
-    searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
-    searchController.title = L10n.Search.title
-    searchController.preferredDisplayMode = .oneBesideSecondary
-    searchController.preferredPrimaryColumnWidthFraction = 0.4
-    searchController.maximumPrimaryColumnWidth = 375
-    return searchController
-  }
-
-  func makeAgendaViewController(didError: @escaping ErrorHandler) -> UIViewController {
-    let agendaController = AgendaController(dependencies: services)
-    agendaController.tabBarItem.accessibilityIdentifier = "agenda"
-    agendaController.tabBarItem.image = UIImage(systemName: "calendar")
-    agendaController.title = L10n.Agenda.title
-    agendaController.didError = didError
-    return agendaController
-  }
-
-  func makeMapViewController(didError: @escaping ErrorHandler) -> UIViewController {
-    let mapController = MapController(dependencies: services)
-    mapController.tabBarItem.accessibilityIdentifier = "map"
-    mapController.tabBarItem.image = UIImage(systemName: "map")
-    mapController.title = L10n.Map.title
-    mapController.didError = didError
-    return mapController
-  }
-
-  func makeMoreViewController() -> UIViewController {
-    let moreController = MoreController(dependencies: services)
-    moreController.tabBarItem.accessibilityIdentifier = "more"
-    moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
-    moreController.title = L10n.More.title
-    moreController.preferredDisplayMode = .oneBesideSecondary
-    moreController.preferredPrimaryColumnWidthFraction = 0.4
-    moreController.maximumPrimaryColumnWidth = 375
-    return moreController
-  }
-}
-
-extension NavigationService {
-  func makeEventViewController(for event: Event) -> UIViewController {
-    EventController(event: event, dependencies: services)
-  }
-
-  func makePastEventViewController(for event: Event) -> UIViewController {
-    let eventController = EventController(event: event, dependencies: services)
-    eventController.showsFavoriteButton = false
-    return eventController
-  }
-}
-
-extension NavigationService {
-  func makeVideosViewController(didError: @escaping ErrorHandler) -> UIViewController {
-    let videosController = VideosController(dependencies: services)
-    videosController.didError = didError
-    return videosController
-  }
-}
-
-extension NavigationService {
-  func makeYearsViewController(withStyle style: UITableView.Style, didError: @escaping ErrorHandler) -> UIViewController {
-    let yearsController = YearsController(style: style, dependencies: services)
-    yearsController.didError = didError
-    return yearsController
-  }
-
-  func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping ErrorHandler) -> UIViewController {
-    let yearController = YearController(persistenceService: persistenceService, dependencies: services)
-    yearController.navigationItem.largeTitleDisplayMode = .never
-    yearController.title = year.description
-    yearController.didError = didError
-    return yearController
-  }
-}
-
-extension NavigationService {
-  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping ErrorHandler) -> UIViewController {
-    let infoController = InfoController(info: info, dependencies: services)
-    infoController.accessibilityIdentifier = info.accessibilityIdentifier
-    infoController.didError = didError
-    infoController.title = title
-    return infoController
-  }
-}
-
-extension NavigationService {
   typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
 
-  func makePlayerViewController() -> PlayerViewController {
-    AVPlayerViewController()
-  }
+  var makeSearchViewController: () -> UIViewController
+  var makeAgendaViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeMapViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeMoreViewController: () -> UIViewController
 
-  func makeSafariViewController(with url: URL) -> UIViewController {
-    SFSafariViewController(url: url)
-  }
+  var makeEventViewController: (Event) -> UIViewController
+  var makePastEventViewController: (Event) -> UIViewController
+
+  var makeTransportationViewController: () -> UIViewController
+  var makeVideosViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeInfoViewController: (String, Info, @escaping NavigationService.ErrorHandler) -> UIViewController
+
+  var makeYearsViewController: (UITableView.Style, @escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeYearViewController: (Int, PersistenceServiceProtocol, @escaping NavigationService.ErrorHandler) -> UIViewController
+
+  var makePlayerViewController: () -> NavigationService.PlayerViewController
+  var makeSafariViewController: (URL) -> UIViewController
 }
 
 extension NavigationService {
-  func makeTransportationViewController() -> UIViewController {
-    TransportationController(dependencies: services)
+  init(services: Services) {
+    makeSearchViewController = {
+      let searchController = SearchController(dependencies: services)
+      searchController.tabBarItem.accessibilityIdentifier = "search"
+      searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
+      searchController.title = L10n.Search.title
+      searchController.preferredDisplayMode = .oneBesideSecondary
+      searchController.preferredPrimaryColumnWidthFraction = 0.4
+      searchController.maximumPrimaryColumnWidth = 375
+      return searchController
+    }
+
+    makeAgendaViewController = { didError in
+      let agendaController = AgendaController(dependencies: services)
+      agendaController.tabBarItem.accessibilityIdentifier = "agenda"
+      agendaController.tabBarItem.image = UIImage(systemName: "calendar")
+      agendaController.title = L10n.Agenda.title
+      agendaController.didError = didError
+      return agendaController
+    }
+
+    makeMapViewController = { didError in
+      let mapController = MapController(dependencies: services)
+      mapController.tabBarItem.accessibilityIdentifier = "map"
+      mapController.tabBarItem.image = UIImage(systemName: "map")
+      mapController.title = L10n.Map.title
+      mapController.didError = didError
+      return mapController
+    }
+
+    makeMoreViewController = {
+      let moreController = MoreController(dependencies: services)
+      moreController.tabBarItem.accessibilityIdentifier = "more"
+      moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
+      moreController.title = L10n.More.title
+      moreController.preferredDisplayMode = .oneBesideSecondary
+      moreController.preferredPrimaryColumnWidthFraction = 0.4
+      moreController.maximumPrimaryColumnWidth = 375
+      return moreController
+    }
+
+    makeEventViewController = { event in
+      EventController(event: event, dependencies: services)
+    }
+
+    makePastEventViewController = { event in
+      let eventController = EventController(event: event, dependencies: services)
+      eventController.showsFavoriteButton = false
+      return eventController
+    }
+
+    makeVideosViewController = { didError in
+      let videosController = VideosController(dependencies: services)
+      videosController.didError = didError
+      return videosController
+    }
+
+    makeYearsViewController = { style, didError in
+      let yearsController = YearsController(style: style, dependencies: services)
+      yearsController.didError = didError
+      return yearsController
+    }
+
+    makeYearViewController = { year, persistenceService, didError in
+      let yearController = YearController(persistenceService: persistenceService, dependencies: services)
+      yearController.navigationItem.largeTitleDisplayMode = .never
+      yearController.title = year.description
+      yearController.didError = didError
+      return yearController
+    }
+
+    makeInfoViewController = { title, info, didError in
+      let infoController = InfoController(info: info, dependencies: services)
+      infoController.accessibilityIdentifier = info.accessibilityIdentifier
+      infoController.didError = didError
+      infoController.title = title
+      return infoController
+    }
+
+    makePlayerViewController = {
+      AVPlayerViewController()
+    }
+
+    makeSafariViewController = { url in
+      SFSafariViewController(url: url)
+    }
+
+    makeTransportationViewController = {
+      TransportationController(dependencies: services)
+    }
   }
 }
 
 /// @mockable
 protocol NavigationServiceProtocol {
-  func makeSearchViewController() -> UIViewController
-  func makeAgendaViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
-  func makeMapViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
-  func makeMoreViewController() -> UIViewController
+  var makeSearchViewController: () -> UIViewController { get }
+  var makeAgendaViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeMapViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeMoreViewController: () -> UIViewController { get }
 
-  func makeEventViewController(for event: Event) -> UIViewController
-  func makePastEventViewController(for event: Event) -> UIViewController
+  var makeEventViewController: (Event) -> UIViewController { get }
+  var makePastEventViewController: (Event) -> UIViewController { get }
 
-  func makeTransportationViewController() -> UIViewController
-  func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
-  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeTransportationViewController: () -> UIViewController { get }
+  var makeVideosViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeInfoViewController: (String, Info, @escaping NavigationService.ErrorHandler) -> UIViewController { get }
 
-  func makeYearsViewController(withStyle style: UITableView.Style, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
-  func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeYearsViewController: (UITableView.Style, @escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeYearViewController: (Int, PersistenceServiceProtocol, @escaping NavigationService.ErrorHandler) -> UIViewController { get }
 
-  func makePlayerViewController() -> NavigationService.PlayerViewController
-  func makeSafariViewController(with url: URL) -> UIViewController
+  var makePlayerViewController: () -> NavigationService.PlayerViewController { get }
+  var makeSafariViewController: (URL) -> UIViewController { get }
 }
 
 extension NavigationService: NavigationServiceProtocol {}

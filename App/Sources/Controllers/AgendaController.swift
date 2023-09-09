@@ -300,14 +300,14 @@ private extension AgendaController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(event)
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
     return eventViewController
   }
 
   func makeSoonEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(event)
     eventViewController.fos_eventID = event.id
     return eventViewController
   }

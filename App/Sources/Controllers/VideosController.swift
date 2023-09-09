@@ -180,6 +180,6 @@ private extension VideosController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(for: event)
+    dependencies.navigationService.makeEventViewController(event)
   }
 }

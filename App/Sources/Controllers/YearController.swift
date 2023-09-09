@@ -159,6 +159,6 @@ private extension YearController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makePastEventViewController(for: event)
+    dependencies.navigationService.makePastEventViewController(event)
   }
 }

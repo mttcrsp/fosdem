@@ -35,9 +35,9 @@ extension TransportationController: TransportationViewControllerDelegate {
       self.transportationViewController(transportationViewController, didSelect: .ulbGoogleMaps)
     case .bus, .car, .taxi, .plane, .train, .shuttle:
       if let info = item.info {
-        let infoViewController = dependencies.navigationService.makeInfoViewController(withTitle: item.title, info: info, didError: { [weak self] _, _ in
+        let infoViewController = dependencies.navigationService.makeInfoViewController(item.title, info) { [weak self] _, _ in
           self?.transportationViewControllerDidFailPresentation(transportationViewController)
-        })
+        }
         transportationViewController.show(infoViewController, sender: nil)
       } else {
         assertionFailure("Failed to determine info model for transportation item '\(item)'")

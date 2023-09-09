@@ -34,9 +34,9 @@ final class YearsController: YearsViewController {
 
 private extension YearsController {
   func makeYearViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol) -> UIViewController {
-    dependencies.navigationService.makeYearsViewController(forYear: year, with: persistenceService, didError: { [weak self] viewController, error in
+    dependencies.navigationService.makeYearViewController(year, persistenceService) { [weak self] viewController, error in
       self?.didError?(viewController, error)
-    })
+    }
   }
 
   func makeYearUnavailableViewController() -> UIAlertController {

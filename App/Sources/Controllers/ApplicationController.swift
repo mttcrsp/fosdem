@@ -132,15 +132,15 @@ private extension ApplicationController {
   }
 
   func makeAgendaController() -> UIViewController {
-    dependencies.navigationService.makeAgendaViewController(didError: { [weak self] viewController, error in
+    dependencies.navigationService.makeAgendaViewController { [weak self] viewController, error in
       self?.agendaController(viewController, didError: error)
-    })
+    }
   }
 
   func makeMapController() -> UIViewController {
-    dependencies.navigationService.makeMapViewController(didError: { [weak self] viewController, error in
+    dependencies.navigationService.makeMapViewController { [weak self] viewController, error in
       self?.mapController(viewController, didError: error)
-    })
+    }
   }
 
   func makeMoreController() -> UIViewController {
