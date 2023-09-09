@@ -105,19 +105,19 @@ final class EventView: UIStackView {
     if !event.people.isEmpty, let people = event.formattedPeople {
       let peopleView = EventMetadataView()
       peopleView.accessibilityLabel = L10n.Event.people(people)
-      peopleView.image = .fos_systemImage(withName: "person.fill")
+      peopleView.image = UIImage(systemName: "person.fill")
       peopleView.text = people
       addArrangedSubview(peopleView)
     }
 
     let roomView = EventMetadataView()
     roomView.accessibilityLabel = L10n.Event.room(event.room)
-    roomView.image = .fos_systemImage(withName: "mappin.circle.fill")
+    roomView.image = UIImage(systemName: "mappin.circle.fill")
     roomView.text = event.room
     addArrangedSubview(roomView)
 
     let dateView = EventMetadataView()
-    dateView.image = .fos_systemImage(withName: "clock.fill")
+    dateView.image = UIImage(systemName: "clock.fill")
     dateView.text = event.formattedDate
     addArrangedSubview(dateView)
     setCustomSpacing(28, after: dateView)

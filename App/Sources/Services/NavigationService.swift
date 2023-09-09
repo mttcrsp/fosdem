@@ -15,7 +15,7 @@ extension NavigationService {
   func makeSearchViewController() -> UIViewController {
     let searchController = SearchController(dependencies: services)
     searchController.tabBarItem.accessibilityIdentifier = "search"
-    searchController.tabBarItem.image = .fos_systemImage(withName: "magnifyingglass")
+    searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
     searchController.title = L10n.Search.title
     #if targetEnvironment(macCatalyst)
     searchController.preferredDisplayMode = .oneBesideSecondary
@@ -30,7 +30,7 @@ extension NavigationService {
   func makeAgendaViewController(didError: @escaping ErrorHandler) -> UIViewController {
     let agendaController = AgendaController(dependencies: services)
     agendaController.tabBarItem.accessibilityIdentifier = "agenda"
-    agendaController.tabBarItem.image = .fos_systemImage(withName: "calendar")
+    agendaController.tabBarItem.image = UIImage(systemName: "calendar")
     agendaController.title = L10n.Agenda.title
     agendaController.didError = didError
     return agendaController
@@ -39,7 +39,7 @@ extension NavigationService {
   func makeMapViewController(didError: @escaping ErrorHandler) -> UIViewController {
     let mapController = MapController(dependencies: services)
     mapController.tabBarItem.accessibilityIdentifier = "map"
-    mapController.tabBarItem.image = .fos_systemImage(withName: "map")
+    mapController.tabBarItem.image = UIImage(systemName: "map")
     mapController.title = L10n.Map.title
     mapController.didError = didError
     return mapController
@@ -48,7 +48,7 @@ extension NavigationService {
   func makeMoreViewController() -> UIViewController {
     let moreController = MoreController(dependencies: services)
     moreController.tabBarItem.accessibilityIdentifier = "more"
-    moreController.tabBarItem.image = .fos_systemImage(withName: "ellipsis.circle")
+    moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
     moreController.title = L10n.More.title
     #if targetEnvironment(macCatalyst)
     moreController.preferredDisplayMode = .oneBesideSecondary

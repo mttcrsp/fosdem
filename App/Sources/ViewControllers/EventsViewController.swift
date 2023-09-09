@@ -172,13 +172,13 @@ final class EventsViewController: UITableViewController {
 
     if favoritesDataSource.eventsViewController(self, canFavorite: event) {
       let title = L10n.Event.add
-      let image = UIImage.fos_systemImage(withName: "calendar.badge.plus")
+      let image = UIImage(systemName: "calendar.badge.plus")
       return [Action(title: title, image: image) { [weak self] in
         self?.didFavorite(event)
       }]
     } else {
       let title = L10n.Event.remove
-      let image = UIImage.fos_systemImage(withName: "calendar.badge.minus")
+      let image = UIImage(systemName: "calendar.badge.minus")
       return [Action(title: title, image: image, style: .destructive) { [weak self] in
         self?.didUnfavorite(event)
       }]

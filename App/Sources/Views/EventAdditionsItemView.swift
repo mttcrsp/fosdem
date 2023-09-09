@@ -73,13 +73,13 @@ final class EventAdditionsItemView: UIControl {
 
 extension EventAdditionsGroup {
   init(attachments: [Attachment]) {
-    image = .fos_systemImage(withName: "arrow.down.circle")
+    image = UIImage(systemName: "arrow.down.circle")
     items = attachments.compactMap(EventAdditionsItem.init)
     title = L10n.Event.attachments
   }
 
   init(links: [Link]) {
-    image = .fos_systemImage(withName: "link")
+    image = UIImage(systemName: "link")
     items = links.compactMap(EventAdditionsItem.init)
     title = L10n.Event.links
   }

@@ -18,7 +18,7 @@ final class BlueprintsViewController: UIPageViewController {
 
   private lazy var fullscreenButton: UIBarButtonItem = {
     let fullscreenAction = #selector(didTapFullscreen)
-    let fullscreenImage = UIImage.fos_systemImage(withName: "arrow.up.left.and.arrow.down.right")
+    let fullscreenImage = UIImage(systemName: "arrow.up.left.and.arrow.down.right")
     let fullscreenButton = UIBarButtonItem(image: fullscreenImage, style: .plain, target: self, action: fullscreenAction)
     fullscreenButton.accessibilityIdentifier = "fullscreen"
     return fullscreenButton
@@ -63,7 +63,7 @@ final class BlueprintsViewController: UIPageViewController {
     view.accessibilityIdentifier = style.accessibilityIdentifier
 
     let dismissAction = #selector(didTapDismiss)
-    let dismissImage = UIImage.fos_systemImage(withName: "xmark")
+    let dismissImage = UIImage(systemName: "xmark")
     let dismissButton = UIBarButtonItem(image: dismissImage, style: .plain, target: self, action: dismissAction)
     dismissButton.accessibilityIdentifier = style.dismissAccessibilityIdentifier
     navigationItem.rightBarButtonItem = dismissButton

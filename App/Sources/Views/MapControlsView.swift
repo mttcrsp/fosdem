@@ -28,7 +28,7 @@ final class MapControlsView: UIView {
     resetButton.accessibilityIdentifier = "reset"
     resetButton.accessibilityLabel = L10n.Map.reset
     resetButton.addTarget(self, action: #selector(didTapReset), for: .touchUpInside)
-    resetButton.image = UIImage.fos_systemImage(withName: "arrow.counterclockwise")
+    resetButton.image = UIImage(systemName: "arrow.counterclockwise")
     resetButton.title = L10n.Map.reset
 
     let separatorView = UIView()
@@ -116,13 +116,13 @@ extension CLAuthorizationStatus {
   var image: UIImage? {
     switch self {
     case .notDetermined:
-      return UIImage.fos_systemImage(withName: "location")
+      return UIImage(systemName: "location")
     case .authorizedWhenInUse, .authorizedAlways:
-      return UIImage.fos_systemImage(withName: "location.fill")
+      return UIImage(systemName: "location.fill")
     case .denied, .restricted:
-      return UIImage.fos_systemImage(withName: "location.slash")
+      return UIImage(systemName: "location.slash")
     @unknown default:
-      return UIImage.fos_systemImage(withName: "location.slash")
+      return UIImage(systemName: "location.slash")
     }
   }
 }
