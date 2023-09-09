@@ -17,7 +17,7 @@ extension BuildingsService {
         let resources = ["aw", "f", "h", "j", "k", "u", "s"]
         for resource in resources {
           do {
-            let buildingData = try bundleService.data(forResource: resource, withExtension: "json")
+            let buildingData = try bundleService.data(resource, "json")
             let building = try JSONDecoder().decode(Building.self, from: buildingData)
             buildings.append(building)
           } catch {}
@@ -45,7 +45,7 @@ extension BuildingsService: BuildingsServiceProtocol {}
 
 /// @mockable
 protocol BuildingsServiceBundle {
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data
+  var data: (String?, String?) throws -> Data { get }
 }
 
 extension BundleService: BuildingsServiceBundle {}

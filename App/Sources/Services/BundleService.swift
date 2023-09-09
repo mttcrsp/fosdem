@@ -1,23 +1,22 @@
 import Foundation
 
-final class BundleService {
+struct BundleService {
   enum Error: CustomNSError {
     case resourceNotFound
   }
 
-  private let dataProvider: BundleServiceDataProvider
-  private let bundle: BundleServiceBundle
+  var data: (String?, String?) throws -> Data
+}
 
+extension BundleService {
   init(bundle: BundleServiceBundle = Bundle.main, dataProvider: BundleServiceDataProvider = BundleServiceData()) {
-    self.dataProvider = dataProvider
-    self.bundle = bundle
-  }
-
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data {
-    guard let url = bundle.url(forResource: name, withExtension: ext) else {
-      throw Error.resourceNotFound
+    data = { name, ext in
+      if let url = bundle.url(forResource: name, withExtension: ext) {
+        try dataProvider.data(withContentsOf: url)
+      } else {
+        throw Error.resourceNotFound
+      }
     }
-    return try dataProvider.data(withContentsOf: url)
   }
 }
 

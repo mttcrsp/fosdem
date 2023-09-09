@@ -20,7 +20,7 @@ final class InfoService {
       do {
         guard let self = self else { return }
 
-        let attributedData = try self.bundleService.data(forResource: info.resource, withExtension: "html")
+        let attributedData = try self.bundleService.data(info.resource, "html")
         let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
 
         let string = attributedText.string
@@ -116,7 +116,7 @@ extension InfoService: InfoServiceProtocol {}
 
 /// @mockable
 protocol InfoServiceBundle {
-  func data(forResource name: String?, withExtension ext: String?) throws -> Data
+  var data: (String?, String?) throws -> Data { get }
 }
 
 protocol HasInfoService {
