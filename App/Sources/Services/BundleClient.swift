@@ -1,6 +1,6 @@
 import Foundation
 
-struct BundleService {
+struct BundleClient {
   enum Error: CustomNSError {
     case resourceNotFound
   }
@@ -8,8 +8,8 @@ struct BundleService {
   var data: (String?, String?) throws -> Data
 }
 
-extension BundleService {
-  init(bundle: BundleServiceBundle = Bundle.main, dataProvider: BundleServiceDataProvider = BundleServiceData()) {
+extension BundleClient {
+  init(bundle: BundleClientBundle = Bundle.main, dataProvider: BundleClientDataProvider = BundleClientData()) {
     data = { name, ext in
       if let url = bundle.url(forResource: name, withExtension: ext) {
         try dataProvider.data(withContentsOf: url)
@@ -21,18 +21,18 @@ extension BundleService {
 }
 
 /// @mockable
-protocol BundleServiceBundle {
+protocol BundleClientBundle {
   func url(forResource name: String?, withExtension ext: String?) -> URL?
 }
 
-extension Bundle: BundleServiceBundle {}
+extension Bundle: BundleClientBundle {}
 
 /// @mockable
-protocol BundleServiceDataProvider {
+protocol BundleClientDataProvider {
   func data(withContentsOf url: URL) throws -> Data
 }
 
-final class BundleServiceData: BundleServiceDataProvider {
+final class BundleClientData: BundleClientDataProvider {
   func data(withContentsOf url: URL) throws -> Data {
     try Data(contentsOf: url)
   }

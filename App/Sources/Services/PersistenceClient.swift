@@ -1,6 +1,6 @@
 import GRDB
 
-struct PersistenceService {
+struct PersistenceClient {
   var load: (String) throws -> Void
   var allTracks: (@escaping (Result<[Track], Error>) -> Void) -> Void
   var eventsByIdentifier: (Set<Int>, @escaping (Result<[Event], Error>) -> Void) -> Void
@@ -14,7 +14,7 @@ struct PersistenceService {
   #endif
 }
 
-extension PersistenceService {
+extension PersistenceClient {
   init() {
     var database: DatabaseQueue!
     load = { path in
@@ -333,7 +333,7 @@ extension Track: PersistableRecord, FetchableRecord {
 }
 
 /// @mockable
-protocol PersistenceServiceProtocol {
+protocol PersistenceClientProtocol {
   var load: (String) throws -> Void { get }
   var allTracks: (@escaping (Result<[Track], Error>) -> Void) -> Void { get }
   var eventsByIdentifier: (Set<Int>, @escaping (Result<[Event], Error>) -> Void) -> Void { get }
@@ -347,8 +347,8 @@ protocol PersistenceServiceProtocol {
   #endif
 }
 
-extension PersistenceService: PersistenceServiceProtocol {}
+extension PersistenceClient: PersistenceClientProtocol {}
 
-protocol HasPersistenceService {
-  var persistenceService: PersistenceServiceProtocol { get }
+protocol HasPersistenceClient {
+  var persistenceClient: PersistenceClientProtocol { get }
 }

@@ -1,7 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService & HasSoonService
+  typealias Dependencies = HasNavigationClient & HasFavoritesClient & HasPersistenceClient & HasTimeClient & HasSoonClient
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -44,10 +44,10 @@ final class AgendaController: UIViewController {
 
     reloadFavoriteEvents(animated: false)
     observations = [
-      dependencies.favoritesService.addObserverForEvents { [weak self] in
+      dependencies.favoritesClient.addObserverForEvents { [weak self] in
         self?.reloadFavoriteEvents(animated: true)
       },
-      dependencies.timeService.addObserver { [weak self] in
+      dependencies.timeClient.addObserver { [weak self] in
         self?.reloadLiveStatus()
       },
     ]
@@ -66,7 +66,7 @@ final class AgendaController: UIViewController {
   }
 
   private func reloadFavoriteEvents(animated: Bool) {
-    let identifiers = dependencies.favoritesService.eventsIdentifiers()
+    let identifiers = dependencies.favoritesClient.eventsIdentifiers()
 
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
       rootViewController = makeAgendaNavigationController()
@@ -74,7 +74,7 @@ final class AgendaController: UIViewController {
       rootViewController = makeAgendaSplitViewController()
     }
 
-    dependencies.persistenceService.eventsByIdentifier(identifiers) { result in
+    dependencies.persistenceClient.eventsByIdentifier(identifiers) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):
@@ -126,7 +126,7 @@ final class AgendaController: UIViewController {
   }
 
   @objc private func didTapSoon() {
-    dependencies.soonService.loadEvents { result in
+    dependencies.soonClient.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 
@@ -225,21 +225,21 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 
 extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
+    !dependencies.favoritesClient.contains(event)
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    dependencies.favoritesService.addEvent(event.id)
+    dependencies.favoritesClient.addEvent(event.id)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    dependencies.favoritesService.removeEvent(event.id)
+    dependencies.favoritesClient.removeEvent(event.id)
   }
 }
 
 extension AgendaController: EventsViewControllerLiveDataSource {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeService.now())
+    eventsViewController == agendaViewController && event.isLive(at: dependencies.timeClient.now())
   }
 }
 
@@ -300,14 +300,14 @@ private extension AgendaController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(event)
+    let eventViewController = dependencies.navigationClient.makeEventViewController(event)
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
     return eventViewController
   }
 
   func makeSoonEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(event)
+    let eventViewController = dependencies.navigationClient.makeEventViewController(event)
     eventViewController.fos_eventID = event.id
     return eventViewController
   }

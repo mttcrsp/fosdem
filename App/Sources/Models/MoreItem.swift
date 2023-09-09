@@ -34,8 +34,8 @@ extension MoreItem {
     case .acknowledgements:
       return L10n.Acknowledgements.title
     case .years:
-      let lowerBound = YearsService.all.lowerBound
-      let upperBound = YearsService.all.upperBound
+      let lowerBound = YearsClient.all.lowerBound
+      let upperBound = YearsClient.all.upperBound
       return L10n.Years.item(lowerBound, upperBound)
     #if DEBUG
     case .overrideTime:

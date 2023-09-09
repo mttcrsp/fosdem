@@ -3,7 +3,7 @@ import UIKit
 protocol EventsSearchController: UIViewController {
   var results: [Event] { get set }
   var resultsViewController: EventsViewController? { get }
-  var persistenceService: PersistenceServiceProtocol { get }
+  var persistenceClient: PersistenceClientProtocol { get }
 }
 
 extension EventsSearchController {
@@ -15,7 +15,7 @@ extension EventsSearchController {
       return
     }
 
-    persistenceService.eventsBySearch(query) { [weak self] result in
+    persistenceClient.eventsBySearch(query) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case .failure:

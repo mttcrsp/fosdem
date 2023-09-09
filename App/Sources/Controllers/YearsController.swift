@@ -1,12 +1,12 @@
 import UIKit
 
 final class YearsController: YearsViewController {
-  typealias Dependencies = HasYearsService & HasNavigationService
+  typealias Dependencies = HasYearsClient & HasNavigationClient
 
   var didError: ((UIViewController, Error) -> Void)?
 
   private var pendingYear: Year?
-  private var pendingTask: NetworkServiceTask?
+  private var pendingTask: NetworkClientTask?
 
   private let dependencies: Dependencies
 
@@ -33,8 +33,8 @@ final class YearsController: YearsViewController {
 }
 
 private extension YearsController {
-  func makeYearViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol) -> UIViewController {
-    dependencies.navigationService.makeYearViewController(year, persistenceService) { [weak self] viewController, error in
+  func makeYearViewController(forYear year: Int, with persistenceClient: PersistenceClientProtocol) -> UIViewController {
+    dependencies.navigationClient.makeYearViewController(year, persistenceClient) { [weak self] viewController, error in
       self?.didError?(viewController, error)
     }
   }
@@ -49,13 +49,13 @@ private extension YearsController {
 
 extension YearsController: YearsViewControllerDataSource, YearsViewControllerDelegate {
   private var years: [Year] {
-    Array(type(of: dependencies.yearsService).all).reversed()
+    Array(type(of: dependencies.yearsClient).all).reversed()
   }
 
   private func downloadState(for year: Year) -> YearDownloadState {
     if pendingYear == year {
       return .inProgress
-    } else if dependencies.yearsService.isYearDownloaded(year) {
+    } else if dependencies.yearsClient.isYearDownloaded(year) {
       return .completed
     } else {
       return .available
@@ -99,7 +99,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
     case .completed:
       onSuccess()
     case .available:
-      let task = dependencies.yearsService.downloadYear(year) { [weak self, weak yearsViewController] error in
+      let task = dependencies.yearsClient.downloadYear(year) { [weak self, weak yearsViewController] error in
         DispatchQueue.main.async {
           if let error = error {
             onFailure(error)
@@ -124,8 +124,8 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
 
   func yearsViewController(_ yearsViewController: YearsViewController, loadingDidSucceedFor year: Int, retryHandler: @escaping () -> Void) {
     do {
-      let persistenceService = try dependencies.yearsService.makePersistenceService(year)
-      let yearViewController = makeYearViewController(forYear: year, with: persistenceService)
+      let persistenceClient = try dependencies.yearsClient.makePersistenceClient(year)
+      let yearViewController = makeYearViewController(forYear: year, with: persistenceClient)
       yearsViewController.show(yearViewController, sender: nil)
     } catch {
       self.yearsViewController(yearsViewController, loadingDidFailWith: error, retryHandler: retryHandler)
@@ -134,7 +134,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
 
   func yearsViewController(_ yearsViewController: YearsViewController, loadingDidFailWith error: Error, retryHandler: @escaping () -> Void) {
     switch error {
-    case let error as YearsService.Error where error == .yearNotAvailable:
+    case let error as YearsClient.Error where error == .yearNotAvailable:
       let errorViewController = makeYearUnavailableViewController()
       yearsViewController.present(errorViewController, animated: true)
     case let error as URLError where error.code == .notConnectedToInternet:

@@ -1,6 +1,6 @@
 import Foundation
 
-struct FavoritesService {
+struct FavoritesClient {
   var eventsIdentifiers: () -> Set<Int>
   var tracksIdentifiers: () -> Set<String>
 
@@ -20,12 +20,12 @@ struct FavoritesService {
   var migrate: () -> Void
 }
 
-extension FavoritesService {
-  init(fosdemYear _: Year, preferencesService: PreferencesServiceProtocol, ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol, timeService: TimeServiceProtocol, userDefaults: FavoritesServiceDefaults = UserDefaults.standard) {
+extension FavoritesClient {
+  init(fosdemYear _: Year, preferencesClient: PreferencesClientProtocol, ubiquitousPreferencesClient: UbiquitousPreferencesClientProtocol, timeClient: TimeClientProtocol, userDefaults: FavoritesClientDefaults = UserDefaults.standard) {
     let notificationCenter = NotificationCenter()
     var ubiquitousObserver: NSObjectProtocol?
 
-    let year = YearsService.current
+    let year = YearsClient.current
     let favoriteEventsKey = "com.mttcrsp.ansia.FavoritesClient.favoriteEvents"
     let favoriteTracksKey = "com.mttcrsp.ansia.FavoritesClient.favoriteTracks"
     let favoriteEventsDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesClient.favoriteEventsDidChange")
@@ -36,7 +36,7 @@ extension FavoritesService {
     ]
 
     let value: (String) -> Any? = { key in
-      if let dictionary = preferencesService.value(key) as? [String: Any] {
+      if let dictionary = preferencesClient.value(key) as? [String: Any] {
         dictionary["value"]
       } else {
         nil
@@ -44,9 +44,9 @@ extension FavoritesService {
     }
 
     let set: (Any?, String) -> Void = { value, key in
-      let dictionary = ["value": value as Any, "updatedAt": timeService.now()]
-      preferencesService.set(dictionary, key)
-      ubiquitousPreferencesService.set(dictionary, key)
+      let dictionary = ["value": value as Any, "updatedAt": timeClient.now()]
+      preferencesClient.set(dictionary, key)
+      ubiquitousPreferencesClient.set(dictionary, key)
     }
 
     let policy: (FavoritesMerge) -> FavoritesMergePolicy = { merge in
@@ -81,18 +81,18 @@ extension FavoritesService {
 
     let syncValue: (String) -> Void = { key in
       guard let notificationName = notificationNameForKey[key] else { return }
-      let remoteValue = ubiquitousPreferencesService.value(key)
+      let remoteValue = ubiquitousPreferencesClient.value(key)
       let remote = FavoritesMergeValue(value: remoteValue as Any)
-      let localValue = preferencesService.value(key)
+      let localValue = preferencesClient.value(key)
       let local = FavoritesMergeValue(value: localValue as Any)
       let merge = FavoritesMerge(local: local, remote: remote)
       switch policy(merge) {
       case .ignore:
         break
       case .updateRemote:
-        ubiquitousPreferencesService.set(localValue, key)
+        ubiquitousPreferencesClient.set(localValue, key)
       case .updateLocal:
-        preferencesService.set(remoteValue, key)
+        preferencesClient.set(remoteValue, key)
         notificationCenter.post(.init(name: notificationName))
       }
     }
@@ -188,7 +188,7 @@ extension FavoritesService {
         syncValue(key)
       }
 
-      ubiquitousObserver = ubiquitousPreferencesService.addObserver { key in
+      ubiquitousObserver = ubiquitousPreferencesClient.addObserver { key in
         syncValue(key)
       }
     }
@@ -199,7 +199,7 @@ extension FavoritesService {
         return
       }
 
-      ubiquitousPreferencesService.removeObserver(observer)
+      ubiquitousPreferencesClient.removeObserver(observer)
     }
 
     migrate = {
@@ -246,17 +246,17 @@ private extension FavoritesMergeValue {
 }
 
 private extension String {
-  static let favoriteEventsKey = "com.mttcrsp.ansia.FavoritesService.favoriteEvents"
-  static let favoriteTracksKey = "com.mttcrsp.ansia.FavoritesService.favoriteTracks"
+  static let favoriteEventsKey = "com.mttcrsp.ansia.FavoritesClient.favoriteEvents"
+  static let favoriteTracksKey = "com.mttcrsp.ansia.FavoritesClient.favoriteTracks"
 }
 
 private extension Notification.Name {
-  static var favoriteEventsDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesService.favoriteEventsDidChange")
-  static var favoriteTracksDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesService.favoriteTracksDidChange")
+  static var favoriteEventsDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesClient.favoriteEventsDidChange")
+  static var favoriteTracksDidChange = Notification.Name("com.mttcrsp.ansia.FavoritesClient.favoriteTracksDidChange")
 }
 
 /// @mockable
-protocol FavoritesServiceProtocol {
+protocol FavoritesClientProtocol {
   var eventsIdentifiers: () -> Set<Int> { get }
   var tracksIdentifiers: () -> Set<String> { get }
 
@@ -276,9 +276,9 @@ protocol FavoritesServiceProtocol {
   var migrate: () -> Void { get }
 }
 
-extension FavoritesService: FavoritesServiceProtocol {}
+extension FavoritesClient: FavoritesClientProtocol {}
 
-extension FavoritesServiceProtocol {
+extension FavoritesClientProtocol {
   func contains(_ event: Event) -> Bool {
     eventsIdentifiers().contains(event.id)
   }
@@ -289,13 +289,13 @@ extension FavoritesServiceProtocol {
 }
 
 /// @mockable
-protocol FavoritesServiceDefaults: AnyObject {
+protocol FavoritesClientDefaults: AnyObject {
   func value(forKey key: String) -> Any?
   func removeObject(forKey defaultName: String)
 }
 
-extension UserDefaults: FavoritesServiceDefaults {}
+extension UserDefaults: FavoritesClientDefaults {}
 
-protocol HasFavoritesService {
-  var favoritesService: FavoritesServiceProtocol { get }
+protocol HasFavoritesClient {
+  var favoritesClient: FavoritesClientProtocol { get }
 }

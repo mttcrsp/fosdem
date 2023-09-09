@@ -1,7 +1,7 @@
 #if DEBUG
 import UIKit
 
-final class TestsService {
+final class TestsClient {
   private let preInitCommands: [PreInitCommand.Type] = [
     ResetDefaults.self,
     PreventOnboarding.self,
@@ -11,7 +11,7 @@ final class TestsService {
   private let postInitCommands: [PostInitCommand.Type] = [
     OverrideDate.self,
     OverrideDates.self,
-    OverrideTimeServiceInterval.self,
+    OverrideTimeClientInterval.self,
     OverrideVideo.self,
     PreventScheduleUpdates.self,
     SetFavoriteEvents.self,
@@ -30,9 +30,9 @@ final class TestsService {
     }
   }
 
-  func runPostInitializationTestCommands(with services: Services) {
+  func runPostInitializationTestCommands(with clients: Clients) {
     for command in postInitCommands {
-      command.perform(with: services, environment: environment)
+      command.perform(with: clients, environment: environment)
     }
   }
 }
@@ -42,7 +42,7 @@ private protocol PreInitCommand {
 }
 
 private protocol PostInitCommand {
-  static func perform(with services: Services, environment: [String: String])
+  static func perform(with clients: Clients, environment: [String: String])
 }
 
 private struct ResetDefaults: PreInitCommand {
@@ -57,8 +57,8 @@ private struct PreventOnboarding: PreInitCommand {
   static func perform(with environment: [String: String]) {
     guard environment["ENABLE_ONBOARDING"] == nil else { return }
     let defaults = UserDefaults.standard
-    defaults.set(YearsService.current, forKey: LaunchService.latestFosdemYearKey)
-    defaults.set(Bundle.main.bundleShortVersion, forKey: LaunchService.latestBundleShortVersionKey)
+    defaults.set(YearsClient.current, forKey: LaunchClient.latestFosdemYearKey)
+    defaults.set(Bundle.main.bundleShortVersion, forKey: LaunchClient.latestBundleShortVersionKey)
   }
 }
 
@@ -71,46 +71,46 @@ private struct SpeedUpAnimations: PreInitCommand {
 }
 
 private struct PreventScheduleUpdates: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard environment["ENABLE_SCHEDULE_UPDATES"] == nil else { return }
-    services.scheduleService.disable()
+    clients.scheduleClient.disable()
   }
 }
 
 private struct SetFavoriteEvents: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard let value = environment["SET_FAVORITE_EVENTS"] else { return }
     let identifiers = Set(value.components(separatedBy: ",").compactMap(Int.init))
-    services.favoritesService.setEventsIdentifiers(identifiers)
+    clients.favoritesClient.setEventsIdentifiers(identifiers)
   }
 }
 
 private struct SetFavoriteTracks: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard let value = environment["SET_FAVORITE_TRACKS"] else { return }
     let identifiers = Set(value.components(separatedBy: ","))
-    services.favoritesService.setTracksIdentifiers(identifiers)
+    clients.favoritesClient.setTracksIdentifiers(identifiers)
   }
 }
 
-private struct OverrideTimeServiceInterval: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
+private struct OverrideTimeClientInterval: PostInitCommand {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard let value = environment["OVERRIDE_TIME_SERVICE_INTERVAL"], let interval = TimeInterval(value) else { return }
-    services.timeService = TimeService(timeInterval: interval)
+    clients.timeClient = TimeClient(timeInterval: interval)
   }
 }
 
 private struct OverrideDate: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard let value = environment["OVERRIDE_NOW"], let interval = Double(value) else { return }
-    services.timeService.now = { Date(timeIntervalSince1970: interval) }
+    clients.timeClient.now = { Date(timeIntervalSince1970: interval) }
   }
 }
 
 private struct OverrideDates: PostInitCommand {
   private static var timer: Timer?
 
-  static func perform(with services: Services, environment: [String: String]) {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard let value = environment["OVERRIDE_NOWS"] else { return }
     let components = value.components(separatedBy: ",")
 
@@ -120,14 +120,14 @@ private struct OverrideDates: PostInitCommand {
 
     var flag = true
     timer = .scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
-      services.timeService.now = { flag ? date1 : date2 }
+      clients.timeClient.now = { flag ? date1 : date2 }
       flag.toggle()
     }
   }
 }
 
 private struct OverrideVideo: PostInitCommand {
-  static func perform(with services: Services, environment: [String: String]) {
+  static func perform(with clients: Clients, environment: [String: String]) {
     guard let value = environment["OVERRIDE_VIDEO"], let video = Data(base64Encoded: value) else { return }
 
     do {
@@ -136,7 +136,7 @@ private struct OverrideVideo: PostInitCommand {
       try video.write(to: url)
 
       let links = [Link(name: "test", url: url)]
-      services.persistenceService.updateLinksForEvent(11717, links) { error in
+      clients.persistenceClient.updateLinksForEvent(11717, links) { error in
         assert(error == nil)
       }
     } catch {
@@ -145,7 +145,7 @@ private struct OverrideVideo: PostInitCommand {
   }
 }
 
-private extension FavoritesServiceProtocol {
+private extension FavoritesClientProtocol {
   func setTracksIdentifiers(_ newTracksIdentifiers: Set<String>) {
     for identifier in tracksIdentifiers() {
       removeTrack(identifier)

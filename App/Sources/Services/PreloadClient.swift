@@ -1,17 +1,17 @@
 import Foundation
 
-struct PreloadService {
+struct PreloadClient {
   var databasePath: () throws -> String
   var removeDatabase: () throws -> Void
   var preloadDatabaseIfNeeded: () throws -> Void
 }
 
-extension PreloadService {
+extension PreloadClient {
   enum Error: CustomNSError {
     case resourceNotFound
   }
 
-  init(bundle: PreloadServiceBundle = Bundle.main, fileManager: PreloadServiceFile = FileManager.default) throws {
+  init(bundle: PreloadClientBundle = Bundle.main, fileManager: PreloadClientFile = FileManager.default) throws {
     let fileName = "db", fileExtension = "sqlite"
 
     func oldPath() throws -> String {
@@ -45,18 +45,18 @@ extension PreloadService {
 }
 
 /// @mockable
-protocol PreloadServiceFile {
+protocol PreloadClientFile {
   func fileExists(atPath path: String) -> Bool
   func copyItem(atPath srcPath: String, toPath dstPath: String) throws
   func url(for directory: FileManager.SearchPathDirectory, in domain: FileManager.SearchPathDomainMask, appropriateFor url: URL?, create shouldCreate: Bool) throws -> URL
   func removeItem(atPath path: String) throws
 }
 
-extension FileManager: PreloadServiceFile {}
+extension FileManager: PreloadClientFile {}
 
 /// @mockable
-protocol PreloadServiceBundle {
+protocol PreloadClientBundle {
   func path(forResource name: String?, ofType ext: String?) -> String?
 }
 
-extension Bundle: PreloadServiceBundle {}
+extension Bundle: PreloadClientBundle {}

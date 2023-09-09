@@ -1,6 +1,6 @@
 import Foundation
 
-struct AcknowledgementsService {
+struct AcknowledgementsClient {
   enum Error: CustomNSError {
     case resourceNotFound
   }
@@ -8,8 +8,8 @@ struct AcknowledgementsService {
   var loadAcknowledgements: () throws -> [Acknowledgement]
 }
 
-extension AcknowledgementsService {
-  init(bundle: AcknowledgementsServiceBundle = Bundle.main, dataProvider: AcknowledgementsServiceDataProvider = AcknowledgementsServiceData()) {
+extension AcknowledgementsClient {
+  init(bundle: AcknowledgementsClientBundle = Bundle.main, dataProvider: AcknowledgementsClientDataProvider = AcknowledgementsClientData()) {
     loadAcknowledgements = {
       guard let url = bundle.url(forResource: "acknowledgements", withExtension: "json") else {
         throw Error.resourceNotFound
@@ -23,30 +23,30 @@ extension AcknowledgementsService {
 }
 
 /// @mockable
-protocol AcknowledgementsServiceProtocol {
+protocol AcknowledgementsClientProtocol {
   var loadAcknowledgements: () throws -> [Acknowledgement] { get }
 }
 
-extension AcknowledgementsService: AcknowledgementsServiceProtocol {}
+extension AcknowledgementsClient: AcknowledgementsClientProtocol {}
 
 /// @mockable
-protocol AcknowledgementsServiceBundle {
+protocol AcknowledgementsClientBundle {
   func url(forResource name: String?, withExtension ext: String?) -> URL?
 }
 
-extension Bundle: AcknowledgementsServiceBundle {}
+extension Bundle: AcknowledgementsClientBundle {}
 
 /// @mockable
-protocol AcknowledgementsServiceDataProvider {
+protocol AcknowledgementsClientDataProvider {
   func data(withContentsOf url: URL) throws -> Data
 }
 
-final class AcknowledgementsServiceData: AcknowledgementsServiceDataProvider {
+final class AcknowledgementsClientData: AcknowledgementsClientDataProvider {
   func data(withContentsOf url: URL) throws -> Data {
     try Data(contentsOf: url)
   }
 }
 
-protocol HasAcknowledgementsService {
-  var acknowledgementsService: AcknowledgementsServiceProtocol { get }
+protocol HasAcknowledgementsClient {
+  var acknowledgementsClient: AcknowledgementsClientProtocol { get }
 }

@@ -1,11 +1,11 @@
 import Foundation
 
-struct UpdateService {
+struct UpdateClient {
   var detectUpdates: (@escaping () -> Void) -> Void
 }
 
-extension UpdateService {
-  init(networkService: UpdateServiceNetwork, bundle: UpdateServiceBundle = Bundle.main) {
+extension UpdateClient {
+  init(networkClient: UpdateClientNetwork, bundle: UpdateClientBundle = Bundle.main) {
     detectUpdates = { completion in
       guard let bundleIdentifier = bundle.bundleIdentifier else {
         return assertionFailure("Failed to acquire bundle identifier from bundle \(bundle)")
@@ -15,7 +15,7 @@ extension UpdateService {
         return assertionFailure("Failed to acquire short bundle version from bundle \(bundle)")
       }
 
-      networkService.getFosdemApp { result in
+      networkClient.getFosdemApp { result in
         guard case let .success(response) = result else { return }
 
         guard let result = response.results.first(where: { result in result.bundleIdentifier == bundleIdentifier }) else {
@@ -31,27 +31,27 @@ extension UpdateService {
 }
 
 /// @mockable
-protocol UpdateServiceProtocol {
+protocol UpdateClientProtocol {
   var detectUpdates: (@escaping () -> Void) -> Void { get }
 }
 
-extension UpdateService: UpdateServiceProtocol {}
+extension UpdateClient: UpdateClientProtocol {}
 
 /// @mockable
-protocol UpdateServiceBundle {
+protocol UpdateClientBundle {
   var bundleIdentifier: String? { get }
   var bundleShortVersion: String? { get }
 }
 
-extension Bundle: UpdateServiceBundle {}
+extension Bundle: UpdateClientBundle {}
 
 /// @mockable
-protocol UpdateServiceNetwork {
+protocol UpdateClientNetwork {
   var getFosdemApp: (@escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> Void { get }
 }
 
-extension NetworkService: UpdateServiceNetwork {}
+extension NetworkClient: UpdateClientNetwork {}
 
-protocol HasUpdateService {
-  var updateService: UpdateServiceProtocol { get }
+protocol HasUpdateClient {
+  var updateClient: UpdateClientProtocol { get }
 }

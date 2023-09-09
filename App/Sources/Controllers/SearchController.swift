@@ -1,7 +1,7 @@
 import UIKit
 
 final class SearchController: UISplitViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
+  typealias Dependencies = HasNavigationClient & HasFavoritesClient & HasPersistenceClient & HasTracksClient & HasYearsClient
 
   private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
@@ -30,13 +30,13 @@ final class SearchController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  var persistenceService: PersistenceServiceProtocol {
-    dependencies.persistenceService
+  var persistenceClient: PersistenceClientProtocol {
+    dependencies.persistenceClient
   }
 
   private var isDisplayingFavoriteTrack: Bool {
     if let selectedTrack = selectedTrack {
-      return dependencies.favoritesService.contains(selectedTrack)
+      return dependencies.favoritesClient.contains(selectedTrack)
     } else {
       return false
     }
@@ -63,7 +63,7 @@ final class SearchController: UISplitViewController {
 
     reloadTracks()
     observers = [
-      dependencies.favoritesService.addObserverForTracks { [weak self] in
+      dependencies.favoritesClient.addObserverForTracks { [weak self] in
         self?.reloadTracks()
       },
     ]
@@ -79,7 +79,7 @@ final class SearchController: UISplitViewController {
   }
 
   private func reloadTracks() {
-    dependencies.tracksService.loadConfiguration { [weak self] tracksConfiguration in
+    dependencies.tracksClient.loadConfiguration { [weak self] tracksConfiguration in
       self?.tracksLoadingDidSucceed(tracksConfiguration)
     }
   }
@@ -203,7 +203,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    persistenceService.eventsByTrack(track.name) { [weak tracksViewController] result in
+    persistenceClient.eventsByTrack(track.name) { [weak tracksViewController] result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self, let tracksViewController = tracksViewController else { return }
 
@@ -260,15 +260,15 @@ extension SearchController: TracksViewControllerIndexDataSource, TracksViewContr
 
 extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
   func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
-    !dependencies.favoritesService.contains(track)
+    !dependencies.favoritesClient.contains(track)
   }
 
   func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-    dependencies.favoritesService.addTrack(track.name)
+    dependencies.favoritesClient.addTrack(track.name)
   }
 
   func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-    dependencies.favoritesService.removeTrack(track.name)
+    dependencies.favoritesClient.removeTrack(track.name)
   }
 }
 
@@ -325,24 +325,24 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
 
 extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
+    !dependencies.favoritesClient.contains(event)
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    dependencies.favoritesService.addEvent(event.id)
+    dependencies.favoritesClient.addEvent(event.id)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    dependencies.favoritesService.removeEvent(event.id)
+    dependencies.favoritesClient.removeEvent(event.id)
   }
 
   @objc private func didToggleFavorite() {
     guard let selectedTrack = selectedTrack else { return }
 
-    if dependencies.favoritesService.contains(selectedTrack) {
-      dependencies.favoritesService.removeTrack(selectedTrack.name)
+    if dependencies.favoritesClient.contains(selectedTrack) {
+      dependencies.favoritesClient.removeTrack(selectedTrack.name)
     } else {
-      dependencies.favoritesService.addTrack(selectedTrack.name)
+      dependencies.favoritesClient.addTrack(selectedTrack.name)
     }
   }
 }
@@ -441,7 +441,7 @@ private extension SearchController {
     }
 
     observers.append(
-      dependencies.favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in
+      dependencies.favoritesClient.addObserverForTracks { [weak favoriteButton, weak self] in
         favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
         favoriteButton?.title = self?.favoriteTitle
       }
@@ -451,11 +451,11 @@ private extension SearchController {
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    WelcomeViewController(year: type(of: dependencies.yearsService).current)
+    WelcomeViewController(year: type(of: dependencies.yearsClient).current)
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(event)
+    dependencies.navigationClient.makeEventViewController(event)
   }
 }
 

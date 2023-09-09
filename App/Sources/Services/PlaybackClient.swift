@@ -6,7 +6,7 @@ enum PlaybackPosition: Equatable {
   case end
 }
 
-struct PlaybackService {
+struct PlaybackClient {
   var watching: () -> Set<Int>
   var watched: () -> Set<Int>
 
@@ -17,8 +17,8 @@ struct PlaybackService {
   var removeObserver: (NSObjectProtocol) -> Void
 }
 
-extension PlaybackService {
-  init(userDefaults: PlaybackServiceDefaults = UserDefaults.standard) {
+extension PlaybackClient {
+  init(userDefaults: PlaybackClientDefaults = UserDefaults.standard) {
     let notificationCenter = NotificationCenter()
 
     func updateWatched(with position: PlaybackPosition, forEventWithIdentifier identifier: Int) -> Bool {
@@ -107,7 +107,7 @@ extension PlaybackService {
   }
 }
 
-private extension PlaybackServiceDefaults {
+private extension PlaybackClientDefaults {
   var watched: Set<Int> {
     get {
       let object = value(forKey: .watchedKey)
@@ -143,7 +143,7 @@ private extension Notification.Name {
 }
 
 /// @mockable
-protocol PlaybackServiceProtocol {
+protocol PlaybackClientProtocol {
   var watching: () -> Set<Int> { get }
   var watched: () -> Set<Int> { get }
 
@@ -154,16 +154,16 @@ protocol PlaybackServiceProtocol {
   var removeObserver: (NSObjectProtocol) -> Void { get }
 }
 
-extension PlaybackService: PlaybackServiceProtocol {}
+extension PlaybackClient: PlaybackClientProtocol {}
 
 /// @mockable
-protocol PlaybackServiceDefaults: AnyObject {
+protocol PlaybackClientDefaults: AnyObject {
   func value(forKey key: String) -> Any?
   func set(_ value: Any?, forKey defaultName: String)
 }
 
-extension UserDefaults: PlaybackServiceDefaults {}
+extension UserDefaults: PlaybackClientDefaults {}
 
-protocol HasPlaybackService {
-  var playbackService: PlaybackServiceProtocol { get }
+protocol HasPlaybackClient {
+  var playbackClient: PlaybackClientProtocol { get }
 }

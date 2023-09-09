@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     let rootViewController: UIViewController
     do {
-      rootViewController = ApplicationController(dependencies: try makeServices())
+      rootViewController = ApplicationController(dependencies: try makeClients())
     } catch {
       rootViewController = makeErrorViewController()
     }
@@ -32,13 +32,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     applicationController?.applicationWillResignActive()
   }
 
-  private func makeServices() throws -> Services {
+  private func makeClients() throws -> Clients {
     #if DEBUG
-    let services = try DebugServices()
+    let clients = try DebugClients()
     #else
-    let services = try Services()
+    let clients = try Clients()
     #endif
-    return services
+    return clients
   }
 
   func makeErrorViewController() -> ErrorViewController {

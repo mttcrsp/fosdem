@@ -1,7 +1,7 @@
 import UIKit
 
 final class InfoController: TextViewController {
-  typealias Dependencies = HasInfoService
+  typealias Dependencies = HasInfoClient
 
   var didError: ((InfoController, Error) -> Void)?
 
@@ -22,7 +22,7 @@ final class InfoController: TextViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    dependencies.infoService.loadAttributedText(info) { result in
+    dependencies.infoClient.loadAttributedText(info) { result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self else { return }
 

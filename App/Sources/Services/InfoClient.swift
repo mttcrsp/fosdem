@@ -6,16 +6,16 @@ enum Info: String {
   case legal
 }
 
-struct InfoService {
+struct InfoClient {
   var loadAttributedText: (Info, @escaping (Result<NSAttributedString, Error>) -> Void) -> Void
 }
 
-extension InfoService {
-  init(queue: DispatchQueue = .global(), bundleService: InfoServiceBundle) {
+extension InfoClient {
+  init(queue: DispatchQueue = .global(), bundleClient: InfoClientBundle) {
     loadAttributedText = { info, completion in
       queue.async {
         do {
-          let attributedData = try bundleService.data(info.resource, "html")
+          let attributedData = try bundleClient.data(info.resource, "html")
           let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
 
           let string = attributedText.string
@@ -104,17 +104,17 @@ private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
 }
 
 /// @mockable
-protocol InfoServiceProtocol {
+protocol InfoClientProtocol {
   var loadAttributedText: (Info, @escaping (Result<NSAttributedString, Error>) -> Void) -> Void { get }
 }
 
-extension InfoService: InfoServiceProtocol {}
+extension InfoClient: InfoClientProtocol {}
 
 /// @mockable
-protocol InfoServiceBundle {
+protocol InfoClientBundle {
   var data: (String?, String?) throws -> Data { get }
 }
 
-protocol HasInfoService {
-  var infoService: InfoServiceProtocol { get }
+protocol HasInfoClient {
+  var infoClient: InfoClientProtocol { get }
 }

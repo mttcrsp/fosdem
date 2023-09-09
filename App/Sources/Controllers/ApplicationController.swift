@@ -1,7 +1,7 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService & HasOpenService & HasFavoritesService & HasUbiquitousPreferencesService
+  typealias Dependencies = HasNavigationClient & HasLaunchClient & HasTimeClient & HasUpdateClient & HasScheduleClient & HasYearsClient & HasOpenClient & HasFavoritesClient & HasUbiquitousPreferencesClient
 
   private weak var tabsController: UITabBarController?
 
@@ -40,7 +40,7 @@ final class ApplicationController: UIViewController {
     super.viewDidLoad()
 
     var viewControllers: [UIViewController] = [makeTabsController()]
-    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall() {
+    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchClient.didLaunchAfterInstall() {
       viewControllers.append(makeWelcomeViewController())
     }
 
@@ -63,10 +63,10 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .systemGroupedBackground
 
-    dependencies.ubiquitousPreferencesService.startMonitoring()
-    dependencies.favoritesService.startMonitoring()
-    dependencies.scheduleService.startUpdating()
-    dependencies.updateService.detectUpdates {
+    dependencies.ubiquitousPreferencesClient.startMonitoring()
+    dependencies.favoritesClient.startMonitoring()
+    dependencies.scheduleClient.startUpdating()
+    dependencies.updateClient.detectUpdates {
       DispatchQueue.main.async { [weak self] in
         if let self = self {
           let updateViewController = self.makeUpdateViewController()
@@ -77,12 +77,12 @@ final class ApplicationController: UIViewController {
   }
 
   func applicationDidBecomeActive() {
-    dependencies.timeService.startMonitoring()
-    dependencies.scheduleService.startUpdating()
+    dependencies.timeClient.startMonitoring()
+    dependencies.scheduleClient.startUpdating()
   }
 
   func applicationWillResignActive() {
-    dependencies.timeService.stopMonitoring()
+    dependencies.timeClient.stopMonitoring()
   }
 
   @objc private func didSelectPrevTab() {
@@ -101,7 +101,7 @@ final class ApplicationController: UIViewController {
 
   private func didTapUpdate() {
     if let url = URL.fosdemAppStore {
-      dependencies.openService.open(url, nil)
+      dependencies.openClient.open(url, nil)
     }
   }
 }
@@ -128,27 +128,27 @@ private extension ApplicationController {
   }
 
   func makeSearchController() -> UIViewController {
-    dependencies.navigationService.makeSearchViewController()
+    dependencies.navigationClient.makeSearchViewController()
   }
 
   func makeAgendaController() -> UIViewController {
-    dependencies.navigationService.makeAgendaViewController { [weak self] viewController, error in
+    dependencies.navigationClient.makeAgendaViewController { [weak self] viewController, error in
       self?.agendaController(viewController, didError: error)
     }
   }
 
   func makeMapController() -> UIViewController {
-    dependencies.navigationService.makeMapViewController { [weak self] viewController, error in
+    dependencies.navigationClient.makeMapViewController { [weak self] viewController, error in
       self?.mapController(viewController, didError: error)
     }
   }
 
   func makeMoreController() -> UIViewController {
-    dependencies.navigationService.makeMoreViewController()
+    dependencies.navigationClient.makeMoreViewController()
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
-    let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsService).current)
+    let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsClient).current)
     welcomeViewController.showsContinue = true
     welcomeViewController.delegate = self
     return welcomeViewController

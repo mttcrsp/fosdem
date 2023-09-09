@@ -1,6 +1,6 @@
 import Foundation
 
-struct LaunchService {
+struct LaunchClient {
   enum Error: CustomNSError {
     case versionDetectionFailed
   }
@@ -14,11 +14,11 @@ struct LaunchService {
   #endif
 }
 
-extension LaunchService {
+extension LaunchClient {
   static let latestFosdemYearKey = "LATEST_FOSDEM_YEAR"
   static let latestBundleShortVersionKey = "LATEST_BUNDLE_SHORT_VERSION"
 
-  init(fosdemYear: Year = 2023, bundle: LaunchServiceBundle = Bundle.main, defaults: LaunchServiceDefaults = UserDefaults.standard) {
+  init(fosdemYear: Year = 2023, bundle: LaunchClientBundle = Bundle.main, defaults: LaunchClientDefaults = UserDefaults.standard) {
     var didLaunchAfterUpdate = false
     var didLaunchAfterInstall = false
     var didLaunchAfterFosdemYearChange = false
@@ -58,20 +58,20 @@ extension LaunchService {
   }
 }
 
-extension LaunchServiceDefaults {
+extension LaunchClientDefaults {
   var latestFosdemYear: Int? {
-    get { string(forKey: LaunchService.latestFosdemYearKey).flatMap { string in Int(string) } }
-    set { set(newValue?.description, forKey: LaunchService.latestFosdemYearKey) }
+    get { string(forKey: LaunchClient.latestFosdemYearKey).flatMap { string in Int(string) } }
+    set { set(newValue?.description, forKey: LaunchClient.latestFosdemYearKey) }
   }
 
   var latestBundleShortVersion: String? {
-    get { string(forKey: LaunchService.latestBundleShortVersionKey) }
-    set { set(newValue, forKey: LaunchService.latestBundleShortVersionKey) }
+    get { string(forKey: LaunchClient.latestBundleShortVersionKey) }
+    set { set(newValue, forKey: LaunchClient.latestBundleShortVersionKey) }
   }
 }
 
 /// @mockable
-protocol LaunchServiceProtocol {
+protocol LaunchClientProtocol {
   var didLaunchAfterUpdate: () -> Bool { get }
   var didLaunchAfterInstall: () -> Bool { get }
   var didLaunchAfterFosdemYearChange: () -> Bool { get }
@@ -82,21 +82,21 @@ protocol LaunchServiceProtocol {
   #endif
 }
 
-extension LaunchService: LaunchServiceProtocol {}
+extension LaunchClient: LaunchClientProtocol {}
 
-protocol LaunchServiceBundle {
+protocol LaunchClientBundle {
   var bundleShortVersion: String? { get }
 }
 
-extension Bundle: LaunchServiceBundle {}
+extension Bundle: LaunchClientBundle {}
 
-protocol LaunchServiceDefaults: AnyObject {
+protocol LaunchClientDefaults: AnyObject {
   func string(forKey key: String) -> String?
   func set(_ value: Any?, forKey defaultName: String)
 }
 
-extension UserDefaults: LaunchServiceDefaults {}
+extension UserDefaults: LaunchClientDefaults {}
 
-protocol HasLaunchService {
-  var launchService: LaunchServiceProtocol { get }
+protocol HasLaunchClient {
+  var launchClient: LaunchClientProtocol { get }
 }

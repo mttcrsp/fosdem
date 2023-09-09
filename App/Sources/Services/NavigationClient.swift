@@ -1,34 +1,34 @@
 import AVKit
 import SafariServices
 
-struct NavigationService {
+struct NavigationClient {
   typealias ErrorHandler = (UIViewController, Error) -> Void
 
   typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
 
   var makeSearchViewController: () -> UIViewController
-  var makeAgendaViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController
-  var makeMapViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeAgendaViewController: (@escaping NavigationClient.ErrorHandler) -> UIViewController
+  var makeMapViewController: (@escaping NavigationClient.ErrorHandler) -> UIViewController
   var makeMoreViewController: () -> UIViewController
 
   var makeEventViewController: (Event) -> UIViewController
   var makePastEventViewController: (Event) -> UIViewController
 
   var makeTransportationViewController: () -> UIViewController
-  var makeVideosViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController
-  var makeInfoViewController: (String, Info, @escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeVideosViewController: (@escaping NavigationClient.ErrorHandler) -> UIViewController
+  var makeInfoViewController: (String, Info, @escaping NavigationClient.ErrorHandler) -> UIViewController
 
-  var makeYearsViewController: (UITableView.Style, @escaping NavigationService.ErrorHandler) -> UIViewController
-  var makeYearViewController: (Int, PersistenceServiceProtocol, @escaping NavigationService.ErrorHandler) -> UIViewController
+  var makeYearsViewController: (UITableView.Style, @escaping NavigationClient.ErrorHandler) -> UIViewController
+  var makeYearViewController: (Int, PersistenceClientProtocol, @escaping NavigationClient.ErrorHandler) -> UIViewController
 
-  var makePlayerViewController: () -> NavigationService.PlayerViewController
+  var makePlayerViewController: () -> NavigationClient.PlayerViewController
   var makeSafariViewController: (URL) -> UIViewController
 }
 
-extension NavigationService {
-  init(services: Services) {
+extension NavigationClient {
+  init(clients: Clients) {
     makeSearchViewController = {
-      let searchController = SearchController(dependencies: services)
+      let searchController = SearchController(dependencies: clients)
       searchController.tabBarItem.accessibilityIdentifier = "search"
       searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
       searchController.title = L10n.Search.title
@@ -39,7 +39,7 @@ extension NavigationService {
     }
 
     makeAgendaViewController = { didError in
-      let agendaController = AgendaController(dependencies: services)
+      let agendaController = AgendaController(dependencies: clients)
       agendaController.tabBarItem.accessibilityIdentifier = "agenda"
       agendaController.tabBarItem.image = UIImage(systemName: "calendar")
       agendaController.title = L10n.Agenda.title
@@ -48,7 +48,7 @@ extension NavigationService {
     }
 
     makeMapViewController = { didError in
-      let mapController = MapController(dependencies: services)
+      let mapController = MapController(dependencies: clients)
       mapController.tabBarItem.accessibilityIdentifier = "map"
       mapController.tabBarItem.image = UIImage(systemName: "map")
       mapController.title = L10n.Map.title
@@ -57,7 +57,7 @@ extension NavigationService {
     }
 
     makeMoreViewController = {
-      let moreController = MoreController(dependencies: services)
+      let moreController = MoreController(dependencies: clients)
       moreController.tabBarItem.accessibilityIdentifier = "more"
       moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
       moreController.title = L10n.More.title
@@ -68,29 +68,29 @@ extension NavigationService {
     }
 
     makeEventViewController = { event in
-      EventController(event: event, dependencies: services)
+      EventController(event: event, dependencies: clients)
     }
 
     makePastEventViewController = { event in
-      let eventController = EventController(event: event, dependencies: services)
+      let eventController = EventController(event: event, dependencies: clients)
       eventController.showsFavoriteButton = false
       return eventController
     }
 
     makeVideosViewController = { didError in
-      let videosController = VideosController(dependencies: services)
+      let videosController = VideosController(dependencies: clients)
       videosController.didError = didError
       return videosController
     }
 
     makeYearsViewController = { style, didError in
-      let yearsController = YearsController(style: style, dependencies: services)
+      let yearsController = YearsController(style: style, dependencies: clients)
       yearsController.didError = didError
       return yearsController
     }
 
-    makeYearViewController = { year, persistenceService, didError in
-      let yearController = YearController(persistenceService: persistenceService, dependencies: services)
+    makeYearViewController = { year, persistenceClient, didError in
+      let yearController = YearController(persistenceClient: persistenceClient, dependencies: clients)
       yearController.navigationItem.largeTitleDisplayMode = .never
       yearController.title = year.description
       yearController.didError = didError
@@ -98,7 +98,7 @@ extension NavigationService {
     }
 
     makeInfoViewController = { title, info, didError in
-      let infoController = InfoController(info: info, dependencies: services)
+      let infoController = InfoController(info: info, dependencies: clients)
       infoController.accessibilityIdentifier = info.accessibilityIdentifier
       infoController.didError = didError
       infoController.title = title
@@ -114,33 +114,33 @@ extension NavigationService {
     }
 
     makeTransportationViewController = {
-      TransportationController(dependencies: services)
+      TransportationController(dependencies: clients)
     }
   }
 }
 
 /// @mockable
-protocol NavigationServiceProtocol {
+protocol NavigationClientProtocol {
   var makeSearchViewController: () -> UIViewController { get }
-  var makeAgendaViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController { get }
-  var makeMapViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeAgendaViewController: (@escaping NavigationClient.ErrorHandler) -> UIViewController { get }
+  var makeMapViewController: (@escaping NavigationClient.ErrorHandler) -> UIViewController { get }
   var makeMoreViewController: () -> UIViewController { get }
 
   var makeEventViewController: (Event) -> UIViewController { get }
   var makePastEventViewController: (Event) -> UIViewController { get }
 
   var makeTransportationViewController: () -> UIViewController { get }
-  var makeVideosViewController: (@escaping NavigationService.ErrorHandler) -> UIViewController { get }
-  var makeInfoViewController: (String, Info, @escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeVideosViewController: (@escaping NavigationClient.ErrorHandler) -> UIViewController { get }
+  var makeInfoViewController: (String, Info, @escaping NavigationClient.ErrorHandler) -> UIViewController { get }
 
-  var makeYearsViewController: (UITableView.Style, @escaping NavigationService.ErrorHandler) -> UIViewController { get }
-  var makeYearViewController: (Int, PersistenceServiceProtocol, @escaping NavigationService.ErrorHandler) -> UIViewController { get }
+  var makeYearsViewController: (UITableView.Style, @escaping NavigationClient.ErrorHandler) -> UIViewController { get }
+  var makeYearViewController: (Int, PersistenceClientProtocol, @escaping NavigationClient.ErrorHandler) -> UIViewController { get }
 
-  var makePlayerViewController: () -> NavigationService.PlayerViewController { get }
+  var makePlayerViewController: () -> NavigationClient.PlayerViewController { get }
   var makeSafariViewController: (URL) -> UIViewController { get }
 }
 
-extension NavigationService: NavigationServiceProtocol {}
+extension NavigationClient: NavigationClientProtocol {}
 
 protocol AVPlayerViewControllerProtocol: AnyObject {
   var delegate: AVPlayerViewControllerDelegate? { get set }
@@ -150,6 +150,6 @@ protocol AVPlayerViewControllerProtocol: AnyObject {
 
 extension AVPlayerViewController: AVPlayerViewControllerProtocol {}
 
-protocol HasNavigationService {
-  var navigationService: NavigationServiceProtocol { get }
+protocol HasNavigationClient {
+  var navigationClient: NavigationClientProtocol { get }
 }

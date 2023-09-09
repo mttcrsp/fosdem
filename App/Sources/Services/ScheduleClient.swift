@@ -1,6 +1,6 @@
 import Foundation
 
-struct ScheduleService {
+struct ScheduleClient {
   var startUpdating: () -> Void
   var stopUpdating: () -> Void
 
@@ -9,8 +9,8 @@ struct ScheduleService {
   #endif
 }
 
-extension ScheduleService {
-  init(fosdemYear: Int = 2023, networkService: ScheduleServiceNetwork, persistenceService: ScheduleServicePersistence, defaults: ScheduleServiceDefaults = UserDefaults.standard, timeInterval: TimeInterval = 60 * 60) {
+extension ScheduleClient {
+  init(fosdemYear: Int = 2023, networkClient: ScheduleClientNetwork, persistenceClient: ScheduleClientPersistence, defaults: ScheduleClientDefaults = UserDefaults.standard, timeInterval: TimeInterval = 60 * 60) {
     #if DEBUG
     var isEnabled = true
     disable = { isEnabled = false }
@@ -29,14 +29,14 @@ extension ScheduleService {
       guard shouldPerformUpdate, !isUpdating else { return }
       isUpdating = true
 
-      _ = networkService.getSchedule(fosdemYear) { result in
+      _ = networkClient.getSchedule(fosdemYear) { result in
         guard case let .success(schedule) = result else { return }
 
         #if DEBUG
         guard isEnabled else { return }
         #endif
 
-        persistenceService.upsertSchedule(schedule) { error in
+        persistenceClient.upsertSchedule(schedule) { error in
           assert(error == nil)
           isUpdating = false
           latestUpdate = Date()
@@ -58,7 +58,7 @@ extension ScheduleService {
   }
 }
 
-private extension ScheduleServiceDefaults {
+private extension ScheduleClientDefaults {
   var latestScheduleUpdate: Date? {
     get { value(forKey: .latestScheduleUpdateKey) as? Date }
     set { set(newValue, forKey: .latestScheduleUpdateKey) }
@@ -70,7 +70,7 @@ private extension String {
 }
 
 /// @mockable
-protocol ScheduleServiceProtocol {
+protocol ScheduleClientProtocol {
   var startUpdating: () -> Void { get }
   var stopUpdating: () -> Void { get }
 
@@ -79,30 +79,30 @@ protocol ScheduleServiceProtocol {
   #endif
 }
 
-extension ScheduleService: ScheduleServiceProtocol {}
+extension ScheduleClient: ScheduleClientProtocol {}
 
 /// @mockable
-protocol ScheduleServiceDefaults: AnyObject {
+protocol ScheduleClientDefaults: AnyObject {
   func value(forKey key: String) -> Any?
   func set(_ value: Any?, forKey defaultName: String)
 }
 
-extension UserDefaults: ScheduleServiceDefaults {}
+extension UserDefaults: ScheduleClientDefaults {}
 
 /// @mockable
-protocol ScheduleServiceNetwork {
-  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask { get }
+protocol ScheduleClientNetwork {
+  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkClientTask { get }
 }
 
-extension NetworkService: ScheduleServiceNetwork {}
+extension NetworkClient: ScheduleClientNetwork {}
 
 /// @mockable
-protocol ScheduleServicePersistence {
+protocol ScheduleClientPersistence {
   var upsertSchedule: (Schedule, @escaping (Error?) -> Void) -> Void { get }
 }
 
-extension PersistenceService: ScheduleServicePersistence {}
+extension PersistenceClient: ScheduleClientPersistence {}
 
-protocol HasScheduleService {
-  var scheduleService: ScheduleServiceProtocol { get }
+protocol HasScheduleClient {
+  var scheduleClient: ScheduleClientProtocol { get }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct PreferencesService {
+struct PreferencesClient {
   var set: (Any?, String) -> Void
   var value: (String) -> Any?
   var removeValue: (String) -> Void
@@ -9,7 +9,7 @@ struct PreferencesService {
   var removeObserver: (NSObjectProtocol) -> Void
 }
 
-extension PreferencesService {
+extension PreferencesClient {
   init(notificationCenter: NotificationCenter = .default, userDefaults: UserDefaults = .standard) {
     set = { value, key in
       userDefaults.set(value, forKey: key)
@@ -44,11 +44,11 @@ extension PreferencesService {
 }
 
 private extension Notification.Name {
-  static let didChangeValue = NSNotification.Name("com.mttcrsp.ansia.PreferencesService.didChangeValue")
+  static let didChangeValue = NSNotification.Name("com.mttcrsp.ansia.PreferencesClient.didChangeValue")
 }
 
 /// @mockable
-protocol PreferencesServiceProtocol {
+protocol PreferencesClientProtocol {
   var set: (Any?, String) -> Void { get }
   var value: (String) -> Any? { get }
   var removeValue: (String) -> Void { get }
@@ -57,4 +57,4 @@ protocol PreferencesServiceProtocol {
   var removeObserver: (NSObjectProtocol) -> Void { get }
 }
 
-extension PreferencesService: PreferencesServiceProtocol {}
+extension PreferencesClient: PreferencesClientProtocol {}

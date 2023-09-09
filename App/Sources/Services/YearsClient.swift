@@ -1,20 +1,20 @@
 import Foundation
 
-struct YearsService {
+struct YearsClient {
   static let current = 2023
   static let all = 2012 ... 2022
   var isYearDownloaded: (Int) -> Bool
-  var downloadYear: (Int, @escaping (Swift.Error?) -> Void) -> NetworkServiceTask
-  var makePersistenceService: (Int) throws -> PersistenceServiceProtocol
+  var downloadYear: (Int, @escaping (Swift.Error?) -> Void) -> NetworkClientTask
+  var makePersistenceClient: (Int) throws -> PersistenceClientProtocol
 }
 
-extension YearsService {
+extension YearsClient {
   enum Error: CustomNSError {
     case documentDirectoryNotFound
     case yearNotAvailable
   }
 
-  init(networkService: YearsServiceNetwork, persistenceServiceBuilder: YearsServicePersistenceBuilder = PersistenceServiceBuilder(), fileManager: YearsServiceFile = FileManager.default) {
+  init(networkClient: YearsClientNetwork, persistenceClientBuilder: YearsClientPersistenceBuilder = PersistenceClientBuilder(), fileManager: YearsClientFile = FileManager.default) {
     func yearsDirectory() throws -> URL {
       try documentDirectory().appendingPathComponent("years")
     }
@@ -31,14 +31,14 @@ extension YearsService {
       }
     }
 
-    func makePersistenceService(for year: Year) throws -> PersistenceServiceProtocol {
-      try persistenceServiceBuilder.makePersistenceService(withPath: try path(forYear: year))
+    func makePersistenceClient(for year: Year) throws -> PersistenceClientProtocol {
+      try persistenceClientBuilder.makePersistenceClient(withPath: try path(forYear: year))
     }
 
-    self.makePersistenceService = makePersistenceService
+    self.makePersistenceClient = makePersistenceClient
 
     downloadYear = { year, completion in
-      networkService.getSchedule(year) { result in
+      networkClient.getSchedule(year) { result in
         switch result {
         case .failure(GetSchedule.Error.notFound):
           completion(Error.yearNotAvailable)
@@ -49,8 +49,8 @@ extension YearsService {
             try fileManager.createDirectory(at: try yearsDirectory(), withIntermediateDirectories: true, attributes: nil)
             fileManager.createFile(atPath: try path(forYear: year), contents: nil, attributes: nil)
 
-            let persistenceService = try makePersistenceService(for: year)
-            persistenceService.upsertSchedule(schedule, completion)
+            let persistenceClient = try makePersistenceClient(for: year)
+            persistenceClient.upsertSchedule(schedule, completion)
           } catch {
             completion(error)
           }
@@ -69,38 +69,38 @@ extension YearsService {
 }
 
 /// @mockable
-protocol YearsServiceProtocol {
+protocol YearsClientProtocol {
   static var current: Int { get }
   static var all: ClosedRange<Int> { get }
   var isYearDownloaded: (Int) -> Bool { get }
-  var downloadYear: (Int, @escaping (Swift.Error?) -> Void) -> NetworkServiceTask { get }
-  var makePersistenceService: (Int) throws -> PersistenceServiceProtocol { get }
+  var downloadYear: (Int, @escaping (Swift.Error?) -> Void) -> NetworkClientTask { get }
+  var makePersistenceClient: (Int) throws -> PersistenceClientProtocol { get }
 }
 
-extension YearsService: YearsServiceProtocol {}
+extension YearsClient: YearsClientProtocol {}
 
 /// @mockable
-protocol YearsServiceNetwork {
-  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask { get }
+protocol YearsClientNetwork {
+  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkClientTask { get }
 }
 
-extension NetworkService: YearsServiceNetwork {}
+extension NetworkClient: YearsClientNetwork {}
 
 /// @mockable
-protocol YearsServicePersistenceBuilder {
-  func makePersistenceService(withPath path: String) throws -> PersistenceServiceProtocol
+protocol YearsClientPersistenceBuilder {
+  func makePersistenceClient(withPath path: String) throws -> PersistenceClientProtocol
 }
 
-private class PersistenceServiceBuilder: YearsServicePersistenceBuilder {
-  func makePersistenceService(withPath path: String) throws -> PersistenceServiceProtocol {
-    let persistenceService = PersistenceService()
-    try persistenceService.load(path)
-    return persistenceService
+private class PersistenceClientBuilder: YearsClientPersistenceBuilder {
+  func makePersistenceClient(withPath path: String) throws -> PersistenceClientProtocol {
+    let persistenceClient = PersistenceClient()
+    try persistenceClient.load(path)
+    return persistenceClient
   }
 }
 
 /// @mockable
-protocol YearsServiceFile {
+protocol YearsClientFile {
   @discardableResult
   func createFile(atPath path: String, contents data: Data?, attributes attr: [FileAttributeKey: Any]?) -> Bool
   func createDirectory(at url: URL, withIntermediateDirectories createIntermediates: Bool, attributes: [FileAttributeKey: Any]?) throws
@@ -108,8 +108,8 @@ protocol YearsServiceFile {
   func fileExists(atPath path: String) -> Bool
 }
 
-extension FileManager: YearsServiceFile {}
+extension FileManager: YearsClientFile {}
 
-protocol HasYearsService {
-  var yearsService: YearsServiceProtocol { get }
+protocol HasYearsClient {
+  var yearsClient: YearsClientProtocol { get }
 }

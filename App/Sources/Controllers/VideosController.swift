@@ -1,7 +1,7 @@
 import UIKit
 
 final class VideosController: UIPageViewController {
-  typealias Dependencies = HasVideosService & HasPlaybackService & HasNavigationService
+  typealias Dependencies = HasVideosClient & HasPlaybackClient & HasNavigationClient
 
   var didError: ((VideosController, Error) -> Void)?
 
@@ -27,7 +27,7 @@ final class VideosController: UIPageViewController {
 
   deinit {
     if let observer = observer {
-      dependencies.playbackService.removeObserver(observer)
+      dependencies.playbackClient.removeObserver(observer)
     }
   }
 
@@ -60,13 +60,13 @@ final class VideosController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
 
     reloadData()
-    observer = dependencies.playbackService.addObserver { [weak self] in
+    observer = dependencies.playbackClient.addObserver { [weak self] in
       self?.reloadData()
     }
   }
 
   private func reloadData() {
-    dependencies.videosService.loadVideos { [weak self] result in
+    dependencies.videosClient.loadVideos { [weak self] result in
       guard let self = self else { return }
 
       switch result {
@@ -122,7 +122,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
 
 extension VideosController: EventsViewControllerDeleteDelegate {
   func eventsViewController(_: EventsViewController, didDelete event: Event) {
-    dependencies.playbackService.setPlaybackPosition(.beginning, event.id)
+    dependencies.playbackClient.setPlaybackPosition(.beginning, event.id)
   }
 }
 
@@ -180,6 +180,6 @@ private extension VideosController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(event)
+    dependencies.navigationClient.makeEventViewController(event)
   }
 }

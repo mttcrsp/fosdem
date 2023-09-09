@@ -1,6 +1,6 @@
 import Foundation
 
-struct BuildingsService {
+struct BuildingsClient {
   enum Error: CustomNSError {
     case missingData, partialData
   }
@@ -8,8 +8,8 @@ struct BuildingsService {
   var loadBuildings: (@escaping ([Building], Error?) -> Void) -> Void
 }
 
-extension BuildingsService {
-  init(bundleService: BuildingsServiceBundle, queue: DispatchQueue = .global()) {
+extension BuildingsClient {
+  init(bundleClient: BuildingsClientBundle, queue: DispatchQueue = .global()) {
     loadBuildings = { completion in
       queue.async {
         var buildings: [Building] = []
@@ -17,7 +17,7 @@ extension BuildingsService {
         let resources = ["aw", "f", "h", "j", "k", "u", "s"]
         for resource in resources {
           do {
-            let buildingData = try bundleService.data(resource, "json")
+            let buildingData = try bundleClient.data(resource, "json")
             let building = try JSONDecoder().decode(Building.self, from: buildingData)
             buildings.append(building)
           } catch {}
@@ -37,19 +37,19 @@ extension BuildingsService {
 }
 
 /// @mockable
-protocol BuildingsServiceProtocol {
-  var loadBuildings: (@escaping ([Building], BuildingsService.Error?) -> Void) -> Void { get }
+protocol BuildingsClientProtocol {
+  var loadBuildings: (@escaping ([Building], BuildingsClient.Error?) -> Void) -> Void { get }
 }
 
-extension BuildingsService: BuildingsServiceProtocol {}
+extension BuildingsClient: BuildingsClientProtocol {}
 
 /// @mockable
-protocol BuildingsServiceBundle {
+protocol BuildingsClientBundle {
   var data: (String?, String?) throws -> Data { get }
 }
 
-extension BundleService: BuildingsServiceBundle {}
+extension BundleClient: BuildingsClientBundle {}
 
-protocol HasBuildingsService {
-  var buildingsService: BuildingsServiceProtocol { get }
+protocol HasBuildingsClient {
+  var buildingsClient: BuildingsClientProtocol { get }
 }

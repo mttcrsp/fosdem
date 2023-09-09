@@ -6,15 +6,15 @@ protocol NetworkRequest {
   func decode(_ data: Data?, response: HTTPURLResponse?) throws -> Model
 }
 
-struct NetworkService {
+struct NetworkClient {
   var getFosdemApp: (@escaping (Result<AppStoreSearchResponse, Error>) -> Void) -> Void
-  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkServiceTask
+  var getSchedule: (Year, @escaping (Result<Schedule, Error>) -> Void) -> NetworkClientTask
 }
 
-extension NetworkService {
-  init(session: NetworkServiceSession) {
+extension NetworkClient {
+  init(session: NetworkClientSession) {
     @discardableResult
-    func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkServiceTask {
+    func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkClientTask {
       let task = session.dataTask(with: request.httpRequest) { data, response, error in
         if let error = error as? URLError, error.code == .cancelled {
           return // Do nothing
@@ -51,20 +51,20 @@ private extension NetworkRequest {
 }
 
 /// @mockable
-protocol NetworkServiceTask {
+protocol NetworkClientTask {
   func cancel()
   func resume()
 }
 
-extension URLSessionDataTask: NetworkServiceTask {}
+extension URLSessionDataTask: NetworkClientTask {}
 
 /// @mockable
-protocol NetworkServiceSession {
-  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask
+protocol NetworkClientSession {
+  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkClientTask
 }
 
-extension URLSession: NetworkServiceSession {
-  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkServiceTask {
+extension URLSession: NetworkClientSession {
+  func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> NetworkClientTask {
     dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
   }
 }

@@ -7,14 +7,14 @@ struct TracksConfiguration: Equatable {
   var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 }
 
-struct TracksService {
+struct TracksClient {
   var loadConfiguration: (@escaping (TracksConfiguration) -> Void) -> Void
 }
 
-extension TracksService {
-  init(favoritesService: FavoritesServiceProtocol, persistenceService: PersistenceServiceProtocol) {
+extension TracksClient {
+  init(favoritesClient: FavoritesClientProtocol, persistenceClient: PersistenceClientProtocol) {
     loadConfiguration = { completion in
-      persistenceService.allTracks { result in
+      persistenceClient.allTracks { result in
         guard case let .success(tracks) = result else { return }
 
         var configuration = TracksConfiguration()
@@ -26,7 +26,7 @@ extension TracksService {
           configuration.filteredTracks[.all, default: []].append(track)
           configuration.filteredTracks[filter, default: []].append(track)
 
-          if favoritesService.contains(track) {
+          if favoritesClient.contains(track) {
             configuration.filteredFavoriteTracks[.all, default: []].append(track)
             configuration.filteredFavoriteTracks[filter, default: []].append(track)
           }
@@ -56,12 +56,12 @@ extension TracksService {
 }
 
 /// @mockable
-protocol TracksServiceProtocol {
+protocol TracksClientProtocol {
   var loadConfiguration: (@escaping (TracksConfiguration) -> Void) -> Void { get }
 }
 
-extension TracksService: TracksServiceProtocol {}
+extension TracksClient: TracksClientProtocol {}
 
-protocol HasTracksService {
-  var tracksService: TracksServiceProtocol { get }
+protocol HasTracksClient {
+  var tracksClient: TracksClientProtocol { get }
 }

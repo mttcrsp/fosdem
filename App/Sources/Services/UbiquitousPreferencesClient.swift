@@ -1,6 +1,6 @@
 import UIKit
 
-struct UbiquitousPreferencesService {
+struct UbiquitousPreferencesClient {
   var set: (Any?, String) -> Void
   var value: (String) -> Any?
   var removeValue: (String) -> Void
@@ -12,8 +12,8 @@ struct UbiquitousPreferencesService {
   var stopMonitoring: () -> Void
 }
 
-extension UbiquitousPreferencesService {
-  init(ubiquitousStore: UbiquitousPreferencesServiceStore = NSUbiquitousKeyValueStore.default, ubiquitousNotificationCenter: NotificationCenter = .default) {
+extension UbiquitousPreferencesClient {
+  init(ubiquitousStore: UbiquitousPreferencesClientStore = NSUbiquitousKeyValueStore.default, ubiquitousNotificationCenter: NotificationCenter = .default) {
     let notificationCenter = NotificationCenter()
 
     var ubiquitousObservers: [NSObjectProtocol] = []
@@ -65,7 +65,7 @@ extension UbiquitousPreferencesService {
 
     startMonitoring = {
       guard ubiquitousObservers.isEmpty else {
-        return assertionFailure("Attempted to start monitoring on already active ubiquitous preferences service")
+        return assertionFailure("Attempted to start monitoring on already active ubiquitous preferences client")
       }
 
       ubiquitousObservers = [
@@ -81,7 +81,7 @@ extension UbiquitousPreferencesService {
 
     stopMonitoring = {
       guard !ubiquitousObservers.isEmpty else {
-        return assertionFailure("Attempted to stop monitoring on inactive ubiquitous preferences service")
+        return assertionFailure("Attempted to stop monitoring on inactive ubiquitous preferences client")
       }
 
       for observer in ubiquitousObservers {
@@ -92,11 +92,11 @@ extension UbiquitousPreferencesService {
 }
 
 private extension Notification.Name {
-  static let didChangeValue = NSNotification.Name("com.mttcrsp.ansia.UbiquitousPreferencesService.didChangeValue")
+  static let didChangeValue = NSNotification.Name("com.mttcrsp.ansia.UbiquitousPreferencesClient.didChangeValue")
 }
 
 /// @mockable
-protocol UbiquitousPreferencesServiceStore {
+protocol UbiquitousPreferencesClientStore {
   @discardableResult
   func synchronize() -> Bool
   func set(_ anObject: Any?, forKey aKey: String)
@@ -104,10 +104,10 @@ protocol UbiquitousPreferencesServiceStore {
   func removeObject(forKey aKey: String)
 }
 
-extension NSUbiquitousKeyValueStore: UbiquitousPreferencesServiceStore {}
+extension NSUbiquitousKeyValueStore: UbiquitousPreferencesClientStore {}
 
 /// @mockable
-protocol UbiquitousPreferencesServiceProtocol {
+protocol UbiquitousPreferencesClientProtocol {
   var set: (Any?, String) -> Void { get }
   var value: (String) -> Any? { get }
   var removeValue: (String) -> Void { get }
@@ -119,8 +119,8 @@ protocol UbiquitousPreferencesServiceProtocol {
   var stopMonitoring: () -> Void { get }
 }
 
-extension UbiquitousPreferencesService: UbiquitousPreferencesServiceProtocol {}
+extension UbiquitousPreferencesClient: UbiquitousPreferencesClientProtocol {}
 
-protocol HasUbiquitousPreferencesService {
-  var ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol { get }
+protocol HasUbiquitousPreferencesClient {
+  var ubiquitousPreferencesClient: UbiquitousPreferencesClientProtocol { get }
 }

@@ -1,7 +1,7 @@
 import UIKit
 
 final class YearController: TracksViewController {
-  typealias Dependencies = HasNavigationService
+  typealias Dependencies = HasNavigationClient
 
   var didError: ((YearController, Error) -> Void)?
 
@@ -14,11 +14,11 @@ final class YearController: TracksViewController {
   var results: [Event] = []
 
   private let dependencies: Dependencies
-  let persistenceService: PersistenceServiceProtocol
+  let persistenceClient: PersistenceClientProtocol
 
-  init(persistenceService: PersistenceServiceProtocol, dependencies: Dependencies) {
+  init(persistenceClient: PersistenceClientProtocol, dependencies: Dependencies) {
     self.dependencies = dependencies
-    self.persistenceService = persistenceService
+    self.persistenceClient = persistenceClient
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -37,7 +37,7 @@ final class YearController: TracksViewController {
     definesPresentationContext = true
     addSearchViewController(makeSearchController())
 
-    persistenceService.allTracks { result in
+    persistenceClient.allTracks { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):
@@ -77,7 +77,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
     tracksViewController.show(eventsViewController, sender: nil)
 
     events = []
-    persistenceService.eventsByTrack(track.name) { result in
+    persistenceClient.eventsByTrack(track.name) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):
@@ -159,6 +159,6 @@ private extension YearController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makePastEventViewController(event)
+    dependencies.navigationClient.makePastEventViewController(event)
   }
 }

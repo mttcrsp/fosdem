@@ -1,7 +1,7 @@
 import AVKit
 
 final class EventController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService & HasNavigationService
+  typealias Dependencies = HasFavoritesClient & HasPlaybackClient & HasTimeClient & HasNavigationClient
   typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
 
   var showsFavoriteButton = true {
@@ -41,7 +41,7 @@ final class EventController: UIViewController {
 
   deinit {
     if let observer = favoritesObserver {
-      dependencies.favoritesService.removeObserver(observer)
+      dependencies.favoritesClient.removeObserver(observer)
     }
 
     if let observer = timeObserver {
@@ -60,7 +60,7 @@ final class EventController: UIViewController {
   }
 
   private var isEventFavorite: Bool {
-    dependencies.favoritesService.contains(event)
+    dependencies.favoritesClient.contains(event)
   }
 
   private var favoriteTitle: String {
@@ -72,7 +72,7 @@ final class EventController: UIViewController {
   }
 
   private var isEventToday: Bool {
-    event.isSameDay(as: dependencies.timeService.now())
+    event.isSameDay(as: dependencies.timeClient.now())
   }
 
   private var hasLivestream: Bool {
@@ -99,9 +99,9 @@ final class EventController: UIViewController {
 
   @objc private func didToggleFavorite() {
     if isEventFavorite {
-      dependencies.favoritesService.removeEvent(event.id)
+      dependencies.favoritesClient.removeEvent(event.id)
     } else {
-      dependencies.favoritesService.addEvent(event.id)
+      dependencies.favoritesClient.addEvent(event.id)
     }
   }
 
@@ -121,7 +121,7 @@ final class EventController: UIViewController {
     favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
     navigationItem.rightBarButtonItem = favoriteButton
 
-    favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
+    favoritesObserver = dependencies.favoritesClient.addObserverForEvents { [weak favoriteButton, weak self] in
       favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
       favoriteButton?.title = self?.favoriteTitle
     }
@@ -129,7 +129,7 @@ final class EventController: UIViewController {
 
   private func hideFavoriteButton() {
     if let observer = favoritesObserver {
-      dependencies.favoritesService.removeObserver(observer)
+      dependencies.favoritesClient.removeObserver(observer)
       favoritesObserver = nil
     }
 
@@ -158,7 +158,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
   }
 
   func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
-    dependencies.playbackService.playbackPosition(event.id)
+    dependencies.playbackClient.playbackPosition(event.id)
   }
 }
 
@@ -176,16 +176,16 @@ extension EventController: AVPlayerViewControllerDelegate {
     let intervalScale = CMTimeScale(NSEC_PER_SEC)
     let interval = CMTime(seconds: 0.1, preferredTimescale: intervalScale)
     timeObserver = playerViewController.player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-      self?.dependencies.playbackService.setPlaybackPosition(.at(time.seconds), event.id)
+      self?.dependencies.playbackClient.setPlaybackPosition(.at(time.seconds), event.id)
       self?.eventViewController?.reloadPlaybackPosition()
     }
 
     finishObserver = notificationCenter.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: nil, queue: nil) { [weak self] _ in
-      self?.dependencies.playbackService.setPlaybackPosition(.end, event.id)
+      self?.dependencies.playbackClient.setPlaybackPosition(.end, event.id)
       self?.eventViewController?.reloadPlaybackPosition()
     }
 
-    if case let .at(seconds) = dependencies.playbackService.playbackPosition(event.id) {
+    if case let .at(seconds) = dependencies.playbackClient.playbackPosition(event.id) {
       let timeScale = CMTimeScale(NSEC_PER_SEC)
       let time = CMTime(seconds: seconds, preferredTimescale: timeScale)
       playerViewController.player?.seek(to: time)
@@ -217,7 +217,7 @@ private extension EventController {
   }
 
   func makeVideoViewController(for url: URL) -> PlayerViewController {
-    let playerViewController = dependencies.navigationService.makePlayerViewController()
+    let playerViewController = dependencies.navigationClient.makePlayerViewController()
     playerViewController.exitsFullScreenWhenPlaybackEnds = true
     playerViewController.player = AVPlayer(url: url)
     playerViewController.player?.play()
@@ -227,6 +227,6 @@ private extension EventController {
   }
 
   private func makeSafariViewController(for url: URL) -> UIViewController {
-    dependencies.navigationService.makeSafariViewController(url)
+    dependencies.navigationClient.makeSafariViewController(url)
   }
 }

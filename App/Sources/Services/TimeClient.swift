@@ -1,21 +1,21 @@
 import Foundation
 
-struct TimeService {
+struct TimeClient {
   var now: () -> Date
   var startMonitoring: () -> Void
   var stopMonitoring: () -> Void
   var addObserver: (@escaping () -> Void) -> NSObjectProtocol
 }
 
-extension TimeService {
-  init(timeInterval: TimeInterval = 10, timerProvider: TimeServiceProvider = TimeServiceTimerProvider()) {
+extension TimeClient {
+  init(timeInterval: TimeInterval = 10, timerProvider: TimeClientProvider = TimeClientTimerProvider()) {
     let notificationCenter = NotificationCenter()
 
     func timerDidFire() {
       notificationCenter.post(Notification(name: .timeDidChange))
     }
 
-    var timer: TimeServiceTimer?
+    var timer: TimeClientTimer?
 
     startMonitoring = {
       timer = timerProvider.scheduledTimer(withTimeInterval: timeInterval, repeats: true) { _ in
@@ -45,20 +45,20 @@ extension TimeService {
   }
 }
 
-private final class TimeServiceTimerProvider: TimeServiceProvider {
-  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (TimeServiceTimer) -> Void) -> TimeServiceTimer {
+private final class TimeClientTimerProvider: TimeClientProvider {
+  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (TimeClientTimer) -> Void) -> TimeClientTimer {
     Timer.scheduledTimer(withTimeInterval: interval, repeats: repeats, block: block)
   }
 }
 
-extension Timer: TimeServiceTimer {}
+extension Timer: TimeClientTimer {}
 
 private extension Notification.Name {
   static var timeDidChange: Notification.Name { Notification.Name(#function) }
 }
 
 /// @mockable
-protocol TimeServiceProtocol {
+protocol TimeClientProtocol {
   #if DEBUG
   var now: () -> Date { get set }
   #else
@@ -70,18 +70,18 @@ protocol TimeServiceProtocol {
   var addObserver: (@escaping () -> Void) -> NSObjectProtocol { get }
 }
 
-extension TimeService: TimeServiceProtocol {}
+extension TimeClient: TimeClientProtocol {}
 
 /// @mockable
-protocol TimeServiceTimer {
+protocol TimeClientTimer {
   func invalidate()
 }
 
 /// @mockable
-protocol TimeServiceProvider {
-  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (TimeServiceTimer) -> Void) -> TimeServiceTimer
+protocol TimeClientProvider {
+  func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (TimeClientTimer) -> Void) -> TimeClientTimer
 }
 
-protocol HasTimeService {
-  var timeService: TimeServiceProtocol { get set }
+protocol HasTimeClient {
+  var timeClient: TimeClientProtocol { get set }
 }

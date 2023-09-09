@@ -1,6 +1,6 @@
 import Dispatch
 
-struct VideosService {
+struct VideosClient {
   struct Videos: Equatable {
     let watching, watched: [Event]
   }
@@ -8,8 +8,8 @@ struct VideosService {
   var loadVideos: (@escaping (Result<Videos, Error>) -> Void) -> Void
 }
 
-extension VideosService {
-  init(playbackService: PlaybackServiceProtocol, persistenceService: PersistenceServiceProtocol) {
+extension VideosClient {
+  init(playbackClient: PlaybackClientProtocol, persistenceClient: PersistenceClientProtocol) {
     loadVideos = { completion in
       let group = DispatchGroup()
       var groupError: Error?
@@ -17,7 +17,7 @@ extension VideosService {
       var watched: [Event]?
 
       group.enter()
-      persistenceService.eventsByIdentifier(playbackService.watched()) { result in
+      persistenceClient.eventsByIdentifier(playbackClient.watched()) { result in
         switch result {
         case let .failure(error):
           groupError = groupError ?? error
@@ -28,7 +28,7 @@ extension VideosService {
       }
 
       group.enter()
-      persistenceService.eventsByIdentifier(playbackService.watching()) { result in
+      persistenceClient.eventsByIdentifier(playbackClient.watching()) { result in
         switch result {
         case let .failure(error):
           groupError = groupError ?? error
@@ -50,12 +50,12 @@ extension VideosService {
 }
 
 /// @mockable
-protocol VideosServiceProtocol {
-  var loadVideos: (@escaping (Result<VideosService.Videos, Error>) -> Void) -> Void { get }
+protocol VideosClientProtocol {
+  var loadVideos: (@escaping (Result<VideosClient.Videos, Error>) -> Void) -> Void { get }
 }
 
-extension VideosService: VideosServiceProtocol {}
+extension VideosClient: VideosClientProtocol {}
 
-protocol HasVideosService {
-  var videosService: VideosServiceProtocol { get }
+protocol HasVideosClient {
+  var videosClient: VideosClientProtocol { get }
 }
