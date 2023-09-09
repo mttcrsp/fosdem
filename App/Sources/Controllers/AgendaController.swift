@@ -249,11 +249,7 @@ private extension AgendaController {
     let agendaSplitViewController = UISplitViewController()
     agendaSplitViewController.viewControllers = [makeAgendaNavigationController()]
     agendaSplitViewController.preferredPrimaryColumnWidthFraction = 0.4
-    #if targetEnvironment(macCatalyst)
     agendaSplitViewController.preferredDisplayMode = .oneBesideSecondary
-    #else
-    agendaSplitViewController.preferredDisplayMode = .allVisible
-    #endif
     agendaSplitViewController.maximumPrimaryColumnWidth = 375
     return agendaSplitViewController
   }

@@ -68,7 +68,7 @@ final class MapController: MapContainerViewController {
     #if targetEnvironment(macCatalyst)
     return .denied
     #else
-    return CLLocationManager.authorizationStatus()
+    return locationManager.authorizationStatus
     #endif
   }
 

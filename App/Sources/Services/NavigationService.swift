@@ -17,11 +17,7 @@ extension NavigationService {
     searchController.tabBarItem.accessibilityIdentifier = "search"
     searchController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
     searchController.title = L10n.Search.title
-    #if targetEnvironment(macCatalyst)
     searchController.preferredDisplayMode = .oneBesideSecondary
-    #else
-    searchController.preferredDisplayMode = .allVisible
-    #endif
     searchController.preferredPrimaryColumnWidthFraction = 0.4
     searchController.maximumPrimaryColumnWidth = 375
     return searchController
@@ -50,11 +46,7 @@ extension NavigationService {
     moreController.tabBarItem.accessibilityIdentifier = "more"
     moreController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
     moreController.title = L10n.More.title
-    #if targetEnvironment(macCatalyst)
     moreController.preferredDisplayMode = .oneBesideSecondary
-    #else
-    moreController.preferredDisplayMode = .allVisible
-    #endif
     moreController.preferredPrimaryColumnWidthFraction = 0.4
     moreController.maximumPrimaryColumnWidth = 375
     return moreController
