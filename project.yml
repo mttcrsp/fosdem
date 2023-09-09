@@ -12,7 +12,7 @@ options:
   bundleIdPrefix: com.mttcrsp.fosdem
   createIntermediateGroups: true
   deploymentTarget:
-    iOS: "11.0"
+    iOS: "13.0"
     macOS: '10.13'
   transitivelyLinkDependencies: true
   preGenCommand: make run_mockolo run_swiftgen
