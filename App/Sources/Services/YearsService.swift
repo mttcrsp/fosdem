@@ -50,9 +50,8 @@ extension YearsService {
             try fileManager.createDirectory(at: try yearsDirectory(), withIntermediateDirectories: true, attributes: nil)
             fileManager.createFile(atPath: try path(forYear: year), contents: nil, attributes: nil)
 
-            let operation = UpsertSchedule(schedule: schedule)
             let persistenceService = try makePersistenceService(for: year)
-            persistenceService.performWrite(operation, completion: completion)
+            persistenceService.upsertSchedule(schedule, completion)
           } catch {
             completion(error)
           }
@@ -96,7 +95,9 @@ protocol YearsServicePersistenceBuilder {
 
 private class PersistenceServiceBuilder: YearsServicePersistenceBuilder {
   func makePersistenceService(withPath path: String) throws -> PersistenceServiceProtocol {
-    try PersistenceService(path: path, migrations: .allMigrations)
+    let persistenceService = PersistenceService()
+    try persistenceService.load(path)
+    return persistenceService
   }
 }
 

@@ -15,8 +15,7 @@ extension EventsSearchController {
       return
     }
 
-    let operation = GetEventsBySearch(query: query)
-    persistenceService.performRead(operation) { [weak self] result in
+    persistenceService.eventsBySearch(query) { [weak self] result in
       DispatchQueue.main.async {
         switch result {
         case .failure:

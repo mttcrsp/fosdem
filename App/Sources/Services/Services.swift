@@ -62,7 +62,8 @@ class Services {
     }
     try preloadService.preloadDatabaseIfNeeded()
 
-    _persistenceService = try PersistenceService(path: try preloadService.databasePath(), migrations: .allMigrations)
+    _persistenceService = PersistenceService()
+    try _persistenceService.load(try preloadService.databasePath())
 
     if launchService.didLaunchAfterFosdemYearChange() {
       favoritesService.removeAllTracksAndEvents()

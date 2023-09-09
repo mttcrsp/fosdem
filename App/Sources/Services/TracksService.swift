@@ -14,7 +14,7 @@ struct TracksService {
 extension TracksService {
   init(favoritesService: FavoritesServiceProtocol, persistenceService: PersistenceServiceProtocol) {
     loadConfiguration = { completion in
-      persistenceService.performRead(GetAllTracks()) { result in
+      persistenceService.allTracks { result in
         guard case let .success(tracks) = result else { return }
 
         var configuration = TracksConfiguration()

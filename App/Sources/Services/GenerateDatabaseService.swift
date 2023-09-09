@@ -18,9 +18,15 @@ extension GenerateDatabaseService {
           completion(.failure(error))
         case let .success(schedule):
           do {
-            let persistenceService = try PersistenceService(path: databaseFile.path, migrations: .allMigrations)
-            try persistenceService.performWriteSync(UpsertSchedule(schedule: schedule))
-            completion(.success(databaseFile))
+            let persistenceService = PersistenceService()
+            try persistenceService.load(databaseFile.path)
+            persistenceService.upsertSchedule(schedule) { error in
+              if let error {
+                completion(.failure(error))
+              } else {
+                completion(.success(databaseFile))
+              }
+            }
           } catch {
             completion(.failure(error))
           }

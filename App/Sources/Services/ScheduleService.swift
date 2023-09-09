@@ -37,8 +37,7 @@ extension ScheduleService {
         guard isEnabled else { return }
         #endif
 
-        let operation = UpsertSchedule(schedule: schedule)
-        persistenceService.performWrite(operation) { error in
+        persistenceService.upsertSchedule(schedule) { error in
           assert(error == nil)
           isUpdating = false
           latestUpdate = Date()
@@ -101,7 +100,7 @@ extension NetworkService: ScheduleServiceNetwork {}
 
 /// @mockable
 protocol ScheduleServicePersistence {
-  func performWrite(_ write: PersistenceServiceWrite, completion: @escaping (Error?) -> Void)
+  var upsertSchedule: (Schedule, @escaping (Error?) -> Void) -> Void { get }
 }
 
 extension PersistenceService: ScheduleServicePersistence {}

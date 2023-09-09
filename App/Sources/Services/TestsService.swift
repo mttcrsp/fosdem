@@ -136,8 +136,9 @@ private struct OverrideVideo: PostInitCommand {
       try video.write(to: url)
 
       let links = [Link(name: "test", url: url)]
-      let write = UpdateLinksForEvent(eventID: 11717, links: links)
-      try services.persistenceService.performWriteSync(write)
+      services.persistenceService.updateLinksForEvent(11717, links) { error in
+        assert(error == nil)
+      }
     } catch {
       assertionFailure(error.localizedDescription)
     }

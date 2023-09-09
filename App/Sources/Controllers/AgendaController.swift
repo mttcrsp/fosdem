@@ -74,8 +74,7 @@ final class AgendaController: UIViewController {
       rootViewController = makeAgendaSplitViewController()
     }
 
-    let operation = GetEventsByIdentifiers(identifiers: identifiers)
-    dependencies.persistenceService.performRead(operation) { result in
+    dependencies.persistenceService.eventsByIdentifier(identifiers) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case let .failure(error):

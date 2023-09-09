@@ -17,9 +17,7 @@ extension VideosService {
       var watched: [Event]?
 
       group.enter()
-      let watchedIdentifiers = playbackService.watched()
-      let watchedOperation = GetEventsByIdentifiers(identifiers: watchedIdentifiers)
-      persistenceService.performRead(watchedOperation) { result in
+      persistenceService.eventsByIdentifier(playbackService.watched()) { result in
         switch result {
         case let .failure(error):
           groupError = groupError ?? error
@@ -30,9 +28,7 @@ extension VideosService {
       }
 
       group.enter()
-      let watchingIdentifiers = playbackService.watching()
-      let watchingOperation = GetEventsByIdentifiers(identifiers: watchingIdentifiers)
-      persistenceService.performRead(watchingOperation) { result in
+      persistenceService.eventsByIdentifier(playbackService.watching()) { result in
         switch result {
         case let .failure(error):
           groupError = groupError ?? error

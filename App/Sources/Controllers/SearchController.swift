@@ -203,7 +203,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    persistenceService.performRead(GetEventsByTrack(track: track.name)) { [weak tracksViewController] result in
+    persistenceService.eventsByTrack(track.name) { [weak tracksViewController] result in
       DispatchQueue.main.async { [weak self] in
         guard let self = self, let tracksViewController = tracksViewController else { return }
 
