@@ -11,14 +11,7 @@ protocol NetworkRequest {
   func decode(_ data: Data?, response: HTTPURLResponse?) throws -> Model
 }
 
-protocol NetworkServiceDelegate: AnyObject {
-  func networkServiceDidBeginRequest(_ networkService: NetworkService)
-  func networkServiceDidEndRequest(_ networkService: NetworkService)
-}
-
 final class NetworkService {
-  weak var delegate: NetworkServiceDelegate?
-
   private let session: NetworkServiceSession
 
   init(session: NetworkServiceSession) {
@@ -27,11 +20,7 @@ final class NetworkService {
 
   @discardableResult
   func perform<Request: NetworkRequest>(_ request: Request, completion: @escaping (Result<Request.Model, Error>) -> Void) -> NetworkServiceTask {
-    let task = session.dataTask(with: request.httpRequest) { [weak self] data, response, error in
-      if let self = self {
-        self.delegate?.networkServiceDidEndRequest(self)
-      }
-
+    let task = session.dataTask(with: request.httpRequest) { data, response, error in
       if let error = error as? URLError, error.code == .cancelled {
         return // Do nothing
       } else if let error = error {
@@ -47,8 +36,6 @@ final class NetworkService {
     }
 
     task.resume()
-    delegate?.networkServiceDidBeginRequest(self)
-
     return task
   }
 }
