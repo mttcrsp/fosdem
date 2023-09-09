@@ -1,84 +1,92 @@
 import UIKit
 
-final class UbiquitousPreferencesService {
-  private let notificationCenter = NotificationCenter()
-  private let ubiquitousStore: UbiquitousPreferencesServiceStore
-  private let ubiquitousNotificationCenter: NotificationCenter
-  private var ubiquitousObservers: [NSObjectProtocol] = []
+struct UbiquitousPreferencesService {
+  var set: (Any?, String) -> Void
+  var value: (String) -> Any?
+  var removeValue: (String) -> Void
 
+  var addObserver: (@escaping (String) -> Void) -> NSObjectProtocol
+  var removeObserver: (NSObjectProtocol) -> Void
+
+  var startMonitoring: () -> Void
+  var stopMonitoring: () -> Void
+}
+
+extension UbiquitousPreferencesService {
   init(ubiquitousStore: UbiquitousPreferencesServiceStore = NSUbiquitousKeyValueStore.default, ubiquitousNotificationCenter: NotificationCenter = .default) {
-    self.ubiquitousStore = ubiquitousStore
-    self.ubiquitousNotificationCenter = ubiquitousNotificationCenter
-  }
+    let notificationCenter = NotificationCenter()
 
-  func set(_ value: Any?, forKey key: String) {
-    ubiquitousStore.set(value, forKey: key)
-  }
+    var ubiquitousObservers: [NSObjectProtocol] = []
 
-  func value(forKey key: String) -> Any? {
-    ubiquitousStore.object(forKey: key)
-  }
+    func didChangeExternally(_ notification: Notification) {
+      guard let userInfo = notification.userInfo,
+            let reason = userInfo[NSUbiquitousKeyValueStoreChangeReasonKey] as? Int,
+            let changedKeys = userInfo[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] else { return }
 
-  func removeValue(forKey key: String) {
-    ubiquitousStore.removeObject(forKey: key)
-  }
+      switch reason {
+      case NSUbiquitousKeyValueStoreServerChange, NSUbiquitousKeyValueStoreInitialSyncChange:
+        let notificationUserInfo = [NSUbiquitousKeyValueStoreChangedKeysKey: changedKeys]
+        let notification = Notification(name: .didChangeValue, userInfo: notificationUserInfo)
+        notificationCenter.post(notification)
+      case NSUbiquitousKeyValueStoreAccountChange:
+        break
+      case NSUbiquitousKeyValueStoreQuotaViolationChange:
+        assertionFailure("iCloud Key-Value storage quota exceeded")
+      default:
+        assertionFailure("Unknown NSUbiquitousKeyValueStore.didChangeExternallyNotification notification received with reason '\(reason)'")
+      }
+    }
 
-  func addObserver(_ handler: @escaping (String) -> Void) -> NSObjectProtocol {
-    notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: .main) { notification in
-      if let changedKeys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] {
-        for key in changedKeys {
-          handler(key)
+    set = { value, key in
+      ubiquitousStore.set(value, forKey: key)
+    }
+
+    value = { key in
+      ubiquitousStore.object(forKey: key)
+    }
+
+    removeValue = { key in
+      ubiquitousStore.removeObject(forKey: key)
+    }
+
+    addObserver = { handler in
+      notificationCenter.addObserver(forName: .didChangeValue, object: nil, queue: .main) { notification in
+        if let changedKeys = notification.userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] {
+          for key in changedKeys {
+            handler(key)
+          }
         }
       }
     }
-  }
 
-  func removeObserver(_ observer: NSObjectProtocol) {
-    notificationCenter.removeObserver(observer)
-  }
-
-  func startMonitoring() {
-    guard ubiquitousObservers.isEmpty else {
-      return assertionFailure("Attempted to start monitoring on already active ubiquitous preferences service \(self)")
+    removeObserver = { observer in
+      notificationCenter.removeObserver(observer)
     }
 
-    ubiquitousObservers = [
-      ubiquitousNotificationCenter.addObserver(forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil, queue: nil) { [weak self] notification in
-        self?.didChangeExternally(notification)
-      },
-      ubiquitousNotificationCenter.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { [weak self] _ in
-        self?.ubiquitousStore.synchronize()
-      },
-    ]
-    ubiquitousStore.synchronize()
-  }
+    startMonitoring = {
+      guard ubiquitousObservers.isEmpty else {
+        return assertionFailure("Attempted to start monitoring on already active ubiquitous preferences service")
+      }
 
-  func stopMonitoring() {
-    guard !ubiquitousObservers.isEmpty else {
-      return assertionFailure("Attempted to stop monitoring on inactive ubiquitous preferences service \(self)")
+      ubiquitousObservers = [
+        ubiquitousNotificationCenter.addObserver(forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: nil, queue: nil) { notification in
+          didChangeExternally(notification)
+        },
+        ubiquitousNotificationCenter.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil) { _ in
+          ubiquitousStore.synchronize()
+        },
+      ]
+      ubiquitousStore.synchronize()
     }
 
-    for observer in ubiquitousObservers {
-      ubiquitousNotificationCenter.removeObserver(observer)
-    }
-  }
+    stopMonitoring = {
+      guard !ubiquitousObservers.isEmpty else {
+        return assertionFailure("Attempted to stop monitoring on inactive ubiquitous preferences service")
+      }
 
-  private func didChangeExternally(_ notification: Notification) {
-    guard let userInfo = notification.userInfo,
-          let reason = userInfo[NSUbiquitousKeyValueStoreChangeReasonKey] as? Int,
-          let changedKeys = userInfo[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String] else { return }
-
-    switch reason {
-    case NSUbiquitousKeyValueStoreServerChange, NSUbiquitousKeyValueStoreInitialSyncChange:
-      let notificationUserInfo = [NSUbiquitousKeyValueStoreChangedKeysKey: changedKeys]
-      let notification = Notification(name: .didChangeValue, userInfo: notificationUserInfo)
-      notificationCenter.post(notification)
-    case NSUbiquitousKeyValueStoreAccountChange:
-      break
-    case NSUbiquitousKeyValueStoreQuotaViolationChange:
-      assertionFailure("iCloud Key-Value storage quota exceeded")
-    default:
-      assertionFailure("Unknown NSUbiquitousKeyValueStore.didChangeExternallyNotification notification received with reason '\(reason)'")
+      for observer in ubiquitousObservers {
+        ubiquitousNotificationCenter.removeObserver(observer)
+      }
     }
   }
 }
@@ -100,15 +108,15 @@ extension NSUbiquitousKeyValueStore: UbiquitousPreferencesServiceStore {}
 
 /// @mockable
 protocol UbiquitousPreferencesServiceProtocol {
-  func set(_ value: Any?, forKey key: String)
-  func value(forKey key: String) -> Any?
-  func removeValue(forKey key: String)
+  var set: (Any?, String) -> Void { get }
+  var value: (String) -> Any? { get }
+  var removeValue: (String) -> Void { get }
 
-  func addObserver(_ handler: @escaping (String) -> Void) -> NSObjectProtocol
-  func removeObserver(_ observer: NSObjectProtocol)
+  var addObserver: (@escaping (String) -> Void) -> NSObjectProtocol { get }
+  var removeObserver: (NSObjectProtocol) -> Void { get }
 
-  func startMonitoring()
-  func stopMonitoring()
+  var startMonitoring: () -> Void { get }
+  var stopMonitoring: () -> Void { get }
 }
 
 extension UbiquitousPreferencesService: UbiquitousPreferencesServiceProtocol {}
