@@ -15,7 +15,7 @@ final class GenerateDatabaseService {
       .appendingPathComponent("db")
       .appendingPathExtension("sqlite")
 
-    networkService.perform(ScheduleRequest(year: 2023)) { result in
+    networkService.perform(ScheduleRequest(year: YearsService.current)) { result in
       switch result {
       case let .failure(error):
         completion(.failure(error))

@@ -124,7 +124,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
 
   func yearsViewController(_ yearsViewController: YearsViewController, loadingDidSucceedFor year: Int, retryHandler: @escaping () -> Void) {
     do {
-      let persistenceService = try dependencies.yearsService.makePersistenceService(forYear: year)
+      let persistenceService = try dependencies.yearsService.makePersistenceService(year)
       let yearViewController = makeYearViewController(forYear: year, with: persistenceService)
       yearsViewController.show(yearViewController, sender: nil)
     } catch {
