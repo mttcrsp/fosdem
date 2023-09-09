@@ -1,32 +1,30 @@
 import Foundation
 
-final class AcknowledgementsService {
+struct AcknowledgementsService {
   enum Error: CustomNSError {
     case resourceNotFound
   }
 
-  private let dataProvider: AcknowledgementsServiceDataProvider
-  private let bundle: AcknowledgementsServiceBundle
+  var loadAcknowledgements: () throws -> [Acknowledgement]
+}
 
+extension AcknowledgementsService {
   init(bundle: AcknowledgementsServiceBundle = Bundle.main, dataProvider: AcknowledgementsServiceDataProvider = AcknowledgementsServiceData()) {
-    self.dataProvider = dataProvider
-    self.bundle = bundle
-  }
+    loadAcknowledgements = {
+      guard let url = bundle.url(forResource: "acknowledgements", withExtension: "json") else {
+        throw Error.resourceNotFound
+      }
 
-  func loadAcknowledgements() throws -> [Acknowledgement] {
-    guard let url = bundle.url(forResource: "acknowledgements", withExtension: "json") else {
-      throw Error.resourceNotFound
+      let data = try dataProvider.data(withContentsOf: url)
+      let decoder = JSONDecoder()
+      return try decoder.decode([Acknowledgement].self, from: data)
     }
-
-    let data = try dataProvider.data(withContentsOf: url)
-    let decoder = JSONDecoder()
-    return try decoder.decode([Acknowledgement].self, from: data)
   }
 }
 
 /// @mockable
 protocol AcknowledgementsServiceProtocol {
-  func loadAcknowledgements() throws -> [Acknowledgement]
+  var loadAcknowledgements: () throws -> [Acknowledgement] { get }
 }
 
 extension AcknowledgementsService: AcknowledgementsServiceProtocol {}
