@@ -172,70 +172,6 @@ final class AgendaController: UIViewController {
   }
 }
 
-extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in eventsViewController: EventsViewController) -> [Event] {
-    switch eventsViewController {
-    case agendaViewController:
-      return events
-    case soonViewController:
-      return eventsStartingSoon
-    default:
-      return []
-    }
-  }
-
-  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
-    let items: [String?]
-
-    switch eventsViewController {
-    case agendaViewController:
-      items = [event.formattedStart, event.room, event.track]
-    case soonViewController:
-      items = [event.formattedStart, event.room]
-    default:
-      return nil
-    }
-
-    return items.compactMap { $0 }.joined(separator: " - ")
-  }
-
-  func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
-    switch eventsViewController {
-    case soonViewController:
-      let eventViewController = makeSoonEventViewController(for: event)
-      eventsViewController.show(eventViewController, sender: nil)
-    case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
-      break
-    case agendaViewController:
-      let eventViewController = makeEventViewController(for: event)
-      eventsViewController.showDetailViewController(eventViewController, sender: nil)
-      UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
-    default:
-      break
-    }
-  }
-}
-
-extension AgendaController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
-  func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    !favoritesClient.contains(event)
-  }
-
-  func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    favoritesClient.addEvent(event.id)
-  }
-
-  func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    favoritesClient.removeEvent(event.id)
-  }
-}
-
-extension AgendaController: EventsViewControllerLiveDataSource {
-  func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool {
-    eventsViewController == agendaViewController && event.isLive(at: timeClient.now())
-  }
-}
-
 private extension AgendaController {
   func makeAgendaSplitViewController() -> UISplitViewController {
     let agendaSplitViewController = UISplitViewController()
@@ -265,11 +201,26 @@ private extension AgendaController {
     agendaViewController.title = L10n.Agenda.title
     agendaViewController.navigationItem.largeTitleDisplayMode = .always
     agendaViewController.navigationItem.rightBarButtonItem = soonButton
-    agendaViewController.favoritesDataSource = self
-    agendaViewController.favoritesDelegate = self
-    agendaViewController.liveDataSource = self
-    agendaViewController.dataSource = self
-    agendaViewController.delegate = self
+    agendaViewController.favoriting = favoritesClient.favoriting
+    agendaViewController.liveDisplaying = .init { [weak self] event in
+      if let self {
+        event.isLive(at: self.timeClient.now())
+      } else {
+        false
+      }
+    }
+    agendaViewController.events = events
+    agendaViewController.onEventTap = { [weak self, weak agendaViewController] event in
+      if let self, eventViewController?.fos_eventID == event.id, traitCollection.horizontalSizeClass == .regular {
+        return
+      }
+
+      if let self, let agendaViewController {
+        let eventViewController = makeEventViewController(for: event)
+        agendaViewController.showDetailViewController(eventViewController, sender: nil)
+        UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
+      }
+    }
     self.agendaViewController = agendaViewController
     return agendaViewController
   }
@@ -284,10 +235,14 @@ private extension AgendaController {
     soonViewController.emptyBackgroundTitle = L10n.Soon.Empty.title
     soonViewController.title = L10n.Soon.title
     soonViewController.navigationItem.rightBarButtonItem = dismissButton
-    soonViewController.favoritesDataSource = self
-    soonViewController.favoritesDelegate = self
-    soonViewController.dataSource = self
-    soonViewController.delegate = self
+    soonViewController.favoriting = favoritesClient.favoriting
+    soonViewController.events = eventsStartingSoon
+    soonViewController.onEventTap = { [weak self, weak soonViewController] event in
+      if let self, let soonViewController {
+        let eventViewController = makeSoonEventViewController(for: event)
+        soonViewController.show(eventViewController, sender: nil)
+      }
+    }
     self.soonViewController = soonViewController
     return soonViewController
   }
@@ -312,5 +267,15 @@ private extension UIViewController {
   var fos_eventID: Int? {
     get { objc_getAssociatedObject(self, &UIViewController.eventIDKey) as? Int }
     set { objc_setAssociatedObject(self, &UIViewController.eventIDKey, newValue as Int?, .OBJC_ASSOCIATION_COPY_NONATOMIC) }
+  }
+}
+
+extension FavoritesClient {
+  var favoriting: EventsViewController.Favoriting {
+    .init(
+      isFavorite: contains,
+      onFavoriteTap: { event in addEvent(event.id) },
+      onUnfavoriteTap: { event in removeEvent(event.id) }
+    )
   }
 }

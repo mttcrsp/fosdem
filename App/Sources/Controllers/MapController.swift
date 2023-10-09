@@ -175,42 +175,6 @@ extension MapController: MapViewControllerDelegate {
   }
 }
 
-extension MapController: BlueprintsViewControllerDelegate {
-  func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController) {
-    if blueprintsViewController == embeddedBlueprintsViewController {
-      mapViewController?.deselectSelectedAnnotation()
-    } else if blueprintsViewController == fullscreenBlueprintsViewController {
-      blueprintsViewController.dismiss(animated: true)
-    }
-  }
-
-  func blueprintsViewController(_ presentingViewController: BlueprintsViewController, didSelect blueprint: Blueprint) {
-    guard let building = presentingViewController.building else { return }
-
-    let blueprintsViewController = makeFullscreeBlueprintsViewController(for: building, showing: blueprint)
-    let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
-    blueprintsNavigationController.modalPresentationStyle = .overFullScreen
-
-    let navigationBar = blueprintsNavigationController.navigationBar
-    navigationBar.setBackgroundImage(UIImage(), for: .default)
-    navigationBar.shadowImage = UIImage()
-
-    let transition = FullscreenBlueprintsDismissalTransition(dismissedViewController: blueprintsNavigationController)
-    blueprintsNavigationController.view.addGestureRecognizer(transition.panRecognizer)
-    blueprintsNavigationController.transitioningDelegate = transition
-    self.transition = transition
-
-    presentingViewController.present(blueprintsNavigationController, animated: true)
-
-    blueprintsNavigationController.view.alpha = 0
-    blueprintsNavigationController.transitionCoordinator?.animate(alongsideTransition: { [weak blueprintsNavigationController] _ in
-      blueprintsNavigationController?.view.alpha = 1
-    }, completion: { [weak blueprintsNavigationController] _ in
-      blueprintsNavigationController?.view.alpha = 1
-    })
-  }
-}
-
 extension MapController: CLLocationManagerDelegate {
   func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     mapViewController?.setAuthorizationStatus(status)
@@ -228,7 +192,35 @@ private extension MapController {
 
   func makeEmbeddedBlueprintsViewController() -> BlueprintsViewController {
     let blueprintsViewController = BlueprintsViewController(style: .embedded)
-    blueprintsViewController.blueprintsDelegate = self
+    blueprintsViewController.onDismissTap = { [weak self] in
+      self?.mapViewController?.deselectSelectedAnnotation()
+    }
+    blueprintsViewController.onBlueprintTap = { [weak self, weak blueprintsViewController] blueprint in
+      guard let self, let building = blueprintsViewController?.building else { return }
+
+      let fullscreenViewController = makeFullscreeBlueprintsViewController(for: building, showing: blueprint)
+      let fullscreenNavigationController = UINavigationController(rootViewController: fullscreenViewController)
+      fullscreenNavigationController.modalPresentationStyle = .overFullScreen
+
+      let navigationBar = fullscreenNavigationController.navigationBar
+      navigationBar.setBackgroundImage(UIImage(), for: .default)
+      navigationBar.shadowImage = UIImage()
+
+      let transition = FullscreenBlueprintsDismissalTransition(dismissedViewController: fullscreenNavigationController)
+      fullscreenNavigationController.view.addGestureRecognizer(transition.panRecognizer)
+      fullscreenNavigationController.transitioningDelegate = transition
+      self.transition = transition
+
+      blueprintsViewController?.present(fullscreenNavigationController, animated: true)
+
+      fullscreenNavigationController.view.alpha = 0
+      fullscreenNavigationController.transitionCoordinator?.animate(alongsideTransition: { [weak fullscreenNavigationController] _ in
+        fullscreenNavigationController?.view.alpha = 1
+      }, completion: { [weak fullscreenNavigationController] _ in
+        fullscreenNavigationController?.view.alpha = 1
+      })
+    }
+
     embeddedBlueprintsViewController = blueprintsViewController
     return blueprintsViewController
   }
@@ -236,7 +228,9 @@ private extension MapController {
   func makeFullscreeBlueprintsViewController(for building: Building, showing blueprint: Blueprint) -> BlueprintsViewController {
     let blueprintsViewController = BlueprintsViewController(style: .fullscreen)
     blueprintsViewController.building = building
-    blueprintsViewController.blueprintsDelegate = self
+    blueprintsViewController.onDismissTap = { [weak blueprintsViewController] in
+      blueprintsViewController?.dismiss(animated: true)
+    }
     blueprintsViewController.setVisibleBlueprint(blueprint, animated: false)
     fullscreenBlueprintsViewController = blueprintsViewController
     return blueprintsViewController

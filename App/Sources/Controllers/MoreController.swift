@@ -138,22 +138,6 @@ extension MoreController: MoreViewControllerDelegate {
   }
 }
 
-extension MoreController: AcknowledgementsViewControllerDataSource, AcknowledgementsViewControllerDelegate {
-  func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement) {
-    openClient.open(acknowledgement.url) { [weak acknowledgementsViewController] _ in
-      acknowledgementsViewController?.deselectSelectedRow(animated: true)
-    }
-  }
-}
-
-#if DEBUG
-extension MoreController: UIPopoverPresentationControllerDelegate, DateViewControllerDelegate {
-  func dateViewControllerDidChange(_: DateViewController) {
-    // timeClient.now = { dateViewController.date }
-  }
-}
-#endif
-
 private extension MoreController {
   private var preferredDetailViewControllerStyle: UITableView.Style {
     if traitCollection.userInterfaceIdiom == .pad {
@@ -174,8 +158,12 @@ private extension MoreController {
   func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
     let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
     acknowledgementsViewController.title = L10n.Acknowledgements.title
-    acknowledgementsViewController.dataSource = self
-    acknowledgementsViewController.delegate = self
+    acknowledgementsViewController.acknowledgements = acknowledgements
+    acknowledgementsViewController.onAcknowledgementTap = { [weak self, weak acknowledgementsViewController] acknowledgement in
+      self?.openClient.open(acknowledgement.url) { _ in
+        acknowledgementsViewController?.deselectSelectedRow(animated: true)
+      }
+    }
     return acknowledgementsViewController
   }
 
@@ -202,7 +190,7 @@ private extension MoreController {
   #if DEBUG
   private func makeDateViewController(for date: Date) -> DateViewController {
     let timeViewController = DateViewController()
-    timeViewController.delegate = self
+    timeViewController.onChange = { /**/ }
     timeViewController.date = date
     return timeViewController
   }

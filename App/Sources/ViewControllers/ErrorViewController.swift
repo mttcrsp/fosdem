@@ -1,21 +1,13 @@
 import UIKit
 
-/// @mockable
-protocol ErrorViewControllerDelegate: AnyObject {
-  func errorViewControllerDidTapAppStore(_ errorViewController: ErrorViewController)
-}
-
 final class ErrorViewController: UIViewController {
-  weak var delegate: ErrorViewControllerDelegate?
-
-  var showsAppStoreButton: Bool {
-    get { !actionButton.isHidden }
-    set { actionButton.isHidden = !newValue }
+  var onAppStoreTap: (() -> Void)? {
+    didSet { appStoreButton.isHidden = onAppStoreTap == nil }
   }
 
   private let titleLabel = UILabel()
   private let messageLabel = UILabel()
-  private let actionButton = RoundedButton()
+  private let appStoreButton = RoundedButton()
 
   init() {
     super.init(nibName: nil, bundle: nil)
@@ -33,11 +25,11 @@ final class ErrorViewController: UIViewController {
     messageLabel.font = .fos_preferredFont(forTextStyle: .headline)
     messageLabel.text = L10n.Error.Functionality.message
 
-    actionButton.isHidden = true
-    actionButton.accessibilityIdentifier = "appstore"
-    actionButton.translatesAutoresizingMaskIntoConstraints = false
-    actionButton.addTarget(self, action: #selector(didTapAction), for: .touchUpInside)
-    actionButton.setTitle(L10n.Error.Functionality.action, for: .normal)
+    appStoreButton.isHidden = true
+    appStoreButton.accessibilityIdentifier = "appstore"
+    appStoreButton.translatesAutoresizingMaskIntoConstraints = false
+    appStoreButton.addTarget(self, action: #selector(didTapAppStore), for: .touchUpInside)
+    appStoreButton.setTitle(L10n.Error.Functionality.action, for: .normal)
 
     let stackView = UIStackView(arrangedSubviews: [titleLabel, messageLabel])
     stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,7 +38,7 @@ final class ErrorViewController: UIViewController {
     stackView.spacing = 16
 
     view.addSubview(stackView)
-    view.addSubview(actionButton)
+    view.addSubview(appStoreButton)
     view.backgroundColor = .systemBackground
 
     NSLayoutConstraint.activate([
@@ -54,9 +46,9 @@ final class ErrorViewController: UIViewController {
       stackView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
       stackView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
 
-      actionButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-      actionButton.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -16),
-      actionButton.bottomAnchor.constraint(lessThanOrEqualTo: view.layoutMarginsGuide.bottomAnchor),
+      appStoreButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+      appStoreButton.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -16),
+      appStoreButton.bottomAnchor.constraint(lessThanOrEqualTo: view.layoutMarginsGuide.bottomAnchor),
     ])
   }
 
@@ -65,7 +57,7 @@ final class ErrorViewController: UIViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  @objc private func didTapAction() {
-    delegate?.errorViewControllerDidTapAppStore(self)
+  @objc private func didTapAppStore() {
+    onAppStoreTap?()
   }
 }

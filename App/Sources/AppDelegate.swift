@@ -69,16 +69,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func makeErrorViewController() -> ErrorViewController {
     let errorViewController = ErrorViewController()
-    errorViewController.showsAppStoreButton = true
-    errorViewController.delegate = self
-    return errorViewController
-  }
-}
-
-extension AppDelegate: ErrorViewControllerDelegate {
-  func errorViewControllerDidTapAppStore(_: ErrorViewController) {
-    if let url = URL.fosdemAppStore {
-      UIApplication.shared.open(url)
+    errorViewController.onAppStoreTap = {
+      if let url = URL.fosdemAppStore {
+        UIApplication.shared.open(url)
+      }
     }
+    return errorViewController
   }
 }

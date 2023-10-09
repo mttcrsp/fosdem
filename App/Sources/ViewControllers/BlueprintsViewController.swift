@@ -1,20 +1,16 @@
 import UIKit
 
-protocol BlueprintsViewControllerDelegate: AnyObject {
-  func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController)
-  func blueprintsViewController(_ blueprintsViewController: BlueprintsViewController, didSelect blueprint: Blueprint)
-}
-
 final class BlueprintsViewController: UIPageViewController {
   enum Style {
     case embedded, fullscreen
   }
 
-  weak var blueprintsDelegate: BlueprintsViewControllerDelegate?
-
   var building: Building? {
     didSet { didChangeBuilding() }
   }
+
+  var onBlueprintTap: ((Blueprint) -> Void)?
+  var onDismissTap: (() -> Void)?
 
   private lazy var fullscreenButton: UIBarButtonItem = {
     let fullscreenAction = #selector(didTapFullscreen)
@@ -122,12 +118,12 @@ final class BlueprintsViewController: UIPageViewController {
   }
 
   @objc private func didTapDismiss() {
-    blueprintsDelegate?.blueprintsViewControllerDidTapDismiss(self)
+    onDismissTap?()
   }
 
   @objc private func didTapFullscreen() {
     if let blueprint = visibleBlueprint {
-      blueprintsDelegate?.blueprintsViewController(self, didSelect: blueprint)
+      onBlueprintTap?(blueprint)
     }
   }
 

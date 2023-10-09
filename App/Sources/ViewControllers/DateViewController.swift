@@ -1,13 +1,8 @@
 #if DEBUG
-
 import UIKit
 
-protocol DateViewControllerDelegate: AnyObject {
-  func dateViewControllerDidChange(_ dateViewController: DateViewController)
-}
-
 final class DateViewController: UIViewController {
-  weak var delegate: DateViewControllerDelegate?
+  var onChange: (() -> Void)?
 
   private lazy var datePicker = UIDatePicker()
 
@@ -33,8 +28,7 @@ final class DateViewController: UIViewController {
   }
 
   @objc private func didChangeDate() {
-    delegate?.dateViewControllerDidChange(self)
+    onChange?()
   }
 }
-
 #endif

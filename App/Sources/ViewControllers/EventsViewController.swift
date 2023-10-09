@@ -1,46 +1,39 @@
 import UIKit
 
-/// @mockable
-protocol EventsViewControllerDataSource: AnyObject {
-  func events(in eventsViewController: EventsViewController) -> [Event]
-  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
-}
-
-/// @mockable
-protocol EventsViewControllerLiveDataSource: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool
-}
-
-/// @mockable
-protocol EventsViewControllerFavoritesDataSource: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, canFavorite event: Event) -> Bool
-}
-
-/// @mockable
-protocol EventsViewControllerDelegate: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event)
-}
-
-/// @mockable
-protocol EventsViewControllerFavoritesDelegate: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, didFavorite event: Event)
-  func eventsViewController(_ eventsViewController: EventsViewController, didUnfavorite event: Event)
-}
-
-/// @mockable
-protocol EventsViewControllerDeleteDelegate: AnyObject {
-  func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event)
-}
-
 final class EventsViewController: UITableViewController {
-  weak var dataSource: EventsViewControllerDataSource?
-  weak var delegate: EventsViewControllerDelegate?
+  var events: [Event] = [] {
+    didSet { didChangeEvents() }
+  }
 
-  weak var favoritesDataSource: EventsViewControllerFavoritesDataSource?
-  weak var favoritesDelegate: EventsViewControllerFavoritesDelegate?
+  var onEventTap: ((Event) -> Void)?
 
-  weak var liveDataSource: EventsViewControllerLiveDataSource?
-  weak var deleteDelegate: EventsViewControllerDeleteDelegate?
+  enum CaptionStyle {
+    case agenda
+    case soon
+  }
+
+  var captionStyle = CaptionStyle.agenda
+  private var captions: [Event: String] = [:]
+
+  struct Favoriting {
+    var isFavorite: (Event) -> Bool
+    var onFavoriteTap: (Event) -> Void
+    var onUnfavoriteTap: (Event) -> Void
+  }
+
+  var favoriting: Favoriting?
+
+  struct LiveDisplaying {
+    var isLive: (Event) -> Bool
+  }
+
+  var liveDisplaying: LiveDisplaying?
+
+  struct Deleting {
+    var onDelete: (Event) -> Void
+  }
+
+  var deleting: Deleting?
 
   var emptyBackgroundTitle: String? {
     get { emptyBackgroundView.title }
@@ -53,10 +46,6 @@ final class EventsViewController: UITableViewController {
   }
 
   private lazy var emptyBackgroundView = TableBackgroundView()
-
-  private var events: [Event] {
-    dataSource?.events(in: self) ?? []
-  }
 
   func reloadData() {
     if isViewLoaded {
@@ -128,9 +117,9 @@ final class EventsViewController: UITableViewController {
     return count
   }
 
-  override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+  override func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
     let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
-    view.text = dataSource?.eventsViewController(self, captionFor: event(forSection: section))
+    // view.text = event(forSection: section).caption
     return view
   }
 
@@ -139,11 +128,11 @@ final class EventsViewController: UITableViewController {
   }
 
   override func tableView(_: UITableView, commit _: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-    deleteDelegate?.eventsViewController(self, didDelete: event(forSection: indexPath.section))
+    deleting?.onDelete(event(forSection: indexPath.section))
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let event = self.event(forSection: indexPath.section)
+    let event = event(forSection: indexPath.section)
     let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
     cell.showsLiveIndicator = shouldShowLiveIndicator(for: event)
     cell.configure(with: event)
@@ -151,7 +140,7 @@ final class EventsViewController: UITableViewController {
   }
 
   override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-    delegate?.eventsViewController(self, didSelect: event(forSection: indexPath.section))
+    onEventTap?(event(forSection: indexPath.section))
   }
 
   override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -164,33 +153,25 @@ final class EventsViewController: UITableViewController {
   }
 
   private func actions(at indexPath: IndexPath) -> [Action] {
-    guard let favoritesDataSource = favoritesDataSource else {
+    guard let favoriting else {
       return []
     }
 
-    let event = self.event(forSection: indexPath.section)
+    let event = event(forSection: indexPath.section)
 
-    if favoritesDataSource.eventsViewController(self, canFavorite: event) {
+    if favoriting.isFavorite(event) {
       let title = L10n.Event.add
       let image = UIImage(systemName: "calendar.badge.plus")
-      return [Action(title: title, image: image) { [weak self] in
-        self?.didFavorite(event)
+      return [Action(title: title, image: image) {
+        favoriting.onFavoriteTap(event)
       }]
     } else {
       let title = L10n.Event.remove
       let image = UIImage(systemName: "calendar.badge.minus")
-      return [Action(title: title, image: image, style: .destructive) { [weak self] in
-        self?.didUnfavorite(event)
+      return [Action(title: title, image: image, style: .destructive) {
+        favoriting.onUnfavoriteTap(event)
       }]
     }
-  }
-
-  private func didFavorite(_ event: Event) {
-    favoritesDelegate?.eventsViewController(self, didFavorite: event)
-  }
-
-  private func didUnfavorite(_ event: Event) {
-    favoritesDelegate?.eventsViewController(self, didUnfavorite: event)
   }
 
   private func event(forSection section: Int) -> Event {
@@ -198,7 +179,7 @@ final class EventsViewController: UITableViewController {
   }
 
   private func shouldShowLiveIndicator(for event: Event) -> Bool {
-    liveDataSource?.eventsViewController(self, shouldShowLiveIndicatorFor: event) ?? false
+    liveDisplaying?.isLive(event) ?? false
   }
 }
 
@@ -232,4 +213,28 @@ private extension UIImage {
       UIBezierPath(ovalIn: rect).fill()
     }
   }()
+}
+
+extension [Event] {
+  var agendaCaptions: [Event: String] {
+    var captions: [Event: String] = [:]
+    for event in self {
+      captions[event] = [event.formattedStart, event.room, event.track]
+        .compactMap { $0 }
+        .joined(separator: Self.separator)
+    }
+    return captions
+  }
+
+  var soonCaptions: [Event: String] {
+    var captions: [Event: String] = [:]
+    for event in self {
+      captions[event] = [event.formattedStart, event.room]
+        .compactMap { $0 }
+        .joined(separator: Self.separator)
+    }
+    return captions
+  }
+
+  private static let separator = " - "
 }

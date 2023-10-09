@@ -1,22 +1,8 @@
 import UIKit
 
-/// @mockable
-protocol AcknowledgementsViewControllerDataSource: AnyObject {
-  var acknowledgements: [Acknowledgement] { get }
-}
-
-/// @mockable
-protocol AcknowledgementsViewControllerDelegate: AnyObject {
-  func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement)
-}
-
 final class AcknowledgementsViewController: UITableViewController {
-  weak var dataSource: AcknowledgementsViewControllerDataSource?
-  weak var delegate: AcknowledgementsViewControllerDelegate?
-
-  var acknowledgements: [Acknowledgement] {
-    dataSource?.acknowledgements ?? []
-  }
+  var onAcknowledgementTap: ((Acknowledgement) -> Void)?
+  var acknowledgements: [Acknowledgement] = []
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -36,7 +22,7 @@ final class AcknowledgementsViewController: UITableViewController {
   }
 
   override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-    delegate?.acknowledgementsViewController(self, didSelect: acknowledgement(at: indexPath))
+    onAcknowledgementTap?(acknowledgement(at: indexPath))
   }
 
   private func acknowledgement(at indexPath: IndexPath) -> Acknowledgement {
