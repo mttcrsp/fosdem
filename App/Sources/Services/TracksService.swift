@@ -36,7 +36,7 @@ final class TracksService {
           configuration.filteredFavoriteTracks[filter, default: []].append(track)
         }
 
-        if let initial = track.name.first, configuration.filteredIndexTitles[.all, default: [:]][String(initial)] == nil {
+        if let initial = track.name.first, let titles = configuration.filteredIndexTitles[.all], titles[String(initial)] == nil {
           configuration.filteredIndexTitles[.all, default: [:]][String(initial)] = offset
         }
       }
@@ -44,7 +44,7 @@ final class TracksService {
       for filter in filters.filter({ filter in filter != .all }) {
         let tracks = configuration.filteredTracks[filter] ?? []
         for (offset, track) in tracks.enumerated() {
-          if let initial = track.name.first, configuration.filteredIndexTitles[filter, default: [:]][String(initial)] == nil {
+          if let initial = track.name.first, let titles = configuration.filteredIndexTitles[filter], titles[String(initial)] == nil {
             configuration.filteredIndexTitles[filter, default: [:]][String(initial)] = offset
           }
         }
