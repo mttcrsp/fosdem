@@ -2,8 +2,8 @@ name: FOSDEM
 
 packages:
   GRDB:
-    url: https://github.com/mttcrsp/GRDB.swift
-    branch: master
+    url: https://github.com/groue/GRDB.swift
+    exactVersion: 6.23.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing.git
     exactVersion: 1.8.2
