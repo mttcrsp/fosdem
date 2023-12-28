@@ -10,12 +10,12 @@ final class GenerateDatabaseService {
     self.networkService = networkService
   }
 
-  func generate(completion: @escaping (Result<URL, Error>) -> Void) {
+  func generate(forYear year: Year, completion: @escaping (Result<URL, Error>) -> Void) {
     let databaseFile = fileManager.temporaryDirectory
       .appendingPathComponent("db")
       .appendingPathExtension("sqlite")
 
-    networkService.perform(ScheduleRequest(year: 2023)) { result in
+    networkService.perform(ScheduleRequest(year: year)) { result in
       switch result {
       case let .failure(error):
         completion(.failure(error))

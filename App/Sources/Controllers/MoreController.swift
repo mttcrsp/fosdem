@@ -215,13 +215,25 @@ private extension MoreController {
   }
 
   private func makeDatabaseViewController() -> UIAlertController {
-    let title = "Generate database", message = "Specify the year you want to generate a database for"
+    #if targetEnvironment(simulator)
+    let title = "Generate database", message = "Specify the year you want to generate a database for. Check the Xcode console for the path to the generated database file."
     let databaseViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    databaseViewController.addTextField { textField in
+      textField.keyboardType = .numberPad
+      textField.placeholder = "YYYY"
+    }
     databaseViewController.addAction(.init(title: "Cancel", style: .cancel))
-    databaseViewController.addAction(.init(title: "Generate", style: .default) { _ in
-      GenerateDatabaseService().generate { dump($0) }
+    databaseViewController.addAction(.init(title: "Generate", style: .default) { [weak databaseViewController] _ in
+      guard let text = databaseViewController?.textFields?.first?.text, let year = Year(text) else { return }
+      GenerateDatabaseService().generate(forYear: year) { dump($0) }
     })
     return databaseViewController
+    #else
+    let title = "Ooops", message = "Database files can only be generated while running on a Simulator"
+    let errorViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+    errorViewController.addAction(.init(title: "Ok", style: .default))
+    return errorViewController
+    #endif
   }
   #endif
 }
