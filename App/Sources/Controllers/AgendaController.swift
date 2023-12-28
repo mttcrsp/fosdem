@@ -1,7 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasFavoritesService & HasPersistenceService & HasTimeService & HasSoonService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasSoonService & HasTimeService
 
   var didError: ((AgendaController, Error) -> Void)?
 

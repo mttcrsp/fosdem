@@ -1,8 +1,8 @@
 import AVKit
 
 final class EventController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasPlaybackService & HasTimeService & HasNavigationService
-  typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPlaybackService & HasTimeService
+  typealias PlayerViewController = AVPlayerViewControllerProtocol & UIViewController
 
   var showsFavoriteButton = true {
     didSet { didChangeShowsFavoriteButton() }

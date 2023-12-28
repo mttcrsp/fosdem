@@ -50,7 +50,7 @@ final class EventsViewControllerTests: XCTestCase {
 
     XCTAssertEqual(
       delegate.eventsViewControllerArgValues.map(\.1),
-      [try makeEvent1(), try makeEvent2()]
+      try [makeEvent1(), makeEvent2()]
     )
   }
 
@@ -161,7 +161,7 @@ final class EventsViewControllerTests: XCTestCase {
 
     let eventsViewController = EventsViewController(style: .insetGrouped)
     eventsViewController.dataSource = dataSource
-    eventsViewController.select(try XCTUnwrap(events.last))
+    try eventsViewController.select(XCTUnwrap(events.last))
     XCTAssertEqual(UITableView.animated, true)
     XCTAssertEqual(UITableView.scrollPosition, .some(.none))
     XCTAssertEqual(UITableView.indexPath, IndexPath(row: 0, section: 100))
@@ -170,7 +170,7 @@ final class EventsViewControllerTests: XCTestCase {
     UITableView.indexPath = nil
     UITableView.scrollPosition = nil
 
-    eventsViewController.select(try XCTUnwrap(events.first))
+    try eventsViewController.select(XCTUnwrap(events.first))
     XCTAssertEqual(UITableView.animated, true)
     XCTAssertEqual(UITableView.scrollPosition, .some(.none))
     XCTAssertEqual(UITableView.indexPath, IndexPath(row: 0, section: 0))

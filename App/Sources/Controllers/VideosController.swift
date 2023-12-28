@@ -1,7 +1,7 @@
 import UIKit
 
 final class VideosController: UIPageViewController {
-  typealias Dependencies = HasVideosService & HasPlaybackService & HasNavigationService
+  typealias Dependencies = HasNavigationService & HasPlaybackService & HasVideosService
 
   var didError: ((VideosController, Error) -> Void)?
 

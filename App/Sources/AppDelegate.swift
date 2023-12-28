@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     let rootViewController: UIViewController
     do {
-      rootViewController = ApplicationController(dependencies: try makeServices())
+      rootViewController = try ApplicationController(dependencies: makeServices())
     } catch {
       rootViewController = makeErrorViewController()
     }

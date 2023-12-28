@@ -40,11 +40,10 @@ extension Event {
     let components1 = calendar.dateComponents(in: timezone, from: self.date)
     let components2 = calendar.dateComponents(in: timezone, from: date)
 
-    return (
+    return
       components1.month == components2.month &&
-        components1.year == components2.year &&
-        components1.day == components2.day
-    )
+      components1.year == components2.year &&
+      components1.day == components2.day
   }
 
   func isSameWeekday(as event: Event) -> Bool {

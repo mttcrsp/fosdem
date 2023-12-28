@@ -1,7 +1,7 @@
 import UIKit
 
 final class ApplicationController: UIViewController {
-  typealias Dependencies = HasNavigationService & HasLaunchService & HasTimeService & HasUpdateService & HasScheduleService & HasYearsService & HasOpenService & HasFavoritesService & HasUbiquitousPreferencesService
+  typealias Dependencies = HasFavoritesService & HasLaunchService & HasNavigationService & HasOpenService & HasScheduleService & HasTimeService & HasUbiquitousPreferencesService & HasUpdateService & HasYearsService
 
   private weak var tabsController: UITabBarController?
 

@@ -1,7 +1,7 @@
 import UIKit
 
 final class YearsController: YearsViewController {
-  typealias Dependencies = HasYearsService & HasNavigationService
+  typealias Dependencies = HasNavigationService & HasYearsService
 
   var didError: ((UIViewController, Error) -> Void)?
 

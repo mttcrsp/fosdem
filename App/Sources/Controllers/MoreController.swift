@@ -1,7 +1,7 @@
 import UIKit
 
 final class MoreController: UISplitViewController {
-  typealias Dependencies = HasNavigationService & HasAcknowledgementsService & HasYearsService & HasTimeService & HasOpenService
+  typealias Dependencies = HasAcknowledgementsService & HasNavigationService & HasOpenService & HasTimeService & HasYearsService
 
   private weak var moreViewController: MoreViewController?
 

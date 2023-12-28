@@ -47,7 +47,7 @@ final class EventControllerTests: XCTestCase {
   }
 
   func testAppearance() throws {
-    var eventController = EventController(event: try .withVideo(), dependencies: Dependencies())
+    var eventController = try EventController(event: .withVideo(), dependencies: Dependencies())
     let navigationController = UINavigationController(rootViewController: eventController)
     assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
@@ -57,11 +57,11 @@ final class EventControllerTests: XCTestCase {
     eventController.showsFavoriteButton = true
     assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
-    eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
+    eventController = try EventController(event: .withLivestream(), dependencies: Dependencies())
     navigationController.viewControllers = [eventController]
     assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
 
-    eventController = EventController(event: try .withLivestream(), dependencies: Dependencies())
+    eventController = try EventController(event: .withLivestream(), dependencies: Dependencies())
     navigationController.viewControllers = [eventController]
     assertSnapshot(matching: navigationController, as: .image(on: .iPadPro11))
   }
@@ -79,7 +79,7 @@ final class EventControllerTests: XCTestCase {
     }
 
     try autoreleasepool {
-      let eventController: EventController! = EventController(event: try .withVideo(), dependencies: dependencies)
+      let eventController: EventController! = try EventController(event: .withVideo(), dependencies: dependencies)
       let navigationController = UINavigationController(rootViewController: eventController)
       assertSnapshot(matching: navigationController, as: .image(on: .iPhone8Plus))
       XCTAssertEqual(favoritesService.addObserverForEventsCallCount, 1)
@@ -107,7 +107,7 @@ final class EventControllerTests: XCTestCase {
     let dependencies = Dependencies()
     dependencies.favoritesService = favoritesService
 
-    let eventController = EventController(event: try .withVideo(), dependencies: dependencies)
+    let eventController = try EventController(event: .withVideo(), dependencies: dependencies)
     assertSnapshot(matching: eventController, as: .image(on: .iPhone8Plus))
 
     let eventID = eventController.event.id
@@ -129,7 +129,7 @@ final class EventControllerTests: XCTestCase {
     let audioSession = AVAudioSessionProtocolMock()
 
     try autoreleasepool {
-      let eventController = EventController(event: try .withLivestream(), dependencies: Dependencies(), audioSession: audioSession)
+      let eventController = try EventController(event: .withLivestream(), dependencies: Dependencies(), audioSession: audioSession)
       eventController.playerViewController(AVPlayerViewController(), willBeginFullScreenPresentationWithAnimationCoordinator: UIViewControllerTransitionCoordinatorMock())
       XCTAssertEqual(audioSession.setActiveArgValues.map(\.0), [true])
     }

@@ -56,7 +56,7 @@ final class YearsService {
   }
 
   func makePersistenceService(forYear year: Int) throws -> PersistenceServiceProtocol {
-    try persistenceServiceBuilder.makePersistenceService(withPath: try path(forYear: year))
+    try persistenceServiceBuilder.makePersistenceService(withPath: path(forYear: year))
   }
 
   private func yearsDirectory() throws -> URL {

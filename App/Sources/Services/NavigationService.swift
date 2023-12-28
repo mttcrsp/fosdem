@@ -100,7 +100,7 @@ extension NavigationService {
 }
 
 extension NavigationService {
-  typealias PlayerViewController = UIViewController & AVPlayerViewControllerProtocol
+  typealias PlayerViewController = AVPlayerViewControllerProtocol & UIViewController
 
   func makePlayerViewController() -> PlayerViewController {
     AVPlayerViewController()
