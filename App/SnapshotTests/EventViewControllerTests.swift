@@ -23,12 +23,6 @@ final class EventViewControllerTests: XCTestCase {
     dataSource.eventViewControllerHandler = { _, _ in .end }
     eventViewController.reloadPlaybackPosition()
     assertSnapshot(matching: eventViewController, as: .image(size: size))
-
-    let eventViewController = EventViewController(style: .insetGrouped)
-    eventViewController.event = try .withVideo()
-    eventViewController.dataSource = dataSource
-    eventViewController.view.tintColor = .label
-    assertSnapshot(matching: eventViewController, as: .image(size: size))
   }
 
   func testEvents() throws {
