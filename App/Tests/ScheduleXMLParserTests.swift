@@ -4,7 +4,7 @@ import XCTest
 
 final class ScheduleXMLParserTests: XCTestCase {
   func testDecoding() throws {
-    for year in 2007 ... 2023 {
+    for year in 2007 ... 2024 {
       let data = try data(forYear: year)
       let parser = ScheduleXMLParser(data: data)
       XCTAssert(parser.parse())

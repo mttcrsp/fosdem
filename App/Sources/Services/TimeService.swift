@@ -20,7 +20,7 @@ final class TimeService {
     #if DEBUG
     let calendar = Calendar.autoupdatingCurrent
     let timeZone = TimeZone(identifier: "Europe/Brussels")
-    let components = DateComponents(timeZone: timeZone, year: 2023, month: 2, day: 4, hour: 12, minute: 45)
+    let components = DateComponents(timeZone: timeZone, year: 2024, month: 2, day: 3, hour: 12, minute: 45)
     now = calendar.date(from: components) ?? Date()
     #endif
   }
