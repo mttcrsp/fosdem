@@ -73,6 +73,10 @@ extension Event {
     }
   }
 
+  var formattedTrack: String {
+    TrackFormatter().formattedName(from: track)
+  }
+
   #if os(iOS)
   var formattedAbstract: String? {
     guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }

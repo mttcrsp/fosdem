@@ -151,7 +151,7 @@ private extension YearController {
 
   func makeEventsViewController(for track: Track) -> EventsViewController {
     let eventsViewController = EventsViewController(style: .grouped)
-    eventsViewController.title = track.name
+    eventsViewController.title = track.formattedName
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController

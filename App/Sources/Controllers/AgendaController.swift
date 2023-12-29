@@ -197,7 +197,7 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
 
     switch eventsViewController {
     case agendaViewController:
-      items = [event.formattedStart, event.room, event.track]
+      items = [event.formattedStart, event.room, event.formattedTrack]
     case soonViewController:
       items = [event.formattedStart, event.room]
     default:

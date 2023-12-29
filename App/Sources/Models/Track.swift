@@ -9,3 +9,9 @@ extension Track: Equatable {
     lhs.name == rhs.name
   }
 }
+
+extension Track {
+  var formattedName: String {
+    TrackFormatter().formattedName(from: name)
+  }
+}

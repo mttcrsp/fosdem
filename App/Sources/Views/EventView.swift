@@ -71,7 +71,7 @@ final class EventView: UIStackView {
     setCustomSpacing(18, after: titleLabel)
 
     let trackView = TrackView()
-    trackView.track = event.track
+    trackView.track = event.formattedTrack
     addArrangedSubview(trackView)
     setCustomSpacing(20, after: trackView)
 

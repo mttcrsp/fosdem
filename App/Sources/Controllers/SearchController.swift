@@ -289,7 +289,7 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
     case eventsViewController:
       return captions[event]
     case resultsViewController:
-      return event.track
+      return event.formattedTrack
     default:
       return nil
     }
@@ -429,12 +429,12 @@ private extension SearchController {
     eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
     eventsViewController.favoritesDataSource = self
     eventsViewController.favoritesDelegate = self
-    eventsViewController.title = track.name
+    eventsViewController.title = track.formattedName
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
 
-    if prefersLargeTitleForDetailViewController(withTitle: track.name) {
+    if prefersLargeTitleForDetailViewController(withTitle: track.formattedName) {
       eventsViewController.navigationItem.largeTitleDisplayMode = .always
     } else {
       eventsViewController.navigationItem.largeTitleDisplayMode = .never

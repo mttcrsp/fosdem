@@ -211,10 +211,10 @@ class TracksViewController: UITableViewController {
 private extension UITableViewCell {
   func configure(with track: Track) {
     textLabel?.numberOfLines = 0
-    textLabel?.text = track.name
+    textLabel?.text = track.formattedName
     textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     accessoryType = .disclosureIndicator
-    accessibilityIdentifier = track.name
+    accessibilityIdentifier = track.formattedName
   }
 }
 
