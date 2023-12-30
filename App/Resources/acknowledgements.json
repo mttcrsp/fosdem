@@ -20,8 +20,12 @@
     "url": "https://github.com/nicklockwood/SwiftFormat"
   },
   {
-    "name": "Tuist",
-    "url": "https://github.com/tuist/tuist"
+    "name": "xcbeautify",
+    "url": "https://github.com/tuist/xcbeautify"
+  },
+  {
+    "name": "XcodeGen",
+    "url": "https://github.com/yonaskolb/XcodeGen"
   },
   {
     "name": "xcparse",
