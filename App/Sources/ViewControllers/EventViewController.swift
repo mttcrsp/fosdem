@@ -58,9 +58,9 @@ final class EventViewController: UITableViewController {
 
   private var isAdaptive: Bool {
     if tableView.style == .insetGrouped {
-      return false
+      false
     } else {
-      return true
+      true
     }
   }
 
@@ -69,7 +69,7 @@ final class EventViewController: UITableViewController {
       tableView.reloadData()
     }
 
-    if let event = event {
+    if let event {
       eventCell.configure(with: event)
     }
   }

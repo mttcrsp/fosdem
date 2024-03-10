@@ -15,7 +15,7 @@ struct ScheduleRequest: NetworkRequest {
   }
 
   func decode(_ data: Data?, response: HTTPURLResponse?) throws -> Schedule {
-    guard let data = data, response?.statusCode != 404 else {
+    guard let data, response?.statusCode != 404 else {
       throw Error.notFound
     }
 

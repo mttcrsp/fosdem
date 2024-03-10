@@ -31,7 +31,7 @@ final class EmbeddedBlueprintViewController: UIViewController {
   }
 
   private func didChangeBlueprint() {
-    guard let blueprint = blueprint, let image = UIImage(named: blueprint.imageName) else {
+    guard let blueprint, let image = UIImage(named: blueprint.imageName) else {
       imageView.image = nil
       return
     }

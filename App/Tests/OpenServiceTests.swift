@@ -10,7 +10,7 @@ final class OpenServiceTests: XCTestCase {
     }
 
     let url = URL(fileURLWithPath: "test")
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     let openService = OpenService(application: application)
     openService.open(url) { succeeded in
       XCTAssertTrue(succeeded)

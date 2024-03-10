@@ -55,7 +55,7 @@ final class ScrollImageView: UIScrollView {
   }
 
   private func didChangeImage() {
-    guard let image = image else {
+    guard let image else {
       imageView.image = nil
       return
     }
@@ -89,7 +89,7 @@ final class ScrollImageView: UIScrollView {
   }
 
   private func reloadZoomScales() {
-    guard let image = image else {
+    guard let image else {
       minimumZoomScale = 1
       maximumZoomScale = 1
       zoomScale = 1

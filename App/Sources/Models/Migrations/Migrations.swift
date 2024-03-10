@@ -1,4 +1,4 @@
-extension Array where Element == PersistenceServiceMigration {
+extension [PersistenceServiceMigration] {
   static var allMigrations: [PersistenceServiceMigration] {
     [
       CreateTracksTable(),

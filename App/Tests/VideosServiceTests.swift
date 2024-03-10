@@ -9,7 +9,7 @@ final class VideosServiceTests: XCTestCase {
     let playbackService = makePlaybackService()
     let persistenceService = makePersistenceService(with: [.success([event1]), .success([event2])])
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     var result: Result<VideosService.Videos, Error>?
 
     let videosService = VideosService(playbackService: playbackService, persistenceService: persistenceService)
@@ -38,7 +38,7 @@ final class VideosServiceTests: XCTestCase {
     let playbackService = makePlaybackService()
     let persistenceService = makePersistenceService(with: [.success([event]), .failure(error)])
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     var result: Result<VideosService.Videos, Error>?
 
     let videosService = VideosService(playbackService: playbackService, persistenceService: persistenceService)
@@ -62,7 +62,7 @@ final class VideosServiceTests: XCTestCase {
     let playbackService = makePlaybackService()
     let persistenceService = makePersistenceService(with: [.failure(error), .success([event])])
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     var result: Result<VideosService.Videos, Error>?
 
     let videosService = VideosService(playbackService: playbackService, persistenceService: persistenceService)

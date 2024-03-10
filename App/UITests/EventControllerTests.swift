@@ -48,9 +48,9 @@ final class EventControllerTests: XCTestCase {
 
       wait {
         if let seconds = app.staticTexts["Time Elapsed"].secondsValue, seconds >= 1 {
-          return true
+          true
         } else {
-          return false
+          false
         }
       }
     }
@@ -127,7 +127,7 @@ private extension XCUIElement {
     }
 
     let components = value?.components(separatedBy: ":")
-    if let components = components, components.count == 2,
+    if let components, components.count == 2,
        let minutes = Int(components[0]),
        let seconds = Int(components[1])
     {

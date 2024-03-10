@@ -24,13 +24,13 @@ final class InfoController: TextViewController {
 
     dependencies.infoService.loadAttributedText(for: info) { result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        guard let self else { return }
 
         switch result {
         case let .success(attributedText):
           self.attributedText = attributedText
         case let .failure(error):
-          self.didError?(self, error)
+          didError?(self, error)
         }
       }
     }

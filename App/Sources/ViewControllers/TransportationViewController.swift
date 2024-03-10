@@ -69,16 +69,16 @@ private extension TransportationSection {
   var title: String {
     switch self {
     case .directions:
-      return L10n.Transportation.Section.directions
+      L10n.Transportation.Section.directions
     case .by:
-      return L10n.Transportation.Section.by
+      L10n.Transportation.Section.by
     }
   }
 
   var items: [TransportationItem] {
     switch self {
-    case .directions: return [.appleMaps, .googleMaps]
-    case .by: return [.bus, .shuttle, .train, .car, .plane, .taxi]
+    case .directions: [.appleMaps, .googleMaps]
+    case .by: [.bus, .shuttle, .train, .car, .plane, .taxi]
     }
   }
 }
@@ -87,40 +87,40 @@ extension TransportationItem {
   var title: String {
     switch self {
     case .googleMaps:
-      return L10n.Transportation.Item.google
+      L10n.Transportation.Item.google
     case .appleMaps:
-      return L10n.Transportation.Item.apple
+      L10n.Transportation.Item.apple
     case .shuttle:
-      return L10n.Transportation.Item.shuttle
+      L10n.Transportation.Item.shuttle
     case .train:
-      return L10n.Transportation.Item.train
+      L10n.Transportation.Item.train
     case .plane:
-      return L10n.Transportation.Item.plane
+      L10n.Transportation.Item.plane
     case .taxi:
-      return L10n.Transportation.Item.taxi
+      L10n.Transportation.Item.taxi
     case .car:
-      return L10n.Transportation.Item.car
+      L10n.Transportation.Item.car
     case .bus:
-      return L10n.Transportation.Item.bus
+      L10n.Transportation.Item.bus
     }
   }
 
   var info: Info? {
     switch self {
     case .bus:
-      return .bus
+      .bus
     case .car:
-      return .car
+      .car
     case .taxi:
-      return .taxi
+      .taxi
     case .plane:
-      return .plane
+      .plane
     case .train:
-      return .train
+      .train
     case .shuttle:
-      return .shuttle
+      .shuttle
     case .appleMaps, .googleMaps:
-      return nil
+      nil
     }
   }
 }
@@ -129,9 +129,9 @@ private extension TransportationItem {
   var accessoryType: UITableViewCell.AccessoryType {
     switch self {
     case .bus, .shuttle, .train, .car, .plane, .taxi:
-      return .disclosureIndicator
+      .disclosureIndicator
     case .appleMaps, .googleMaps:
-      return .none
+      .none
     }
   }
 

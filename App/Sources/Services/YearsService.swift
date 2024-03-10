@@ -22,7 +22,7 @@ final class YearsService {
   func downloadYear(_ year: Int, completion: @escaping (Swift.Error?) -> Void) -> NetworkServiceTask {
     let request = ScheduleRequest(year: year)
     return networkService.perform(request) { [weak self] result in
-      guard let self = self else { return }
+      guard let self else { return }
 
       switch result {
       case .failure(ScheduleRequest.Error.notFound):
@@ -31,14 +31,14 @@ final class YearsService {
         completion(error)
       case let .success(schedule):
         do {
-          let yearsDirectory = try self.yearsDirectory()
-          try self.fileManager.createDirectory(at: yearsDirectory, withIntermediateDirectories: true, attributes: nil)
+          let yearsDirectory = try yearsDirectory()
+          try fileManager.createDirectory(at: yearsDirectory, withIntermediateDirectories: true, attributes: nil)
 
-          let yearPath = try self.path(forYear: year)
-          self.fileManager.createFile(atPath: yearPath, contents: nil, attributes: nil)
+          let yearPath = try path(forYear: year)
+          fileManager.createFile(atPath: yearPath, contents: nil, attributes: nil)
 
           let operation = UpsertSchedule(schedule: schedule)
-          let persistenceService = try self.makePersistenceService(forYear: year)
+          let persistenceService = try makePersistenceService(forYear: year)
           persistenceService.performWrite(operation, completion: completion)
         } catch {
           completion(error)
@@ -49,9 +49,9 @@ final class YearsService {
 
   func isYearDownloaded(_ year: Int) -> Bool {
     if let path = try? path(forYear: year) {
-      return fileManager.fileExists(atPath: path)
+      fileManager.fileExists(atPath: path)
     } else {
-      return false
+      false
     }
   }
 

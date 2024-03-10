@@ -4,7 +4,7 @@ import XCTest
 
 final class TracksServiceTests: XCTestCase {
   func testLoadConfiguration() {
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
 
     let favoritesService = FavoritesServiceProtocolMock()
     favoritesService.containsTrackHandler = { track in

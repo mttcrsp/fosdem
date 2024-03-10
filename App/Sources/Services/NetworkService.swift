@@ -23,7 +23,7 @@ final class NetworkService {
     let task = session.dataTask(with: request.httpRequest) { data, response, error in
       if let error = error as? URLError, error.code == .cancelled {
         return // Do nothing
-      } else if let error = error {
+      } else if let error {
         return completion(.failure(error))
       }
 

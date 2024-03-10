@@ -65,7 +65,7 @@ final class YearsServiceTests: XCTestCase {
       fileManager: fileManager
     )
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     let task = service.downloadYear(2021) { error in
       XCTAssertNil(error)
       expectation.fulfill()
@@ -103,7 +103,7 @@ final class YearsServiceTests: XCTestCase {
       fileManager: fileManager
     )
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     _ = service.downloadYear(2021) { receivedError in
       XCTAssertEqual(error, receivedError as NSError?)
       expectation.fulfill()
@@ -130,7 +130,7 @@ final class YearsServiceTests: XCTestCase {
       fileManager: fileManager
     )
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     _ = service.downloadYear(2021) { error in
       let error1 = error as NSError?
       let error2 = YearsService.Error.documentDirectoryNotFound as NSError?
@@ -162,7 +162,7 @@ final class YearsServiceTests: XCTestCase {
       fileManager: fileManager
     )
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     _ = service.downloadYear(2021) { receivedError in
       XCTAssertEqual(error, receivedError as NSError?)
       expectation.fulfill()
@@ -192,7 +192,7 @@ final class YearsServiceTests: XCTestCase {
       fileManager: fileManager
     )
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     _ = service.downloadYear(2021) { receivedError in
       XCTAssertEqual(error, receivedError as NSError?)
       expectation.fulfill()
@@ -226,7 +226,7 @@ final class YearsServiceTests: XCTestCase {
       fileManager: fileManager
     )
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     _ = service.downloadYear(2021) { receivedError in
       XCTAssertEqual(error, receivedError as NSError?)
       expectation.fulfill()

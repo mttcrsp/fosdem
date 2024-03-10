@@ -1,6 +1,6 @@
 import UIKit
 
-private extension Dictionary where Key == NSAttributedString.DocumentReadingOptionKey, Value == Any {
+private extension [NSAttributedString.DocumentReadingOptionKey: Any] {
   static var htmlDecodingOptions: [NSAttributedString.DocumentReadingOptionKey: Any] {
     [
       .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue),

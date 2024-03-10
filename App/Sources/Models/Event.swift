@@ -65,11 +65,11 @@ extension Event {
   var formattedStartWithWeekday: String? {
     switch (formattedStart, formattedWeekday) {
     case (nil, _):
-      return nil
+      nil
     case let (start?, nil):
-      return start
+      start
     case let (start?, weekday?):
-      return L10n.Search.Event.start(start, weekday)
+      L10n.Search.Event.start(start, weekday)
     }
   }
 
@@ -79,7 +79,7 @@ extension Event {
 
   #if os(iOS)
   var formattedAbstract: String? {
-    guard let abstract = abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }
+    guard let abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }
 
     var string = attributedString.string
     string = string.trimmingCharacters(in: .whitespacesAndNewlines)

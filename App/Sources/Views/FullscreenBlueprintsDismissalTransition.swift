@@ -22,7 +22,7 @@ final class FullscreenBlueprintsDismissalTransition: UIPercentDrivenInteractiveT
   }
 
   func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-    guard let dismissedViewController = dismissedViewController else { return }
+    guard let dismissedViewController else { return }
 
     let duration = transitionDuration(using: transitionContext)
     let dismissedView: UIView = dismissedViewController.view
@@ -40,7 +40,7 @@ final class FullscreenBlueprintsDismissalTransition: UIPercentDrivenInteractiveT
   }
 
   @objc private func panned(_ recognizer: UIPanGestureRecognizer) {
-    guard let dismissedViewController = dismissedViewController else { return }
+    guard let dismissedViewController else { return }
 
     switch recognizer.state {
     case .began:

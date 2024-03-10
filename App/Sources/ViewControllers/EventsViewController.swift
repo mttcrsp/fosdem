@@ -89,7 +89,7 @@ final class EventsViewController: UITableViewController {
 
     for indexPath in tableView.indexPathsForVisibleRows ?? [] {
       if let cell = tableView.cellForRow(at: indexPath) {
-        let event = self.event(forSection: indexPath.section)
+        let event = event(forSection: indexPath.section)
         let oldStatus = cell.showsLiveIndicator
         let newStatus = shouldShowLiveIndicator(for: event)
 
@@ -143,7 +143,7 @@ final class EventsViewController: UITableViewController {
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let event = self.event(forSection: indexPath.section)
+    let event = event(forSection: indexPath.section)
     let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
     cell.showsLiveIndicator = shouldShowLiveIndicator(for: event)
     cell.configure(with: event)
@@ -164,11 +164,11 @@ final class EventsViewController: UITableViewController {
   }
 
   private func actions(at indexPath: IndexPath) -> [Action] {
-    guard let favoritesDataSource = favoritesDataSource else {
+    guard let favoritesDataSource else {
       return []
     }
 
-    let event = self.event(forSection: indexPath.section)
+    let event = event(forSection: indexPath.section)
 
     if favoritesDataSource.eventsViewController(self, canFavorite: event) {
       let title = L10n.Event.add

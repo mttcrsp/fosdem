@@ -18,9 +18,9 @@ final class InfoService {
   func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Error>) -> Void) {
     queue.async { [weak self] in
       do {
-        guard let self = self else { return }
+        guard let self else { return }
 
-        let attributedData = try self.bundleService.data(forResource: info.resource, withExtension: "html")
+        let attributedData = try bundleService.data(forResource: info.resource, withExtension: "html")
         let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
 
         let string = attributedText.string
@@ -73,30 +73,30 @@ private extension Info {
   var resource: String {
     switch self {
     case .history:
-      return "history"
+      "history"
     case .devrooms:
-      return "devrooms"
+      "devrooms"
     case .transportation:
-      return "transportation"
+      "transportation"
     case .bus:
-      return "bus-tram"
+      "bus-tram"
     case .shuttle:
-      return "shuttle"
+      "shuttle"
     case .train:
-      return "train"
+      "train"
     case .car:
-      return "car"
+      "car"
     case .plane:
-      return "plane"
+      "plane"
     case .taxi:
-      return "taxi"
+      "taxi"
     case .legal:
-      return "legal"
+      "legal"
     }
   }
 }
 
-private extension Dictionary where Key == NSAttributedString.Key, Value == Any {
+private extension [NSAttributedString.Key: Any] {
   var containsBoldAttribute: Bool {
     guard let font = self[.font] as? UIFont else { return false }
     return font.fontDescriptor.symbolicTraits.contains(.traitBold)

@@ -164,7 +164,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
 
 extension EventController: AVPlayerViewControllerDelegate {
   func playerViewController(_ playerViewController: AVPlayerViewController, willBeginFullScreenPresentationWithAnimationCoordinator _: UIViewControllerTransitionCoordinator) {
-    let event = self.event
+    let event = event
 
     do {
       try audioSession.setCategory(.playback)

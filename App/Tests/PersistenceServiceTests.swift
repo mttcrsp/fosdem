@@ -6,7 +6,7 @@ import XCTest
 final class PersistenceServiceTests: XCTestCase {
   func testWrite() throws {
     let service = try PersistenceService(path: nil, migrations: [])
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     let operation = Write { _ in }
 
     service.performWrite(operation) { error in
@@ -19,7 +19,7 @@ final class PersistenceServiceTests: XCTestCase {
 
   func testWriteError() throws {
     let service = try PersistenceService(path: nil, migrations: [])
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
 
     let error = makeError()
     let operation = Write { _ in throw error }
@@ -34,7 +34,7 @@ final class PersistenceServiceTests: XCTestCase {
 
   func testRead() throws {
     let service = try PersistenceService(path: nil, migrations: [])
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
     let operation = Read { _ in 99 }
 
     service.performRead(operation) { result in
@@ -53,7 +53,7 @@ final class PersistenceServiceTests: XCTestCase {
 
   func testReadError() throws {
     let service = try PersistenceService(path: nil, migrations: [])
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
 
     let error = makeError()
     let operation = Read { _ in throw error }

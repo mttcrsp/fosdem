@@ -35,10 +35,10 @@ final class SearchController: UISplitViewController {
   }
 
   private var isDisplayingFavoriteTrack: Bool {
-    if let selectedTrack = selectedTrack {
-      return dependencies.favoritesService.contains(selectedTrack)
+    if let selectedTrack {
+      dependencies.favoritesService.contains(selectedTrack)
     } else {
-      return false
+      false
     }
   }
 
@@ -172,40 +172,40 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 
   func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
     if isFavoriteSection(section) {
-      return L10n.Search.Filter.favorites
+      L10n.Search.Filter.favorites
     } else {
-      return selectedFilter.title
+      selectedFilter.title
     }
   }
 
   func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
     if isFavoriteSection(section) {
-      return "favorites"
+      "favorites"
     } else {
-      return selectedFilter.accessibilityIdentifier
+      selectedFilter.accessibilityIdentifier
     }
   }
 
   func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
     if isFavoriteSection(section) {
-      return filteredFavoriteTracks.count
+      filteredFavoriteTracks.count
     } else {
-      return filteredTracks.count
+      filteredTracks.count
     }
   }
 
   func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
     if isFavoriteSection(indexPath.section) {
-      return filteredFavoriteTracks[indexPath.row]
+      filteredFavoriteTracks[indexPath.row]
     } else {
-      return filteredTracks[indexPath.row]
+      filteredTracks[indexPath.row]
     }
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
     persistenceService.performRead(GetEventsByTrack(track: track.name)) { [weak tracksViewController] result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self, let tracksViewController = tracksViewController else { return }
+        guard let self, let tracksViewController else { return }
 
         switch result {
         case .failure:
@@ -214,10 +214,10 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
           tracksViewController.deselectSelectedRow(animated: true)
         case let .success(events):
           self.events = events
-          self.selectedTrack = track
-          self.captions = events.captions
+          selectedTrack = track
+          captions = events.captions
 
-          let eventsViewController = self.makeEventsViewController(for: track)
+          let eventsViewController = makeEventsViewController(for: track)
           let navigationController = UINavigationController(rootViewController: eventsViewController)
           tracksViewController.showDetailViewController(navigationController, sender: nil)
           UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
@@ -241,9 +241,9 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 extension SearchController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
   func sectionIndexTitles(in _: TracksViewController) -> [String] {
     if let sectionIndexTitles = tracksConfiguration?.filteredIndexTitles[selectedFilter] {
-      return sectionIndexTitles.keys.sorted()
+      sectionIndexTitles.keys.sorted()
     } else {
-      return []
+      []
     }
   }
 
@@ -276,22 +276,22 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
   func events(in viewController: EventsViewController) -> [Event] {
     switch viewController {
     case eventsViewController:
-      return events
+      events
     case resultsViewController:
-      return results
+      results
     default:
-      return []
+      []
     }
   }
 
   func eventsViewController(_ viewController: EventsViewController, captionFor event: Event) -> String? {
     switch viewController {
     case eventsViewController:
-      return captions[event]
+      captions[event]
     case resultsViewController:
-      return event.formattedTrack
+      event.formattedTrack
     default:
-      return nil
+      nil
     }
   }
 
@@ -337,7 +337,7 @@ extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewC
   }
 
   @objc private func didToggleFavorite() {
-    guard let selectedTrack = selectedTrack else { return }
+    guard let selectedTrack else { return }
 
     if dependencies.favoritesService.contains(selectedTrack) {
       dependencies.favoritesService.removeTrack(withIdentifier: selectedTrack.name)
@@ -418,11 +418,10 @@ private extension SearchController {
     let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
     favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
 
-    let style: UITableView.Style
-    if traitCollection.userInterfaceIdiom == .pad {
-      style = .insetGrouped
+    let style: UITableView.Style = if traitCollection.userInterfaceIdiom == .pad {
+      .insetGrouped
     } else {
-      style = .grouped
+      .grouped
     }
 
     let eventsViewController = EventsViewController(style: style)
@@ -459,7 +458,7 @@ private extension SearchController {
   }
 }
 
-private extension Array where Element == Event {
+private extension [Event] {
   var captions: [Event: String] {
     var result: [Event: String] = [:]
 

@@ -51,31 +51,31 @@ extension EventsViewController.Configuration {
   var emptyBackgroundTitle: String? {
     switch self {
     case .noQuery:
-      return nil
+      nil
     case .failure:
-      return L10n.Search.Error.title
+      L10n.Search.Error.title
     case .success:
-      return L10n.Search.Empty.title
+      L10n.Search.Empty.title
     }
   }
 
   var emptyBackgroundMessage: String? {
     switch self {
     case .noQuery:
-      return nil
+      nil
     case .failure:
-      return L10n.Search.Error.message
+      L10n.Search.Error.message
     case let .success(query):
-      return L10n.Search.Empty.message(query)
+      L10n.Search.Empty.message(query)
     }
   }
 
   var isViewHidden: Bool {
     switch self {
     case .noQuery:
-      return true
+      true
     case .success, .failure:
-      return false
+      false
     }
   }
 }

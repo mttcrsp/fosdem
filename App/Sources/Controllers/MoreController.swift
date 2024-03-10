@@ -43,7 +43,7 @@ final class MoreController: UISplitViewController {
 
     if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass {
       if traitCollection.horizontalSizeClass == .regular, viewControllers.count < 2 {
-        if let moreViewController = moreViewController {
+        if let moreViewController {
           self.moreViewController(moreViewController, didSelectInfoItem: .history)
         }
       }
@@ -164,9 +164,9 @@ extension MoreController: UIPopoverPresentationControllerDelegate, DateViewContr
 private extension MoreController {
   private var preferredDetailViewControllerStyle: UITableView.Style {
     if traitCollection.userInterfaceIdiom == .pad {
-      return .insetGrouped
+      .insetGrouped
     } else {
-      return .grouped
+      .grouped
     }
   }
 

@@ -129,17 +129,17 @@ final class AgendaController: UIViewController {
   @objc private func didTapSoon() {
     dependencies.soonService.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        guard let self else { return }
 
         switch result {
         case .failure:
           let errorViewController = UIAlertController.makeErrorController()
-          self.present(errorViewController, animated: true)
+          present(errorViewController, animated: true)
         case let .success(events):
-          self.eventsStartingSoon = events
-          let soonViewController = self.makeSoonViewController()
+          eventsStartingSoon = events
+          let soonViewController = makeSoonViewController()
           let soonNavigationController = UINavigationController(rootViewController: soonViewController)
-          self.present(soonNavigationController, animated: true)
+          present(soonNavigationController, animated: true)
         }
       }
     }
@@ -184,11 +184,11 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
     case agendaViewController:
-      return events
+      events
     case soonViewController:
-      return eventsStartingSoon
+      eventsStartingSoon
     default:
-      return []
+      []
     }
   }
 
