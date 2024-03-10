@@ -10,9 +10,9 @@ final class TracksViewControllerTestsTests: XCTestCase {
     let favoritesDataSource = TracksViewControllerFavoritesDataSourceMock()
     favoritesDataSource.tracksViewControllerHandler = { _, track in
       if let row = Int(track.name) {
-        return row % 2 == 0
+        row % 2 == 0
       } else {
-        return false
+        false
       }
     }
     return favoritesDataSource

@@ -42,7 +42,7 @@ final class EventView: UIStackView {
 
   func reloadPlaybackPosition() {
     var position: PlaybackPosition = .beginning
-    if let dataSource = dataSource, let event = event {
+    if let dataSource, let event {
       position = dataSource.eventView(self, playbackPositionFor: event)
     }
 
@@ -57,7 +57,7 @@ final class EventView: UIStackView {
       subview.removeFromSuperview()
     }
 
-    guard let event = event else { return }
+    guard let event else { return }
 
     var constraints: [NSLayoutConstraint] = []
 
@@ -203,33 +203,33 @@ private extension PlaybackPosition {
   var title: String {
     switch self {
     case .beginning:
-      return L10n.Event.Video.begin
+      L10n.Event.Video.begin
     case .end:
-      return L10n.Event.Video.end
+      L10n.Event.Video.end
     case .at:
-      return L10n.Event.Video.at
+      L10n.Event.Video.at
     }
   }
 
   var accessibilityLabel: String {
     switch self {
     case .beginning:
-      return L10n.Event.Video.Accessibility.begin
+      L10n.Event.Video.Accessibility.begin
     case .end:
-      return L10n.Event.Video.Accessibility.end
+      L10n.Event.Video.Accessibility.end
     case .at:
-      return L10n.Event.Video.Accessibility.at
+      L10n.Event.Video.Accessibility.at
     }
   }
 
   var accessibilityIdentifier: String {
     switch self {
     case .beginning:
-      return "play"
+      "play"
     case .end:
-      return "replay"
+      "replay"
     case .at:
-      return "resume"
+      "resume"
     }
   }
 }

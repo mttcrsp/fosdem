@@ -31,7 +31,7 @@ final class TracksService {
         configuration.filteredTracks[.all, default: []].append(track)
         configuration.filteredTracks[filter, default: []].append(track)
 
-        if self.favoritesService.contains(track) {
+        if favoritesService.contains(track) {
           configuration.filteredFavoriteTracks[.all, default: []].append(track)
           configuration.filteredFavoriteTracks[filter, default: []].append(track)
         }

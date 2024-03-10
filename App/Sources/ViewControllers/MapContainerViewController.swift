@@ -73,8 +73,8 @@ class MapContainerViewController: UIViewController {
     scrollView.showsHorizontalScrollIndicator = false
 
     observer = scrollView.observe(\.contentOffset) { [weak self] _, _ in
-      if let self = self {
-        self.scrollView.alpha = self.isDetailViewControllerVisible ? 1 : 0
+      if let self {
+        scrollView.alpha = isDetailViewControllerVisible ? 1 : 0
       }
     }
   }
@@ -84,7 +84,7 @@ class MapContainerViewController: UIViewController {
 
     masterViewController?.view.frame = view.bounds
 
-    guard let detailViewController = detailViewController else { return }
+    guard let detailViewController else { return }
 
     guard let delegate = containerDelegate else {
       return assertionFailure("Unable to perform layout of the detail view controller for \(self) because no \(\MapContainerViewController.containerDelegate) was set.")
@@ -135,15 +135,13 @@ class MapContainerViewController: UIViewController {
   private func updateDetailViewControllerVisibility() {
     guard let detailView = detailViewController?.view else { return }
 
-    let contentOffset: CGPoint
-
-    switch (scrollDirection, isDetailViewControllerVisible) {
+    let contentOffset: CGPoint = switch (scrollDirection, isDetailViewControllerVisible) {
     case (.vertical, false), (.horizontal, true):
-      contentOffset = .zero
+      .zero
     case (.horizontal, false):
-      contentOffset = CGPoint(x: scrollView.contentSize.width - detailView.frame.width, y: 0)
+      CGPoint(x: scrollView.contentSize.width - detailView.frame.width, y: 0)
     case (.vertical, true):
-      contentOffset = CGPoint(x: 0, y: scrollView.contentSize.height - detailView.frame.height)
+      CGPoint(x: 0, y: scrollView.contentSize.height - detailView.frame.height)
     }
 
     scrollView.contentOffset = contentOffset
@@ -187,7 +185,7 @@ class MapContainerViewController: UIViewController {
   }
 
   func didChangeDetailViewControllerVisibility() {
-    guard let detailViewController = detailViewController else { return }
+    guard let detailViewController else { return }
 
     if isDetailViewControllerVisible {
       containerDelegate?.containerViewController(self, didShow: detailViewController)
@@ -199,7 +197,7 @@ class MapContainerViewController: UIViewController {
 
 extension MapContainerViewController: UIScrollViewDelegate {
   func scrollViewWillEndDragging(_: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-    guard let detailViewController = detailViewController else { return }
+    guard let detailViewController else { return }
 
     switch scrollDirection {
     case .vertical:
@@ -248,7 +246,7 @@ extension MapContainerViewController: UIScrollViewDelegate {
   }
 
   func scrollViewDidEndDecelerating(_: UIScrollView) {
-    guard let detailViewController = detailViewController, let window = detailViewController.view.window else { return }
+    guard let detailViewController, let window = detailViewController.view.window else { return }
 
     let detailView = detailViewController.view as UIView
     let detailRect = detailView.bounds

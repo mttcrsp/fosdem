@@ -33,7 +33,7 @@ final class MapController: MapContainerViewController {
   }
 
   deinit {
-    if let observer = observer {
+    if let observer {
       notificationCenter.removeObserver(observer)
     }
   }
@@ -53,12 +53,12 @@ final class MapController: MapContainerViewController {
 
     dependencies.buildingsService.loadBuildings { buildings, error in
       DispatchQueue.main.async { [weak self] in
-        guard let self = self else { return }
+        guard let self else { return }
 
-        if let error = error {
-          self.didError?(self, error)
+        if let error {
+          didError?(self, error)
         } else {
-          self.mapViewController?.buildings = buildings
+          mapViewController?.buildings = buildings
         }
       }
     }
@@ -93,20 +93,20 @@ extension MapController: MapContainerViewControllerDelegate {
 
   private var preferredLayout: Layout {
     if traitCollection.fos_hasRegularSizeClasses {
-      return .pad
+      .pad
     } else if view.bounds.height > view.bounds.width {
-      return .phonePortrait
+      .phonePortrait
     } else {
-      return .phoneLandscape
+      .phoneLandscape
     }
   }
 
   func containerViewController(_: MapContainerViewController, scrollDirectionFor _: UIViewController) -> MapContainerViewController.ScrollDirection {
     switch preferredLayout {
     case .phonePortrait:
-      return .vertical
+      .vertical
     case .pad, .phoneLandscape:
-      return .horizontal
+      .horizontal
     }
   }
 
@@ -282,18 +282,18 @@ private extension CLAuthorizationStatus.Action {
   var title: String {
     switch self {
     case .enable:
-      return L10n.Location.Title.enable
+      L10n.Location.Title.enable
     case .disable:
-      return L10n.Location.Title.disable
+      L10n.Location.Title.disable
     }
   }
 
   var message: String {
     switch self {
     case .enable:
-      return L10n.Location.Message.enable
+      L10n.Location.Message.enable
     case .disable:
-      return L10n.Location.Message.disable
+      L10n.Location.Message.disable
     }
   }
 }

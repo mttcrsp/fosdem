@@ -18,7 +18,7 @@ final class PersistenceService {
   private let database: DatabaseQueue
 
   init(path: String?, migrations: [PersistenceServiceMigration]) throws {
-    if let path = path {
+    if let path {
       database = try DatabaseQueue(path: path)
     } else {
       database = try DatabaseQueue()

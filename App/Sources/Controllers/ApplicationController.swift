@@ -68,9 +68,9 @@ final class ApplicationController: UIViewController {
     dependencies.scheduleService.startUpdating()
     dependencies.updateService.detectUpdates {
       DispatchQueue.main.async { [weak self] in
-        if let self = self {
-          let updateViewController = self.makeUpdateViewController()
-          self.present(updateViewController, animated: true)
+        if let self {
+          let updateViewController = makeUpdateViewController()
+          present(updateViewController, animated: true)
         }
       }
     }

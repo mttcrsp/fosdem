@@ -131,9 +131,9 @@ class TracksViewController: UITableViewController {
       OperationQueue.main.addOperation { [weak self] in
         method_exchangeImplementations(method1, method2)
 
-        if let self = self {
-          self.feedbackGenerator.selectionChanged()
-          self.indexDelegate?.tracksViewController(self, didSelect: index)
+        if let self {
+          feedbackGenerator.selectionChanged()
+          indexDelegate?.tracksViewController(self, didSelect: index)
         }
       }
     }
@@ -178,7 +178,7 @@ class TracksViewController: UITableViewController {
   }
 
   private func actions(at indexPath: IndexPath) -> [Action] {
-    guard let dataSource = dataSource, let favoritesDataSource = favoritesDataSource else {
+    guard let dataSource, let favoritesDataSource else {
       return []
     }
 

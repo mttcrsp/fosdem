@@ -26,7 +26,7 @@ final class VideosController: UIPageViewController {
   }
 
   deinit {
-    if let observer = observer {
+    if let observer {
       dependencies.playbackService.removeObserver(observer)
     }
   }
@@ -67,16 +67,16 @@ final class VideosController: UIPageViewController {
 
   private func reloadData() {
     dependencies.videosService.loadVideos { [weak self] result in
-      guard let self = self else { return }
+      guard let self else { return }
 
       switch result {
       case let .failure(error):
-        self.didError?(self, error)
+        didError?(self, error)
       case let .success(videos):
-        self.watchedEvents = videos.watched
-        self.watchingEvents = videos.watching
-        self.watchedViewController.reloadData()
-        self.watchingViewController.reloadData()
+        watchedEvents = videos.watched
+        watchingEvents = videos.watching
+        watchedViewController.reloadData()
+        watchingViewController.reloadData()
       }
     }
   }
@@ -102,11 +102,11 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
     case watchingViewController:
-      return watchingEvents
+      watchingEvents
     case watchedViewController:
-      return watchedEvents
+      watchedEvents
     default:
-      return []
+      []
     }
   }
 
@@ -130,22 +130,22 @@ extension VideosController: UIPageViewControllerDataSource {
   func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
     switch viewController {
     case watchingViewController:
-      return nil
+      nil
     case watchedViewController:
-      return watchingViewController
+      watchingViewController
     default:
-      return nil
+      nil
     }
   }
 
   func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
     switch viewController {
     case watchingViewController:
-      return watchedViewController
+      watchedViewController
     case watchedViewController:
-      return nil
+      nil
     default:
-      return nil
+      nil
     }
   }
 }

@@ -25,9 +25,9 @@ extension Link {
 
   var livestreamURL: URL? {
     if let url, url.host == "live.fosdem.org", url.pathComponents.contains("watch"), let identifier = url.pathComponents.last {
-      return URL(string: "https://stream.fosdem.org")?.appendingPathComponent(identifier).appendingPathExtension("m3u8")
+      URL(string: "https://stream.fosdem.org")?.appendingPathComponent(identifier).appendingPathExtension("m3u8")
     } else {
-      return nil
+      nil
     }
   }
 }
@@ -39,17 +39,17 @@ extension Link {
 
   private var isFeedback: Bool {
     if let url {
-      return url.host == "submission.fosdem.org" && url.pathComponents.contains("feedback")
+      url.host == "submission.fosdem.org" && url.pathComponents.contains("feedback")
     } else {
-      return false
+      false
     }
   }
 
   private var isChat: Bool {
     if let url {
-      return url.absoluteString.contains("chat.fosdem.org")
+      url.absoluteString.contains("chat.fosdem.org")
     } else {
-      return false
+      false
     }
   }
 }

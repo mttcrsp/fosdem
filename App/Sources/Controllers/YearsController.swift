@@ -54,11 +54,11 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
 
   private func downloadState(for year: Year) -> YearDownloadState {
     if pendingYear == year {
-      return .inProgress
+      .inProgress
     } else if dependencies.yearsService.isYearDownloaded(year) {
-      return .completed
+      .completed
     } else {
-      return .available
+      .available
     }
   }
 
@@ -78,17 +78,17 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
     let year = years[index]
 
     let onRetry: () -> Void = { [weak self, weak yearsViewController] in
-      if let self = self, let yearsViewController = yearsViewController {
+      if let self, let yearsViewController {
         self.yearsViewController(yearsViewController, didSelectYearAt: index)
       }
     }
     let onFailure: (Error) -> Void = { [weak self, weak yearsViewController] error in
-      if let self = self, let yearsViewController = yearsViewController {
+      if let self, let yearsViewController {
         self.yearsViewController(yearsViewController, loadingDidFailWith: error, retryHandler: onRetry)
       }
     }
     let onSuccess: () -> Void = { [weak self, weak yearsViewController] in
-      if let self = self, let yearsViewController = yearsViewController {
+      if let self, let yearsViewController {
         self.yearsViewController(yearsViewController, loadingDidSucceedFor: year, retryHandler: onRetry)
       }
     }
@@ -101,7 +101,7 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
     case .available:
       let task = dependencies.yearsService.downloadYear(year) { [weak self, weak yearsViewController] error in
         DispatchQueue.main.async {
-          if let error = error {
+          if let error {
             onFailure(error)
           } else {
             onSuccess()

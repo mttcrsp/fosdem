@@ -104,11 +104,11 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   func events(in viewController: EventsViewController) -> [Event] {
     switch viewController {
     case eventsViewController:
-      return events
+      events
     case resultsViewController:
-      return results
+      results
     default:
-      return []
+      []
     }
   }
 

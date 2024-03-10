@@ -20,9 +20,9 @@ final class FavoritesService {
   private(set) var eventsIdentifiers: Set<Int> {
     get {
       if let dictionary = value(forKey: .favoriteEventsKey) as? [String: Any], let array = dictionary["identifiers"] as? [Int], dictionary["year"] as? Year == fosdemYear {
-        return Set(array)
+        Set(array)
       } else {
-        return []
+        []
       }
     }
     set {
@@ -34,9 +34,9 @@ final class FavoritesService {
   private(set) var tracksIdentifiers: Set<String> {
     get {
       if let dictionary = value(forKey: .favoriteTracksKey) as? [String: Any], let array = dictionary["identifiers"] as? [String], dictionary["year"] as? Year == fosdemYear {
-        return Set(array)
+        Set(array)
       } else {
-        return []
+        []
       }
     }
     set {
@@ -147,9 +147,9 @@ extension FavoritesService {
 private extension FavoritesService {
   func value(forKey key: String) -> Any? {
     if let dictionary = preferencesService.value(forKey: key) as? [String: Any] {
-      return dictionary["value"]
+      dictionary["value"]
     } else {
-      return nil
+      nil
     }
   }
 

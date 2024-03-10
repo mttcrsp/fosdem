@@ -126,15 +126,15 @@ private extension AttachmentType {
   var title: String? {
     switch self {
     case .slides:
-      return L10n.Attachment.slides
+      L10n.Attachment.slides
     case .audio:
-      return L10n.Attachment.audio
+      L10n.Attachment.audio
     case .paper:
-      return L10n.Attachment.paper
+      L10n.Attachment.paper
     case .video:
-      return L10n.Attachment.video
+      L10n.Attachment.video
     case .other:
-      return nil
+      nil
     }
   }
 }

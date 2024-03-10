@@ -15,14 +15,14 @@ final class BuildingsService {
 
   func loadBuildings(completion: @escaping ([Building], Error?) -> Void) {
     queue.async { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
 
       var buildings: [Building] = []
 
       let resources = ["aw", "f", "h", "j", "k", "u", "s"]
       for resource in resources {
         do {
-          let buildingData = try self.bundleService.data(forResource: resource, withExtension: "json")
+          let buildingData = try bundleService.data(forResource: resource, withExtension: "json")
           let building = try JSONDecoder().decode(Building.self, from: buildingData)
           buildings.append(building)
         } catch {}

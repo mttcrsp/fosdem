@@ -243,11 +243,11 @@ final class FavoritesServiceTests: XCTestCase {
     ubiquitousPreferencesService.valueHandler = { key in
       switch key {
       case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
-        return events.dictionaryValue
+        events.dictionaryValue
       case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
-        return tracks.dictionaryValue
+        tracks.dictionaryValue
       default:
-        return nil
+        nil
       }
     }
 
@@ -265,11 +265,11 @@ final class FavoritesServiceTests: XCTestCase {
     let valueHandler: (String) -> Any? = { key in
       switch key {
       case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
-        return events.dictionaryValue
+        events.dictionaryValue
       case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
-        return tracks.dictionaryValue
+        tracks.dictionaryValue
       default:
-        return nil
+        nil
       }
     }
 
@@ -298,11 +298,11 @@ final class FavoritesServiceTests: XCTestCase {
     ubiquitousPreferencesService.valueHandler = { key in
       switch key {
       case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
-        return newEvents.dictionaryValue
+        newEvents.dictionaryValue
       case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
-        return newTracks.dictionaryValue
+        newTracks.dictionaryValue
       default:
-        return nil
+        nil
       }
     }
 
@@ -330,11 +330,11 @@ final class FavoritesServiceTests: XCTestCase {
     ubiquitousPreferencesService.valueHandler = { key in
       switch key {
       case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
-        return oldEvents.dictionaryValue
+        oldEvents.dictionaryValue
       case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
-        return oldTracks.dictionaryValue
+        oldTracks.dictionaryValue
       default:
-        return nil
+        nil
       }
     }
 
@@ -342,11 +342,11 @@ final class FavoritesServiceTests: XCTestCase {
     preferencesService.valueHandler = { key in
       switch key {
       case "com.mttcrsp.ansia.FavoritesService.favoriteEvents":
-        return newEvents.dictionaryValue
+        newEvents.dictionaryValue
       case "com.mttcrsp.ansia.FavoritesService.favoriteTracks":
-        return newTracks.dictionaryValue
+        newTracks.dictionaryValue
       default:
-        return nil
+        nil
       }
     }
 
@@ -374,11 +374,11 @@ final class FavoritesServiceTests: XCTestCase {
     userDefaults.valueHandler = { key in
       switch key {
       case "favoriteEventsKey":
-        return [1, 2, 3]
+        [1, 2, 3]
       case "favoriteTracksKey":
-        return ["4", "5"]
+        ["4", "5"]
       default:
-        return nil
+        nil
       }
     }
 

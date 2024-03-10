@@ -152,12 +152,12 @@ final class MapViewController: UIViewController {
 
   private func didChangeSelectedBuilding() {
     DispatchQueue.main.async { [weak self] in
-      guard let self = self else { return }
+      guard let self else { return }
 
-      if let building = self.selectedBuilding {
-        self.didSelectBuilding(building)
+      if let building = selectedBuilding {
+        didSelectBuilding(building)
       } else {
-        self.didDeselectBuilding()
+        didDeselectBuilding()
       }
     }
   }

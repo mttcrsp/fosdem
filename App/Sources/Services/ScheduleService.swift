@@ -53,14 +53,14 @@ final class ScheduleService {
 
     let request = ScheduleRequest(year: fosdemYear)
     networkService.perform(request) { [weak self] result in
-      guard case let .success(schedule) = result, let self = self else { return }
+      guard case let .success(schedule) = result, let self else { return }
 
       #if DEBUG
-      guard self.isEnabled else { return }
+      guard isEnabled else { return }
       #endif
 
       let operation = UpsertSchedule(schedule: schedule)
-      self.persistenceService.performWrite(operation) { [weak self] error in
+      persistenceService.performWrite(operation) { [weak self] error in
 
         assert(error == nil)
         self?.isUpdating = false

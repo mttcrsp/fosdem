@@ -10,7 +10,7 @@ final class InfoServiceTests: XCTestCase {
     let bundle = InfoServiceBundleMock()
     bundle.dataHandler = { _, _ in htmlData }
 
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
 
     let service = InfoService(queue: .main, bundleService: bundle)
     service.loadAttributedText(for: .bus) { result in

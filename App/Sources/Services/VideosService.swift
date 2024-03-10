@@ -48,7 +48,7 @@ final class VideosService {
     group.notify(queue: .main) {
       if let error = groupError {
         completion(.failure(error))
-      } else if let watching = watching, let watched = watched {
+      } else if let watching, let watched {
         completion(.success(Videos(watching: watching, watched: watched)))
       }
     }

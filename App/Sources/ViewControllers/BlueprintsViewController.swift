@@ -102,15 +102,15 @@ final class BlueprintsViewController: UIPageViewController {
 
   var visibleBlueprint: Blueprint? {
     if let blueprintViewController = viewControllers?.first as? BlueprintViewController {
-      return blueprintViewController.blueprint
+      blueprintViewController.blueprint
     } else {
-      return nil
+      nil
     }
   }
 
   func setVisibleBlueprint(_ blueprint: Blueprint?, animated: Bool) {
     let viewController: UIViewController
-    if let blueprint = blueprint, let index = blueprints.firstIndex(of: blueprint) {
+    if let blueprint, let index = blueprints.firstIndex(of: blueprint) {
       viewController = makeBlueprintViewController(at: index)
     } else {
       assert(blueprint == nil, "Attempting to select blueprint '\(blueprint as Any)' that does not belong to the currently displayed building '\(building as Any)'.")
@@ -201,27 +201,27 @@ private extension BlueprintsViewController.Style {
   var blueprintViewControllerClass: BlueprintViewController.Type {
     switch self {
     case .embedded:
-      return EmbeddedBlueprintViewController.self
+      EmbeddedBlueprintViewController.self
     case .fullscreen:
-      return FullscreenBlueprintViewController.self
+      FullscreenBlueprintViewController.self
     }
   }
 
   var dismissAccessibilityIdentifier: String {
     switch self {
     case .embedded:
-      return "dismiss"
+      "dismiss"
     case .fullscreen:
-      return "fullscreen_dismiss"
+      "fullscreen_dismiss"
     }
   }
 
   var accessibilityIdentifier: String {
     switch self {
     case .embedded:
-      return "embedded_blueprints"
+      "embedded_blueprints"
     case .fullscreen:
-      return "fullscreen_blueprints"
+      "fullscreen_blueprints"
     }
   }
 }

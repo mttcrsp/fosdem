@@ -11,7 +11,7 @@ final class BuildingsServiceTests: XCTestCase {
     bundle.dataHandler = { _, _ in data }
 
     let service = BuildingsService(bundleService: bundle, queue: .main)
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
 
     service.loadBuildings { buildings, error in
       XCTAssertEqual(buildings.count, 7)
@@ -28,7 +28,7 @@ final class BuildingsServiceTests: XCTestCase {
     bundle.dataHandler = { _, _ in throw error }
 
     let service = BuildingsService(bundleService: bundle, queue: .main)
-    let expectation = self.expectation(description: #function)
+    let expectation = expectation(description: #function)
 
     service.loadBuildings { buildings, error in
       let error1 = error as NSError?
