@@ -30,7 +30,7 @@ final class EventView: UIStackView {
   override init(frame: CGRect) {
     super.init(frame: frame)
 
-    spacing = 24
+    spacing = 16
     axis = .vertical
     alignment = .leading
   }
@@ -68,12 +68,10 @@ final class EventView: UIStackView {
     titleLabel.text = event.title
     titleLabel.numberOfLines = 0
     addArrangedSubview(titleLabel)
-    setCustomSpacing(18, after: titleLabel)
 
     let trackView = TrackView()
     trackView.track = event.formattedTrack
     addArrangedSubview(trackView)
-    setCustomSpacing(20, after: trackView)
 
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
@@ -105,9 +103,10 @@ final class EventView: UIStackView {
     if !event.people.isEmpty, let people = event.formattedPeople {
       let peopleView = EventMetadataView()
       peopleView.accessibilityLabel = L10n.Event.people(people)
-      peopleView.image = UIImage(systemName: "person.fill")
+      peopleView.image = UIImage(systemName: "person.circle.fill")
       peopleView.text = people
       addArrangedSubview(peopleView)
+      setCustomSpacing(20, after: peopleView)
     }
 
     let roomView = EventMetadataView()
@@ -115,14 +114,40 @@ final class EventView: UIStackView {
     roomView.image = UIImage(systemName: "mappin.circle.fill")
     roomView.text = event.room
     addArrangedSubview(roomView)
+    setCustomSpacing(20, after: roomView)
 
     let dateView = EventMetadataView()
-    dateView.image = UIImage(systemName: "clock.fill")
+    dateView.image = UIImage(systemName: "clock.circle.fill")
     dateView.text = event.formattedDate
     addArrangedSubview(dateView)
     setCustomSpacing(28, after: dateView)
 
+    if let summary = event.formattedSummary {
+      let separatorView = UIView()
+      separatorView.backgroundColor = .separator
+      addArrangedSubview(separatorView)
+      constraints.append(contentsOf: [
+        separatorView.heightAnchor.constraint(equalToConstant: 1 / traitCollection.displayScale),
+        separatorView.widthAnchor.constraint(equalTo: widthAnchor),
+      ])
+
+      let summaryLabel = UILabel()
+      summaryLabel.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitItalic)
+      summaryLabel.adjustsFontForContentSizeCategory = true
+      summaryLabel.numberOfLines = 0
+      summaryLabel.text = summary
+      addArrangedSubview(summaryLabel)
+    }
+
     if let abstract = event.formattedAbstract {
+      let separatorView = UIView()
+      separatorView.backgroundColor = .separator
+      addArrangedSubview(separatorView)
+      constraints.append(contentsOf: [
+        separatorView.heightAnchor.constraint(equalToConstant: 1 / traitCollection.displayScale),
+        separatorView.widthAnchor.constraint(equalTo: widthAnchor),
+      ])
+
       let subtitleLabel = UILabel()
       subtitleLabel.font = .fos_preferredFont(forTextStyle: .headline)
       subtitleLabel.adjustsFontForContentSizeCategory = true
@@ -138,19 +163,20 @@ final class EventView: UIStackView {
       addArrangedSubview(abstractLabel)
     }
 
-    if let summary = event.formattedSummary {
-      let summaryLabel = UILabel()
-      summaryLabel.font = .fos_preferredFont(forTextStyle: .body)
-      summaryLabel.adjustsFontForContentSizeCategory = true
-      summaryLabel.numberOfLines = 0
-      summaryLabel.text = summary
-      addArrangedSubview(summaryLabel)
-    }
-
     let groups: [EventAdditionsGroup] = [
       .init(links: event.links),
       .init(attachments: event.attachments),
     ]
+
+    if !groups.allSatisfy(\.items.isEmpty) {
+      let separatorView = UIView()
+      separatorView.backgroundColor = .separator
+      addArrangedSubview(separatorView)
+      constraints.append(contentsOf: [
+        separatorView.heightAnchor.constraint(equalToConstant: 1 / traitCollection.displayScale),
+        separatorView.widthAnchor.constraint(equalTo: widthAnchor),
+      ])
+    }
 
     for group in groups {
       if !group.items.isEmpty {
@@ -160,7 +186,6 @@ final class EventView: UIStackView {
         groupLabel.adjustsFontForContentSizeCategory = true
         groupLabel.numberOfLines = 0
         addArrangedSubview(groupLabel)
-        setCustomSpacing(22, after: groupLabel)
       }
 
       for item in group.items {
@@ -202,34 +227,25 @@ final class EventView: UIStackView {
 private extension PlaybackPosition {
   var title: String {
     switch self {
-    case .beginning:
-      L10n.Event.Video.begin
-    case .end:
-      L10n.Event.Video.end
-    case .at:
-      L10n.Event.Video.at
+    case .beginning: L10n.Event.Video.begin
+    case .end: L10n.Event.Video.end
+    case .at: L10n.Event.Video.at
     }
   }
 
   var accessibilityLabel: String {
     switch self {
-    case .beginning:
-      L10n.Event.Video.Accessibility.begin
-    case .end:
-      L10n.Event.Video.Accessibility.end
-    case .at:
-      L10n.Event.Video.Accessibility.at
+    case .beginning: L10n.Event.Video.Accessibility.begin
+    case .end: L10n.Event.Video.Accessibility.end
+    case .at: L10n.Event.Video.Accessibility.at
     }
   }
 
   var accessibilityIdentifier: String {
     switch self {
-    case .beginning:
-      "play"
-    case .end:
-      "replay"
-    case .at:
-      "resume"
+    case .beginning: "play"
+    case .end: "replay"
+    case .at: "resume"
     }
   }
 }

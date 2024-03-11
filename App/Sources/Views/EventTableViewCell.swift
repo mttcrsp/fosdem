@@ -36,7 +36,7 @@ final class EventTableViewCell: UITableViewCell {
         maxWidthConstraint,
         defaultWidthConstraint,
         eventView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-        eventView.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
+        eventView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
         eventView.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
         eventView.leadingAnchor.constraint(greaterThanOrEqualTo: contentView.layoutMarginsGuide.leadingAnchor),
         eventView.trailingAnchor.constraint(lessThanOrEqualTo: contentView.layoutMarginsGuide.trailingAnchor),
