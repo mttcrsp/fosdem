@@ -10,6 +10,7 @@ final class EventsSlideshowController: UINavigationController {
     case identifiers(Set<Int>)
   }
 
+  private weak var pageViewController: UIPageViewController?
   private var events: [Event] = []
 
   private let mode: Mode
@@ -53,7 +54,37 @@ final class EventsSlideshowController: UINavigationController {
     let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     pageViewController.setViewControllers([eventViewController], direction: .forward, animated: false)
     pageViewController.dataSource = self
+    self.pageViewController = pageViewController
     viewControllers = [pageViewController]
+
+    let nextAction = #selector(arrowRightSelected)
+    let nextCommand = UIKeyCommand(input: UIKeyCommand.inputRightArrow, modifierFlags: [], action: nextAction)
+    addKeyCommand(nextCommand)
+
+    let prevAction = #selector(arrowLeftSelected)
+    let prevCommand = UIKeyCommand(input: UIKeyCommand.inputLeftArrow, modifierFlags: [], action: prevAction)
+    addKeyCommand(prevCommand)
+
+    let showAction = #selector(arrowUp)
+    let showCommand = UIKeyCommand(input: UIKeyCommand.inputUpArrow, modifierFlags: [], action: showAction)
+    addKeyCommand(showCommand)
+  }
+
+  @objc private func arrowRightSelected() {
+    guard let pageViewController, let viewController = pageViewController.viewControllers?.first, let afterViewController = self.pageViewController(pageViewController, viewControllerAfter: viewController) else { return }
+    pageViewController.setViewControllers([afterViewController], direction: .forward, animated: true)
+  }
+
+  @objc private func arrowLeftSelected() {
+    guard let pageViewController, let viewController = pageViewController.viewControllers?.first, let beforeViewController = self.pageViewController(pageViewController, viewControllerBefore: viewController) else { return }
+    pageViewController.setViewControllers([beforeViewController], direction: .reverse, animated: true)
+  }
+
+  @objc private func arrowUp() {
+    guard let pageViewController, let index = pageViewController.viewControllers?.first?.fos_index else { return }
+    let alertController = UIAlertController(title: nil, message: index.description, preferredStyle: .alert)
+    alertController.addAction(.init(title: "Dismiss", style: .cancel))
+    present(alertController, animated: true)
   }
 }
 
