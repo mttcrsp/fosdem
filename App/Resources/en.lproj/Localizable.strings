@@ -29,16 +29,16 @@
 "event.links" = "Useful links";
 // Title for a section that contains the list of attachments for an event
 "event.attachments" = "Attachments";
-// An accessibility label reporting the name of the speakers for an event
-"event.people" = "Speakers: %@";
-// An accessibility label reporting in which room an event will take place
-"event.room" = "Room: %@";
+// An accessibility label associated with the room where an event will take place
+"event.room" = "Room";
+// An accessibility label associated which the track an event belongs to
+"event.track" = "Track";
+// An accessibility label associated with the list of speakers for an event
+"event.people" = "Speakers";
 // A label reporting the weekday on which a event will take place
 "event.weekday" = "on %@";
 // A label reporting the duration of a given event in minutes
 "event.duration" = "%@ minutes";
-// An accessibility label reporting which track an event belongs to
-"event.track" = "Track: %@";
 // A button that adds an event from the user agenda
 "event.add" = "Add to Agenda";
 // A button that removes an event from the user agenda

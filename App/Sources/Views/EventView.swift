@@ -69,10 +69,6 @@ final class EventView: UIStackView {
     titleLabel.numberOfLines = 0
     addArrangedSubview(titleLabel)
 
-    let trackView = TrackView()
-    trackView.track = event.formattedTrack
-    addArrangedSubview(trackView)
-
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
       let videoButton = RoundedButton()
@@ -81,7 +77,7 @@ final class EventView: UIStackView {
       videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
       self.videoButton = videoButton
       addArrangedSubview(videoButton)
-      setCustomSpacing(28, after: videoButton)
+      setCustomSpacing(20, after: videoButton)
 
       constraints.append(videoButton.widthAnchor.constraint(equalTo: widthAnchor))
 
@@ -95,32 +91,52 @@ final class EventView: UIStackView {
       livestreamButton.setTitle(L10n.Event.livestream, for: .normal)
       self.livestreamButton = livestreamButton
       addArrangedSubview(livestreamButton)
-      setCustomSpacing(28, after: livestreamButton)
+      setCustomSpacing(20, after: livestreamButton)
 
       constraints.append(livestreamButton.widthAnchor.constraint(equalTo: widthAnchor))
     }
 
-    if !event.people.isEmpty, let people = event.formattedPeople {
-      let peopleView = EventMetadataView()
-      peopleView.accessibilityLabel = L10n.Event.people(people)
-      peopleView.image = UIImage(systemName: "person.circle.fill")
-      peopleView.text = people
-      addArrangedSubview(peopleView)
-      setCustomSpacing(20, after: peopleView)
+    let attributesView = EventAttributesView()
+    addArrangedSubview(attributesView)
+    setCustomSpacing(20, after: attributesView)
+    constraints.append(contentsOf: [
+      attributesView.widthAnchor.constraint(equalTo: widthAnchor),
+    ])
+
+    let configuration = UIImage.SymbolConfiguration(
+      font: UIFont.fos_preferredFont(forTextStyle: .title2)
+    )
+
+    if let date = event.formattedDate {
+      let attributeView = EventAttributeView()
+      attributeView.accessibilityLabel = date
+      attributeView.text = date
+      attributeView.image = .init(systemName: "clock.circle.fill", withConfiguration: configuration)
+      attributesView.addArrangedSubview(attributeView)
     }
 
-    let roomView = EventMetadataView()
-    roomView.accessibilityLabel = L10n.Event.room(event.room)
-    roomView.image = UIImage(systemName: "mappin.circle.fill")
-    roomView.text = event.room
-    addArrangedSubview(roomView)
-    setCustomSpacing(20, after: roomView)
+    let roomAttributeView = EventAttributeView()
+    roomAttributeView.accessibilityLabel = L10n.Event.room
+    roomAttributeView.accessibilityValue = event.room
+    roomAttributeView.text = event.room
+    roomAttributeView.image = .init(systemName: "mappin.circle.fill", withConfiguration: configuration)
+    attributesView.addArrangedSubview(roomAttributeView)
 
-    let dateView = EventMetadataView()
-    dateView.image = UIImage(systemName: "clock.circle.fill")
-    dateView.text = event.formattedDate
-    addArrangedSubview(dateView)
-    setCustomSpacing(28, after: dateView)
+    if !event.people.isEmpty, let people = event.formattedPeople {
+      let attributeView = EventAttributeView()
+      attributeView.accessibilityLabel = L10n.Event.people
+      attributeView.accessibilityValue = people
+      attributeView.text = people
+      attributeView.image = .init(systemName: "person.circle.fill", withConfiguration: configuration)
+      attributesView.addArrangedSubview(attributeView)
+    }
+
+    let trackAttributeView = EventAttributeView()
+    trackAttributeView.accessibilityLabel = L10n.Event.track
+    trackAttributeView.accessibilityValue = event.formattedTrack
+    trackAttributeView.text = event.formattedTrack
+    trackAttributeView.image = .init(systemName: "grid.circle.fill", withConfiguration: configuration)
+    attributesView.addArrangedSubview(trackAttributeView)
 
     if let summary = event.formattedSummary {
       let separatorView = UIView()
