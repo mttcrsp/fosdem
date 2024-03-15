@@ -62,6 +62,7 @@ final class EventView: UIStackView {
     var constraints: [NSLayoutConstraint] = []
 
     let titleLabel = UILabel()
+    titleLabel.accessibilityTraits = .header
     titleLabel.font = .fos_preferredFont(forTextStyle: .title1, withSymbolicTraits: .traitBold)
     titleLabel.adjustsFontForContentSizeCategory = true
     titleLabel.accessibilityTraits = .header
@@ -165,6 +166,7 @@ final class EventView: UIStackView {
       ])
 
       let subtitleLabel = UILabel()
+      subtitleLabel.accessibilityTraits = .header
       subtitleLabel.font = .fos_preferredFont(forTextStyle: .headline)
       subtitleLabel.adjustsFontForContentSizeCategory = true
       subtitleLabel.numberOfLines = 0
@@ -197,6 +199,7 @@ final class EventView: UIStackView {
     for group in groups {
       if !group.items.isEmpty {
         let groupLabel = UILabel()
+        groupLabel.accessibilityTraits = .header
         groupLabel.font = .fos_preferredFont(forTextStyle: .headline)
         groupLabel.text = group.title
         groupLabel.adjustsFontForContentSizeCategory = true
