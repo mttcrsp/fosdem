@@ -126,17 +126,23 @@ extension MoreController: MoreViewControllerDelegate {
     showDetailViewController(transportationViewController)
   }
 
-  private func moreViewController(_: MoreViewController, didSelectInfoItem item: MoreItem) {
+  private func moreViewController(_ moreViewController: MoreViewController, didSelectInfoItem item: MoreItem) {
     guard let info = item.info else {
       return assertionFailure("Failed to determine info model for more item '\(item)'")
     }
 
-    let infoViewController = makeInfoViewController(withTitle: item.title, info: info, didError: { [weak self] _, _ in
-      self?.moreViewControllerDidFailPresentation()
-    })
+    dependencies.navigationService.loadInfoViewController(withTitle: item.title, info: info) { [weak self] result in
+      guard let self else { return }
 
-    let navigationController = UINavigationController(rootViewController: infoViewController)
-    showDetailViewController(navigationController)
+      switch result {
+      case .failure:
+        let errorViewController = makeErrorViewController()
+        moreViewController.present(errorViewController, animated: true)
+      case let .success(infoViewController):
+        let navigationController = UINavigationController(rootViewController: infoViewController)
+        showDetailViewController(navigationController)
+      }
+    }
   }
 
   private func moreViewControllerDidFailPresentation() {
@@ -163,11 +169,7 @@ extension MoreController: UIPopoverPresentationControllerDelegate, DateViewContr
 
 private extension MoreController {
   private var preferredDetailViewControllerStyle: UITableView.Style {
-    if traitCollection.userInterfaceIdiom == .pad {
-      .insetGrouped
-    } else {
-      .grouped
-    }
+    traitCollection.userInterfaceIdiom == .pad ? .insetGrouped : .grouped
   }
 
   func makeMoreViewController() -> MoreViewController {
@@ -196,10 +198,6 @@ private extension MoreController {
 
   private func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
     dependencies.navigationService.makeVideosViewController(didError: didError)
-  }
-
-  private func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController {
-    dependencies.navigationService.makeInfoViewController(withTitle: title, info: info, didError: didError)
   }
 
   private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
