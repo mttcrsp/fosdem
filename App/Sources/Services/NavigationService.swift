@@ -55,6 +55,19 @@ extension NavigationService {
 }
 
 extension NavigationService {
+  func loadTrackViewController(for track: Track, style: UITableView.Style, completion: @escaping LoadingHandler) {
+    let trackController = TrackController(track: track, style: style, dependencies: services)
+    trackController.load { error in
+      if let error {
+        completion(.failure(error))
+      } else {
+        completion(.success(trackController))
+      }
+    }
+  }
+}
+
+extension NavigationService {
   func makeEventViewController(for event: Event) -> UIViewController {
     EventController(event: event, dependencies: services)
   }
@@ -129,6 +142,8 @@ protocol NavigationServiceProtocol {
   func makeAgendaViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeMapViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeMoreViewController() -> UIViewController
+
+  func loadTrackViewController(for track: Track, style: UITableView.Style, completion: @escaping NavigationService.LoadingHandler)
 
   func makeEventViewController(for event: Event) -> UIViewController
   func makePastEventViewController(for event: Event) -> UIViewController
