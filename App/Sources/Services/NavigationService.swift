@@ -3,6 +3,7 @@ import SafariServices
 
 final class NavigationService {
   typealias ErrorHandler = (UIViewController, Error) -> Void
+  typealias LoadingHandler = (Result<UIViewController, Error>) -> Void
 
   private unowned var services: Services!
 
@@ -90,12 +91,17 @@ extension NavigationService {
 }
 
 extension NavigationService {
-  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping ErrorHandler) -> UIViewController {
+  func loadInfoViewController(withTitle title: String, info: Info, completion: @escaping LoadingHandler) {
     let infoController = InfoController(info: info, dependencies: services)
     infoController.accessibilityIdentifier = info.accessibilityIdentifier
-    infoController.didError = didError
     infoController.title = title
-    return infoController
+    infoController.load { error in
+      if let error {
+        completion(.failure(error))
+      } else {
+        completion(.success(infoController))
+      }
+    }
   }
 }
 
@@ -129,7 +135,7 @@ protocol NavigationServiceProtocol {
 
   func makeTransportationViewController() -> UIViewController
   func makeVideosViewController(didError: @escaping NavigationService.ErrorHandler) -> UIViewController
-  func makeInfoViewController(withTitle title: String, info: Info, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
+  func loadInfoViewController(withTitle title: String, info: Info, completion: @escaping NavigationService.LoadingHandler)
 
   func makeYearsViewController(withStyle style: UITableView.Style, didError: @escaping NavigationService.ErrorHandler) -> UIViewController
   func makeYearsViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol, didError: @escaping NavigationService.ErrorHandler) -> UIViewController

@@ -3,8 +3,6 @@ import UIKit
 final class InfoController: TextViewController {
   typealias Dependencies = HasInfoService
 
-  var didError: ((InfoController, Error) -> Void)?
-
   private let dependencies: Dependencies
   private let info: Info
 
@@ -19,9 +17,7 @@ final class InfoController: TextViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
+  func load(_ completion: @escaping (Error?) -> Void) {
     dependencies.infoService.loadAttributedText(for: info) { result in
       DispatchQueue.main.async { [weak self] in
         guard let self else { return }
@@ -29,8 +25,9 @@ final class InfoController: TextViewController {
         switch result {
         case let .success(attributedText):
           self.attributedText = attributedText
+          completion(nil)
         case let .failure(error):
-          didError?(self, error)
+          completion(error)
         }
       }
     }
