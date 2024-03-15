@@ -32,7 +32,7 @@ protocol EventsViewControllerDeleteDelegate: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, didDelete event: Event)
 }
 
-final class EventsViewController: UITableViewController {
+class EventsViewController: UITableViewController {
   weak var dataSource: EventsViewControllerDataSource?
   weak var delegate: EventsViewControllerDelegate?
 

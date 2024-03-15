@@ -5,16 +5,12 @@ final class SearchController: UISplitViewController {
 
   private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
-  private weak var eventsViewController: EventsViewController?
   private weak var searchController: UISearchController?
   private weak var filtersButton: UIBarButtonItem?
 
-  private var captions: [Event: String] = [:]
-  private var events: [Event] = []
   var results: [Event] = []
 
   private var selectedFilter: TracksFilter = .all
-  private var selectedTrack: Track?
   private var tracksConfiguration: TracksConfiguration?
   private var observers: [NSObjectProtocol] = []
 
@@ -32,22 +28,6 @@ final class SearchController: UISplitViewController {
 
   var persistenceService: PersistenceServiceProtocol {
     dependencies.persistenceService
-  }
-
-  private var isDisplayingFavoriteTrack: Bool {
-    if let selectedTrack {
-      dependencies.favoritesService.contains(selectedTrack)
-    } else {
-      false
-    }
-  }
-
-  private var favoriteTitle: String {
-    isDisplayingFavoriteTrack ? L10n.unfavorite : L10n.favorite
-  }
-
-  private var favoriteAccessibilityIdentifier: String {
-    isDisplayingFavoriteTrack ? "unfavorite" : "favorite"
   }
 
   func popToRootViewController() {
@@ -127,15 +107,6 @@ final class SearchController: UISplitViewController {
       self.tracksConfiguration = tracksConfiguration
     }
   }
-
-  private func prefersLargeTitleForDetailViewController(withTitle title: String) -> Bool {
-    let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
-    let attributes = [NSAttributedString.Key.font: font]
-    let attributedString = NSAttributedString(string: title, attributes: attributes)
-    let preferredWidth = attributedString.size().width
-    let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
-    return preferredWidth < availableWidth
-  }
 }
 
 extension SearchController: UISplitViewControllerDelegate {
@@ -203,25 +174,17 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    persistenceService.performRead(GetEventsByTrack(track: track.name)) { [weak tracksViewController] result in
-      DispatchQueue.main.async { [weak self] in
-        guard let self, let tracksViewController else { return }
-
-        switch result {
-        case .failure:
-          let errorViewController = UIAlertController.makeErrorController()
-          tracksViewController.present(errorViewController, animated: true)
-          tracksViewController.deselectSelectedRow(animated: true)
-        case let .success(events):
-          self.events = events
-          selectedTrack = track
-          captions = events.captions
-
-          let eventsViewController = makeEventsViewController(for: track)
-          let navigationController = UINavigationController(rootViewController: eventsViewController)
-          tracksViewController.showDetailViewController(navigationController, sender: nil)
-          UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
-        }
+    let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
+    dependencies.navigationService.loadTrackViewController(for: track, style: style) { result in
+      switch result {
+      case let .success(trackViewController):
+        let navigationController = UINavigationController(rootViewController: trackViewController)
+        tracksViewController.showDetailViewController(navigationController, sender: nil)
+        UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
+      case .failure:
+        let errorViewController = UIAlertController.makeErrorController()
+        tracksViewController.present(errorViewController, animated: true)
+        tracksViewController.deselectSelectedRow(animated: true)
       }
     }
   }
@@ -273,45 +236,15 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
 }
 
 extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in viewController: EventsViewController) -> [Event] {
-    switch viewController {
-    case eventsViewController:
-      events
-    case resultsViewController:
-      results
-    default:
-      []
-    }
+  func events(in _: EventsViewController) -> [Event] {
+    results
   }
 
-  func eventsViewController(_ viewController: EventsViewController, captionFor event: Event) -> String? {
-    switch viewController {
-    case eventsViewController:
-      captions[event]
-    case resultsViewController:
-      event.formattedTrack
-    default:
-      nil
-    }
+  func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
+    event.formattedTrack
   }
 
-  func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
-    switch viewController {
-    case eventsViewController:
-      trackViewController(viewController, didSelect: event)
-    case resultsViewController:
-      resultsViewController(viewController, didSelect: event)
-    default:
-      break
-    }
-  }
-
-  private func trackViewController(_ trackViewController: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
-    trackViewController.show(eventViewController, sender: nil)
-  }
-
-  private func resultsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
+  func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     eventsViewController.deselectSelectedRow(animated: true)
 
     let eventViewController = makeEventViewController(for: event)
@@ -334,16 +267,6 @@ extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewC
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
     dependencies.favoritesService.removeEvent(withIdentifier: event.id)
-  }
-
-  @objc private func didToggleFavorite() {
-    guard let selectedTrack else { return }
-
-    if dependencies.favoritesService.contains(selectedTrack) {
-      dependencies.favoritesService.removeTrack(withIdentifier: selectedTrack.name)
-    } else {
-      dependencies.favoritesService.addTrack(withIdentifier: selectedTrack.name)
-    }
   }
 }
 
@@ -413,71 +336,11 @@ private extension SearchController {
     return resultsViewController
   }
 
-  func makeEventsViewController(for track: Track) -> EventsViewController {
-    let favoriteAction = #selector(didToggleFavorite)
-    let favoriteButton = UIBarButtonItem(title: favoriteTitle, style: .plain, target: self, action: favoriteAction)
-    favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
-
-    let style: UITableView.Style = if traitCollection.userInterfaceIdiom == .pad {
-      .insetGrouped
-    } else {
-      .grouped
-    }
-
-    let eventsViewController = EventsViewController(style: style)
-    eventsViewController.navigationItem.rightBarButtonItem = favoriteButton
-    eventsViewController.favoritesDataSource = self
-    eventsViewController.favoritesDelegate = self
-    eventsViewController.title = track.formattedName
-    eventsViewController.dataSource = self
-    eventsViewController.delegate = self
-    self.eventsViewController = eventsViewController
-
-    if prefersLargeTitleForDetailViewController(withTitle: track.formattedName) {
-      eventsViewController.navigationItem.largeTitleDisplayMode = .always
-    } else {
-      eventsViewController.navigationItem.largeTitleDisplayMode = .never
-    }
-
-    observers.append(
-      dependencies.favoritesService.addObserverForTracks { [weak favoriteButton, weak self] in
-        favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
-        favoriteButton?.title = self?.favoriteTitle
-      }
-    )
-
-    return eventsViewController
-  }
-
   func makeWelcomeViewController() -> WelcomeViewController {
     WelcomeViewController(year: type(of: dependencies.yearsService).current)
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
     dependencies.navigationService.makeEventViewController(for: event)
-  }
-}
-
-private extension [Event] {
-  var captions: [Event: String] {
-    var result: [Event: String] = [:]
-
-    if let event = first, let caption = event.formattedStartWithWeekday {
-      result[event] = caption
-    }
-
-    for (lhs, rhs) in zip(self, dropFirst()) {
-      if lhs.isSameWeekday(as: rhs) {
-        if let caption = rhs.formattedStart {
-          result[rhs] = caption
-        }
-      } else {
-        if let caption = rhs.formattedStartWithWeekday {
-          result[rhs] = caption
-        }
-      }
-    }
-
-    return result
   }
 }
