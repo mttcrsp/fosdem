@@ -58,6 +58,7 @@ final class VideosController: UIPageViewController {
     segmentedControl.selectedSegmentIndex = 0
     navigationItem.titleView = segmentedControl
     navigationItem.largeTitleDisplayMode = .never
+    navigationItem.backButtonTitle = L10n.Recent.video
 
     reloadData()
     observer = dependencies.playbackService.addObserver { [weak self] in

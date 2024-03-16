@@ -2,9 +2,10 @@ import UIKit
 
 /// @mockable
 protocol EventViewControllerDelegate: AnyObject {
-  func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
-  func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
   func eventViewController(_ eventViewController: EventViewController, didSelect url: URL)
+  func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController)
+  func eventViewControllerDidTapTrack(_ eventViewController: EventViewController)
+  func eventViewControllerDidTapVideo(_ eventViewController: EventViewController)
 }
 
 /// @mockable
@@ -18,6 +19,11 @@ final class EventViewController: UITableViewController {
 
   var event: Event? {
     didSet { eventChanged() }
+  }
+
+  var allowsTrackSelection: Bool {
+    get { eventCell.allowsTrackSelection }
+    set { eventCell.allowsTrackSelection = newValue }
   }
 
   var showsLivestream: Bool {
@@ -78,6 +84,10 @@ final class EventViewController: UITableViewController {
 extension EventViewController: EventViewDelegate, EventViewDataSource {
   func eventViewDidTapLivestream(_: EventView) {
     delegate?.eventViewControllerDidTapLivestream(self)
+  }
+
+  func eventViewDidTapTrack(_: EventView) {
+    delegate?.eventViewControllerDidTapTrack(self)
   }
 
   func eventViewDidTapVideo(_: EventView) {

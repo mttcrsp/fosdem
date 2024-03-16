@@ -74,6 +74,7 @@ extension NavigationService {
 
   func makePastEventViewController(for event: Event) -> UIViewController {
     let eventController = EventController(event: event, dependencies: services)
+    eventController.allowsTrackSelection = false
     eventController.showsFavoriteButton = false
     return eventController
   }

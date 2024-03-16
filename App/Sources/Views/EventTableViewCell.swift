@@ -13,6 +13,11 @@ final class EventTableViewCell: UITableViewCell {
     set { eventView.delegate = newValue }
   }
 
+  var allowsTrackSelection: Bool {
+    get { eventView.allowsTrackSelection }
+    set { eventView.allowsTrackSelection = newValue }
+  }
+
   var showsLivestream: Bool {
     get { eventView.showsLivestream }
     set { eventView.showsLivestream = newValue }

@@ -174,7 +174,8 @@ final class AgendaController: UIViewController {
   private func preselectFirstEvent() {
     if let event = events.first, traitCollection.horizontalSizeClass == .regular {
       let eventViewController = makeEventViewController(for: event)
-      agendaViewController?.showDetailViewController(eventViewController, sender: nil)
+      let navigationController = UINavigationController(rootViewController: eventViewController)
+      agendaViewController?.showDetailViewController(navigationController, sender: nil)
       agendaViewController?.select(event)
     }
   }
@@ -216,7 +217,8 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
       break
     case agendaViewController:
       let eventViewController = makeEventViewController(for: event)
-      eventsViewController.showDetailViewController(eventViewController, sender: nil)
+      let navigationController = UINavigationController(rootViewController: eventViewController)
+      eventsViewController.showDetailViewController(navigationController, sender: nil)
       UIAccessibility.post(notification: .screenChanged, argument: eventViewController.view)
     default:
       break
