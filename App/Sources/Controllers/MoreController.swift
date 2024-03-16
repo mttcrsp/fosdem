@@ -28,7 +28,11 @@ final class MoreController: UISplitViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    let moreViewController = makeMoreViewController()
+    let moreViewController = MoreViewController(style: .grouped)
+    moreViewController.title = L10n.More.title
+    moreViewController.delegate = self
+    self.moreViewController = moreViewController
+
     let moreNavigationController = UINavigationController(rootViewController: moreViewController)
     moreNavigationController.navigationBar.prefersLargeTitles = true
 
@@ -60,70 +64,82 @@ extension MoreController: MoreViewControllerDelegate {
   func moreViewController(_ moreViewController: MoreViewController, didSelect item: MoreItem) {
     switch item {
     case .code:
-      moreViewControllerDidSelectCode(moreViewController)
+      if let url = URL.fosdemGithub {
+        dependencies.openService.open(url) { [weak moreViewController] _ in
+          moreViewController?.deselectSelectedRow(animated: true)
+        }
+      }
+
     case .years:
-      moreViewControllerDidSelectYears(moreViewController)
+      let yearsViewController = dependencies.navigationService.makeYearsViewController(withStyle: preferredDetailViewControllerStyle)
+      yearsViewController.didError = { [weak self] _, _ in
+        self?.moreViewControllerDidFailPresentation()
+      }
+
+      let navigationController = UINavigationController(rootViewController: yearsViewController)
+      showDetailViewController(navigationController)
+
     case .video:
-      moreViewControllerDidSelectVideo(moreViewController)
+      let videosViewController = dependencies.navigationService.makeVideosViewController()
+      videosViewController.didError = { [weak self] _, _ in
+        self?.moreViewControllerDidFailPresentation()
+      }
+
+      let navigationController = UINavigationController(rootViewController: videosViewController)
+      moreViewController.showDetailViewController(navigationController, sender: nil)
+
     case .transportation:
-      moreViewControllerDidSelectTransportation(moreViewController)
+      let transportationViewController = dependencies.navigationService.makeTransportationViewController()
+      showDetailViewController(transportationViewController)
+
     case .acknowledgements:
-      moreViewControllerDidSelectAcknowledgements(moreViewController)
+      do {
+        acknowledgements = try dependencies.acknowledgementsService.loadAcknowledgements()
+
+        let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
+        acknowledgementsViewController.title = L10n.Acknowledgements.title
+        acknowledgementsViewController.dataSource = self
+        acknowledgementsViewController.delegate = self
+
+        let navigationController = UINavigationController(rootViewController: acknowledgementsViewController)
+        showDetailViewController(navigationController)
+      } catch {
+        let errorViewController = UIAlertController.makeErrorController()
+        moreViewController.present(errorViewController, animated: true)
+      }
+
     case .history, .legal, .devrooms:
       self.moreViewController(moreViewController, didSelectInfoItem: item)
+
     #if DEBUG
     case .overrideTime:
-      let date = dependencies.timeService.now
-      let dateViewController = makeDateViewController(for: date)
+      let dateViewController = DateViewController()
+      dateViewController.date = dependencies.timeService.now
+      dateViewController.delegate = self
       moreViewController.present(dateViewController, animated: true)
+
     case .generateDatabase:
-      let databaseViewController = makeDatabaseViewController()
+      #if targetEnvironment(simulator)
+      let title = "Generate database", message = "Specify the year you want to generate a database for. Check the Xcode console for the path to the generated database file."
+      let databaseViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+      databaseViewController.addTextField { textField in
+        textField.keyboardType = .numberPad
+        textField.placeholder = "YYYY"
+      }
+      databaseViewController.addAction(.init(title: "Cancel", style: .cancel))
+      databaseViewController.addAction(.init(title: "Generate", style: .default) { [weak databaseViewController] _ in
+        guard let text = databaseViewController?.textFields?.first?.text, let year = Year(text) else { return }
+        GenerateDatabaseService().generate(forYear: year) { dump($0) }
+      })
       moreViewController.present(databaseViewController, animated: true)
+      #else
+      let title = "Ooops", message = "Database files can only be generated while running on a Simulator"
+      let errorViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+      errorViewController.addAction(.init(title: "Ok", style: .default))
+      moreViewController.present(errorViewController, animated: true)
+      #endif
     #endif
     }
-  }
-
-  private func moreViewControllerDidSelectAcknowledgements(_ moreViewController: MoreViewController) {
-    do {
-      acknowledgements = try dependencies.acknowledgementsService.loadAcknowledgements()
-      let acknowledgementsViewController = makeAcknowledgementsViewController()
-      let navigationController = UINavigationController(rootViewController: acknowledgementsViewController)
-      showDetailViewController(navigationController)
-    } catch {
-      let errorViewController = makeErrorViewController()
-      moreViewController.present(errorViewController, animated: true)
-    }
-  }
-
-  private func moreViewControllerDidSelectVideo(_ moreViewController: MoreViewController) {
-    let videosViewController = makeVideosViewController(didError: { [weak self] _, _ in
-      self?.moreViewControllerDidFailPresentation()
-    })
-
-    let navigationController = UINavigationController(rootViewController: videosViewController)
-    moreViewController.showDetailViewController(navigationController, sender: nil)
-  }
-
-  private func moreViewControllerDidSelectYears(_: MoreViewController) {
-    let yearsViewController = makeYearsViewController(didError: { [weak self] _, _ in
-      self?.moreViewControllerDidFailPresentation()
-    })
-
-    let navigationController = UINavigationController(rootViewController: yearsViewController)
-    showDetailViewController(navigationController)
-  }
-
-  private func moreViewControllerDidSelectCode(_ moreViewController: MoreViewController) {
-    if let url = URL.fosdemGithub {
-      dependencies.openService.open(url) { [weak moreViewController] _ in
-        moreViewController?.deselectSelectedRow(animated: true)
-      }
-    }
-  }
-
-  private func moreViewControllerDidSelectTransportation(_: MoreViewController) {
-    let transportationViewController = makeTransportationViewController()
-    showDetailViewController(transportationViewController)
   }
 
   private func moreViewController(_ moreViewController: MoreViewController, didSelectInfoItem item: MoreItem) {
@@ -138,7 +154,7 @@ extension MoreController: MoreViewControllerDelegate {
       guard let self else { return }
 
       if error != nil {
-        let errorViewController = makeErrorViewController()
+        let errorViewController = UIAlertController.makeErrorController()
         moreViewController.present(errorViewController, animated: true)
       } else {
         let navigationController = UINavigationController(rootViewController: infoViewController)
@@ -149,7 +165,13 @@ extension MoreController: MoreViewControllerDelegate {
 
   private func moreViewControllerDidFailPresentation() {
     popToRootViewController()
-    moreViewController?.present(makeErrorViewController(), animated: true)
+
+    let errorViewController = UIAlertController.makeErrorController()
+    moreViewController?.present(errorViewController, animated: true)
+  }
+
+  private var preferredDetailViewControllerStyle: UITableView.Style {
+    traitCollection.userInterfaceIdiom == .pad ? .insetGrouped : .grouped
   }
 }
 
@@ -168,76 +190,3 @@ extension MoreController: UIPopoverPresentationControllerDelegate, DateViewContr
   }
 }
 #endif
-
-private extension MoreController {
-  private var preferredDetailViewControllerStyle: UITableView.Style {
-    traitCollection.userInterfaceIdiom == .pad ? .insetGrouped : .grouped
-  }
-
-  func makeMoreViewController() -> MoreViewController {
-    let moreViewController = MoreViewController(style: .grouped)
-    moreViewController.title = L10n.More.title
-    moreViewController.delegate = self
-    self.moreViewController = moreViewController
-    return moreViewController
-  }
-
-  func makeAcknowledgementsViewController() -> AcknowledgementsViewController {
-    let acknowledgementsViewController = AcknowledgementsViewController(style: preferredDetailViewControllerStyle)
-    acknowledgementsViewController.title = L10n.Acknowledgements.title
-    acknowledgementsViewController.dataSource = self
-    acknowledgementsViewController.delegate = self
-    return acknowledgementsViewController
-  }
-
-  private func makeYearsViewController(didError: @escaping (UIViewController, Error) -> Void) -> UIViewController {
-    let yearsViewController = dependencies.navigationService.makeYearsViewController(withStyle: preferredDetailViewControllerStyle)
-    yearsViewController.didError = didError
-    return yearsViewController
-  }
-
-  private func makeTransportationViewController() -> UIViewController {
-    dependencies.navigationService.makeTransportationViewController()
-  }
-
-  private func makeVideosViewController(didError: @escaping (UIViewController, Error) -> Void) -> UIViewController {
-    let videosViewController = dependencies.navigationService.makeVideosViewController()
-    videosViewController.didError = didError
-    return videosViewController
-  }
-
-  private func makeErrorViewController(withHandler handler: (() -> Void)? = nil) -> UIAlertController {
-    UIAlertController.makeErrorController(withHandler: handler)
-  }
-
-  #if DEBUG
-  private func makeDateViewController(for date: Date) -> DateViewController {
-    let timeViewController = DateViewController()
-    timeViewController.delegate = self
-    timeViewController.date = date
-    return timeViewController
-  }
-
-  private func makeDatabaseViewController() -> UIAlertController {
-    #if targetEnvironment(simulator)
-    let title = "Generate database", message = "Specify the year you want to generate a database for. Check the Xcode console for the path to the generated database file."
-    let databaseViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-    databaseViewController.addTextField { textField in
-      textField.keyboardType = .numberPad
-      textField.placeholder = "YYYY"
-    }
-    databaseViewController.addAction(.init(title: "Cancel", style: .cancel))
-    databaseViewController.addAction(.init(title: "Generate", style: .default) { [weak databaseViewController] _ in
-      guard let text = databaseViewController?.textFields?.first?.text, let year = Year(text) else { return }
-      GenerateDatabaseService().generate(forYear: year) { dump($0) }
-    })
-    return databaseViewController
-    #else
-    let title = "Ooops", message = "Database files can only be generated while running on a Simulator"
-    let errorViewController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-    errorViewController.addAction(.init(title: "Ok", style: .default))
-    return errorViewController
-    #endif
-  }
-  #endif
-}
