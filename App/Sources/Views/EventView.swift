@@ -1,8 +1,9 @@
 import UIKit
 
 protocol EventViewDelegate: AnyObject {
-  func eventViewDidTapVideo(_ eventView: EventView)
   func eventViewDidTapLivestream(_ eventView: EventView)
+  func eventViewDidTapTrack(_ eventView: EventView)
+  func eventViewDidTapVideo(_ eventView: EventView)
   func eventView(_ eventView: EventView, didSelect url: URL)
 }
 
@@ -16,11 +17,16 @@ final class EventView: UIStackView {
     didSet { reloadPlaybackPosition() }
   }
 
-  private weak var videoButton: RoundedButton?
   private weak var livestreamButton: RoundedButton?
+  private weak var trackAttributeView: EventAttributeView?
+  private weak var videoButton: RoundedButton?
 
   var event: Event? {
     didSet { didChangeEvent() }
+  }
+
+  var allowsTrackSelection = true {
+    didSet { didChangeAllowsTrackSelection() }
   }
 
   var showsLivestream = false {
@@ -137,6 +143,8 @@ final class EventView: UIStackView {
     trackAttributeView.accessibilityValue = event.formattedTrack
     trackAttributeView.text = event.formattedTrack
     trackAttributeView.image = .init(systemName: "grid.circle.fill", withConfiguration: configuration)
+    trackAttributeView.addTarget(self, action: #selector(didTapTrack), for: .touchUpInside)
+    self.trackAttributeView = trackAttributeView
     attributesView.addArrangedSubview(trackAttributeView)
 
     if let summary = event.formattedSummary {
@@ -222,14 +230,30 @@ final class EventView: UIStackView {
     accessibilityElements = subviews
 
     NSLayoutConstraint.activate(constraints)
+
+    didChangeAllowsTrackSelection()
+    didChangeShowLivestream()
   }
 
   private func didChangeShowLivestream() {
     livestreamButton?.isHidden = !showsLivestream
   }
 
+  private func didChangeAllowsTrackSelection() {
+    let action = #selector(didTapTrack)
+    if allowsTrackSelection {
+      trackAttributeView?.addTarget(self, action: action, for: .touchUpInside)
+    } else {
+      trackAttributeView?.removeTarget(self, action: action, for: .touchUpInside)
+    }
+  }
+
   @objc private func didTapLivestream() {
     delegate?.eventViewDidTapLivestream(self)
+  }
+
+  @objc private func didTapTrack() {
+    delegate?.eventViewDidTapTrack(self)
   }
 
   @objc private func didTapVideo() {

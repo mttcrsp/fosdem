@@ -1,11 +1,15 @@
 import AVKit
 
 final class EventController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPlaybackService & HasTimeService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasPlaybackService & HasTimeService
   typealias PlayerViewController = AVPlayerViewControllerProtocol & UIViewController
 
   var showsFavoriteButton = true {
     didSet { didChangeShowsFavoriteButton() }
+  }
+
+  var allowsTrackSelection = true {
+    didSet { didChangeAllowsTrackSelection() }
   }
 
   private weak var playerViewController: PlayerViewController?
@@ -82,6 +86,7 @@ final class EventController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    navigationItem.backButtonTitle = event.title
     navigationItem.largeTitleDisplayMode = .never
 
     let eventViewController = makeEventViewController(for: event)
@@ -103,6 +108,10 @@ final class EventController: UIViewController {
     } else {
       dependencies.favoritesService.addEvent(withIdentifier: event.id)
     }
+  }
+
+  private func didChangeAllowsTrackSelection() {
+    eventViewController?.allowsTrackSelection = allowsTrackSelection
   }
 
   private func didChangeShowsFavoriteButton() {
@@ -138,6 +147,10 @@ final class EventController: UIViewController {
 }
 
 extension EventController: EventViewControllerDelegate, EventViewControllerDataSource {
+  func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
+    dependencies.playbackService.playbackPosition(forEventWithIdentifier: event.id)
+  }
+
   func eventViewControllerDidTapLivestream(_ eventViewController: EventViewController) {
     if let link = event.links.first(where: \.isLivestream), let url = link.livestreamURL {
       let livestreamViewController = makeVideoViewController(for: url)
@@ -157,8 +170,35 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
     eventViewController.present(attachmentViewController, animated: true)
   }
 
-  func eventViewController(_: EventViewController, playbackPositionFor event: Event) -> PlaybackPosition {
-    dependencies.playbackService.playbackPosition(forEventWithIdentifier: event.id)
+  func eventViewControllerDidTapTrack(_ eventViewController: EventViewController) {
+    let operation = GetTrackByName(name: event.track)
+    dependencies.persistenceService.performRead(operation) { result in
+      DispatchQueue.main.async { [weak self] in
+        switch result {
+        case let .success(track?):
+          self?.eventViewController(eventViewController, didLoad: track)
+        case .success, .failure:
+          self?.eventViewControllerDidFailPresentation(eventViewController)
+        }
+      }
+    }
+  }
+
+  private func eventViewController(_ eventViewController: EventViewController, didLoad track: Track) {
+    let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
+    dependencies.navigationService.loadTrackViewController(for: track, style: style) { [weak self] result in
+      switch result {
+      case let .success(trackViewController):
+        eventViewController.show(trackViewController, sender: nil)
+      case .failure:
+        self?.eventViewControllerDidFailPresentation(eventViewController)
+      }
+    }
+  }
+
+  private func eventViewControllerDidFailPresentation(_ eventViewController: EventViewController) {
+    let errorViewController = UIAlertController.makeErrorController()
+    eventViewController.show(errorViewController, sender: nil)
   }
 }
 
@@ -213,6 +253,7 @@ private extension EventController {
     }
 
     let eventViewController = EventViewController(style: style)
+    eventViewController.allowsTrackSelection = allowsTrackSelection
     eventViewController.showsLivestream = hasLivestream && isEventToday
     eventViewController.dataSource = self
     eventViewController.delegate = self
