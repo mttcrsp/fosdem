@@ -10,9 +10,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     let rootViewController: UIViewController
     do {
-      rootViewController = try ApplicationController(dependencies: makeServices())
+      #if DEBUG
+      let services = try DebugServices()
+      #else
+      let services = try Services()
+      #endif
+      rootViewController = ApplicationController(dependencies: services)
     } catch {
-      rootViewController = makeErrorViewController()
+      let errorViewController = ErrorViewController()
+      errorViewController.showsAppStoreButton = true
+      errorViewController.delegate = self
+      rootViewController = errorViewController
     }
 
     let window = UIWindow()
@@ -30,22 +38,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   func applicationWillResignActive(_: UIApplication) {
     applicationController?.applicationWillResignActive()
-  }
-
-  private func makeServices() throws -> Services {
-    #if DEBUG
-    let services = try DebugServices()
-    #else
-    let services = try Services()
-    #endif
-    return services
-  }
-
-  func makeErrorViewController() -> ErrorViewController {
-    let errorViewController = ErrorViewController()
-    errorViewController.showsAppStoreButton = true
-    errorViewController.delegate = self
-    return errorViewController
   }
 }
 

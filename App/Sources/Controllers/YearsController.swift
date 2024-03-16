@@ -110,7 +110,12 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
   func yearsViewController(_ yearsViewController: YearsViewController, loadingDidSucceedFor year: Int, retryHandler: @escaping () -> Void) {
     do {
       let persistenceService = try dependencies.yearsService.makePersistenceService(forYear: year)
-      let yearViewController = makeYearViewController(forYear: year, with: persistenceService)
+      let yearViewController = dependencies.navigationService.makeYearViewController(for: persistenceService)
+      yearViewController.title = year.description
+      yearViewController.navigationItem.largeTitleDisplayMode = .never
+      yearViewController.didError = { [weak self] viewController, error in
+        self?.didError?(viewController, error)
+      }
       yearsViewController.show(yearViewController, sender: nil)
     } catch {
       self.yearsViewController(yearsViewController, loadingDidFailWith: error, retryHandler: retryHandler)
@@ -120,8 +125,10 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
   func yearsViewController(_ yearsViewController: YearsViewController, loadingDidFailWith error: Error, retryHandler: @escaping () -> Void) {
     switch error {
     case let error as YearsService.Error where error == .yearNotAvailable:
-      let errorViewController = makeYearUnavailableViewController()
-      yearsViewController.present(errorViewController, animated: true)
+      let title = L10n.Years.Unavailable.title, message = L10n.Years.Unavailable.message
+      let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+      alertController.addAction(.init(title: L10n.Years.Unavailable.dismiss, style: .default))
+      yearsViewController.present(alertController, animated: true)
     case let error as URLError where error.code == .notConnectedToInternet:
       let errorViewController = UIAlertController.makeNoInternetController(withRetryHandler: retryHandler)
       yearsViewController.present(errorViewController, animated: true)
@@ -129,24 +136,5 @@ extension YearsController: YearsViewControllerDataSource, YearsViewControllerDel
       let errorViewController = UIAlertController.makeErrorController()
       yearsViewController.present(errorViewController, animated: true)
     }
-  }
-}
-
-private extension YearsController {
-  func makeYearViewController(forYear year: Int, with persistenceService: PersistenceServiceProtocol) -> UIViewController {
-    let yearViewController = dependencies.navigationService.makeYearViewController(for: persistenceService)
-    yearViewController.title = year.description
-    yearViewController.navigationItem.largeTitleDisplayMode = .never
-    yearViewController.didError = { [weak self] viewController, error in
-      self?.didError?(viewController, error)
-    }
-    return yearViewController
-  }
-
-  func makeYearUnavailableViewController() -> UIAlertController {
-    let title = L10n.Years.Unavailable.title, message = L10n.Years.Unavailable.message
-    let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-    alertController.addAction(.init(title: L10n.Years.Unavailable.dismiss, style: .default))
-    return alertController
   }
 }

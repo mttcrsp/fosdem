@@ -35,27 +35,31 @@ final class YearController: TracksViewController {
     delegate = self
     dataSource = self
     definesPresentationContext = true
-    addSearchViewController(makeSearchController())
+
+    let resultsViewController = EventsViewController(style: .grouped)
+    resultsViewController.dataSource = self
+    resultsViewController.delegate = self
+    self.resultsViewController = resultsViewController
+
+    let searchController = UISearchController(searchResultsController: resultsViewController)
+    searchController.searchBar.placeholder = L10n.More.Search.prompt
+    searchController.searchResultsUpdater = self
+    self.searchController = searchController
+    addSearchViewController(searchController)
 
     persistenceService.performRead(GetAllTracks()) { result in
       DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+
         switch result {
         case let .failure(error):
-          self?.tracksLoadingDidError(with: error)
+          didError?(self, error)
         case let .success(tracks):
-          self?.tracksLoadingDidFinish(with: tracks)
+          self.tracks = tracks
+          reloadData()
         }
       }
     }
-  }
-
-  private func tracksLoadingDidError(with error: Error) {
-    didError?(self, error)
-  }
-
-  private func tracksLoadingDidFinish(with tracks: [Track]) {
-    self.tracks = tracks
-    reloadData()
   }
 }
 
@@ -73,7 +77,11 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    let eventsViewController = makeEventsViewController(for: track)
+    let eventsViewController = EventsViewController(style: .grouped)
+    eventsViewController.title = track.formattedName
+    eventsViewController.dataSource = self
+    eventsViewController.delegate = self
+    self.eventsViewController = eventsViewController
     tracksViewController.show(eventsViewController, sender: nil)
 
     events = []
@@ -103,12 +111,9 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
 extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in viewController: EventsViewController) -> [Event] {
     switch viewController {
-    case eventsViewController:
-      events
-    case resultsViewController:
-      results
-    default:
-      []
+    case eventsViewController: events
+    case resultsViewController: results
+    default: []
     }
   }
 
@@ -117,7 +122,9 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   }
 
   func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+    eventViewController.allowsTrackSelection = false
+    eventViewController.showsFavoriteButton = false
     show(eventViewController, sender: nil)
 
     if viewController == resultsViewController {
@@ -129,39 +136,5 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
 extension YearController: UISearchResultsUpdating, EventsSearchController {
   func updateSearchResults(for searchController: UISearchController) {
     didChangeQuery(searchController.searchBar.text ?? "")
-  }
-}
-
-private extension YearController {
-  func makeSearchController() -> UISearchController {
-    let searchController = UISearchController(searchResultsController: makeResultsViewController())
-    searchController.searchBar.placeholder = L10n.More.Search.prompt
-    searchController.searchResultsUpdater = self
-    self.searchController = searchController
-    return searchController
-  }
-
-  func makeResultsViewController() -> EventsViewController {
-    let resultsViewController = EventsViewController(style: .grouped)
-    resultsViewController.dataSource = self
-    resultsViewController.delegate = self
-    self.resultsViewController = resultsViewController
-    return resultsViewController
-  }
-
-  func makeEventsViewController(for track: Track) -> EventsViewController {
-    let eventsViewController = EventsViewController(style: .grouped)
-    eventsViewController.title = track.formattedName
-    eventsViewController.dataSource = self
-    eventsViewController.delegate = self
-    self.eventsViewController = eventsViewController
-    return eventsViewController
-  }
-
-  func makeEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
-    eventViewController.allowsTrackSelection = false
-    eventViewController.showsFavoriteButton = false
-    return eventViewController
   }
 }

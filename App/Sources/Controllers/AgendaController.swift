@@ -55,40 +55,53 @@ final class AgendaController: UIViewController {
 
   override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
     super.traitCollectionDidChange(previousTraitCollection)
-
     if traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass, isMissingSecondaryViewController {
       preselectFirstEvent()
     }
   }
+}
 
-  private func reloadLiveStatus() {
+private extension AgendaController {
+  func preselectFirstEvent() {
+    if let event = events.first, traitCollection.horizontalSizeClass == .regular {
+      let eventViewController = makeEventViewController(for: event)
+      let navigationController = UINavigationController(rootViewController: eventViewController)
+      agendaViewController?.showDetailViewController(navigationController, sender: nil)
+      agendaViewController?.select(event)
+    }
+  }
+
+  func reloadLiveStatus() {
     agendaViewController?.reloadLiveStatus()
   }
 
-  private func reloadFavoriteEvents(animated: Bool) {
+  func reloadFavoriteEvents(animated: Bool) {
     let identifiers = dependencies.favoritesService.eventsIdentifiers
 
     if identifiers.isEmpty, !(rootViewController is UINavigationController) {
       rootViewController = makeAgendaNavigationController()
     } else if !identifiers.isEmpty, !(rootViewController is UISplitViewController) {
-      rootViewController = makeAgendaSplitViewController()
+      let agendaSplitViewController = UISplitViewController()
+      agendaSplitViewController.viewControllers = [makeAgendaNavigationController()]
+      agendaSplitViewController.preferredPrimaryColumnWidthFraction = 0.4
+      agendaSplitViewController.preferredDisplayMode = .oneBesideSecondary
+      agendaSplitViewController.maximumPrimaryColumnWidth = 375
+      rootViewController = agendaSplitViewController
     }
 
     let operation = GetEventsByIdentifiers(identifiers: identifiers)
     dependencies.persistenceService.performRead(operation) { result in
       DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+
         switch result {
         case let .failure(error):
-          self?.loadingDidFail(with: error)
+          didError?(self, error)
         case let .success(events):
-          self?.loadingDidSucceed(with: events, animated: animated)
+          loadingDidSucceed(with: events, animated: animated)
         }
       }
     }
-  }
-
-  private func loadingDidFail(with error: Error) {
-    didError?(self, error)
   }
 
   private func loadingDidSucceed(with events: [Event], animated: Bool) {
@@ -126,7 +139,7 @@ final class AgendaController: UIViewController {
     }
   }
 
-  @objc private func didTapSoon() {
+  @objc func didTapSoon() {
     dependencies.soonService.loadEvents { result in
       DispatchQueue.main.async { [weak self] in
         guard let self else { return }
@@ -137,7 +150,22 @@ final class AgendaController: UIViewController {
           present(errorViewController, animated: true)
         case let .success(events):
           eventsStartingSoon = events
-          let soonViewController = makeSoonViewController()
+
+          let dismissAction = #selector(didTapDismiss)
+          let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
+          dismissButton.accessibilityIdentifier = "dismiss"
+
+          let soonViewController = EventsViewController(style: .grouped)
+          soonViewController.emptyBackgroundMessage = L10n.Soon.Empty.message
+          soonViewController.emptyBackgroundTitle = L10n.Soon.Empty.title
+          soonViewController.title = L10n.Soon.title
+          soonViewController.navigationItem.rightBarButtonItem = dismissButton
+          soonViewController.favoritesDataSource = self
+          soonViewController.favoritesDelegate = self
+          soonViewController.dataSource = self
+          soonViewController.delegate = self
+          self.soonViewController = soonViewController
+
           let soonNavigationController = UINavigationController(rootViewController: soonViewController)
           present(soonNavigationController, animated: true)
         }
@@ -145,11 +173,11 @@ final class AgendaController: UIViewController {
     }
   }
 
-  @objc private func didTapDismiss() {
+  @objc func didTapDismiss() {
     soonViewController?.dismiss(animated: true)
   }
 
-  private func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
+  func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
     if let viewController = oldViewController {
       viewController.willMove(toParent: nil)
       viewController.view.removeFromSuperview()
@@ -170,48 +198,32 @@ final class AgendaController: UIViewController {
       ])
     }
   }
-
-  private func preselectFirstEvent() {
-    if let event = events.first, traitCollection.horizontalSizeClass == .regular {
-      let eventViewController = makeEventViewController(for: event)
-      let navigationController = UINavigationController(rootViewController: eventViewController)
-      agendaViewController?.showDetailViewController(navigationController, sender: nil)
-      agendaViewController?.select(event)
-    }
-  }
 }
 
 extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
-    case agendaViewController:
-      events
-    case soonViewController:
-      eventsStartingSoon
-    default:
-      []
+    case agendaViewController: events
+    case soonViewController: eventsStartingSoon
+    default: []
     }
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
-    let items: [String?]
-
-    switch eventsViewController {
-    case agendaViewController:
-      items = [event.formattedStart, event.room, event.formattedTrack]
-    case soonViewController:
-      items = [event.formattedStart, event.room]
-    default:
-      return nil
+    let items: [String?]? = switch eventsViewController {
+    case agendaViewController: [event.formattedStart, event.room, event.formattedTrack]
+    case soonViewController: [event.formattedStart, event.room]
+    default: nil
     }
 
-    return items.compactMap { $0 }.joined(separator: " - ")
+    return items?.compactMap { $0 }.joined(separator: " - ")
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     switch eventsViewController {
     case soonViewController:
-      let eventViewController = makeSoonEventViewController(for: event)
+      let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+      eventViewController.fos_eventID = event.id
       eventsViewController.show(eventViewController, sender: nil)
     case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
       break
@@ -247,23 +259,7 @@ extension AgendaController: EventsViewControllerLiveDataSource {
 }
 
 private extension AgendaController {
-  func makeAgendaSplitViewController() -> UISplitViewController {
-    let agendaSplitViewController = UISplitViewController()
-    agendaSplitViewController.viewControllers = [makeAgendaNavigationController()]
-    agendaSplitViewController.preferredPrimaryColumnWidthFraction = 0.4
-    agendaSplitViewController.preferredDisplayMode = .oneBesideSecondary
-    agendaSplitViewController.maximumPrimaryColumnWidth = 375
-    return agendaSplitViewController
-  }
-
   func makeAgendaNavigationController() -> UINavigationController {
-    let agendaViewController = makeAgendaViewController()
-    let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
-    agendaNavigationController.navigationBar.prefersLargeTitles = true
-    return agendaNavigationController
-  }
-
-  func makeAgendaViewController() -> EventsViewController {
     let soonTitle = L10n.Agenda.soon
     let soonAction = #selector(didTapSoon)
     let soonButton = UIBarButtonItem(title: soonTitle, style: .plain, target: self, action: soonAction)
@@ -281,37 +277,16 @@ private extension AgendaController {
     agendaViewController.dataSource = self
     agendaViewController.delegate = self
     self.agendaViewController = agendaViewController
-    return agendaViewController
-  }
 
-  func makeSoonViewController() -> EventsViewController {
-    let dismissAction = #selector(didTapDismiss)
-    let dismissButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: dismissAction)
-    dismissButton.accessibilityIdentifier = "dismiss"
-
-    let soonViewController = EventsViewController(style: .grouped)
-    soonViewController.emptyBackgroundMessage = L10n.Soon.Empty.message
-    soonViewController.emptyBackgroundTitle = L10n.Soon.Empty.title
-    soonViewController.title = L10n.Soon.title
-    soonViewController.navigationItem.rightBarButtonItem = dismissButton
-    soonViewController.favoritesDataSource = self
-    soonViewController.favoritesDelegate = self
-    soonViewController.dataSource = self
-    soonViewController.delegate = self
-    self.soonViewController = soonViewController
-    return soonViewController
+    let agendaNavigationController = UINavigationController(rootViewController: agendaViewController)
+    agendaNavigationController.navigationBar.prefersLargeTitles = true
+    return agendaNavigationController
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
     let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
-    return eventViewController
-  }
-
-  func makeSoonEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
-    eventViewController.fos_eventID = event.id
     return eventViewController
   }
 }

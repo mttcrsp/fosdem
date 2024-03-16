@@ -50,14 +50,10 @@ final class TrackController: EventsViewController {
     favoritesDataSource = self
     favoritesDelegate = self
 
-    let title = track.formattedName
-    self.title = title
-
     let favoriteAction = #selector(didToggleFavorite)
     let favoriteButton = UIBarButtonItem(title: nil, style: .plain, target: self, action: favoriteAction)
     self.favoriteButton = favoriteButton
     navigationItem.rightBarButtonItem = favoriteButton
-    navigationItem.largeTitleDisplayMode = prefersLargeTitle(forTitle: title) ? .always : .never
 
     reloadFavoriteButton()
     observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
@@ -69,15 +65,6 @@ final class TrackController: EventsViewController {
     let isFavorite = dependencies.favoritesService.contains(track)
     favoriteButton?.accessibilityIdentifier = isFavorite ? "unfavorite" : "favorite"
     favoriteButton?.title = isFavorite ? L10n.unfavorite : L10n.favorite
-  }
-
-  private func prefersLargeTitle(forTitle title: String) -> Bool {
-    let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
-    let attributes = [NSAttributedString.Key.font: font]
-    let attributedString = NSAttributedString(string: title, attributes: attributes)
-    let preferredWidth = attributedString.size().width
-    let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
-    return preferredWidth < availableWidth
   }
 }
 
@@ -91,7 +78,7 @@ extension TrackController: EventsViewControllerDataSource, EventsViewControllerD
   }
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     show(eventViewController, sender: nil)
   }
 }
@@ -115,12 +102,6 @@ extension TrackController: EventsViewControllerFavoritesDataSource, EventsViewCo
     } else {
       dependencies.favoritesService.addTrack(withIdentifier: track.name)
     }
-  }
-}
-
-private extension TrackController {
-  func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(for: event)
   }
 }
 

@@ -84,12 +84,9 @@ final class VideosController: UIPageViewController {
 
   @objc private func didChangeSegment(_ control: UISegmentedControl) {
     switch control.selectedSegmentIndex {
-    case 0:
-      setViewController(watchingViewController, direction: .reverse, animated: true)
-    case 1:
-      setViewController(watchedViewController, direction: .forward, animated: true)
-    default:
-      break
+    case 0: setViewController(watchingViewController, direction: .reverse, animated: true)
+    case 1: setViewController(watchedViewController, direction: .forward, animated: true)
+    default: break
     }
   }
 
@@ -102,12 +99,9 @@ final class VideosController: UIPageViewController {
 extension VideosController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
-    case watchingViewController:
-      watchingEvents
-    case watchedViewController:
-      watchedEvents
-    default:
-      []
+    case watchingViewController: watchingEvents
+    case watchedViewController: watchedEvents
+    default: []
     }
   }
 
@@ -116,7 +110,7 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
   }
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     show(eventViewController, sender: nil)
   }
 }
@@ -130,23 +124,17 @@ extension VideosController: EventsViewControllerDeleteDelegate {
 extension VideosController: UIPageViewControllerDataSource {
   func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
     switch viewController {
-    case watchingViewController:
-      nil
-    case watchedViewController:
-      watchingViewController
-    default:
-      nil
+    case watchingViewController: nil
+    case watchedViewController: watchingViewController
+    default: nil
     }
   }
 
   func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
     switch viewController {
-    case watchingViewController:
-      watchedViewController
-    case watchedViewController:
-      nil
-    default:
-      nil
+    case watchingViewController: watchedViewController
+    case watchedViewController: nil
+    default: nil
     }
   }
 }
@@ -156,14 +144,10 @@ extension VideosController: UIPageViewControllerDelegate {
     guard completed else { return }
 
     let currentViewController = pageViewController.viewControllers?.first
-
     switch currentViewController {
-    case watchingViewController:
-      segmentedControl.selectedSegmentIndex = 0
-    case watchedViewController:
-      segmentedControl.selectedSegmentIndex = 1
-    default:
-      break
+    case watchingViewController: segmentedControl.selectedSegmentIndex = 0
+    case watchedViewController: segmentedControl.selectedSegmentIndex = 1
+    default: break
     }
 
     navigationItem.setRightBarButton(currentViewController?.editButtonItem, animated: true)
@@ -178,9 +162,5 @@ private extension VideosController {
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     return eventsViewController
-  }
-
-  func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(for: event)
   }
 }

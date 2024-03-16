@@ -39,9 +39,59 @@ final class ApplicationController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    var viewControllers: [UIViewController] = [makeTabsController()]
+    var tabViewControllers: [UIViewController] = []
+
+    let searchViewController = dependencies.navigationService.makeSearchViewController()
+    searchViewController.tabBarItem.accessibilityIdentifier = "search"
+    searchViewController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
+    searchViewController.title = L10n.Search.title
+    searchViewController.preferredDisplayMode = .oneBesideSecondary
+    searchViewController.preferredPrimaryColumnWidthFraction = 0.4
+    searchViewController.maximumPrimaryColumnWidth = 375
+    tabViewControllers.append(searchViewController)
+
+    let agendaViewController = dependencies.navigationService.makeAgendaViewController()
+    agendaViewController.tabBarItem.accessibilityIdentifier = "agenda"
+    agendaViewController.tabBarItem.image = UIImage(systemName: "calendar")
+    agendaViewController.title = L10n.Agenda.title
+    agendaViewController.didError = { [weak self] viewController, error in
+      self?.agendaViewController(viewController, didError: error)
+    }
+    tabViewControllers.append(agendaViewController)
+
+    let mapViewController = dependencies.navigationService.makeMapViewController()
+    mapViewController.tabBarItem.accessibilityIdentifier = "map"
+    mapViewController.tabBarItem.image = UIImage(systemName: "map")
+    mapViewController.title = L10n.Map.title
+    mapViewController.didError = { [weak self] viewController, error in
+      self?.mapViewController(viewController, didError: error)
+    }
+    tabViewControllers.append(mapViewController)
+
+    let moreViewController = dependencies.navigationService.makeMoreViewController()
+    moreViewController.tabBarItem.accessibilityIdentifier = "more"
+    moreViewController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
+    moreViewController.title = L10n.More.title
+    moreViewController.preferredDisplayMode = .oneBesideSecondary
+    moreViewController.preferredPrimaryColumnWidthFraction = 0.4
+    moreViewController.maximumPrimaryColumnWidth = 375
+    tabViewControllers.append(moreViewController)
+
+    let tabsController = UITabBarController()
+    self.tabsController = tabsController
+    tabsController.delegate = self
+    tabsController.setViewControllers(tabViewControllers, animated: false)
+    for (index, viewController) in tabViewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
+      tabsController.selectedIndex = index
+      tabBarControllerDidChangeSelectedViewController(tabsController)
+    }
+
+    var viewControllers: [UIViewController] = [tabsController]
     if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall {
-      viewControllers.append(makeWelcomeViewController())
+      let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsService).current)
+      welcomeViewController.showsContinue = true
+      welcomeViewController.delegate = self
+      viewControllers.append(welcomeViewController)
     }
 
     var constraints: [NSLayoutConstraint] = []
@@ -68,10 +118,13 @@ final class ApplicationController: UIViewController {
     dependencies.scheduleService.startUpdating()
     dependencies.updateService.detectUpdates {
       DispatchQueue.main.async { [weak self] in
-        if let self {
-          let updateViewController = makeUpdateViewController()
-          present(updateViewController, animated: true)
-        }
+        guard let self else { return }
+        let dismissAction = UIAlertAction(title: L10n.Update.dismiss, style: .cancel)
+        let confirmAction = UIAlertAction(title: L10n.Update.confirm, style: .default) { [weak self] _ in self?.didTapUpdate() }
+        let alertController = UIAlertController(title: L10n.Update.title, message: L10n.Update.message, preferredStyle: .alert)
+        alertController.addAction(confirmAction)
+        alertController.addAction(dismissAction)
+        present(alertController, animated: true)
       }
     }
   }
@@ -84,107 +137,41 @@ final class ApplicationController: UIViewController {
   func applicationWillResignActive() {
     dependencies.timeService.stopMonitoring()
   }
+}
 
-  @objc private func didSelectPrevTab() {
+private extension ApplicationController {
+  @objc func didSelectPrevTab() {
     if let rootTabBarController = tabsController {
       rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex - 1) + children.count) % children.count
       tabBarControllerDidChangeSelectedViewController(rootTabBarController)
     }
   }
 
-  @objc private func didSelectNextTab() {
+  @objc func didSelectNextTab() {
     if let rootTabBarController = tabsController {
       rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex + 1) + children.count) % children.count
       tabBarControllerDidChangeSelectedViewController(rootTabBarController)
     }
   }
 
-  private func didTapUpdate() {
+  func didTapUpdate() {
     if let url = URL.fosdemAppStore {
       dependencies.openService.open(url, completion: nil)
     }
   }
-}
 
-private extension ApplicationController {
-  func makeTabsController() -> UITabBarController {
-    let tabsController = UITabBarController()
-    tabsController.delegate = self
-
-    var viewControllers: [UIViewController] = []
-    viewControllers.append(makeSearchController())
-    viewControllers.append(makeAgendaController())
-    viewControllers.append(makeMapController())
-    viewControllers.append(makeMoreController())
-    tabsController.setViewControllers(viewControllers, animated: false)
-
-    for (index, viewController) in viewControllers.enumerated() where String(describing: type(of: viewController)) == previouslySelectedViewController {
-      tabsController.selectedIndex = index
-      tabBarControllerDidChangeSelectedViewController(tabsController)
-    }
-
-    self.tabsController = tabsController
-    return tabsController
+  func agendaViewController(_ agendaViewController: UIViewController, didError _: Error) {
+    let errorViewController = ErrorViewController()
+    agendaViewController.addChild(errorViewController)
+    agendaViewController.view.addSubview(errorViewController.view)
+    errorViewController.didMove(toParent: agendaViewController)
   }
 
-  func makeSearchController() -> UIViewController {
-    let searchViewController = dependencies.navigationService.makeSearchViewController()
-    searchViewController.tabBarItem.accessibilityIdentifier = "search"
-    searchViewController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
-    searchViewController.title = L10n.Search.title
-    searchViewController.preferredDisplayMode = .oneBesideSecondary
-    searchViewController.preferredPrimaryColumnWidthFraction = 0.4
-    searchViewController.maximumPrimaryColumnWidth = 375
-    return searchViewController
-  }
-
-  func makeAgendaController() -> UIViewController {
-    let agendaViewController = dependencies.navigationService.makeAgendaViewController()
-    agendaViewController.tabBarItem.accessibilityIdentifier = "agenda"
-    agendaViewController.tabBarItem.image = UIImage(systemName: "calendar")
-    agendaViewController.title = L10n.Agenda.title
-    agendaViewController.didError = { [weak self] viewController, error in
-      self?.agendaController(viewController, didError: error)
-    }
-    return agendaViewController
-  }
-
-  func makeMapController() -> UIViewController {
-    let mapController = dependencies.navigationService.makeMapViewController()
-    mapController.tabBarItem.accessibilityIdentifier = "map"
-    mapController.tabBarItem.image = UIImage(systemName: "map")
-    mapController.title = L10n.Map.title
-    mapController.didError = { [weak self] viewController, error in
-      self?.mapController(viewController, didError: error)
-    }
-    return mapController
-  }
-
-  func makeMoreController() -> UIViewController {
-    let moreViewController = dependencies.navigationService.makeMoreViewController()
-    moreViewController.tabBarItem.accessibilityIdentifier = "more"
-    moreViewController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
-    moreViewController.title = L10n.More.title
-    moreViewController.preferredDisplayMode = .oneBesideSecondary
-    moreViewController.preferredPrimaryColumnWidthFraction = 0.4
-    moreViewController.maximumPrimaryColumnWidth = 375
-    return moreViewController
-  }
-
-  func makeWelcomeViewController() -> WelcomeViewController {
-    let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsService).current)
-    welcomeViewController.showsContinue = true
-    welcomeViewController.delegate = self
-    return welcomeViewController
-  }
-
-  func makeUpdateViewController() -> UIAlertController {
-    let dismissAction = UIAlertAction(title: L10n.Update.dismiss, style: .cancel)
-    let confirmAction = UIAlertAction(title: L10n.Update.confirm, style: .default) { [weak self] _ in self?.didTapUpdate() }
-    let alertController = UIAlertController(title: L10n.Update.title, message: L10n.Update.message, preferredStyle: .alert)
-    alertController.addAction(confirmAction)
-    alertController.addAction(dismissAction)
-    return alertController
+  func mapViewController(_ mapViewController: UIViewController, didError _: Error) {
+    let errorViewController = ErrorViewController()
+    mapViewController.addChild(errorViewController)
+    mapViewController.view.addSubview(errorViewController.view)
+    errorViewController.didMove(toParent: mapViewController)
   }
 }
 
@@ -192,14 +179,10 @@ extension ApplicationController: UITabBarControllerDelegate {
   func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
     if viewController == tabBarController.selectedViewController {
       switch viewController {
-      case let viewController as SearchController:
-        viewController.popToRootViewController()
-      case let viewController as AgendaController:
-        viewController.popToRootViewController()
-      case let viewController as MoreController:
-        viewController.popToRootViewController()
-      default:
-        break
+      case let viewController as SearchController: viewController.popToRootViewController()
+      case let viewController as AgendaController: viewController.popToRootViewController()
+      case let viewController as MoreController: viewController.popToRootViewController()
+      default: break
       }
     }
 
@@ -221,24 +204,6 @@ extension ApplicationController: UITabBarControllerDelegate {
     } else {
       tabBarController.tabBar.scrollEdgeAppearance = nil
     }
-  }
-}
-
-extension ApplicationController {
-  func agendaController(_ agendaController: UIViewController, didError _: Error) {
-    let errorViewController = ErrorViewController()
-    agendaController.addChild(errorViewController)
-    agendaController.view.addSubview(errorViewController.view)
-    errorViewController.didMove(toParent: agendaController)
-  }
-}
-
-extension ApplicationController {
-  func mapController(_ mapController: UIViewController, didError _: Error) {
-    let errorViewController = ErrorViewController()
-    mapController.addChild(errorViewController)
-    mapController.view.addSubview(errorViewController.view)
-    errorViewController.didMove(toParent: mapController)
   }
 }
 
