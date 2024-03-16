@@ -175,16 +175,16 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
     let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
-    dependencies.navigationService.loadTrackViewController(for: track, style: style) { result in
-      switch result {
-      case let .success(trackViewController):
-        let navigationController = UINavigationController(rootViewController: trackViewController)
-        tracksViewController.showDetailViewController(navigationController, sender: nil)
-        UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
-      case .failure:
+    let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
+    trackViewController.load { error in
+      if error != nil {
         let errorViewController = UIAlertController.makeErrorController()
         tracksViewController.present(errorViewController, animated: true)
         tracksViewController.deselectSelectedRow(animated: true)
+      } else {
+        let navigationController = UINavigationController(rootViewController: trackViewController)
+        tracksViewController.showDetailViewController(navigationController, sender: nil)
+        UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
       }
     }
   }

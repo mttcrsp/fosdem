@@ -49,13 +49,15 @@ extension TransportationController: TransportationViewControllerDelegate {
   }
 
   private func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationItem, info: Info) {
-    dependencies.navigationService.loadInfoViewController(withTitle: item.title, info: info) { result in
-      switch result {
-      case let .success(infoViewController):
-        transportationViewController.show(infoViewController, sender: nil)
-      case .failure:
+    let infoViewController = dependencies.navigationService.makeInfoViewController(for: info)
+    infoViewController.accessibilityIdentifier = info.accessibilityIdentifier
+    infoViewController.title = item.title
+    infoViewController.load { error in
+      if error != nil {
         let errorViewController = UIAlertController.makeErrorController()
         transportationViewController.present(errorViewController, animated: true)
+      } else {
+        transportationViewController.show(infoViewController, sender: nil)
       }
     }
   }
