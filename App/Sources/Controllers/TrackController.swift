@@ -3,7 +3,7 @@ import UIKit
 final class TrackController: EventsViewController {
   typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService
 
-  var didError: NavigationService.ErrorHandler?
+  var didError: ((UIViewController, Error) -> Void)?
 
   private var favoriteButton: UIBarButtonItem?
 

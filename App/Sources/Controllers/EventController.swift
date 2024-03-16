@@ -186,12 +186,12 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
 
   private func eventViewController(_ eventViewController: EventViewController, didLoad track: Track) {
     let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
-    dependencies.navigationService.loadTrackViewController(for: track, style: style) { [weak self] result in
-      switch result {
-      case let .success(trackViewController):
-        eventViewController.show(trackViewController, sender: nil)
-      case .failure:
+    let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
+    trackViewController.load { [weak self] error in
+      if error != nil {
         self?.eventViewControllerDidFailPresentation(eventViewController)
+      } else {
+        eventViewController.show(trackViewController, sender: nil)
       }
     }
   }

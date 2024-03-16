@@ -128,23 +128,47 @@ private extension ApplicationController {
   }
 
   func makeSearchController() -> UIViewController {
-    dependencies.navigationService.makeSearchViewController()
+    let searchViewController = dependencies.navigationService.makeSearchViewController()
+    searchViewController.tabBarItem.accessibilityIdentifier = "search"
+    searchViewController.tabBarItem.image = UIImage(systemName: "magnifyingglass")
+    searchViewController.title = L10n.Search.title
+    searchViewController.preferredDisplayMode = .oneBesideSecondary
+    searchViewController.preferredPrimaryColumnWidthFraction = 0.4
+    searchViewController.maximumPrimaryColumnWidth = 375
+    return searchViewController
   }
 
   func makeAgendaController() -> UIViewController {
-    dependencies.navigationService.makeAgendaViewController(didError: { [weak self] viewController, error in
+    let agendaViewController = dependencies.navigationService.makeAgendaViewController()
+    agendaViewController.tabBarItem.accessibilityIdentifier = "agenda"
+    agendaViewController.tabBarItem.image = UIImage(systemName: "calendar")
+    agendaViewController.title = L10n.Agenda.title
+    agendaViewController.didError = { [weak self] viewController, error in
       self?.agendaController(viewController, didError: error)
-    })
+    }
+    return agendaViewController
   }
 
   func makeMapController() -> UIViewController {
-    dependencies.navigationService.makeMapViewController(didError: { [weak self] viewController, error in
+    let mapController = dependencies.navigationService.makeMapViewController()
+    mapController.tabBarItem.accessibilityIdentifier = "map"
+    mapController.tabBarItem.image = UIImage(systemName: "map")
+    mapController.title = L10n.Map.title
+    mapController.didError = { [weak self] viewController, error in
       self?.mapController(viewController, didError: error)
-    })
+    }
+    return mapController
   }
 
   func makeMoreController() -> UIViewController {
-    dependencies.navigationService.makeMoreViewController()
+    let moreViewController = dependencies.navigationService.makeMoreViewController()
+    moreViewController.tabBarItem.accessibilityIdentifier = "more"
+    moreViewController.tabBarItem.image = UIImage(systemName: "ellipsis.circle")
+    moreViewController.title = L10n.More.title
+    moreViewController.preferredDisplayMode = .oneBesideSecondary
+    moreViewController.preferredPrimaryColumnWidthFraction = 0.4
+    moreViewController.maximumPrimaryColumnWidth = 375
+    return moreViewController
   }
 
   func makeWelcomeViewController() -> WelcomeViewController {
