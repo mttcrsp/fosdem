@@ -203,28 +203,20 @@ private extension AgendaController {
 extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
-    case agendaViewController:
-      events
-    case soonViewController:
-      eventsStartingSoon
-    default:
-      []
+    case agendaViewController: events
+    case soonViewController: eventsStartingSoon
+    default: []
     }
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String? {
-    let items: [String?]
-
-    switch eventsViewController {
-    case agendaViewController:
-      items = [event.formattedStart, event.room, event.formattedTrack]
-    case soonViewController:
-      items = [event.formattedStart, event.room]
-    default:
-      return nil
+    let items: [String?]? = switch eventsViewController {
+    case agendaViewController: [event.formattedStart, event.room, event.formattedTrack]
+    case soonViewController: [event.formattedStart, event.room]
+    default: nil
     }
 
-    return items.compactMap { $0 }.joined(separator: " - ")
+    return items?.compactMap { $0 }.joined(separator: " - ")
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {

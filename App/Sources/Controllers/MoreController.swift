@@ -53,11 +53,6 @@ final class MoreController: UISplitViewController {
       }
     }
   }
-
-  private func showDetailViewController(_ detailViewController: UIViewController) {
-    moreViewController?.showDetailViewController(detailViewController, sender: nil)
-    UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
-  }
 }
 
 extension MoreController: MoreViewControllerDelegate {
@@ -168,6 +163,11 @@ extension MoreController: MoreViewControllerDelegate {
 
     let errorViewController = UIAlertController.makeErrorController()
     moreViewController?.present(errorViewController, animated: true)
+  }
+
+  private func showDetailViewController(_ detailViewController: UIViewController) {
+    moreViewController?.showDetailViewController(detailViewController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: detailViewController.view)
   }
 
   private var preferredDetailViewControllerStyle: UITableView.Style {

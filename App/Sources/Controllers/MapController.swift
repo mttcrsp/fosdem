@@ -43,10 +43,17 @@ final class MapController: MapContainerViewController {
 
     containerDelegate = self
 
-    let blueprintsViewController = makeEmbeddedBlueprintsViewController()
+    let blueprintsViewController = BlueprintsViewController(style: .embedded)
     let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
+    blueprintsViewController.blueprintsDelegate = self
+    embeddedBlueprintsViewController = blueprintsViewController
 
-    masterViewController = makeMapViewController()
+    let mapViewController = MapViewController()
+    mapViewController.delegate = self
+    mapViewController.setAuthorizationStatus(authorizationStatus)
+    self.mapViewController = mapViewController
+
+    masterViewController = mapViewController
     detailViewController = blueprintsNavigationController
 
     locationManager.delegate = self
@@ -58,7 +65,7 @@ final class MapController: MapContainerViewController {
         if let error {
           didError?(self, error)
         } else {
-          mapViewController?.buildings = buildings
+          mapViewController.buildings = buildings
         }
       }
     }
@@ -103,10 +110,8 @@ extension MapController: MapContainerViewControllerDelegate {
 
   func containerViewController(_: MapContainerViewController, scrollDirectionFor _: UIViewController) -> MapContainerViewController.ScrollDirection {
     switch preferredLayout {
-    case .phonePortrait:
-      .vertical
-    case .pad, .phoneLandscape:
-      .horizontal
+    case .phonePortrait: .vertical
+    case .pad, .phoneLandscape: .horizontal
     }
   }
 
@@ -145,12 +150,9 @@ extension MapController: MapViewControllerDelegate {
 
     var center = mapViewController.convertToMapPoint(building.coordinate)
     switch preferredLayout {
-    case .pad:
-      break
-    case .phonePortrait:
-      center.y += detailSize.height / 2
-    case .phoneLandscape:
-      center.x -= detailSize.width / 2
+    case .pad: break
+    case .phonePortrait: center.y += detailSize.height / 2
+    case .phoneLandscape: center.x -= detailSize.width / 2
     }
 
     let centerCoordinates = mapViewController.convertToMapCoordinate(center)
@@ -163,8 +165,18 @@ extension MapController: MapViewControllerDelegate {
 
   func mapViewControllerDidTapLocation(_ mapViewController: MapViewController) {
     if let action = authorizationStatus.action {
-      let actionViewController = makeActionViewController(for: action)
-      mapViewController.present(actionViewController, animated: true)
+      let dismissTitle = L10n.Location.dismiss
+      let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
+
+      let confirmTitle = L10n.Location.confirm
+      let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
+        self?.didTapLocationSettings()
+      }
+
+      let alertController = UIAlertController(title: action.title, message: action.message, preferredStyle: .alert)
+      alertController.addAction(dismissAction)
+      alertController.addAction(confirmAction)
+      mapViewController.present(alertController, animated: true)
     } else if authorizationStatus == .notDetermined {
       locationManager.requestWhenInUseAuthorization()
     }
@@ -188,7 +200,12 @@ extension MapController: BlueprintsViewControllerDelegate {
   func blueprintsViewController(_ presentingViewController: BlueprintsViewController, didSelect blueprint: Blueprint) {
     guard let building = presentingViewController.building else { return }
 
-    let blueprintsViewController = makeFullscreeBlueprintsViewController(for: building, showing: blueprint)
+    let blueprintsViewController = BlueprintsViewController(style: .fullscreen)
+    blueprintsViewController.building = building
+    blueprintsViewController.blueprintsDelegate = self
+    blueprintsViewController.setVisibleBlueprint(blueprint, animated: false)
+    fullscreenBlueprintsViewController = blueprintsViewController
+
     let blueprintsNavigationController = UINavigationController(rootViewController: blueprintsViewController)
     blueprintsNavigationController.modalPresentationStyle = .overFullScreen
 
@@ -218,47 +235,6 @@ extension MapController: CLLocationManagerDelegate {
   }
 }
 
-private extension MapController {
-  func makeMapViewController() -> MapViewController {
-    let mapViewController = MapViewController()
-    mapViewController.delegate = self
-    mapViewController.setAuthorizationStatus(authorizationStatus)
-    self.mapViewController = mapViewController
-    return mapViewController
-  }
-
-  func makeEmbeddedBlueprintsViewController() -> BlueprintsViewController {
-    let blueprintsViewController = BlueprintsViewController(style: .embedded)
-    blueprintsViewController.blueprintsDelegate = self
-    embeddedBlueprintsViewController = blueprintsViewController
-    return blueprintsViewController
-  }
-
-  func makeFullscreeBlueprintsViewController(for building: Building, showing blueprint: Blueprint) -> BlueprintsViewController {
-    let blueprintsViewController = BlueprintsViewController(style: .fullscreen)
-    blueprintsViewController.building = building
-    blueprintsViewController.blueprintsDelegate = self
-    blueprintsViewController.setVisibleBlueprint(blueprint, animated: false)
-    fullscreenBlueprintsViewController = blueprintsViewController
-    return blueprintsViewController
-  }
-
-  func makeActionViewController(for action: CLAuthorizationStatus.Action) -> UIAlertController {
-    let dismissTitle = L10n.Location.dismiss
-    let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
-
-    let confirmTitle = L10n.Location.confirm
-    let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
-      self?.didTapLocationSettings()
-    }
-
-    let alertController = UIAlertController(title: action.title, message: action.message, preferredStyle: .alert)
-    alertController.addAction(dismissAction)
-    alertController.addAction(confirmAction)
-    return alertController
-  }
-}
-
 private extension CLAuthorizationStatus {
   enum Action {
     case enable, disable
@@ -266,14 +242,10 @@ private extension CLAuthorizationStatus {
 
   var action: Action? {
     switch self {
-    case .authorizedAlways, .authorizedWhenInUse:
-      return .disable
-    case .denied, .restricted:
-      return .enable
-    case .notDetermined:
-      return nil
-    @unknown default:
-      return nil
+    case .authorizedAlways, .authorizedWhenInUse: .disable
+    case .denied, .restricted: .enable
+    case .notDetermined: nil
+    @unknown default: nil
     }
   }
 }
@@ -281,19 +253,15 @@ private extension CLAuthorizationStatus {
 private extension CLAuthorizationStatus.Action {
   var title: String {
     switch self {
-    case .enable:
-      L10n.Location.Title.enable
-    case .disable:
-      L10n.Location.Title.disable
+    case .enable: L10n.Location.Title.enable
+    case .disable: L10n.Location.Title.disable
     }
   }
 
   var message: String {
     switch self {
-    case .enable:
-      L10n.Location.Message.enable
-    case .disable:
-      L10n.Location.Message.disable
+    case .enable: L10n.Location.Message.enable
+    case .disable: L10n.Location.Message.disable
     }
   }
 }

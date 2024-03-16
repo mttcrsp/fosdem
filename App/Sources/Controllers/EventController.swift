@@ -89,7 +89,15 @@ final class EventController: UIViewController {
     navigationItem.backButtonTitle = event.title
     navigationItem.largeTitleDisplayMode = .never
 
-    let eventViewController = makeEventViewController(for: event)
+    let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .plain
+    let eventViewController = EventViewController(style: style)
+    eventViewController.allowsTrackSelection = allowsTrackSelection
+    eventViewController.showsLivestream = hasLivestream && isEventToday
+    eventViewController.dataSource = self
+    eventViewController.delegate = self
+    eventViewController.event = event
+    self.eventViewController = eventViewController
+
     addChild(eventViewController)
     view.addSubview(eventViewController.view)
     eventViewController.didMove(toParent: self)
@@ -166,7 +174,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
   }
 
   func eventViewController(_ eventViewController: EventViewController, didSelect url: URL) {
-    let attachmentViewController = makeSafariViewController(for: url)
+    let attachmentViewController = dependencies.navigationService.makeSafariViewController(with: url)
     eventViewController.present(attachmentViewController, animated: true)
   }
 
@@ -187,6 +195,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
   private func eventViewController(_ eventViewController: EventViewController, didLoad track: Track) {
     let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
     let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
+    trackViewController.title = track.formattedName
     trackViewController.load { [weak self] error in
       if error != nil {
         self?.eventViewControllerDidFailPresentation(eventViewController)
@@ -199,6 +208,16 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
   private func eventViewControllerDidFailPresentation(_ eventViewController: EventViewController) {
     let errorViewController = UIAlertController.makeErrorController()
     eventViewController.show(errorViewController, sender: nil)
+  }
+
+  private func makeVideoViewController(for url: URL) -> PlayerViewController {
+    let playerViewController = dependencies.navigationService.makePlayerViewController()
+    playerViewController.exitsFullScreenWhenPlaybackEnds = true
+    playerViewController.player = AVPlayer(url: url)
+    playerViewController.player?.play()
+    playerViewController.delegate = self
+    self.playerViewController = playerViewController
+    return playerViewController
   }
 }
 
@@ -242,37 +261,5 @@ extension EventController: AVPlayerViewControllerDelegate {
       notificationCenter.removeObserver(observer)
       finishObserver = nil
     }
-  }
-}
-
-private extension EventController {
-  func makeEventViewController(for event: Event) -> EventViewController {
-    var style: UITableView.Style = .plain
-    if traitCollection.userInterfaceIdiom == .pad {
-      style = .insetGrouped
-    }
-
-    let eventViewController = EventViewController(style: style)
-    eventViewController.allowsTrackSelection = allowsTrackSelection
-    eventViewController.showsLivestream = hasLivestream && isEventToday
-    eventViewController.dataSource = self
-    eventViewController.delegate = self
-    eventViewController.event = event
-    self.eventViewController = eventViewController
-    return eventViewController
-  }
-
-  func makeVideoViewController(for url: URL) -> PlayerViewController {
-    let playerViewController = dependencies.navigationService.makePlayerViewController()
-    playerViewController.exitsFullScreenWhenPlaybackEnds = true
-    playerViewController.player = AVPlayer(url: url)
-    playerViewController.player?.play()
-    playerViewController.delegate = self
-    self.playerViewController = playerViewController
-    return playerViewController
-  }
-
-  private func makeSafariViewController(for url: URL) -> UIViewController {
-    dependencies.navigationService.makeSafariViewController(with: url)
   }
 }

@@ -12,7 +12,7 @@ final class SearchController: UISplitViewController {
 
   private var selectedFilter: TracksFilter = .all
   private var tracksConfiguration: TracksConfiguration?
-  private var observers: [NSObjectProtocol] = []
+  private var observer: NSObjectProtocol?
 
   private let dependencies: Dependencies
 
@@ -26,10 +26,6 @@ final class SearchController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  var persistenceService: PersistenceServiceProtocol {
-    dependencies.persistenceService
-  }
-
   func popToRootViewController() {
     if traitCollection.horizontalSizeClass == .compact {
       tracksViewController?.navigationController?.popToRootViewController(animated: true)
@@ -41,20 +37,49 @@ final class SearchController: UISplitViewController {
 
     delegate = self
 
-    reloadTracks()
-    observers = [
-      dependencies.favoritesService.addObserverForTracks { [weak self] in
-        self?.reloadTracks()
-      },
-    ]
+    let filtersTitle = L10n.Search.Filter.title
+    let filtersAction = #selector(didTapChangeFilter)
+    let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
+    filtersButton.accessibilityIdentifier = "filters"
+    self.filtersButton = filtersButton
 
-    let tracksViewController = makeTracksViewController()
+    let resultsViewController = EventsViewController(style: .grouped)
+    resultsViewController.favoritesDataSource = self
+    resultsViewController.favoritesDelegate = self
+    resultsViewController.dataSource = self
+    resultsViewController.delegate = self
+    self.resultsViewController = resultsViewController
+
+    let searchController = UISearchController(searchResultsController: resultsViewController)
+    searchController.searchBar.placeholder = L10n.More.Search.prompt
+    searchController.searchResultsUpdater = self
+    self.searchController = searchController
+
+    let tracksViewController = TracksViewController(style: .insetGrouped)
+    tracksViewController.title = L10n.Search.title
+    tracksViewController.navigationItem.rightBarButtonItem = filtersButton
+    tracksViewController.navigationItem.largeTitleDisplayMode = .always
+    tracksViewController.addSearchViewController(searchController)
+    tracksViewController.definesPresentationContext = true
+    tracksViewController.favoritesDataSource = self
+    tracksViewController.favoritesDelegate = self
+    tracksViewController.indexDataSource = self
+    tracksViewController.indexDelegate = self
+    tracksViewController.dataSource = self
+    tracksViewController.delegate = self
+    self.tracksViewController = tracksViewController
+
     let tracksNavigationController = UINavigationController(rootViewController: tracksViewController)
     tracksNavigationController.navigationBar.prefersLargeTitles = true
 
     viewControllers = [tracksNavigationController]
     if traitCollection.horizontalSizeClass == .regular {
       viewControllers.append(makeWelcomeViewController())
+    }
+
+    reloadTracks()
+    observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
+      self?.reloadTracks()
     }
   }
 
@@ -86,12 +111,9 @@ final class SearchController: UISplitViewController {
 
     tracksViewController?.performBatchUpdates {
       switch (oldIdentifiers.isEmpty, newIdentifiers.isEmpty) {
-      case (true, false):
-        tracksViewController?.insertFavoritesSection()
-      case (false, true):
-        tracksViewController?.deleteFavoritesSection()
-      default:
-        break
+      case (true, false): tracksViewController?.insertFavoritesSection()
+      case (false, true): tracksViewController?.deleteFavoritesSection()
+      default: break
       }
 
       for (index, track) in oldIdentifiers.enumerated().reversed() where deletesIdentifiers.contains(track) {
@@ -142,40 +164,26 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
-    if isFavoriteSection(section) {
-      L10n.Search.Filter.favorites
-    } else {
-      selectedFilter.title
-    }
+    isFavoriteSection(section) ? L10n.Search.Filter.favorites : selectedFilter.title
   }
 
   func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    if isFavoriteSection(section) {
-      "favorites"
-    } else {
-      selectedFilter.accessibilityIdentifier
-    }
+    isFavoriteSection(section) ? "favorites" : selectedFilter.accessibilityIdentifier
   }
 
   func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
-    if isFavoriteSection(section) {
-      filteredFavoriteTracks.count
-    } else {
-      filteredTracks.count
-    }
+    isFavoriteSection(section) ? filteredFavoriteTracks.count : filteredTracks.count
   }
 
   func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    if isFavoriteSection(indexPath.section) {
-      filteredFavoriteTracks[indexPath.row]
-    } else {
-      filteredTracks[indexPath.row]
-    }
+    isFavoriteSection(indexPath.section) ? filteredFavoriteTracks[indexPath.row] : filteredTracks[indexPath.row]
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
     let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
     let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
+    trackViewController.navigationItem.largeTitleDisplayMode = preferredLargeTitleDisplayModeForDetail(withTitle: track.formattedName)
+    trackViewController.title = track.formattedName
     trackViewController.load { error in
       if error != nil {
         let errorViewController = UIAlertController.makeErrorController()
@@ -189,15 +197,35 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     }
   }
 
-  @objc private func didTapChangeFilter() {
-    let filters = tracksConfiguration?.filters ?? []
-    let filtersViewController = makeFiltersViewController(with: filters, selectedFilter: selectedFilter)
-    tracksViewController?.present(filtersViewController, animated: true)
+  private func preferredLargeTitleDisplayModeForDetail(withTitle title: String) -> UINavigationItem.LargeTitleDisplayMode {
+    let font = UIFont.fos_preferredFont(forTextStyle: .largeTitle)
+    let attributes = [NSAttributedString.Key.font: font]
+    let attributedString = NSAttributedString(string: title, attributes: attributes)
+    let preferredWidth = attributedString.size().width
+    let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
+    return preferredWidth < availableWidth ? .always : .never
   }
 
-  private func didSelectFilter(_ filter: TracksFilter) {
-    selectedFilter = filter
-    tracksViewController?.reloadData()
+  @objc private func didTapChangeFilter() {
+    let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+    alertController.popoverPresentationController?.barButtonItem = filtersButton
+    alertController.view.accessibilityIdentifier = "filters"
+
+    let filters = tracksConfiguration?.filters ?? []
+    for filter in filters where filter != selectedFilter {
+      let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in
+        self?.selectedFilter = filter
+        self?.tracksViewController?.reloadData()
+      }
+      let action = UIAlertAction(title: filter.title, style: .default, handler: actionHandler)
+      alertController.addAction(action)
+    }
+
+    let cancelTitle = L10n.Search.Filter.cancel
+    let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
+    alertController.addAction(cancelAction)
+
+    tracksViewController?.present(alertController, animated: true)
   }
 }
 
@@ -247,7 +275,7 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     eventsViewController.deselectSelectedRow(animated: true)
 
-    let eventViewController = makeEventViewController(for: event)
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
     tracksViewController?.showDetailViewController(eventViewController, sender: nil)
 
     if traitCollection.horizontalSizeClass == .regular {
@@ -271,76 +299,17 @@ extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewC
 }
 
 extension SearchController: UISearchResultsUpdating, EventsSearchController {
+  var persistenceService: PersistenceServiceProtocol {
+    dependencies.persistenceService
+  }
+
   func updateSearchResults(for searchController: UISearchController) {
     didChangeQuery(searchController.searchBar.text ?? "")
   }
 }
 
 private extension SearchController {
-  func makeTracksViewController() -> TracksViewController {
-    let filtersTitle = L10n.Search.Filter.title
-    let filtersAction = #selector(didTapChangeFilter)
-    let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
-    filtersButton.accessibilityIdentifier = "filters"
-    self.filtersButton = filtersButton
-
-    let tracksViewController = TracksViewController(style: .insetGrouped)
-    tracksViewController.title = L10n.Search.title
-    tracksViewController.navigationItem.rightBarButtonItem = filtersButton
-    tracksViewController.navigationItem.largeTitleDisplayMode = .always
-    tracksViewController.addSearchViewController(makeSearchController())
-    tracksViewController.definesPresentationContext = true
-    tracksViewController.favoritesDataSource = self
-    tracksViewController.favoritesDelegate = self
-    tracksViewController.indexDataSource = self
-    tracksViewController.indexDelegate = self
-    tracksViewController.dataSource = self
-    tracksViewController.delegate = self
-    self.tracksViewController = tracksViewController
-    return tracksViewController
-  }
-
-  func makeFiltersViewController(with filters: [TracksFilter], selectedFilter: TracksFilter) -> UIAlertController {
-    let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-    alertController.popoverPresentationController?.barButtonItem = filtersButton
-    alertController.view.accessibilityIdentifier = "filters"
-
-    for filter in filters where filter != selectedFilter {
-      let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in self?.didSelectFilter(filter) }
-      let action = UIAlertAction(title: filter.title, style: .default, handler: actionHandler)
-      alertController.addAction(action)
-    }
-
-    let cancelTitle = L10n.Search.Filter.cancel
-    let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
-    alertController.addAction(cancelAction)
-
-    return alertController
-  }
-
-  func makeSearchController() -> UISearchController {
-    let searchController = UISearchController(searchResultsController: makeResultsViewController())
-    searchController.searchBar.placeholder = L10n.More.Search.prompt
-    searchController.searchResultsUpdater = self
-    self.searchController = searchController
-    return searchController
-  }
-
-  func makeResultsViewController() -> EventsViewController {
-    let resultsViewController = EventsViewController(style: .grouped)
-    resultsViewController.favoritesDataSource = self
-    resultsViewController.favoritesDelegate = self
-    resultsViewController.dataSource = self
-    resultsViewController.delegate = self
-    self.resultsViewController = resultsViewController
-    return resultsViewController
-  }
-
   func makeWelcomeViewController() -> WelcomeViewController {
     WelcomeViewController(year: type(of: dependencies.yearsService).current)
-  }
-
-  func makeEventViewController(for event: Event) -> UIViewController {
-    dependencies.navigationService.makeEventViewController(for: event)
   }
 }

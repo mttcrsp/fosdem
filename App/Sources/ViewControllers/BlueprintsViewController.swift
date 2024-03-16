@@ -200,28 +200,22 @@ extension FullscreenBlueprintViewController: BlueprintViewController {}
 private extension BlueprintsViewController.Style {
   var blueprintViewControllerClass: BlueprintViewController.Type {
     switch self {
-    case .embedded:
-      EmbeddedBlueprintViewController.self
-    case .fullscreen:
-      FullscreenBlueprintViewController.self
+    case .embedded: EmbeddedBlueprintViewController.self
+    case .fullscreen: FullscreenBlueprintViewController.self
     }
   }
 
   var dismissAccessibilityIdentifier: String {
     switch self {
-    case .embedded:
-      "dismiss"
-    case .fullscreen:
-      "fullscreen_dismiss"
+    case .embedded: "dismiss"
+    case .fullscreen: "fullscreen_dismiss"
     }
   }
 
   var accessibilityIdentifier: String {
     switch self {
-    case .embedded:
-      "embedded_blueprints"
-    case .fullscreen:
-      "fullscreen_blueprints"
+    case .embedded: "embedded_blueprints"
+    case .fullscreen: "fullscreen_blueprints"
     }
   }
 }
