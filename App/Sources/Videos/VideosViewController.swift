@@ -1,22 +1,20 @@
+import Combine
 import UIKit
 
-final class VideosController: UIPageViewController {
-  typealias Dependencies = HasNavigationService & HasPlaybackService & HasVideosService
+final class VideosViewController: UIPageViewController {
+  typealias Dependencies = HasNavigationService
 
-  var didError: ((VideosController, Error) -> Void)?
-
+  var didError: ((VideosViewController, Error) -> Void)?
+  private var cancellables: [AnyCancellable] = []
   private lazy var watchingViewController = makeEventsViewController()
   private lazy var watchedViewController = makeEventsViewController()
   private lazy var segmentedControl = UISegmentedControl()
-
-  private var watchingEvents: [Event] = []
-  private var watchedEvents: [Event] = []
-  private var observer: NSObjectProtocol?
-
   private let dependencies: Dependencies
+  private let viewModel: VideosViewModel
 
-  init(dependencies: Dependencies) {
+  init(dependencies: Dependencies, viewModel: VideosViewModel) {
     self.dependencies = dependencies
+    self.viewModel = viewModel
     super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
   }
 
@@ -26,9 +24,7 @@ final class VideosController: UIPageViewController {
   }
 
   deinit {
-    if let observer {
-      dependencies.playbackService.removeObserver(observer)
-    }
+    viewModel.didUnload()
   }
 
   override func viewDidLoad() {
@@ -60,26 +56,33 @@ final class VideosController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
     navigationItem.backButtonTitle = L10n.Recent.video
 
-    reloadData()
-    observer = dependencies.playbackService.addObserver { [weak self] in
-      self?.reloadData()
-    }
-  }
-
-  private func reloadData() {
-    dependencies.videosService.loadVideos { [weak self] result in
-      guard let self else { return }
-
-      switch result {
-      case let .failure(error):
-        didError?(self, error)
-      case let .success(videos):
-        watchedEvents = videos.watched
-        watchingEvents = videos.watching
-        watchedViewController.reloadData()
-        watchingViewController.reloadData()
+    viewModel.$watchedEvents
+      .scan(([], [])) { ($0.1, $1) }
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] oldEvents, newEvents in
+        self?.watchedViewController.updateEvents(from: oldEvents, to: newEvents)
       }
-    }
+      .store(in: &cancellables)
+
+    func update(_: EventsViewController, from _: [Event], to _: [Event]) {}
+
+    viewModel.$watchingEvents
+      .scan(([], [])) { ($0.1, $1) }
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] oldEvents, newEvents in
+        self?.watchingViewController.updateEvents(from: oldEvents, to: newEvents)
+      }
+      .store(in: &cancellables)
+
+    viewModel.didFail
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] error in
+        guard let self else { return }
+        didError?(self, error)
+      }
+      .store(in: &cancellables)
+
+    viewModel.didLoad()
   }
 
   @objc private func didChangeSegment(_ control: UISegmentedControl) {
@@ -96,11 +99,11 @@ final class VideosController: UIPageViewController {
   }
 }
 
-extension VideosController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension VideosViewController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in eventsViewController: EventsViewController) -> [Event] {
     switch eventsViewController {
-    case watchingViewController: watchingEvents
-    case watchedViewController: watchedEvents
+    case watchingViewController: viewModel.watchingEvents
+    case watchedViewController: viewModel.watchedEvents
     default: []
     }
   }
@@ -115,13 +118,13 @@ extension VideosController: EventsViewControllerDataSource, EventsViewController
   }
 }
 
-extension VideosController: EventsViewControllerDeleteDelegate {
+extension VideosViewController: EventsViewControllerDeleteDelegate {
   func eventsViewController(_: EventsViewController, didDelete event: Event) {
-    dependencies.playbackService.setPlaybackPosition(.beginning, forEventWithIdentifier: event.id)
+    viewModel.didDelete(event)
   }
 }
 
-extension VideosController: UIPageViewControllerDataSource {
+extension VideosViewController: UIPageViewControllerDataSource {
   func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
     switch viewController {
     case watchingViewController: nil
@@ -139,7 +142,7 @@ extension VideosController: UIPageViewControllerDataSource {
   }
 }
 
-extension VideosController: UIPageViewControllerDelegate {
+extension VideosViewController: UIPageViewControllerDelegate {
   func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted completed: Bool) {
     guard completed else { return }
 
@@ -154,7 +157,7 @@ extension VideosController: UIPageViewControllerDelegate {
   }
 }
 
-private extension VideosController {
+private extension VideosViewController {
   func makeEventsViewController() -> EventsViewController {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.navigationItem.largeTitleDisplayMode = .never
@@ -162,5 +165,24 @@ private extension VideosController {
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     return eventsViewController
+  }
+}
+
+private extension EventsViewController {
+  func updateEvents(from oldEvents: [Event], to newEvents: [Event]) {
+    guard isViewLoaded else { return }
+
+    if view.window == nil {
+      reloadData()
+    } else {
+      beginUpdates()
+      for difference in newEvents.difference(from: oldEvents) {
+        switch difference {
+        case let .insert(index, _, _): insertEvent(at: index)
+        case let .remove(index, _, _): deleteEvent(at: index)
+        }
+      }
+      endUpdates()
+    }
   }
 }
