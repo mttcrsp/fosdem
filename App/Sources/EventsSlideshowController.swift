@@ -103,7 +103,8 @@ extension EventsSlideshowController: UIPageViewControllerDataSource {
 private extension EventsSlideshowController {
   func makeEventViewController(at index: Int) -> UIViewController? {
     guard events.indices ~= index else { return nil }
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: events[index])
+
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: events[index], options: [])
     eventViewController.fos_index = index
     return eventViewController
   }

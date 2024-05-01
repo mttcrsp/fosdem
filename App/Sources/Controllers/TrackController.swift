@@ -78,8 +78,8 @@ extension TrackController: EventsViewControllerDataSource, EventsViewControllerD
   }
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
-    eventViewController.allowsTrackSelection = false
+    let eventOptions: EventOptions = [.enableFavoriting]
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event, options: eventOptions)
     show(eventViewController, sender: nil)
   }
 }

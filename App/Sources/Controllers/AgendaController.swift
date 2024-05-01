@@ -222,7 +222,8 @@ extension AgendaController: EventsViewControllerDataSource, EventsViewController
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     switch eventsViewController {
     case soonViewController:
-      let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+      let eventOptions: EventOptions = [.enableFavoriting, .enableTrackSelection]
+      let eventViewController = dependencies.navigationService.makeEventViewController(for: event, options: eventOptions)
       eventViewController.fos_eventID = event.id
       eventsViewController.show(eventViewController, sender: nil)
     case agendaViewController where eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular:
@@ -284,7 +285,8 @@ private extension AgendaController {
   }
 
   func makeEventViewController(for event: Event) -> UIViewController {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+    let eventOptions: EventOptions = [.enableFavoriting, .enableTrackSelection]
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event, options: eventOptions)
     eventViewController.fos_eventID = event.id
     self.eventViewController = eventViewController
     return eventViewController

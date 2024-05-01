@@ -275,7 +275,8 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     eventsViewController.deselectSelectedRow(animated: true)
 
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+    let eventOptions: EventOptions = [.enableFavoriting, .enableTrackSelection]
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event, options: eventOptions)
     tracksViewController?.showDetailViewController(eventViewController, sender: nil)
 
     if traitCollection.horizontalSizeClass == .regular {

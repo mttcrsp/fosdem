@@ -113,7 +113,8 @@ extension VideosViewController: EventsViewControllerDataSource, EventsViewContro
   }
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
+    let eventOptions: EventOptions = [.enableFavoriting, .enableTrackSelection]
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event, options: eventOptions)
     show(eventViewController, sender: nil)
   }
 }

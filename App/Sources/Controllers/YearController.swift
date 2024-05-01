@@ -122,9 +122,7 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   }
 
   func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {
-    let eventViewController = dependencies.navigationService.makeEventViewController(for: event)
-    eventViewController.allowsTrackSelection = false
-    eventViewController.showsFavoriteButton = false
+    let eventViewController = dependencies.navigationService.makeEventViewController(for: event, options: [])
     show(eventViewController, sender: nil)
 
     if viewController == resultsViewController {

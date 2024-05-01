@@ -14,8 +14,9 @@ extension NavigationService {
     AgendaController(dependencies: services)
   }
 
-  func makeEventViewController(for event: Event) -> EventController {
-    EventController(event: event, dependencies: services)
+  func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController {
+    let viewModel = EventViewModel(event: event, options: options, dependencies: services)
+    return EventViewController(dependencies: services, viewModel: viewModel)
   }
 
   func makeInfoViewController(for info: Info) -> InfoController {
@@ -68,7 +69,7 @@ extension NavigationService {
 /// @mockable
 protocol NavigationServiceProtocol {
   func makeAgendaViewController() -> AgendaController
-  func makeEventViewController(for event: Event) -> EventController
+  func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController
   func makeInfoViewController(for info: Info) -> InfoController
   func makeMapViewController() -> MapController
   func makeMoreViewController() -> MoreController
