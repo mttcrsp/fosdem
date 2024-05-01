@@ -46,8 +46,9 @@ extension NavigationService {
     TrackController(track: track, style: style, dependencies: services)
   }
 
-  func makeTransportationViewController() -> TransportationController {
-    TransportationController(dependencies: services)
+  func makeTransportationViewController() -> TransportationNavigationController {
+    let viewModel = TransportationViewModel(dependencies: services)
+    return TransportationNavigationController(viewModel: viewModel)
   }
 
   func makeVideosViewController() -> VideosController {
@@ -74,7 +75,7 @@ protocol NavigationServiceProtocol {
   func makeSafariViewController(with url: URL) -> SFSafariViewController
   func makeSearchViewController() -> SearchController
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackController
-  func makeTransportationViewController() -> TransportationController
+  func makeTransportationViewController() -> TransportationNavigationController
   func makeVideosViewController() -> VideosController
   func makeYearsViewController(withStyle style: UITableView.Style) -> YearsController
   func makeYearViewController(for persistenceService: PersistenceServiceProtocol) -> YearController

@@ -86,41 +86,14 @@ private extension TransportationSection {
 extension TransportationItem {
   var title: String {
     switch self {
-    case .googleMaps:
-      L10n.Transportation.Item.google
-    case .appleMaps:
-      L10n.Transportation.Item.apple
-    case .shuttle:
-      L10n.Transportation.Item.shuttle
-    case .train:
-      L10n.Transportation.Item.train
-    case .plane:
-      L10n.Transportation.Item.plane
-    case .taxi:
-      L10n.Transportation.Item.taxi
-    case .car:
-      L10n.Transportation.Item.car
-    case .bus:
-      L10n.Transportation.Item.bus
-    }
-  }
-
-  var info: Info? {
-    switch self {
-    case .bus:
-      .bus
-    case .car:
-      .car
-    case .taxi:
-      .taxi
-    case .plane:
-      .plane
-    case .train:
-      .train
-    case .shuttle:
-      .shuttle
-    case .appleMaps, .googleMaps:
-      nil
+    case .googleMaps: L10n.Transportation.Item.google
+    case .appleMaps: L10n.Transportation.Item.apple
+    case .shuttle: L10n.Transportation.Item.shuttle
+    case .train: L10n.Transportation.Item.train
+    case .plane: L10n.Transportation.Item.plane
+    case .taxi: L10n.Transportation.Item.taxi
+    case .car: L10n.Transportation.Item.car
+    case .bus: L10n.Transportation.Item.bus
     }
   }
 }
