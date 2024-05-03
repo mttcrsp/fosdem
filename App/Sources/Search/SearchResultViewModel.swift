@@ -10,7 +10,7 @@ enum SearchResultsConfigurationType {
   case noQuery, success, failure
 }
 
-final class SearchViewModel {
+final class SearchResultViewModel {
   @Published private(set) var configuration = SearchResultsConfiguration(configurationType: .noQuery)
   private let persistenceService: PersistenceServiceProtocol
 

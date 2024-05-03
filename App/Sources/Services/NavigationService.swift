@@ -60,7 +60,7 @@ extension NavigationService {
   }
 
   func makeYearViewController(for persistenceService: PersistenceServiceProtocol) -> YearViewController {
-    let searchViewModel = SearchViewModel(persistenceService: persistenceService)
+    let searchViewModel = SearchResultViewModel(persistenceService: persistenceService)
     let viewModel = YearViewModel(persistenceService: persistenceService)
     return YearViewController(dependencies: services, viewModel: viewModel, searchViewModel: searchViewModel)
   }

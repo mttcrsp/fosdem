@@ -12,9 +12,9 @@ final class YearViewController: TracksViewController {
   private var cancellables: [AnyCancellable] = []
   private let dependencies: Dependencies
   private let viewModel: YearViewModel
-  private let searchViewModel: SearchViewModel
+  private let searchViewModel: SearchResultViewModel
 
-  init(dependencies: Dependencies, viewModel: YearViewModel, searchViewModel: SearchViewModel) {
+  init(dependencies: Dependencies, viewModel: YearViewModel, searchViewModel: SearchResultViewModel) {
     self.dependencies = dependencies
     self.viewModel = viewModel
     self.searchViewModel = searchViewModel
