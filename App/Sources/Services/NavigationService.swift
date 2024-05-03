@@ -65,8 +65,9 @@ extension NavigationService {
     return VideosViewController(dependencies: services, viewModel: viewModel)
   }
 
-  func makeYearsViewController(withStyle style: UITableView.Style) -> YearsController {
-    YearsController(style: style, dependencies: services)
+  func makeYearsViewController(withStyle style: UITableView.Style) -> YearsViewController {
+    let viewModel = YearsViewModel(dependencies: services)
+    return YearsViewController(style: style, dependencies: services, viewModel: viewModel)
   }
 
   func makeYearViewController(for persistenceService: PersistenceServiceProtocol) -> YearViewController {
@@ -90,7 +91,7 @@ protocol NavigationServiceProtocol {
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackViewController
   func makeTransportationViewController() -> TransportationNavigationController
   func makeVideosViewController() -> VideosViewController
-  func makeYearsViewController(withStyle style: UITableView.Style) -> YearsController
+  func makeYearsViewController(withStyle style: UITableView.Style) -> YearsViewController
   func makeYearViewController(for persistenceService: PersistenceServiceProtocol) -> YearViewController
 }
 
