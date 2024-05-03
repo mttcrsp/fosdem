@@ -24,8 +24,9 @@ extension NavigationService {
     InfoController(info: info, dependencies: services)
   }
 
-  func makeMapViewController() -> MapController {
-    MapController(dependencies: services)
+  func makeMapViewController() -> MapMainViewController {
+    let viewModel = MapViewModel(dependencies: services)
+    return MapMainViewController(viewModel: viewModel)
   }
 
   func makeMoreViewController() -> MoreController {
@@ -77,7 +78,7 @@ protocol NavigationServiceProtocol {
   func makeAgendaViewController() -> AgendaViewController
   func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController
   func makeInfoViewController(for info: Info) -> InfoController
-  func makeMapViewController() -> MapController
+  func makeMapViewController() -> MapMainViewController
   func makeMoreViewController() -> MoreController
   func makePlayerViewController() -> AVPlayerViewControllerProtocol
   func makeSafariViewController(with url: URL) -> SFSafariViewController

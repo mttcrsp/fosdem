@@ -1,27 +1,22 @@
+import Combine
 import CoreLocation
 import UIKit
 
-final class MapController: MapContainerViewController {
-  typealias Dependencies = HasBuildingsService & HasOpenService
+final class MapMainViewController: MapContainerViewController {
+  var didError: ((MapMainViewController, Error) -> Void)?
 
-  var didError: ((MapController, Error) -> Void)?
-
-  private weak var mapViewController: MapViewController?
   private weak var embeddedBlueprintsViewController: BlueprintsViewController?
   private weak var fullscreenBlueprintsViewController: BlueprintsViewController?
-
-  private var transition: FullscreenBlueprintsDismissalTransition?
+  private weak var mapViewController: MapViewController?
+  private var cancellables: [AnyCancellable] = []
   private var observer: NSObjectProtocol?
-
+  private var transition: FullscreenBlueprintsDismissalTransition?
   private let notificationCenter = NotificationCenter.default
-  private let locationManager = CLLocationManager()
+  private let viewModel: MapViewModel
 
-  private let dependencies: Dependencies
-
-  init(dependencies: Dependencies) {
-    self.dependencies = dependencies
+  init(viewModel: MapViewModel) {
+    self.viewModel = viewModel
     super.init(nibName: nil, bundle: nil)
-
     observer = notificationCenter.addObserver(forName: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil, queue: nil) { [weak self] _ in
       self?.didChangeVoiceOverStatus()
     }
@@ -50,33 +45,33 @@ final class MapController: MapContainerViewController {
 
     let mapViewController = MapViewController()
     mapViewController.delegate = self
-    mapViewController.setAuthorizationStatus(authorizationStatus)
     self.mapViewController = mapViewController
 
     masterViewController = mapViewController
     detailViewController = blueprintsNavigationController
 
-    locationManager.delegate = self
-
-    dependencies.buildingsService.loadBuildings { buildings, error in
-      DispatchQueue.main.async { [weak self] in
-        guard let self else { return }
-
-        if let error {
-          didError?(self, error)
-        } else {
-          mapViewController.buildings = buildings
-        }
+    viewModel.$authorizationStatus
+      .receive(on: DispatchQueue.main)
+      .sink { status in
+        mapViewController.setAuthorizationStatus(status)
       }
-    }
-  }
+      .store(in: &cancellables)
 
-  private var authorizationStatus: CLAuthorizationStatus {
-    #if targetEnvironment(macCatalyst)
-    return .denied
-    #else
-    return locationManager.authorizationStatus
-    #endif
+    viewModel.$buildings
+      .receive(on: DispatchQueue.main)
+      .sink { buildings in
+        mapViewController.buildings = buildings
+      }
+      .store(in: &cancellables)
+
+    viewModel.didFail
+      .sink { [weak self] error in
+        guard let self else { return }
+        didError?(self, error)
+      }
+      .store(in: &cancellables)
+
+    viewModel.didLoad()
   }
 
   private func didChangeVoiceOverStatus() {
@@ -85,15 +80,9 @@ final class MapController: MapContainerViewController {
       mapViewController?.resetCamera(animated: true)
     }
   }
-
-  private func didTapLocationSettings() {
-    if let url = URL(string: UIApplication.openSettingsURLString) {
-      dependencies.openService.open(url, completion: nil)
-    }
-  }
 }
 
-extension MapController: MapContainerViewControllerDelegate {
+extension MapMainViewController: MapContainerViewControllerDelegate {
   private enum Layout {
     case pad, phonePortrait, phoneLandscape
   }
@@ -141,7 +130,7 @@ extension MapController: MapContainerViewControllerDelegate {
   }
 }
 
-extension MapController: MapViewControllerDelegate {
+extension MapMainViewController: MapViewControllerDelegate {
   func mapViewController(_ mapViewController: MapViewController, didSelect building: Building) {
     embeddedBlueprintsViewController?.building = building
     setDetailViewControllerVisible(true, animated: true)
@@ -164,21 +153,21 @@ extension MapController: MapViewControllerDelegate {
   }
 
   func mapViewControllerDidTapLocation(_ mapViewController: MapViewController) {
-    if let action = authorizationStatus.action {
+    if let action = viewModel.authorizationStatus.action {
       let dismissTitle = L10n.Location.dismiss
       let dismissAction = UIAlertAction(title: dismissTitle, style: .cancel)
 
       let confirmTitle = L10n.Location.confirm
       let confirmAction = UIAlertAction(title: confirmTitle, style: .default) { [weak self] _ in
-        self?.didTapLocationSettings()
+        self?.viewModel.didSelectLocationSettings()
       }
 
       let alertController = UIAlertController(title: action.title, message: action.message, preferredStyle: .alert)
       alertController.addAction(dismissAction)
       alertController.addAction(confirmAction)
       mapViewController.present(alertController, animated: true)
-    } else if authorizationStatus == .notDetermined {
-      locationManager.requestWhenInUseAuthorization()
+    } else if viewModel.authorizationStatus == .notDetermined {
+      viewModel.didSelectLocation()
     }
   }
 
@@ -188,7 +177,7 @@ extension MapController: MapViewControllerDelegate {
   }
 }
 
-extension MapController: BlueprintsViewControllerDelegate {
+extension MapMainViewController: BlueprintsViewControllerDelegate {
   func blueprintsViewControllerDidTapDismiss(_ blueprintsViewController: BlueprintsViewController) {
     if blueprintsViewController == embeddedBlueprintsViewController {
       mapViewController?.deselectSelectedAnnotation()
@@ -226,12 +215,6 @@ extension MapController: BlueprintsViewControllerDelegate {
     }, completion: { [weak blueprintsNavigationController] _ in
       blueprintsNavigationController?.view.alpha = 1
     })
-  }
-}
-
-extension MapController: CLLocationManagerDelegate {
-  func locationManager(_: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-    mapViewController?.setAuthorizationStatus(status)
   }
 }
 

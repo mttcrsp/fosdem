@@ -197,7 +197,7 @@ extension ApplicationController: UITabBarControllerDelegate {
   func tabBarControllerDidChangeSelectedViewController(_ tabBarController: UITabBarController) {
     guard #available(iOS 15.0, *) else { return }
 
-    if tabBarController.selectedViewController is MapController {
+    if tabBarController.selectedViewController is MapMainViewController {
       let appearance = UITabBarAppearance()
       appearance.configureWithOpaqueBackground()
       tabBarController.tabBar.scrollEdgeAppearance = appearance
