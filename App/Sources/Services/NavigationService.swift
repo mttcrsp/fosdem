@@ -10,8 +10,9 @@ final class NavigationService {
 }
 
 extension NavigationService {
-  func makeAgendaViewController() -> AgendaController {
-    AgendaController(dependencies: services)
+  func makeAgendaViewController() -> AgendaViewController {
+    let viewModel = AgendaViewModel(dependencies: services)
+    return AgendaViewController(dependencies: services, viewModel: viewModel)
   }
 
   func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController {
@@ -43,6 +44,11 @@ extension NavigationService {
     SearchController(dependencies: services)
   }
 
+  func makeSoonViewController() -> SoonNavigationController {
+    let viewModel = SoonViewModel(dependencies: services)
+    return SoonNavigationController(dependencies: services, viewModel: viewModel)
+  }
+
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackController {
     TrackController(track: track, style: style, dependencies: services)
   }
@@ -68,7 +74,7 @@ extension NavigationService {
 
 /// @mockable
 protocol NavigationServiceProtocol {
-  func makeAgendaViewController() -> AgendaController
+  func makeAgendaViewController() -> AgendaViewController
   func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController
   func makeInfoViewController(for info: Info) -> InfoController
   func makeMapViewController() -> MapController
@@ -76,6 +82,7 @@ protocol NavigationServiceProtocol {
   func makePlayerViewController() -> AVPlayerViewControllerProtocol
   func makeSafariViewController(with url: URL) -> SFSafariViewController
   func makeSearchViewController() -> SearchController
+  func makeSoonViewController() -> SoonNavigationController
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackController
   func makeTransportationViewController() -> TransportationNavigationController
   func makeVideosViewController() -> VideosViewController

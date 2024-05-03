@@ -180,7 +180,7 @@ extension ApplicationController: UITabBarControllerDelegate {
     if viewController == tabBarController.selectedViewController {
       switch viewController {
       case let viewController as SearchController: viewController.popToRootViewController()
-      case let viewController as AgendaController: viewController.popToRootViewController()
+      case let viewController as AgendaViewController: viewController.popToRootViewController()
       case let viewController as MoreController: viewController.popToRootViewController()
       default: break
       }
