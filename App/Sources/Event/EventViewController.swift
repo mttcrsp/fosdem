@@ -75,25 +75,21 @@ final class EventViewController: UITableViewController {
       .sink { [weak self] result in
         guard let self else { return }
 
-        let didFail: () -> Void = { [weak self] in
-          let errorViewController = UIAlertController.makeErrorController()
-          self?.eventViewController?.show(errorViewController, sender: nil)
-        }
-
         switch result {
         case .failure, .success(nil):
-          didFail()
+          let errorViewController = UIAlertController.makeErrorController()
+          eventViewController?.show(errorViewController, sender: nil)
         case let .success(track?):
           let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
           let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
           trackViewController.title = track.formattedName
-          trackViewController.load { [weak self] error in
-            if error != nil {
-              didFail()
-            } else {
-              self?.eventViewController?.show(trackViewController, sender: nil)
-            }
+          trackViewController.didError = { [weak self] _, _ in
+            guard let self, let eventViewController else { return }
+            let errorViewController = UIAlertController.makeErrorController()
+            eventViewController.navigationController?.popViewController(animated: true)
+            eventViewController.show(errorViewController, sender: nil)
           }
+          eventViewController?.show(trackViewController, sender: nil)
         }
       }
       .store(in: &cancellables)

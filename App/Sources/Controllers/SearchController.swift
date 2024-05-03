@@ -184,17 +184,17 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
     trackViewController.navigationItem.largeTitleDisplayMode = preferredLargeTitleDisplayModeForDetail(withTitle: track.formattedName)
     trackViewController.title = track.formattedName
-    trackViewController.load { error in
-      if error != nil {
-        let errorViewController = UIAlertController.makeErrorController()
-        tracksViewController.present(errorViewController, animated: true)
-        tracksViewController.deselectSelectedRow(animated: true)
-      } else {
-        let navigationController = UINavigationController(rootViewController: trackViewController)
-        tracksViewController.showDetailViewController(navigationController, sender: nil)
-        UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
-      }
+    trackViewController.didError = { _, _ in
+      tracksViewController.navigationController?.popViewController(animated: true)
+      tracksViewController.deselectSelectedRow(animated: true)
+
+      let errorViewController = UIAlertController.makeErrorController()
+      tracksViewController.present(errorViewController, animated: true)
     }
+
+    let navigationController = UINavigationController(rootViewController: trackViewController)
+    tracksViewController.showDetailViewController(navigationController, sender: nil)
+    UIAccessibility.post(notification: .screenChanged, argument: navigationController.view)
   }
 
   private func preferredLargeTitleDisplayModeForDetail(withTitle title: String) -> UINavigationItem.LargeTitleDisplayMode {
