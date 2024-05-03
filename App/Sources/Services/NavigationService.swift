@@ -33,14 +33,6 @@ extension NavigationService {
     MoreController(dependencies: services)
   }
 
-  func makePlayerViewController() -> AVPlayerViewControllerProtocol {
-    AVPlayerViewController()
-  }
-
-  func makeSafariViewController(with url: URL) -> SFSafariViewController {
-    SFSafariViewController(url: url)
-  }
-
   func makeSearchViewController() -> SearchController {
     SearchController(dependencies: services)
   }
@@ -84,8 +76,6 @@ protocol NavigationServiceProtocol {
   func makeInfoViewController(for info: Info) -> InfoController
   func makeMapViewController() -> MapMainViewController
   func makeMoreViewController() -> MoreController
-  func makePlayerViewController() -> AVPlayerViewControllerProtocol
-  func makeSafariViewController(with url: URL) -> SFSafariViewController
   func makeSearchViewController() -> SearchController
   func makeSoonViewController() -> SoonNavigationController
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackViewController
