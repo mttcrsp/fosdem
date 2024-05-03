@@ -20,17 +20,14 @@ extension NavigationService {
     return EventViewController(dependencies: services, viewModel: viewModel)
   }
 
-  func makeInfoViewController(for info: Info) -> InfoController {
-    InfoController(info: info, dependencies: services)
-  }
-
   func makeMapViewController() -> MapMainViewController {
     let viewModel = MapViewModel(dependencies: services)
     return MapMainViewController(viewModel: viewModel)
   }
 
-  func makeMoreViewController() -> MoreController {
-    MoreController(dependencies: services)
+  func makeMoreViewController() -> MoreMainViewController {
+    let viewModel = MoreViewModel(dependencies: services)
+    return MoreMainViewController(dependencies: services, viewModel: viewModel)
   }
 
   func makeSearchViewController() -> SearchController {
@@ -67,15 +64,21 @@ extension NavigationService {
     let viewModel = YearViewModel(persistenceService: persistenceService)
     return YearViewController(dependencies: services, viewModel: viewModel, searchViewModel: searchViewModel)
   }
+
+  #if DEBUG
+  func makeDateViewController() -> DateViewController {
+    let viewModel = DateViewModel(dependencies: services)
+    return DateViewController(viewModel: viewModel)
+  }
+  #endif
 }
 
 /// @mockable
 protocol NavigationServiceProtocol {
   func makeAgendaViewController() -> AgendaViewController
   func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController
-  func makeInfoViewController(for info: Info) -> InfoController
   func makeMapViewController() -> MapMainViewController
-  func makeMoreViewController() -> MoreController
+  func makeMoreViewController() -> MoreMainViewController
   func makeSearchViewController() -> SearchController
   func makeSoonViewController() -> SoonNavigationController
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackViewController
@@ -83,6 +86,10 @@ protocol NavigationServiceProtocol {
   func makeVideosViewController() -> VideosViewController
   func makeYearsViewController(withStyle style: UITableView.Style) -> YearsViewController
   func makeYearViewController(for persistenceService: PersistenceServiceProtocol) -> YearViewController
+
+  #if DEBUG
+  func makeDateViewController() -> DateViewController
+  #endif
 }
 
 extension NavigationService: NavigationServiceProtocol {}

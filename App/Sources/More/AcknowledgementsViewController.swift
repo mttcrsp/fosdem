@@ -1,21 +1,21 @@
 import UIKit
 
-/// @mockable
-protocol AcknowledgementsViewControllerDataSource: AnyObject {
-  var acknowledgements: [Acknowledgement] { get }
-}
-
-/// @mockable
 protocol AcknowledgementsViewControllerDelegate: AnyObject {
   func acknowledgementsViewController(_ acknowledgementsViewController: AcknowledgementsViewController, didSelect acknowledgement: Acknowledgement)
 }
 
 final class AcknowledgementsViewController: UITableViewController {
-  weak var dataSource: AcknowledgementsViewControllerDataSource?
   weak var delegate: AcknowledgementsViewControllerDelegate?
+  private let acknowledgements: [Acknowledgement]
 
-  var acknowledgements: [Acknowledgement] {
-    dataSource?.acknowledgements ?? []
+  init(acknowledgements: [Acknowledgement], style: UITableView.Style) {
+    self.acknowledgements = acknowledgements
+    super.init(style: style)
+  }
+
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
 
   override func viewDidLoad() {
@@ -30,8 +30,11 @@ final class AcknowledgementsViewController: UITableViewController {
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let acknowledgement = acknowledgement(at: indexPath)
     let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-    cell.configure(with: acknowledgement(at: indexPath))
+    cell.accessoryType = .disclosureIndicator
+    cell.textLabel?.text = acknowledgement.name
+    cell.textLabel?.font = .fos_preferredFont(forTextStyle: .body)
     return cell
   }
 
@@ -41,13 +44,5 @@ final class AcknowledgementsViewController: UITableViewController {
 
   private func acknowledgement(at indexPath: IndexPath) -> Acknowledgement {
     acknowledgements[indexPath.row]
-  }
-}
-
-private extension UITableViewCell {
-  func configure(with acknowledgement: Acknowledgement) {
-    accessoryType = .disclosureIndicator
-    textLabel?.text = acknowledgement.name
-    textLabel?.font = .fos_preferredFont(forTextStyle: .body)
   }
 }
