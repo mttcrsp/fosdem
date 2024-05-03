@@ -1,24 +1,23 @@
+import Combine
 import UIKit
 
-final class YearController: TracksViewController {
+final class YearViewController: TracksViewController {
   typealias Dependencies = HasNavigationService
 
-  var didError: ((YearController, Error) -> Void)?
-
+  var didError: ((YearViewController, Error) -> Void)?
+  var results: [Event] = []
   private(set) weak var resultsViewController: EventsViewController?
   private weak var eventsViewController: EventsViewController?
   private var searchController: UISearchController?
-
-  private var tracks: [Track] = []
-  private var events: [Event] = []
-  var results: [Event] = []
-
+  private var cancellables: [AnyCancellable] = []
   private let dependencies: Dependencies
-  let persistenceService: PersistenceServiceProtocol
+  private let viewModel: YearViewModel
+  private let searchViewModel: SearchViewModel
 
-  init(persistenceService: PersistenceServiceProtocol, dependencies: Dependencies) {
+  init(dependencies: Dependencies, viewModel: YearViewModel, searchViewModel: SearchViewModel) {
     self.dependencies = dependencies
-    self.persistenceService = persistenceService
+    self.viewModel = viewModel
+    self.searchViewModel = searchViewModel
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -47,72 +46,69 @@ final class YearController: TracksViewController {
     self.searchController = searchController
     addSearchViewController(searchController)
 
-    persistenceService.performRead(GetAllTracks()) { result in
-      DispatchQueue.main.async { [weak self] in
-        guard let self else { return }
-
-        switch result {
-        case let .failure(error):
-          didError?(self, error)
-        case let .success(tracks):
-          self.tracks = tracks
-          reloadData()
-        }
+    viewModel.$tracks
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.reloadData()
       }
-    }
+      .store(in: &cancellables)
+
+    viewModel.$events
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.eventsViewController?.reloadData()
+      }
+      .store(in: &cancellables)
+
+    viewModel.didFail
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] error in
+        guard let self else { return }
+        didError?(self, error)
+      }
+      .store(in: &cancellables)
+
+    searchViewModel.$configuration
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] configuration in
+        self?.resultsViewController?.configure(with: configuration)
+        self?.resultsViewController?.reloadData()
+      }
+      .store(in: &cancellables)
+
+    viewModel.didLoad()
   }
 }
 
-extension YearController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+extension YearViewController: TracksViewControllerDataSource, TracksViewControllerDelegate {
   func numberOfSections(in _: TracksViewController) -> Int {
     1
   }
 
   func tracksViewController(_: TracksViewController, numberOfTracksIn _: Int) -> Int {
-    tracks.count
+    viewModel.tracks.count
   }
 
   func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    tracks[indexPath.row]
+    viewModel.tracks[indexPath.row]
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
+    viewModel.didSelectTrack(track)
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.title = track.formattedName
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
     tracksViewController.show(eventsViewController, sender: nil)
-
-    events = []
-    persistenceService.performRead(GetEventsByTrack(track: track.name)) { result in
-      DispatchQueue.main.async { [weak self] in
-        switch result {
-        case let .failure(error):
-          self?.eventsLoadingDidError(with: error)
-        case let .success(events):
-          self?.eventsLoadingDidFinish(with: events)
-        }
-      }
-    }
-  }
-
-  private func eventsLoadingDidError(with error: Error) {
-    assertionFailure(error.localizedDescription)
-    didError?(self, error)
-  }
-
-  private func eventsLoadingDidFinish(with events: [Event]) {
-    self.events = events
-    eventsViewController?.reloadData()
   }
 }
 
-extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension YearViewController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in viewController: EventsViewController) -> [Event] {
     switch viewController {
-    case eventsViewController: events
-    case resultsViewController: results
+    case eventsViewController: viewModel.events
+    case resultsViewController: searchViewModel.configuration.results
     default: []
     }
   }
@@ -131,8 +127,8 @@ extension YearController: EventsViewControllerDataSource, EventsViewControllerDe
   }
 }
 
-extension YearController: UISearchResultsUpdating, EventsSearchController {
+extension YearViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    didChangeQuery(searchController.searchBar.text ?? "")
+    searchViewModel.didChangeQuery(searchController.searchBar.text ?? "")
   }
 }
