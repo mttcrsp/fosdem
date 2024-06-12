@@ -114,6 +114,8 @@ final class MapViewController: UIViewController {
       adjacent = topLeft.distance(to: topRight) / 2
     }
 
+    guard CLLocationCoordinate2DIsValid(region.center) else { return }
+
     let distance = adjacent / tan(9 * .pi / 180)
     let camera = MKMapCamera(lookingAtCenter: region.center, fromDistance: distance, pitch: 0, heading: 334.30179164562668)
     mapView.setCamera(camera, animated: animated)
