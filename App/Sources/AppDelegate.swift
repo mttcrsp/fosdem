@@ -3,9 +3,7 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
-  private var applicationController: ApplicationController? {
-    window?.rootViewController as? ApplicationController
-  }
+  private var applicationViewModel: ApplicationViewModel?
 
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
     let rootViewController: UIViewController
@@ -15,7 +13,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       #else
       let services = try Services()
       #endif
-      rootViewController = ApplicationController(dependencies: services)
+      let applicationViewModel = ApplicationViewModel(dependencies: services)
+      let applicationViewController = ApplicationViewController(viewModel: applicationViewModel, dependencies: services)
+      self.applicationViewModel = applicationViewModel
+      rootViewController = applicationViewController
     } catch {
       let errorViewController = ErrorViewController()
       errorViewController.showsAppStoreButton = true
@@ -33,11 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func applicationDidBecomeActive(_: UIApplication) {
-    applicationController?.applicationDidBecomeActive()
+    applicationViewModel?.applicationDidBecomeActive()
   }
 
   func applicationWillResignActive(_: UIApplication) {
-    applicationController?.applicationWillResignActive()
+    applicationViewModel?.applicationWillResignActive()
   }
 }
 

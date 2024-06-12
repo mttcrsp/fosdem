@@ -1,14 +1,18 @@
+import Combine
 import UIKit
 
-final class ApplicationController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasLaunchService & HasNavigationService & HasOpenService & HasScheduleService & HasTimeService & HasUbiquitousPreferencesService & HasUpdateService & HasYearsService
+final class ApplicationViewController: UIViewController {
+  typealias Dependencies = HasNavigationService
 
   private weak var tabsController: UITabBarController?
+  private var cancellables: [AnyCancellable] = []
 
   private let dependencies: Dependencies
+  private let viewModel: ApplicationViewModel
 
-  init(dependencies: Dependencies) {
+  init(viewModel: ApplicationViewModel, dependencies: Dependencies) {
     self.dependencies = dependencies
+    self.viewModel = viewModel
     super.init(nibName: nil, bundle: nil)
   }
 
@@ -87,8 +91,8 @@ final class ApplicationController: UIViewController {
     }
 
     var viewControllers: [UIViewController] = [tabsController]
-    if traitCollection.userInterfaceIdiom == .phone, dependencies.launchService.didLaunchAfterInstall {
-      let welcomeViewController = WelcomeViewController(year: type(of: dependencies.yearsService).current)
+    if traitCollection.userInterfaceIdiom == .phone, viewModel.didLaunchAfterInstall {
+      let welcomeViewController = WelcomeViewController(year: viewModel.currentYear)
       welcomeViewController.showsContinue = true
       welcomeViewController.delegate = self
       viewControllers.append(welcomeViewController)
@@ -113,33 +117,22 @@ final class ApplicationController: UIViewController {
 
     view.backgroundColor = .systemGroupedBackground
 
-    dependencies.ubiquitousPreferencesService.startMonitoring()
-    dependencies.favoritesService.startMonitoring()
-    dependencies.scheduleService.startUpdating()
-    dependencies.updateService.detectUpdates {
-      DispatchQueue.main.async { [weak self] in
+    viewModel.didDetectUpdate
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] in
         guard let self else { return }
         let dismissAction = UIAlertAction(title: L10n.Update.dismiss, style: .cancel)
-        let confirmAction = UIAlertAction(title: L10n.Update.confirm, style: .default) { [weak self] _ in self?.didTapUpdate() }
+        let confirmAction = UIAlertAction(title: L10n.Update.confirm, style: .default) { [weak self] _ in self?.viewModel.didTapUpdate() }
         let alertController = UIAlertController(title: L10n.Update.title, message: L10n.Update.message, preferredStyle: .alert)
         alertController.addAction(confirmAction)
         alertController.addAction(dismissAction)
         present(alertController, animated: true)
       }
-    }
-  }
-
-  func applicationDidBecomeActive() {
-    dependencies.timeService.startMonitoring()
-    dependencies.scheduleService.startUpdating()
-  }
-
-  func applicationWillResignActive() {
-    dependencies.timeService.stopMonitoring()
+      .store(in: &cancellables)
   }
 }
 
-private extension ApplicationController {
+private extension ApplicationViewController {
   @objc func didSelectPrevTab() {
     if let rootTabBarController = tabsController {
       rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex - 1) + children.count) % children.count
@@ -151,12 +144,6 @@ private extension ApplicationController {
     if let rootTabBarController = tabsController {
       rootTabBarController.selectedIndex = ((rootTabBarController.selectedIndex + 1) + children.count) % children.count
       tabBarControllerDidChangeSelectedViewController(rootTabBarController)
-    }
-  }
-
-  func didTapUpdate() {
-    if let url = URL.fosdemAppStore {
-      dependencies.openService.open(url, completion: nil)
     }
   }
 
@@ -175,7 +162,7 @@ private extension ApplicationController {
   }
 }
 
-extension ApplicationController: UITabBarControllerDelegate {
+extension ApplicationViewController: UITabBarControllerDelegate {
   func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
     if viewController == tabBarController.selectedViewController {
       switch viewController {
@@ -207,7 +194,7 @@ extension ApplicationController: UITabBarControllerDelegate {
   }
 }
 
-extension ApplicationController: WelcomeViewControllerDelegate {
+extension ApplicationViewController: WelcomeViewControllerDelegate {
   func welcomeViewControllerDidTapContinue(_ welcomeViewController: WelcomeViewController) {
     tabsController?.view.transform = .init(translationX: 0, y: 60)
     welcomeViewController.willMove(toParent: nil)
