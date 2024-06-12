@@ -30,8 +30,10 @@ extension NavigationService {
     return MoreMainViewController(dependencies: services, viewModel: viewModel)
   }
 
-  func makeSearchViewController() -> SearchController {
-    SearchController(dependencies: services)
+  func makeSearchViewController() -> SearchViewController {
+    let searchViewModel = SearchResultViewModel(persistenceService: services.persistenceService)
+    let viewModel = SearchViewModel(dependencies: services)
+    return SearchViewController(dependencies: services, viewModel: viewModel, searchViewModel: searchViewModel)
   }
 
   func makeSoonViewController() -> SoonNavigationController {
@@ -79,7 +81,7 @@ protocol NavigationServiceProtocol {
   func makeEventViewController(for event: Event, options: EventOptions) -> EventViewController
   func makeMapViewController() -> MapMainViewController
   func makeMoreViewController() -> MoreMainViewController
-  func makeSearchViewController() -> SearchController
+  func makeSearchViewController() -> SearchViewController
   func makeSoonViewController() -> SoonNavigationController
   func makeTrackViewController(for track: Track, style: UITableView.Style) -> TrackViewController
   func makeTransportationViewController() -> TransportationNavigationController

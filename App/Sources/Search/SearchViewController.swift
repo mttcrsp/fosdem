@@ -1,35 +1,29 @@
+import Combine
 import UIKit
 
-final class SearchController: UISplitViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTracksService & HasYearsService
+final class SearchViewController: UISplitViewController {
+  typealias Dependencies = HasNavigationService
 
   private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var searchController: UISearchController?
   private weak var filtersButton: UIBarButtonItem?
-
-  var results: [Event] = []
-
-  private var selectedFilter: TracksFilter = .all
+  private var cancellables: [AnyCancellable] = []
   private var tracksConfiguration: TracksConfiguration?
-  private var observer: NSObjectProtocol?
-
   private let dependencies: Dependencies
+  private let viewModel: SearchViewModel
+  private let searchViewModel: SearchResultViewModel
 
-  init(dependencies: Dependencies) {
+  init(dependencies: Dependencies, viewModel: SearchViewModel, searchViewModel: SearchResultViewModel) {
     self.dependencies = dependencies
+    self.searchViewModel = searchViewModel
+    self.viewModel = viewModel
     super.init(nibName: nil, bundle: nil)
   }
 
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
-  }
-
-  func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      tracksViewController?.navigationController?.popToRootViewController(animated: true)
-    }
   }
 
   override func viewDidLoad() {
@@ -77,61 +71,29 @@ final class SearchController: UISplitViewController {
       viewControllers.append(makeWelcomeViewController())
     }
 
-    reloadTracks()
-    observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
-      self?.reloadTracks()
-    }
-  }
-
-  private func reloadTracks() {
-    dependencies.tracksService.loadConfiguration { [weak self] tracksConfiguration in
-      self?.tracksLoadingDidSucceed(tracksConfiguration)
-    }
-  }
-
-  private func tracksLoadingDidSucceed(_ tracksConfiguration: TracksConfiguration) {
-    guard let currentTracksConfiguration = self.tracksConfiguration else {
-      self.tracksConfiguration = tracksConfiguration
-      tracksViewController?.reloadData()
-      return
-    }
-
-    let oldNonFavoriteTracks = currentTracksConfiguration.filteredTracks[selectedFilter]?.map(\.name) ?? []
-    let newNonFavoriteTracks = tracksConfiguration.filteredTracks[selectedFilter]?.map(\.name) ?? []
-    guard oldNonFavoriteTracks == newNonFavoriteTracks else {
-      self.tracksConfiguration = tracksConfiguration
-      tracksViewController?.reloadData()
-      return
-    }
-
-    var oldIdentifiers = currentTracksConfiguration.filteredFavoriteTracks[selectedFilter]?.map(\.name) ?? []
-    let newIdentifiers = tracksConfiguration.filteredFavoriteTracks[selectedFilter]?.map(\.name) ?? []
-    let deletesIdentifiers = Set(oldIdentifiers).subtracting(Set(newIdentifiers))
-    let insertsIdentifiers = Set(newIdentifiers).subtracting(Set(oldIdentifiers))
-
-    tracksViewController?.performBatchUpdates {
-      switch (oldIdentifiers.isEmpty, newIdentifiers.isEmpty) {
-      case (true, false): tracksViewController?.insertFavoritesSection()
-      case (false, true): tracksViewController?.deleteFavoritesSection()
-      default: break
+    viewModel.$tracksConfiguration
+      .combineLatest(viewModel.$selectedFilter)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self, weak tracksViewController] tracksConfiguration, _ in
+        guard let self, let tracksViewController else { return }
+        self.tracksConfiguration = tracksConfiguration
+        tracksViewController.reloadData()
       }
+      .store(in: &cancellables)
 
-      for (index, track) in oldIdentifiers.enumerated().reversed() where deletesIdentifiers.contains(track) {
-        tracksViewController?.deleteFavorite(at: index)
-        oldIdentifiers.remove(at: index)
+    searchViewModel.$configuration
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] configuration in
+        self?.resultsViewController?.configure(with: configuration)
+        self?.resultsViewController?.reloadData()
       }
+      .store(in: &cancellables)
 
-      for (index, track) in newIdentifiers.enumerated() where insertsIdentifiers.contains(track) {
-        tracksViewController?.insertFavorite(at: index)
-        oldIdentifiers.insert(track, at: index)
-      }
-
-      self.tracksConfiguration = tracksConfiguration
-    }
+    viewModel.didLoad()
   }
 }
 
-extension SearchController: UISplitViewControllerDelegate {
+extension SearchViewController: UISplitViewControllerDelegate {
   func splitViewController(_: UISplitViewController, collapseSecondary secondaryViewController: UIViewController, onto _: UIViewController) -> Bool {
     secondaryViewController is WelcomeViewController
   }
@@ -142,13 +104,13 @@ extension SearchController: UISplitViewControllerDelegate {
   }
 }
 
-extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+extension SearchViewController: TracksViewControllerDataSource, TracksViewControllerDelegate {
   private var filteredTracks: [Track] {
-    tracksConfiguration?.filteredTracks[selectedFilter] ?? []
+    tracksConfiguration?.filteredTracks[viewModel.selectedFilter] ?? []
   }
 
   private var filteredFavoriteTracks: [Track] {
-    tracksConfiguration?.filteredFavoriteTracks[selectedFilter] ?? []
+    tracksConfiguration?.filteredFavoriteTracks[viewModel.selectedFilter] ?? []
   }
 
   private var hasFavoriteTracks: Bool {
@@ -164,11 +126,11 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? L10n.Search.Filter.favorites : selectedFilter.title
+    isFavoriteSection(section) ? L10n.Search.Filter.favorites : viewModel.selectedFilter.title
   }
 
   func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? "favorites" : selectedFilter.accessibilityIdentifier
+    isFavoriteSection(section) ? "favorites" : viewModel.selectedFilter.accessibilityIdentifier
   }
 
   func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
@@ -212,13 +174,12 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     alertController.view.accessibilityIdentifier = "filters"
 
     let filters = tracksConfiguration?.filters ?? []
-    for filter in filters where filter != selectedFilter {
-      let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in
-        self?.selectedFilter = filter
-        self?.tracksViewController?.reloadData()
-      }
-      let action = UIAlertAction(title: filter.title, style: .default, handler: actionHandler)
-      alertController.addAction(action)
+    for filter in filters where filter != viewModel.selectedFilter {
+      alertController.addAction(
+        .init(title: filter.title, style: .default) { [weak self] _ in
+          self?.viewModel.didSelectFilter(filter)
+        }
+      )
     }
 
     let cancelTitle = L10n.Search.Filter.cancel
@@ -229,9 +190,9 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 }
 
-extension SearchController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
+extension SearchViewController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
   func sectionIndexTitles(in _: TracksViewController) -> [String] {
-    if let sectionIndexTitles = tracksConfiguration?.filteredIndexTitles[selectedFilter] {
+    if let sectionIndexTitles = tracksConfiguration?.filteredIndexTitles[viewModel.selectedFilter] {
       sectionIndexTitles.keys.sorted()
     } else {
       []
@@ -242,30 +203,30 @@ extension SearchController: TracksViewControllerIndexDataSource, TracksViewContr
     let titles = sectionIndexTitles(in: tracksViewController)
     let title = titles[section]
 
-    if let index = tracksConfiguration?.filteredIndexTitles[selectedFilter]?[title] {
+    if let index = tracksConfiguration?.filteredIndexTitles[viewModel.selectedFilter]?[title] {
       let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
       tracksViewController.scrollToRow(at: indexPath, at: .top, animated: false)
     }
   }
 }
 
-extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
+extension SearchViewController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
   func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
-    !dependencies.favoritesService.contains(track)
+    viewModel.canFavorite(track)
   }
 
   func tracksViewController(_: TracksViewController, didFavorite track: Track) {
-    dependencies.favoritesService.addTrack(withIdentifier: track.name)
+    viewModel.didFavorite(track)
   }
 
   func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-    dependencies.favoritesService.removeTrack(withIdentifier: track.name)
+    viewModel.didFavorite(track)
   }
 }
 
-extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate {
+extension SearchViewController: EventsViewControllerDataSource, EventsViewControllerDelegate {
   func events(in _: EventsViewController) -> [Event] {
-    results
+    searchViewModel.configuration.results
   }
 
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
@@ -285,32 +246,36 @@ extension SearchController: EventsViewControllerDataSource, EventsViewController
   }
 }
 
-extension SearchController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
+extension SearchViewController: EventsViewControllerFavoritesDataSource, EventsViewControllerFavoritesDelegate {
   func eventsViewController(_: EventsViewController, canFavorite event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
+    viewModel.canFavorite(event)
   }
 
   func eventsViewController(_: EventsViewController, didFavorite event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
+    viewModel.didFavorite(event)
   }
 
   func eventsViewController(_: EventsViewController, didUnfavorite event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
+    viewModel.didUnfavorite(event)
   }
 }
 
-extension SearchController: UISearchResultsUpdating, EventsSearchController {
-  var persistenceService: PersistenceServiceProtocol {
-    dependencies.persistenceService
-  }
-
+extension SearchViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
-    didChangeQuery(searchController.searchBar.text ?? "")
+    searchViewModel.didChangeQuery(searchController.searchBar.text ?? "")
   }
 }
 
-private extension SearchController {
+extension SearchViewController {
+  func popToRootViewController() {
+    if traitCollection.horizontalSizeClass == .compact {
+      tracksViewController?.navigationController?.popToRootViewController(animated: true)
+    }
+  }
+}
+
+private extension SearchViewController {
   func makeWelcomeViewController() -> WelcomeViewController {
-    WelcomeViewController(year: type(of: dependencies.yearsService).current)
+    WelcomeViewController(year: viewModel.year)
   }
 }
