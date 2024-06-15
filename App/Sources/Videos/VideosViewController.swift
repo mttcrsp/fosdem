@@ -32,7 +32,7 @@ final class VideosViewController: UIPageViewController {
 
     delegate = self
     dataSource = self
-    view.backgroundColor = .systemBackground
+    view.backgroundColor = .systemGroupedBackground
 
     let watchedTitle = L10n.Recent.Video.watched
     let watchingTitle = L10n.Recent.Video.watching
