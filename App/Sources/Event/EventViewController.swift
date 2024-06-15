@@ -16,7 +16,6 @@ final class EventViewController: UITableViewController {
 
   private var cancellables: [AnyCancellable] = []
   private weak var playerViewController: AVPlayerViewController?
-  private weak var eventViewController: EventViewController?
   private let dependencies: Dependencies
   private let viewModel: EventViewModel
 
@@ -78,18 +77,18 @@ final class EventViewController: UITableViewController {
         switch result {
         case .failure, .success(nil):
           let errorViewController = UIAlertController.makeErrorController()
-          eventViewController?.show(errorViewController, sender: nil)
+          show(errorViewController, sender: nil)
         case let .success(track?):
           let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
           let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
           trackViewController.title = track.formattedName
           trackViewController.didError = { [weak self] _, _ in
-            guard let self, let eventViewController else { return }
+            guard let self else { return }
             let errorViewController = UIAlertController.makeErrorController()
-            eventViewController.navigationController?.popViewController(animated: true)
-            eventViewController.show(errorViewController, sender: nil)
+            navigationController?.popViewController(animated: true)
+            show(errorViewController, sender: nil)
           }
-          eventViewController?.show(trackViewController, sender: nil)
+          show(trackViewController, sender: nil)
         }
       }
       .store(in: &cancellables)
