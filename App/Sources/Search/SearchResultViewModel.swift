@@ -1,12 +1,12 @@
 import Combine
 
-struct SearchResultsConfiguration {
+struct SearchResultsConfiguration: Equatable {
   var configurationType: SearchResultsConfigurationType
   var results: [Event] = []
   var query: String = ""
 }
 
-enum SearchResultsConfigurationType {
+enum SearchResultsConfigurationType: Equatable {
   case noQuery, success, failure
 }
 

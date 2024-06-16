@@ -1,7 +1,7 @@
 import Foundation
 import GRDB
 
-struct GetEventsBySearch: PersistenceServiceRead {
+struct GetEventsBySearch: PersistenceServiceRead, Equatable {
   let query: String
 
   func perform(in database: Database) throws -> [Event] {
