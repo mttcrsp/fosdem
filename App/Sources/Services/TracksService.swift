@@ -4,7 +4,6 @@ struct TracksConfiguration: Equatable {
   var filters: [TracksFilter] = []
   var filteredTracks: [TracksFilter: [Track]] = [:]
   var filteredFavoriteTracks: [TracksFilter: [Track]] = [:]
-  var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 }
 
 final class TracksService {
@@ -25,7 +24,7 @@ final class TracksService {
       var configuration = TracksConfiguration()
       var filters: Set<TracksFilter> = [.all]
 
-      for (offset, track) in tracks.enumerated() {
+      for track in tracks {
         let filter = TracksFilter.day(track.day)
         filters.insert(filter)
         configuration.filteredTracks[.all, default: []].append(track)
@@ -34,19 +33,6 @@ final class TracksService {
         if favoritesService.contains(track) {
           configuration.filteredFavoriteTracks[.all, default: []].append(track)
           configuration.filteredFavoriteTracks[filter, default: []].append(track)
-        }
-
-        if let initial = track.name.first, let titles = configuration.filteredIndexTitles[.all], titles[String(initial)] == nil {
-          configuration.filteredIndexTitles[.all, default: [:]][String(initial)] = offset
-        }
-      }
-
-      for filter in filters.filter({ filter in filter != .all }) {
-        let tracks = configuration.filteredTracks[filter] ?? []
-        for (offset, track) in tracks.enumerated() {
-          if let initial = track.name.first, let titles = configuration.filteredIndexTitles[filter], titles[String(initial)] == nil {
-            configuration.filteredIndexTitles[filter, default: [:]][String(initial)] = offset
-          }
         }
       }
 

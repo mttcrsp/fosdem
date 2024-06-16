@@ -55,10 +55,7 @@ final class SearchViewController: UISplitViewController {
     tracksViewController.navigationItem.largeTitleDisplayMode = .always
     tracksViewController.addSearchViewController(searchController)
     tracksViewController.definesPresentationContext = true
-    tracksViewController.favoritesDataSource = self
     tracksViewController.favoritesDelegate = self
-    tracksViewController.indexDataSource = self
-    tracksViewController.indexDelegate = self
     tracksViewController.dataSource = self
     tracksViewController.delegate = self
     self.tracksViewController = tracksViewController
@@ -113,32 +110,24 @@ extension SearchViewController: TracksViewControllerDataSource, TracksViewContro
     tracksConfiguration?.filteredFavoriteTracks[viewModel.selectedFilter] ?? []
   }
 
-  private var hasFavoriteTracks: Bool {
-    !filteredFavoriteTracks.isEmpty
+  func numberOfTracks(in _: TracksViewController) -> Int {
+    filteredTracks.count
   }
 
-  private func isFavoriteSection(_ section: Int) -> Bool {
-    section == 0 && hasFavoriteTracks
+  func tracksViewController(_: TracksViewController, trackAt index: Int) -> Track {
+    filteredTracks[index]
   }
 
-  func numberOfSections(in _: TracksViewController) -> Int {
-    hasFavoriteTracks ? 2 : 1
+  func numberOfFavoriteTracks(in _: TracksViewController) -> Int {
+    filteredFavoriteTracks.count
   }
 
-  func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? L10n.Search.Filter.favorites : viewModel.selectedFilter.title
+  func tracksViewController(_: TracksViewController, favoriteTrackAt index: Int) -> Track {
+    filteredFavoriteTracks[index]
   }
 
-  func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? "favorites" : viewModel.selectedFilter.accessibilityIdentifier
-  }
-
-  func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
-    isFavoriteSection(section) ? filteredFavoriteTracks.count : filteredTracks.count
-  }
-
-  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    isFavoriteSection(indexPath.section) ? filteredFavoriteTracks[indexPath.row] : filteredTracks[indexPath.row]
+  func selectedFilter(in _: TracksViewController) -> TracksFilter {
+    viewModel.selectedFilter
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -190,27 +179,7 @@ extension SearchViewController: TracksViewControllerDataSource, TracksViewContro
   }
 }
 
-extension SearchViewController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
-  func sectionIndexTitles(in _: TracksViewController) -> [String] {
-    if let sectionIndexTitles = tracksConfiguration?.filteredIndexTitles[viewModel.selectedFilter] {
-      sectionIndexTitles.keys.sorted()
-    } else {
-      []
-    }
-  }
-
-  func tracksViewController(_ tracksViewController: TracksViewController, didSelect section: Int) {
-    let titles = sectionIndexTitles(in: tracksViewController)
-    let title = titles[section]
-
-    if let index = tracksConfiguration?.filteredIndexTitles[viewModel.selectedFilter]?[title] {
-      let indexPath = IndexPath(row: index, section: hasFavoriteTracks ? 1 : 0)
-      tracksViewController.scrollToRow(at: indexPath, at: .top, animated: false)
-    }
-  }
-}
-
-extension SearchViewController: TracksViewControllerFavoritesDataSource, TracksViewControllerFavoritesDelegate {
+extension SearchViewController: TracksViewControllerFavoritesDelegate {
   func tracksViewController(_: TracksViewController, canFavorite track: Track) -> Bool {
     viewModel.canFavorite(track)
   }
@@ -220,7 +189,7 @@ extension SearchViewController: TracksViewControllerFavoritesDataSource, TracksV
   }
 
   func tracksViewController(_: TracksViewController, didUnfavorite track: Track) {
-    viewModel.didFavorite(track)
+    viewModel.didUnfavorite(track)
   }
 }
 

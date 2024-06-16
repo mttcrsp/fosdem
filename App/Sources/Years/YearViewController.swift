@@ -1,7 +1,7 @@
 import Combine
 import UIKit
 
-final class YearViewController: TracksViewController {
+final class YearViewController: UITableViewController {
   typealias Dependencies = HasNavigationService
 
   var didError: ((YearViewController, Error) -> Void)?
@@ -30,10 +30,10 @@ final class YearViewController: TracksViewController {
     super.viewDidLoad()
 
     view.backgroundColor = .systemGroupedBackground
-
-    delegate = self
-    dataSource = self
     definesPresentationContext = true
+
+    tableView.tableFooterView = UIView()
+    tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
 
     let resultsViewController = EventsViewController(style: .grouped)
     resultsViewController.dataSource = self
@@ -49,7 +49,7 @@ final class YearViewController: TracksViewController {
     viewModel.$tracks
       .receive(on: DispatchQueue.main)
       .sink { [weak self] _ in
-        self?.reloadData()
+        self?.tableView.reloadData()
       }
       .store(in: &cancellables)
 
@@ -78,29 +78,31 @@ final class YearViewController: TracksViewController {
 
     viewModel.didLoad()
   }
-}
 
-extension YearViewController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-  func numberOfSections(in _: TracksViewController) -> Int {
-    1
-  }
-
-  func tracksViewController(_: TracksViewController, numberOfTracksIn _: Int) -> Int {
+  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
     viewModel.tracks.count
   }
 
-  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    viewModel.tracks[indexPath.row]
+  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+    cell.configure(with: track(at: indexPath))
+    return cell
   }
 
-  func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
+  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+    let track = track(at: indexPath)
     viewModel.didSelectTrack(track)
+
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.title = track.formattedName
     eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
-    tracksViewController.show(eventsViewController, sender: nil)
+    show(eventsViewController, sender: nil)
+  }
+
+  private func track(at indexPath: IndexPath) -> Track {
+    viewModel.tracks[indexPath.row]
   }
 }
 

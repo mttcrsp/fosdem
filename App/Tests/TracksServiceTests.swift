@@ -49,10 +49,5 @@ final class TracksServiceTests: XCTestCase {
     XCTAssertEqual(configuration?.filteredFavoriteTracks[.all], [track2, track3])
     XCTAssertEqual(configuration?.filteredFavoriteTracks[.day(1)], [track2])
     XCTAssertEqual(configuration?.filteredFavoriteTracks[.day(2)], [track3])
-
-    XCTAssertEqual(configuration?.filteredIndexTitles.count, 3)
-    XCTAssertEqual(configuration?.filteredIndexTitles[.all], ["1": 0, "2": 1, "3": 2, "4": 3])
-    XCTAssertEqual(configuration?.filteredIndexTitles[.day(1)], ["1": 0, "2": 1])
-    XCTAssertEqual(configuration?.filteredIndexTitles[.day(2)], ["3": 0, "4": 1])
   }
 }
