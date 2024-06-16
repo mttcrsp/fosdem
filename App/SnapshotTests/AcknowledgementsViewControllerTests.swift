@@ -4,22 +4,20 @@ import SnapshotTesting
 import XCTest
 
 final class AcknowledgementsViewControllerTests: XCTestCase {
-  private let dataSource = AcknowledgementsViewControllerDataSourceMock(acknowledgements: [
+  private let acknowledgements: [Acknowledgement] = [
     .init(name: "1", url: URL(fileURLWithPath: "/1")),
     .init(name: "2", url: URL(fileURLWithPath: "/2")),
-  ])
+  ]
 
   func testAppearance() throws {
-    let acknowledgementsViewController = AcknowledgementsViewController(style: .insetGrouped)
-    acknowledgementsViewController.dataSource = dataSource
+    let acknowledgementsViewController = AcknowledgementsViewController(acknowledgements: acknowledgements, style: .insetGrouped)
     assertSnapshot(matching: acknowledgementsViewController, as: .image(on: .iPhone8Plus))
   }
 
   func testEvents() throws {
     let delegate = AcknowledgementsViewControllerDelegateMock()
 
-    let acknowledgementsViewController = AcknowledgementsViewController()
-    acknowledgementsViewController.dataSource = dataSource
+    let acknowledgementsViewController = AcknowledgementsViewController(acknowledgements: acknowledgements, style: .insetGrouped)
     acknowledgementsViewController.delegate = delegate
 
     let tableView = try XCTUnwrap(acknowledgementsViewController.tableView)
@@ -37,7 +35,7 @@ final class AcknowledgementsViewControllerTests: XCTestCase {
     )
     XCTAssertEqual(
       delegate.acknowledgementsViewControllerArgValues.map(\.1),
-      [dataSource.acknowledgements[0], dataSource.acknowledgements[1]]
+      acknowledgements
     )
   }
 }

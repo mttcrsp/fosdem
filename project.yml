@@ -6,7 +6,7 @@ packages:
     exactVersion: 6.23.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing.git
-    exactVersion: 1.8.2
+    exactVersion: 1.16.1
 
 options:
   bundleIdPrefix: com.mttcrsp.fosdem

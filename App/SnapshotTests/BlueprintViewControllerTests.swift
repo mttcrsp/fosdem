@@ -4,7 +4,6 @@ import SnapshotTesting
 import XCTest
 
 final class BlueprintViewControllerTests: XCTestCase {
-  @available(iOS 12.0, *)
   func testFullscreen() throws {
     let building = try makeBuilding()
     let blueprintViewController = FullscreenBlueprintViewController()
@@ -18,7 +17,6 @@ final class BlueprintViewControllerTests: XCTestCase {
     assertSnapshot(matching: blueprintViewController, as: .image(on: .iPhone8Plus))
   }
 
-  @available(iOS 12.0, *)
   func testEmbedded() throws {
     let building = try makeBuilding()
     let blueprintViewController = EmbeddedBlueprintViewController()
