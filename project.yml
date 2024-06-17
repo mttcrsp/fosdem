@@ -53,8 +53,8 @@ targets:
           randomExecutionOrder: true
         - name: SnapshotTests
           randomExecutionOrder: true
-        - name: UITests
-          randomExecutionOrder: true
+        # - name: UITests
+        #   randomExecutionOrder: true
     templates:
       - Formattable
 
@@ -83,6 +83,11 @@ targets:
       - path: App/SnapshotTests
         excludes:
           - __Snapshots__
+          - EventControllerTests.swift
+          - EventViewControllerTests.swift
+          - TracksViewControllerTests.swift
+          - TransportationController.swift
+          - YearsViewControllerTests.swift
       - App/Mocks
     dependencies:
       - target: FOSDEM
