@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-final class SearchViewModel {
+final class SearchViewModel: Favoriting {
   typealias Dependencies = HasFavoritesService & HasPersistenceService & HasTracksService & HasYearsService
 
   @Published private(set) var selectedFilter: TracksFilter = .all
@@ -11,6 +11,10 @@ final class SearchViewModel {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
+  }
+
+  var favoritesService: FavoritesServiceProtocol {
+    dependencies.favoritesService
   }
 
   var year: Year {
@@ -26,30 +30,6 @@ final class SearchViewModel {
 
   func didSelectFilter(_ filter: TracksFilter) {
     selectedFilter = filter
-  }
-
-  func canFavorite(_ event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
-  }
-
-  func didFavorite(_ event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
-  }
-
-  func didUnfavorite(_ event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
-  }
-
-  func canFavorite(_ track: Track) -> Bool {
-    !dependencies.favoritesService.contains(track)
-  }
-
-  func didFavorite(_ track: Track) {
-    dependencies.favoritesService.addTrack(withIdentifier: track.name)
-  }
-
-  func didUnfavorite(_ track: Track) {
-    dependencies.favoritesService.removeTrack(withIdentifier: track.name)
   }
 }
 

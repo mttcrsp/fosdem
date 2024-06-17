@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-final class AgendaViewModel {
+final class AgendaViewModel: Favoriting {
   typealias Dependencies = HasFavoritesService & HasPersistenceService & HasSoonService & HasTimeService
 
   let didFail = PassthroughSubject<Error, Never>()
@@ -12,6 +12,10 @@ final class AgendaViewModel {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
+  }
+
+  var favoritesService: FavoritesServiceProtocol {
+    dependencies.favoritesService
   }
 
   func didLoad() {
@@ -31,18 +35,6 @@ final class AgendaViewModel {
         self.liveEventsIDs = liveEventsIDs
       },
     ]
-  }
-
-  func canFavorite(_ event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
-  }
-
-  func didFavorite(_ event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
-  }
-
-  func didUnfavorite(_ event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
   }
 }
 

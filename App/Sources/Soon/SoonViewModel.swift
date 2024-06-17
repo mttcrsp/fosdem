@@ -1,6 +1,6 @@
 import Combine
 
-final class SoonViewModel {
+final class SoonViewModel: Favoriting {
   typealias Dependencies = HasFavoritesService & HasSoonService
 
   @Published private(set) var events: [Event] = []
@@ -8,6 +8,10 @@ final class SoonViewModel {
 
   init(dependencies: Dependencies) {
     self.dependencies = dependencies
+  }
+
+  var favoritesService: FavoritesServiceProtocol {
+    dependencies.favoritesService
   }
 
   func didLoad() {
@@ -19,17 +23,5 @@ final class SoonViewModel {
         break
       }
     }
-  }
-
-  func canFavorite(_ event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
-  }
-
-  func didFavorite(_ event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
-  }
-
-  func didUnfavorite(_ event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
   }
 }

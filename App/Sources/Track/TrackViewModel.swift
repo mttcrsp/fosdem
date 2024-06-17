@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-final class TrackViewModel {
+final class TrackViewModel: Favoriting {
   typealias Dependencies = HasFavoritesService & HasPersistenceService
 
   let track: Track
@@ -15,6 +15,10 @@ final class TrackViewModel {
   init(track: Track, dependencies: Dependencies) {
     self.track = track
     self.dependencies = dependencies
+  }
+
+  var favoritesService: FavoritesServiceProtocol {
+    dependencies.favoritesService
   }
 
   func didLoad() {
@@ -42,18 +46,6 @@ final class TrackViewModel {
     } else {
       dependencies.favoritesService.addTrack(withIdentifier: track.name)
     }
-  }
-
-  func canFavorite(_ event: Event) -> Bool {
-    !dependencies.favoritesService.contains(event)
-  }
-
-  func didFavorite(_ event: Event) {
-    dependencies.favoritesService.addEvent(withIdentifier: event.id)
-  }
-
-  func didUnfavorite(_ event: Event) {
-    dependencies.favoritesService.removeEvent(withIdentifier: event.id)
   }
 }
 
