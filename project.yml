@@ -3,10 +3,10 @@ name: FOSDEM
 packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift
-    exactVersion: 6.23.0
+    exactVersion: 6.29.3
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing.git
-    exactVersion: 1.8.2
+    exactVersion: 1.17.6
 
 options:
   bundleIdPrefix: com.mttcrsp.fosdem
