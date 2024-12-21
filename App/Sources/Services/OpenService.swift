@@ -8,7 +8,7 @@ final class OpenService {
   }
 
   func open(_ url: URL, completion: ((Bool) -> Void)?) {
-    application.open(url, options: [:], completionHandler: completion)
+    application.open(url, completionHandler: completion)
   }
 }
 
@@ -21,10 +21,14 @@ extension OpenService: OpenServiceProtocol {}
 
 /// @mockable
 protocol OpenServiceApplication {
-  func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey: Any], completionHandler completion: ((Bool) -> Void)?)
+  func open(_ url: URL, completionHandler completion: ((Bool) -> Void)?)
 }
 
-extension UIApplication: OpenServiceApplication {}
+extension UIApplication: OpenServiceApplication {
+  func open(_ url: URL, completionHandler completion: ((Bool) -> Void)?) {
+    open(url, options: [:], completionHandler: completion)
+  }
+}
 
 protocol HasOpenService {
   var openService: OpenServiceProtocol { get }
