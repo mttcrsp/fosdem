@@ -20,13 +20,6 @@ options:
 settings:
   DEVELOPMENT_TEAM: "3CM92FF2C5"
 
-targetTemplates:
-  Formattable:
-    preBuildScripts:
-      - script: make run_swiftformat
-        name: SwiftFormat
-        basedOnDependencyAnalysis: false
-
 targets:
   FOSDEM:
     type: application
@@ -55,8 +48,6 @@ targets:
           randomExecutionOrder: true
         - name: UITests
           randomExecutionOrder: true
-    templates:
-      - Formattable
 
   Tests:
     type: bundle.unit-test
@@ -67,10 +58,6 @@ targets:
       - App/Resources/Buildings
     dependencies:
       - target: FOSDEM
-    preBuildScripts:
-      - script: make run_swiftformat
-        name: SwiftFormat
-        basedOnDependencyAnalysis: false
     settings:
       ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
       GENERATE_INFOPLIST_FILE: YES
@@ -91,8 +78,6 @@ targets:
       ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: "$(inherited)"
       GENERATE_INFOPLIST_FILE: YES
       TEST_HOST: "$(BUILT_PRODUCTS_DIR)/FOSDEM.app/FOSDEM"
-    templates:
-      - Formattable
 
   UITests:
     type: bundle.ui-testing
@@ -104,5 +89,3 @@ targets:
     - target: FOSDEM
     settings:
       GENERATE_INFOPLIST_FILE: YES
-    templates:
-      - Formattable
