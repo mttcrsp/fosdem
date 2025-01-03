@@ -34,8 +34,7 @@ final class MapControlsView: UIView {
     let separatorView = UIView()
     separatorView.backgroundColor = .separator
 
-    let backgroundView = UIView()
-    backgroundView.backgroundColor = .tertiarySystemBackground
+    let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
     backgroundView.translatesAutoresizingMaskIntoConstraints = false
     backgroundView.layer.cornerRadius = 8
     backgroundView.layer.shadowRadius = 8

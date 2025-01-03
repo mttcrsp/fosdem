@@ -8,7 +8,7 @@ final class MapControlView: UIControl {
 
   var image: UIImage? {
     get { imageView.image }
-    set { imageView.image = newValue }
+    set { imageView.image = newValue?.withConfiguration(UIImage.SymbolConfiguration(font: font)) }
   }
 
   override var accessibilityLabel: String? {
@@ -18,7 +18,7 @@ final class MapControlView: UIControl {
 
   private let label = UILabel()
   private let imageView = UIImageView()
-
+  private let font = UIFont.fos_preferredFont(forTextStyle: .body)
   private var compactConstraints: [NSLayoutConstraint] = []
   private var regularConstraints: [NSLayoutConstraint] = []
 
@@ -28,32 +28,31 @@ final class MapControlView: UIControl {
     isAccessibilityElement = true
     accessibilityTraits = .button
 
-    imageView.contentMode = .center
-    label.font = .fos_preferredFont(forTextStyle: .body)
+    label.font = font
     label.adjustsFontForContentSizeCategory = true
     label.textColor = tintColor
 
-    let stackView = UIStackView(arrangedSubviews: [imageView, label])
-    stackView.translatesAutoresizingMaskIntoConstraints = false
-    stackView.isUserInteractionEnabled = false
-    stackView.axis = .horizontal
-    stackView.spacing = 10
-    addSubview(stackView)
+    for subview in [imageView, label] {
+      subview.translatesAutoresizingMaskIntoConstraints = false
+      addSubview(subview)
+    }
 
     regularConstraints = [
-      stackView.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-      stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
-      stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-      stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
+      imageView.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+      imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+      imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
+      label.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 10),
+      label.firstBaselineAnchor.constraint(equalTo: imageView.firstBaselineAnchor),
+      label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -16),
     ]
 
     compactConstraints = [
-      stackView.topAnchor.constraint(equalTo: topAnchor),
-      stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
-      stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-      stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-      stackView.widthAnchor.constraint(greaterThanOrEqualToConstant: 44),
-      stackView.widthAnchor.constraint(equalTo: stackView.heightAnchor),
+      imageView.topAnchor.constraint(equalTo: topAnchor),
+      imageView.bottomAnchor.constraint(equalTo: bottomAnchor),
+      imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
+      imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
+      imageView.widthAnchor.constraint(greaterThanOrEqualToConstant: 44),
+      imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
     ]
   }
 
@@ -69,6 +68,7 @@ final class MapControlView: UIControl {
   override func updateConstraints() {
     let isRegular = traitCollection.fos_hasRegularSizeClasses
     label.isHidden = !isRegular
+    imageView.contentMode = isRegular ? .scaleAspectFit : .center
     NSLayoutConstraint.activate(isRegular ? regularConstraints : compactConstraints)
     NSLayoutConstraint.deactivate(isRegular ? compactConstraints : regularConstraints)
     super.updateConstraints()
