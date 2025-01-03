@@ -50,7 +50,6 @@ final class SearchController: UISplitViewController {
     let resultsViewController = EventsViewController(style: .grouped)
     resultsViewController.favoritesDataSource = self
     resultsViewController.favoritesDelegate = self
-    resultsViewController.dataSource = self
     resultsViewController.delegate = self
     self.resultsViewController = resultsViewController
 
@@ -267,11 +266,7 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
   }
 }
 
-extension SearchController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in _: EventsViewController) -> [Event] {
-    results
-  }
-
+extension SearchController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     event.formattedTrack
   }

@@ -1,12 +1,6 @@
 import UIKit
 
 /// @mockable
-protocol EventsViewControllerDataSource: AnyObject {
-  func events(in eventsViewController: EventsViewController) -> [Event]
-  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
-}
-
-/// @mockable
 protocol EventsViewControllerLiveDataSource: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, shouldShowLiveIndicatorFor event: Event) -> Bool
 }
@@ -19,6 +13,7 @@ protocol EventsViewControllerFavoritesDataSource: AnyObject {
 /// @mockable
 protocol EventsViewControllerDelegate: AnyObject {
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event)
+  func eventsViewController(_ eventsViewController: EventsViewController, captionFor event: Event) -> String?
 }
 
 /// @mockable
@@ -33,14 +28,14 @@ protocol EventsViewControllerDeleteDelegate: AnyObject {
 }
 
 class EventsViewController: UITableViewController {
-  weak var dataSource: EventsViewControllerDataSource?
   weak var delegate: EventsViewControllerDelegate?
-
+  weak var deleteDelegate: EventsViewControllerDeleteDelegate?
   weak var favoritesDataSource: EventsViewControllerFavoritesDataSource?
   weak var favoritesDelegate: EventsViewControllerFavoritesDelegate?
-
   weak var liveDataSource: EventsViewControllerLiveDataSource?
-  weak var deleteDelegate: EventsViewControllerDeleteDelegate?
+  private var diffableDataSource: DiffableDataSource?
+  private(set) var events: [Event] = []
+  private lazy var emptyBackgroundView = TableBackgroundView()
 
   var emptyBackgroundTitle: String? {
     get { emptyBackgroundView.title }
@@ -52,57 +47,33 @@ class EventsViewController: UITableViewController {
     set { emptyBackgroundView.message = newValue }
   }
 
-  private lazy var emptyBackgroundView = TableBackgroundView()
-
-  private var events: [Event] {
-    dataSource?.events(in: self) ?? []
-  }
-
-  func reloadData() {
-    if isViewLoaded {
-      tableView.reloadData()
-    }
-  }
-
-  func beginUpdates() {
-    tableView.beginUpdates()
-  }
-
-  func endUpdates() {
-    tableView.endUpdates()
-  }
-
-  func insertEvent(at index: Int) {
-    let section = IndexSet([index])
-    tableView.insertSections(section, with: .fade)
-  }
-
-  func deleteEvent(at index: Int) {
-    let section = IndexSet([index])
-    tableView.deleteSections(section, with: .fade)
-  }
-
   func reloadLiveStatus() {
-    guard viewIfLoaded?.window != nil else { return }
+    guard viewIfLoaded?.window != nil, let diffableDataSource else { return }
 
-    var indexPaths: [IndexPath] = []
-
+    var events: [Event] = []
     for indexPath in tableView.indexPathsForVisibleRows ?? [] {
       if let cell = tableView.cellForRow(at: indexPath) {
-        let event = event(forSection: indexPath.section)
-        let oldStatus = cell.showsLiveIndicator
-        let newStatus = shouldShowLiveIndicator(for: event)
-
-        if oldStatus != newStatus {
-          indexPaths.append(indexPath)
+        if let event = diffableDataSource.itemIdentifier(for: indexPath) {
+          let oldStatus = cell.showsLiveIndicator
+          let newStatus = shouldShowLiveIndicator(for: event)
+          if oldStatus != newStatus {
+            events.append(event)
+          }
         }
       }
     }
 
-    tableView.reloadRows(at: indexPaths, with: .fade)
+    var snapshot = diffableDataSource.snapshot()
+    snapshot.reloadItems(events)
+    diffableDataSource.apply(snapshot, animatingDifferences: false)
   }
 
-  func select(_ event: Event) {
+  func setEvents(_ events: [Event], animatingDifferences animated: Bool = false) {
+    self.events = events
+    reloadData(animatingDifferences: animated)
+  }
+
+  func selectEvent(_ event: Event) {
     if let section = events.firstIndex(of: event) {
       let indexPath = IndexPath(row: 0, section: section)
       tableView.selectRow(at: indexPath, animated: true, scrollPosition: .none)
@@ -111,6 +82,7 @@ class EventsViewController: UITableViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
+
     tableView.estimatedRowHeight = 44
     tableView.estimatedSectionHeaderHeight = 44
     tableView.accessibilityIdentifier = "events"
@@ -118,40 +90,37 @@ class EventsViewController: UITableViewController {
     tableView.sectionHeaderHeight = UITableView.automaticDimension
     tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
     tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
-  }
 
-  override func numberOfSections(in tableView: UITableView) -> Int {
-    let count = events.count
-    let isEmpty = count == 0
-    tableView.isUserInteractionEnabled = !isEmpty
-    tableView.backgroundView = isEmpty ? emptyBackgroundView : nil
-    return count
+    diffableDataSource = .init(tableView: tableView) { [weak self] tableView, indexPath, event in
+      let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
+      cell.showsLiveIndicator = self?.shouldShowLiveIndicator(for: event) ?? false
+      cell.configure(with: event)
+      return cell
+    }
+    diffableDataSource?.defaultRowAnimation = .fade
+    diffableDataSource?.commitEditingStyle = { [weak self] _, _, indexPath in
+      if let self, let event = diffableDataSource?.itemIdentifier(for: indexPath) {
+        deleteDelegate?.eventsViewController(self, didDelete: event)
+      }
+    }
+
+    reloadData(animatingDifferences: false)
   }
 
   override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    guard let event = diffableDataSource?.itemIdentifier(for: .init(row: 0, section: section)) else { return nil }
     let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
-    view.text = dataSource?.eventsViewController(self, captionFor: event(forSection: section))
+    view.text = delegate?.eventsViewController(self, captionFor: event)
     return view
   }
 
-  override func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-    1
-  }
-
-  override func tableView(_: UITableView, commit _: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-    deleteDelegate?.eventsViewController(self, didDelete: event(forSection: indexPath.section))
-  }
-
-  override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let event = event(forSection: indexPath.section)
-    let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
-    cell.showsLiveIndicator = shouldShowLiveIndicator(for: event)
-    cell.configure(with: event)
-    return cell
-  }
-
   override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-    delegate?.eventsViewController(self, didSelect: event(forSection: indexPath.section))
+    guard let event = diffableDataSource?.itemIdentifier(for: indexPath) else { return }
+    delegate?.eventsViewController(self, didSelect: event)
+  }
+
+  override func tableView(_: UITableView, editingStyleForRowAt _: IndexPath) -> UITableViewCell.EditingStyle {
+    deleteDelegate == nil ? .none : .delete
   }
 
   override func tableView(_: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -164,11 +133,9 @@ class EventsViewController: UITableViewController {
   }
 
   private func actions(at indexPath: IndexPath) -> [Action] {
-    guard let favoritesDataSource else {
+    guard let favoritesDataSource, let event = diffableDataSource?.itemIdentifier(for: indexPath) else {
       return []
     }
-
-    let event = event(forSection: indexPath.section)
 
     if favoritesDataSource.eventsViewController(self, canFavorite: event) {
       let title = L10n.Event.add
@@ -193,12 +160,30 @@ class EventsViewController: UITableViewController {
     favoritesDelegate?.eventsViewController(self, didUnfavorite: event)
   }
 
-  private func event(forSection section: Int) -> Event {
-    events[section]
-  }
-
   private func shouldShowLiveIndicator(for event: Event) -> Bool {
     liveDataSource?.eventsViewController(self, shouldShowLiveIndicatorFor: event) ?? false
+  }
+
+  private func reloadData(animatingDifferences animated: Bool = false) {
+    guard let diffableDataSource else { return }
+
+    var snapshot = NSDiffableDataSourceSnapshot<Event, Event>()
+    for event in events {
+      snapshot.appendSections([event])
+      snapshot.appendItems([event], toSection: event)
+    }
+
+    diffableDataSource.apply(snapshot, animatingDifferences: animated) { [weak self] in
+      guard let self else { return }
+      tableView.backgroundView = snapshot.numberOfSections == 0 ? emptyBackgroundView : nil
+    }
+  }
+}
+
+private final class DiffableDataSource: UITableViewDiffableDataSource<Event, Event> {
+  var commitEditingStyle: ((UITableView, UITableViewCell.EditingStyle, IndexPath) -> Void)?
+  override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+    commitEditingStyle?(tableView, editingStyle, indexPath)
   }
 }
 

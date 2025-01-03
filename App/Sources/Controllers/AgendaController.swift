@@ -13,7 +13,6 @@ final class AgendaController: UIViewController {
   }
 
   private var observations: [NSObjectProtocol] = []
-  private var events: [Event] = []
 
   private let dependencies: Dependencies
 
@@ -61,11 +60,11 @@ final class AgendaController: UIViewController {
 
 private extension AgendaController {
   func preselectFirstEvent() {
-    if let event = events.first, traitCollection.horizontalSizeClass == .regular {
+    if let event = agendaViewController?.events.first, traitCollection.horizontalSizeClass == .regular {
       let eventViewController = makeEventViewController(for: event)
       let navigationController = UINavigationController(rootViewController: eventViewController)
       agendaViewController?.showDetailViewController(navigationController, sender: nil)
-      agendaViewController?.select(event)
+      agendaViewController?.selectEvent(event)
     }
   }
 
@@ -103,29 +102,7 @@ private extension AgendaController {
   }
 
   private func loadingDidSucceed(with events: [Event], animated: Bool) {
-    if animated {
-      var oldEvents = self.events
-      let newEvents = events
-      let deletesEvents = Set(oldEvents).subtracting(newEvents)
-      let insertsEvents = Set(newEvents).subtracting(oldEvents)
-
-      agendaViewController?.beginUpdates()
-
-      self.events = newEvents
-      for (index, event) in oldEvents.enumerated().reversed() where deletesEvents.contains(event) {
-        agendaViewController?.deleteEvent(at: index)
-        oldEvents.remove(at: index)
-      }
-      for (index, event) in newEvents.enumerated() where insertsEvents.contains(event) {
-        agendaViewController?.insertEvent(at: index)
-        oldEvents.insert(event, at: index)
-      }
-
-      agendaViewController?.endUpdates()
-    } else {
-      self.events = events
-      agendaViewController?.reloadData()
-    }
+    agendaViewController?.setEvents(events, animatingDifferences: animated)
 
     var didDeleteSelectedEvent = false
     if let selectedEventID = eventViewController?.fos_eventID, !events.contains(where: { event in event.id == selectedEventID }) {
@@ -160,18 +137,14 @@ private extension AgendaController {
   }
 }
 
-extension AgendaController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in _: EventsViewController) -> [Event] {
-    events
-  }
-
+extension AgendaController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     [event.formattedStart, event.room, event.formattedTrack].compactMap { $0 }.joined(separator: " - ")
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
     guard !(eventViewController?.fos_eventID == event.id && traitCollection.horizontalSizeClass == .regular) else { return }
-    
+
     let eventViewController = makeEventViewController(for: event)
     let navigationController = UINavigationController(rootViewController: eventViewController)
     eventsViewController.showDetailViewController(navigationController, sender: nil)
@@ -209,7 +182,6 @@ private extension AgendaController {
     agendaViewController.favoritesDataSource = self
     agendaViewController.favoritesDelegate = self
     agendaViewController.liveDataSource = self
-    agendaViewController.dataSource = self
     agendaViewController.delegate = self
     self.agendaViewController = agendaViewController
 

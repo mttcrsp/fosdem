@@ -60,13 +60,13 @@ final class VideosController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
     navigationItem.backButtonTitle = L10n.Recent.video
 
-    reloadData()
+    reloadData(animatingDifferences: false)
     observer = dependencies.playbackService.addObserver { [weak self] in
-      self?.reloadData()
+      self?.reloadData(animatingDifferences: true)
     }
   }
 
-  private func reloadData() {
+  private func reloadData(animatingDifferences animated: Bool) {
     dependencies.videosService.loadVideos { [weak self] result in
       guard let self else { return }
 
@@ -74,10 +74,8 @@ final class VideosController: UIPageViewController {
       case let .failure(error):
         didError?(self, error)
       case let .success(videos):
-        watchedEvents = videos.watched
-        watchingEvents = videos.watching
-        watchedViewController.reloadData()
-        watchingViewController.reloadData()
+        watchedViewController.setEvents(videos.watched, animatingDifferences: animated)
+        watchingViewController.setEvents(videos.watching, animatingDifferences: animated)
       }
     }
   }
@@ -96,15 +94,7 @@ final class VideosController: UIPageViewController {
   }
 }
 
-extension VideosController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in eventsViewController: EventsViewController) -> [Event] {
-    switch eventsViewController {
-    case watchingViewController: watchingEvents
-    case watchedViewController: watchedEvents
-    default: []
-    }
-  }
-
+extension VideosController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
@@ -159,7 +149,6 @@ private extension VideosController {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.navigationItem.largeTitleDisplayMode = .never
     eventsViewController.deleteDelegate = self
-    eventsViewController.dataSource = self
     eventsViewController.delegate = self
     return eventsViewController
   }

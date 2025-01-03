@@ -8,7 +8,6 @@ final class TrackController: EventsViewController {
   private var favoriteButton: UIBarButtonItem?
 
   private var captions: [Event: String] = [:]
-  private var events: [Event] = []
   private var observer: NSObjectProtocol?
 
   private let dependencies: Dependencies
@@ -34,8 +33,8 @@ final class TrackController: EventsViewController {
         case let .failure(error):
           completion(error)
         case let .success(events):
-          self.events = events
           captions = events.captions
+          setEvents(events)
           completion(nil)
         }
       }
@@ -45,7 +44,6 @@ final class TrackController: EventsViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    dataSource = self
     delegate = self
     favoritesDataSource = self
     favoritesDelegate = self
@@ -68,11 +66,7 @@ final class TrackController: EventsViewController {
   }
 }
 
-extension TrackController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in _: EventsViewController) -> [Event] {
-    events
-  }
-
+extension TrackController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     captions[event]
   }

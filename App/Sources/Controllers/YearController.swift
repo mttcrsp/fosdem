@@ -37,7 +37,6 @@ final class YearController: TracksViewController {
     definesPresentationContext = true
 
     let resultsViewController = EventsViewController(style: .grouped)
-    resultsViewController.dataSource = self
     resultsViewController.delegate = self
     self.resultsViewController = resultsViewController
 
@@ -47,16 +46,16 @@ final class YearController: TracksViewController {
     self.searchController = searchController
     addSearchViewController(searchController)
 
-    persistenceService.performRead(GetAllTracks()) { result in
-      DispatchQueue.main.async { [weak self] in
+    persistenceService.performRead(GetAllTracks()) { [weak self] result in
+      DispatchQueue.main.async {
         guard let self else { return }
 
         switch result {
         case let .failure(error):
-          didError?(self, error)
+          self.didError?(self, error)
         case let .success(tracks):
           self.tracks = tracks
-          reloadData()
+          self.reloadData()
         }
       }
     }
@@ -79,44 +78,27 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.title = track.formattedName
-    eventsViewController.dataSource = self
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController
     tracksViewController.show(eventsViewController, sender: nil)
 
     events = []
-    persistenceService.performRead(GetEventsByTrack(track: track.name)) { result in
-      DispatchQueue.main.async { [weak self] in
+    persistenceService.performRead(GetEventsByTrack(track: track.name)) { [weak self] result in
+      DispatchQueue.main.async {
+        guard let self else { return }
+
         switch result {
         case let .failure(error):
-          self?.eventsLoadingDidError(with: error)
+          self.didError?(self, error)
         case let .success(events):
-          self?.eventsLoadingDidFinish(with: events)
+          self.eventsViewController?.setEvents(events)
         }
       }
     }
   }
-
-  private func eventsLoadingDidError(with error: Error) {
-    assertionFailure(error.localizedDescription)
-    didError?(self, error)
-  }
-
-  private func eventsLoadingDidFinish(with events: [Event]) {
-    self.events = events
-    eventsViewController?.reloadData()
-  }
 }
 
-extension YearController: EventsViewControllerDataSource, EventsViewControllerDelegate {
-  func events(in viewController: EventsViewController) -> [Event] {
-    switch viewController {
-    case eventsViewController: events
-    case resultsViewController: results
-    default: []
-    }
-  }
-
+extension YearController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
     event.formattedPeople
   }
