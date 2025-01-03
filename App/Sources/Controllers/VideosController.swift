@@ -60,13 +60,13 @@ final class VideosController: UIPageViewController {
     navigationItem.largeTitleDisplayMode = .never
     navigationItem.backButtonTitle = L10n.Recent.video
 
-    reloadData()
+    reloadData(animatingDifferences: false)
     observer = dependencies.playbackService.addObserver { [weak self] in
-      self?.reloadData()
+      self?.reloadData(animatingDifferences: true)
     }
   }
 
-  private func reloadData() {
+  private func reloadData(animatingDifferences animated: Bool) {
     dependencies.videosService.loadVideos { [weak self] result in
       guard let self else { return }
 
@@ -76,8 +76,8 @@ final class VideosController: UIPageViewController {
       case let .success(videos):
         watchedEvents = videos.watched
         watchingEvents = videos.watching
-        watchedViewController.reloadData()
-        watchingViewController.reloadData()
+        watchedViewController.reloadData(animatingDifferences: animated)
+        watchingViewController.reloadData(animatingDifferences: animated)
       }
     }
   }
