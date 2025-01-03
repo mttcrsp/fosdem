@@ -19,7 +19,7 @@ final class MoreController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func popToRootViewController() {
+  func didSelectTab() {
     if traitCollection.horizontalSizeClass == .compact {
       moreViewController?.navigationController?.popToRootViewController(animated: true)
     }
@@ -159,7 +159,7 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private func moreViewControllerDidFailPresentation() {
-    popToRootViewController()
+    didSelectTab()
 
     let errorViewController = UIAlertController.makeErrorController()
     moreViewController?.present(errorViewController, animated: true)

@@ -33,7 +33,7 @@ final class AgendaController: UIViewController {
     eventViewController == nil
   }
 
-  func popToRootViewController() {
+  func didSelectTab() {
     if traitCollection.horizontalSizeClass == .compact {
       agendaViewController?.navigationController?.popToRootViewController(animated: true)
     }
