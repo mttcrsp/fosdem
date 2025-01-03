@@ -26,9 +26,13 @@ final class SearchController: UISplitViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  func popToRootViewController() {
-    if traitCollection.horizontalSizeClass == .compact {
-      tracksViewController?.navigationController?.popToRootViewController(animated: true)
+  func didSelectTab() {
+    guard traitCollection.horizontalSizeClass == .compact else { return }
+
+    if let navigationController = tracksViewController?.navigationController, navigationController.viewControllers.count > 1 {
+      navigationController.popToRootViewController(animated: true)
+    } else {
+      searchController?.searchBar.becomeFirstResponder()
     }
   }
 
