@@ -2,7 +2,7 @@ import UIKit
 
 enum Info: String {
   case history, devrooms, transportation
-  case bus, shuttle, train, car, plane, taxi
+  case bus, train, car, plane, taxi
   case legal
 }
 
@@ -80,8 +80,6 @@ private extension Info {
       "transportation"
     case .bus:
       "bus-tram"
-    case .shuttle:
-      "shuttle"
     case .train:
       "train"
     case .car:
