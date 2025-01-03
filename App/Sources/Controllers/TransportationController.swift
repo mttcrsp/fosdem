@@ -46,6 +46,7 @@ extension TransportationController: TransportationViewControllerDelegate {
 
   private func transportationViewController(_ transportationViewController: TransportationViewController, didSelect item: TransportationItem, info: Info) {
     let infoViewController = dependencies.navigationService.makeInfoViewController(for: info)
+    infoViewController.navigationItem.largeTitleDisplayMode = traitCollection.userInterfaceIdiom == .phone ? .never : .always
     infoViewController.accessibilityIdentifier = info.accessibilityIdentifier
     infoViewController.title = item.title
     infoViewController.load { error in
