@@ -20,7 +20,7 @@ final class EventControllerTests: XCTestCase {
     }()
 
     var timeService: TimeServiceProtocol = {
-      let calendar = Calendar.autoupdatingCurrent
+      let calendar = Calendar.gregorian
       let timeZone = TimeZone(identifier: "Europe/Brussels")
       let components = DateComponents(timeZone: timeZone, year: 2021, month: 2, day: 6, hour: 12, minute: 45)
       let timeService = TimeServiceProtocolMock()

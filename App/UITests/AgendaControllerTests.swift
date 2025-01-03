@@ -173,7 +173,7 @@ final class AgendaControllerTests: XCTestCase {
   }
 
   private func interval(for components: DateComponents) -> Double? {
-    Calendar.autoupdatingCurrent.date(from: components)?.timeIntervalSince1970
+    Calendar.gregorian.date(from: components)?.timeIntervalSince1970
   }
 }
 

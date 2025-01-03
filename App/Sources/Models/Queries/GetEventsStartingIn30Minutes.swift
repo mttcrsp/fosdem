@@ -5,7 +5,7 @@ struct GetEventsStartingIn30Minutes: PersistenceServiceRead, Equatable {
   let now: Date
 
   func perform(in database: Database) throws -> [Event] {
-    let calendar = Calendar.autoupdatingCurrent
+    let calendar = Calendar.gregorian
     let upperbound = calendar.date(byAdding: .minute, value: 30, to: now)
     let lowerbound = now
 

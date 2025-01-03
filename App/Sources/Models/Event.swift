@@ -25,7 +25,7 @@ extension Event {
   }
 
   func isLive(at timestamp: Date) -> Bool {
-    let calendar = Calendar.autoupdatingCurrent
+    let calendar = Calendar.gregorian
     let lowerbound = date
     let upperbound = calendar.date(byAdding: duration, to: date) ?? .distantPast
     return lowerbound < timestamp && timestamp < upperbound
@@ -36,7 +36,7 @@ extension Event {
       return false
     }
 
-    let calendar = Calendar.autoupdatingCurrent
+    let calendar = Calendar.gregorian
     let components1 = calendar.dateComponents(in: timezone, from: self.date)
     let components2 = calendar.dateComponents(in: timezone, from: date)
 
@@ -47,8 +47,9 @@ extension Event {
   }
 
   func isSameWeekday(as event: Event) -> Bool {
-    let lhs = Calendar.autoupdatingCurrent.component(.weekday, from: date)
-    let rhs = Calendar.autoupdatingCurrent.component(.weekday, from: event.date)
+    let calendar = Calendar.gregorian
+    let lhs = calendar.component(.weekday, from: date)
+    let rhs = calendar.component(.weekday, from: event.date)
     return lhs == rhs
   }
 }

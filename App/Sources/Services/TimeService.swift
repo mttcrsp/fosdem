@@ -18,9 +18,9 @@ final class TimeService {
     self.timeInterval = timeInterval
 
     #if DEBUG
-    let calendar = Calendar.autoupdatingCurrent
+    let calendar = Calendar.gregorian
     let timeZone = TimeZone(identifier: "Europe/Brussels")
-    let components = DateComponents(timeZone: timeZone, year: 2024, month: 2, day: 3, hour: 12, minute: 45)
+    let components = DateComponents(timeZone: timeZone, year: 2025, month: 2, day: 2, hour: 10, minute: 45)
     now = calendar.date(from: components) ?? Date()
     #endif
   }
