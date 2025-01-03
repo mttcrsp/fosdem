@@ -1,5 +1,19 @@
 import UIKit
 
+//    let parser = Parser()
+//
+//    for track in try! persistenceService.performReadSync(GetAllTracks()) {
+//      for event in try! persistenceService.performReadSync(GetEventsByTrack(track: track.name)) {
+//        if let abstract = event.abstract {
+//          if let node = parser.parse(abstract) {
+//            dump(node)
+//          } else {
+//            print("parsing failed for event \(event.id)")
+//          }
+//        }
+//      }
+//    }
+
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
 
@@ -16,6 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       let services = try Services()
       #endif
       rootViewController = ApplicationController(dependencies: services)
+//      rootViewController = AbstractsComparisonController(dependencies: services)
+//      rootViewController = FontSampleViewController()
     } catch {
       let errorViewController = ErrorViewController()
       errorViewController.showsAppStoreButton = true

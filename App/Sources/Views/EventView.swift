@@ -164,7 +164,7 @@ final class EventView: UIStackView {
       addArrangedSubview(summaryLabel)
     }
 
-    if let abstract = event.formattedAbstract {
+    if let abstract = event.abstract, let attributedAbstract = NSAttributedString(html: abstract) {
       let separatorView = UIView()
       separatorView.backgroundColor = .separator
       addArrangedSubview(separatorView)
@@ -182,10 +182,9 @@ final class EventView: UIStackView {
       addArrangedSubview(subtitleLabel)
 
       let abstractLabel = UILabel()
-      abstractLabel.font = .fos_preferredFont(forTextStyle: .body)
       abstractLabel.adjustsFontForContentSizeCategory = true
       abstractLabel.numberOfLines = 0
-      abstractLabel.text = abstract
+      abstractLabel.attributedText = attributedAbstract
       addArrangedSubview(abstractLabel)
     }
 
