@@ -179,9 +179,9 @@ extension ApplicationController: UITabBarControllerDelegate {
   func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
     if viewController == tabBarController.selectedViewController {
       switch viewController {
-      case let viewController as SearchController: viewController.popToRootViewController()
-      case let viewController as AgendaController: viewController.popToRootViewController()
-      case let viewController as MoreController: viewController.popToRootViewController()
+      case let viewController as SearchController: viewController.didSelectTab()
+      case let viewController as AgendaController: viewController.didSelectTab()
+      case let viewController as MoreController: viewController.didSelectTab()
       default: break
       }
     }
