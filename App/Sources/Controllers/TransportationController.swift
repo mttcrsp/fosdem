@@ -29,7 +29,7 @@ extension TransportationController: TransportationViewControllerDelegate {
       self.transportationViewController(transportationViewController, didSelect: .ulbAppleMaps)
     case .googleMaps:
       self.transportationViewController(transportationViewController, didSelect: .ulbGoogleMaps)
-    case .bus, .car, .taxi, .plane, .train, .shuttle:
+    case .bus, .car, .taxi, .plane, .train:
       if let info = item.info {
         self.transportationViewController(transportationViewController, didSelect: item, info: info)
       } else {

@@ -2,7 +2,7 @@ import UIKit
 
 enum TransportationItem: String {
   case appleMaps, googleMaps
-  case bus, shuttle, train, car, plane, taxi
+  case bus, train, car, plane, taxi
 }
 
 enum TransportationSection: CaseIterable {
@@ -78,7 +78,7 @@ private extension TransportationSection {
   var items: [TransportationItem] {
     switch self {
     case .directions: [.appleMaps, .googleMaps]
-    case .by: [.bus, .shuttle, .train, .car, .plane, .taxi]
+    case .by: [.bus, .train, .car, .plane, .taxi]
     }
   }
 }
@@ -90,8 +90,6 @@ extension TransportationItem {
       L10n.Transportation.Item.google
     case .appleMaps:
       L10n.Transportation.Item.apple
-    case .shuttle:
-      L10n.Transportation.Item.shuttle
     case .train:
       L10n.Transportation.Item.train
     case .plane:
@@ -117,8 +115,6 @@ extension TransportationItem {
       .plane
     case .train:
       .train
-    case .shuttle:
-      .shuttle
     case .appleMaps, .googleMaps:
       nil
     }
@@ -128,7 +124,7 @@ extension TransportationItem {
 private extension TransportationItem {
   var accessoryType: UITableViewCell.AccessoryType {
     switch self {
-    case .bus, .shuttle, .train, .car, .plane, .taxi:
+    case .bus, .train, .car, .plane, .taxi:
       .disclosureIndicator
     case .appleMaps, .googleMaps:
       .none

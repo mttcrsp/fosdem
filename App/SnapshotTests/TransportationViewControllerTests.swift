@@ -23,14 +23,14 @@ final class TransportationViewControllerTests: XCTestCase {
       }
     }
 
-    XCTAssertEqual(delegate.transportationViewControllerCallCount, 8)
+    XCTAssertEqual(delegate.transportationViewControllerCallCount, 7)
     XCTAssertEqual(
       delegate.transportationViewControllerArgValues.map(\.0),
       [TransportationViewController](repeating: transportationViewController, count: 8)
     )
     XCTAssertEqual(
       delegate.transportationViewControllerArgValues.map(\.1),
-      [.appleMaps, .googleMaps, .bus, .shuttle, .train, .car, .plane, .taxi]
+      [.appleMaps, .googleMaps, .bus, .train, .car, .plane, .taxi]
     )
   }
 }
