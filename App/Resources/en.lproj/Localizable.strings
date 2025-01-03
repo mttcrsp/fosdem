@@ -59,8 +59,6 @@
 
 // Title for a screen with the list of events that the user plans to attend to
 "agenda.title" = "Agenda";
-// A button that presents a list of events starting soon
-"agenda.soon" = "Starting soon";
 // A short message reporting that the user has no events he plans to attend to
 "agenda.empty.title" = "No favorite events";
 // A multiline instructional message specifying that events favorited by the user will appear in this screen
