@@ -228,8 +228,6 @@
 "transportation.item.google" = "Open in Google Maps";
 // A button that presents a screen with information on how to get to the conference by bus and/or tram
 "transportation.item.bus" = "By bus and/or tram";
-// A button that presents a screen with information on how to get to the conference using free shuttle busses
-"transportation.item.shuttle" = "Free shuttle buses";
 // A button that presents a screen with information on how to get to the conference by traing
 "transportation.item.train" = "By train";
 // A button that presents a screen with information on how to get to the conference by car
