@@ -268,7 +268,7 @@ private extension Event {
       throw Error(element: "day date", value: dateRawValue)
     }
 
-    let calendar = Calendar.autoupdatingCurrent
+    let calendar = Calendar.gregorian
     var components = calendar.dateComponents([.day, .month, .year], from: dateWithoutTime)
     components.timeZone = TimeZone(identifier: "Europe/Brussels")
     components.minute = startMinute
