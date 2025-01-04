@@ -25,10 +25,17 @@ extension Event {
   }
 
   func isLive(at timestamp: Date) -> Bool {
-    let calendar = Calendar.gregorian
+    hasStarted(by: timestamp) && !hasEnded(by: timestamp)
+  }
+  
+  func hasStarted(by timestamp: Date) -> Bool {
     let lowerbound = date
-    let upperbound = calendar.date(byAdding: duration, to: date) ?? .distantPast
-    return lowerbound < timestamp && timestamp < upperbound
+    return timestamp >= lowerbound
+  }
+
+  func hasEnded(by timestamp: Date) -> Bool {
+    let upperbound = Calendar.gregorian.date(byAdding: duration, to: date) ?? .distantPast
+    return timestamp >= upperbound
   }
 
   func isSameDay(as date: Date) -> Bool {
