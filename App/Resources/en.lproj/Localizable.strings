@@ -63,6 +63,10 @@
 "agenda.empty.title" = "No favorite events";
 // A multiline instructional message specifying that events favorited by the user will appear in this screen
 "agenda.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
+// A button that hides events that have already ended
+"agenda.filter.accessibility.on" = "Toggle hide ended events on";
+// A button that shows events that have already ended
+"agenda.filter.accessibility.off" = "Toggle hide ended events off";
 
 /// MARK: - Soon
 

@@ -7,12 +7,18 @@ final class AgendaController: UIViewController {
 
   private weak var agendaViewController: EventsViewController?
   private weak var eventViewController: UIViewController?
+  private weak var filterButton: UIBarButtonItem?
 
   private weak var rootViewController: UIViewController? {
     didSet { didChangeRootViewController(from: oldValue, to: rootViewController) }
   }
 
+  private var events: [Event] = []
   private var observations: [NSObjectProtocol] = []
+  private var shouldFilterEvents: Bool {
+    get { UserDefaults.standard.shouldFilterEvents }
+    set { UserDefaults.standard.shouldFilterEvents = newValue }
+  }
 
   private let dependencies: Dependencies
 
@@ -45,7 +51,10 @@ final class AgendaController: UIViewController {
         self?.reloadFavoriteEvents(animated: true)
       },
       dependencies.timeService.addObserver { [weak self] in
-        self?.reloadLiveStatus()
+        guard let self else { return }
+        reloadLiveStatus()
+        reloadFilterButton()
+        reloadEvents(animated: true)
       },
     ]
   }
@@ -59,8 +68,22 @@ final class AgendaController: UIViewController {
 }
 
 private extension AgendaController {
+  /// You cannot filter events if filtering would not hide any event or it would
+  /// hide all events.
+  private var canFilterEvents: Bool {
+    guard let firstEvent = events.first, let lastEvent = events.last else { return false }
+    return
+      firstEvent.hasEnded(by: dependencies.timeService.now) &&
+      !lastEvent.hasEnded(by: dependencies.timeService.now)
+  }
+
+  private var filteredEvents: [Event] {
+    guard canFilterEvents, shouldFilterEvents else { return events }
+    return events.filter { !$0.hasEnded(by: dependencies.timeService.now) }
+  }
+
   func preselectFirstEvent() {
-    if let event = agendaViewController?.events.first, traitCollection.horizontalSizeClass == .regular {
+    if let event = filteredEvents.first, traitCollection.horizontalSizeClass == .regular {
       let eventViewController = makeEventViewController(for: event)
       let navigationController = UINavigationController(rootViewController: eventViewController)
       agendaViewController?.showDetailViewController(navigationController, sender: nil)
@@ -70,6 +93,36 @@ private extension AgendaController {
 
   func reloadLiveStatus() {
     agendaViewController?.reloadLiveStatus()
+  }
+
+  func reloadEvents(animated: Bool) {
+    agendaViewController?.setEvents(filteredEvents, animatingDifferences: animated)
+  }
+
+  func reloadFilterButton() {
+    guard canFilterEvents else {
+      agendaViewController?.navigationItem.rightBarButtonItem = nil
+      return
+    }
+
+    if filterButton == nil {
+      let filterAction = #selector(didTapFilter)
+      let filterButton = UIBarButtonItem(image: nil, style: .plain, target: self, action: filterAction)
+      self.filterButton = filterButton
+      agendaViewController?.navigationItem.rightBarButtonItem = filterButton
+    }
+
+    filterButton?.image = shouldFilterEvents
+      ? UIImage(systemName: "line.3.horizontal.decrease.circle.fill")
+      : UIImage(systemName: "line.3.horizontal.decrease.circle")
+    filterButton?.accessibilityLabel = shouldFilterEvents
+      ? L10n.Agenda.Filter.Accessibility.on
+      : L10n.Agenda.Filter.Accessibility.off
+    if shouldFilterEvents {
+      filterButton?.accessibilityTraits.remove(.selected)
+    } else {
+      filterButton?.accessibilityTraits.insert(.selected)
+    }
   }
 
   func reloadFavoriteEvents(animated: Bool) {
@@ -102,7 +155,7 @@ private extension AgendaController {
   }
 
   private func loadingDidSucceed(with events: [Event], animated: Bool) {
-    agendaViewController?.setEvents(events, animatingDifferences: animated)
+    self.events = events
 
     var didDeleteSelectedEvent = false
     if let selectedEventID = eventViewController?.fos_eventID, !events.contains(where: { event in event.id == selectedEventID }) {
@@ -112,6 +165,9 @@ private extension AgendaController {
     if didDeleteSelectedEvent || isMissingSecondaryViewController {
       preselectFirstEvent()
     }
+
+    reloadFilterButton()
+    reloadEvents(animated: animated)
   }
 
   func didChangeRootViewController(from oldViewController: UIViewController?, to newViewController: UIViewController?) {
@@ -173,6 +229,12 @@ extension AgendaController: EventsViewControllerLiveDataSource {
 }
 
 private extension AgendaController {
+  @objc private func didTapFilter() {
+    shouldFilterEvents.toggle()
+    reloadFilterButton()
+    reloadEvents(animated: true)
+  }
+
   func makeAgendaNavigationController() -> UINavigationController {
     let agendaViewController = EventsViewController(style: .grouped)
     agendaViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
@@ -204,5 +266,14 @@ private extension UIViewController {
   var fos_eventID: Int? {
     get { objc_getAssociatedObject(self, &UIViewController.eventIDKey) as? Int }
     set { objc_setAssociatedObject(self, &UIViewController.eventIDKey, newValue as Int?, .OBJC_ASSOCIATION_COPY_NONATOMIC) }
+  }
+}
+
+private extension UserDefaults {
+  private static let shouldFilterEventsKey = "com.mttcrsp.fosdem.shouldFilterEventsKey"
+
+  var shouldFilterEvents: Bool {
+    set { set(newValue, forKey: Self.shouldFilterEventsKey) }
+    get { object(forKey: Self.shouldFilterEventsKey) != nil ? bool(forKey: Self.shouldFilterEventsKey) : true }
   }
 }
