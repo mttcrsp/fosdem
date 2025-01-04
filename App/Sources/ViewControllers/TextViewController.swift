@@ -21,6 +21,7 @@ class TextViewController: UIViewController {
     super.viewDidLoad()
     textView.isEditable = false
     textView.backgroundColor = .systemGroupedBackground
+    textView.adjustsFontForContentSizeCategory = true
   }
 
   override func viewDidLayoutSubviews() {
