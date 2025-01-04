@@ -13,11 +13,25 @@ final class MapControlsView: UIView {
     didSet { didChangeAuthorizationStatus() }
   }
 
+  private let backgroundShadowView = UIView()
+  private let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
   private let resetButton = MapControlView()
   private let locationButton = MapControlView()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
+
+    backgroundShadowView.translatesAutoresizingMaskIntoConstraints = false
+    backgroundShadowView.layer.shadowRadius = 12
+    backgroundShadowView.layer.shadowOpacity = 0.3
+    backgroundShadowView.layer.shadowOffset = .zero
+    backgroundShadowView.layer.shadowColor = UIColor.black.cgColor
+    addSubview(backgroundShadowView)
+
+    backgroundView.translatesAutoresizingMaskIntoConstraints = false
+    backgroundView.layer.cornerRadius = 8
+    backgroundView.layer.masksToBounds = true
+    addSubview(backgroundView)
 
     locationButton.title = authorizationStatus.title
     locationButton.image = CLAuthorizationStatus.notDetermined.image
@@ -32,19 +46,9 @@ final class MapControlsView: UIView {
     resetButton.title = L10n.Map.reset
 
     let separatorView = UIView()
-    separatorView.backgroundColor = .separator
+    separatorView.backgroundColor = .label.withAlphaComponent(0.3)
 
-    let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
-    backgroundView.translatesAutoresizingMaskIntoConstraints = false
-    backgroundView.layer.cornerRadius = 8
-    backgroundView.layer.shadowRadius = 8
-    backgroundView.layer.shadowOpacity = 0.2
-    backgroundView.layer.shadowOffset = .zero
-    backgroundView.layer.masksToBounds = true
-    backgroundView.layer.shadowColor = UIColor.black.cgColor
-    addSubview(backgroundView)
-
-    let stackView = UIStackView(arrangedSubviews: [locationButton, separatorView, resetButton])
+    let stackView = UIStackView(arrangedSubviews: [resetButton, separatorView, locationButton])
     stackView.translatesAutoresizingMaskIntoConstraints = false
     stackView.axis = .vertical
     addSubview(stackView)
@@ -57,6 +61,11 @@ final class MapControlsView: UIView {
       backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
       backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
 
+      backgroundShadowView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
+      backgroundShadowView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
+      backgroundShadowView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),
+      backgroundShadowView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor),
+
       stackView.topAnchor.constraint(equalTo: topAnchor),
       stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
       stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -67,6 +76,14 @@ final class MapControlsView: UIView {
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    backgroundShadowView.layer.shadowPath = UIBezierPath(
+      roundedRect: backgroundView.bounds,
+      cornerRadius: backgroundView.layer.cornerRadius
+    ).cgPath
   }
 
   @objc private func didTapReset() {
