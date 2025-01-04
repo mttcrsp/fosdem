@@ -164,7 +164,7 @@ final class EventView: UIStackView {
       addArrangedSubview(summaryLabel)
     }
 
-    if let abstract = event.formattedAbstract {
+    if let abstract = event.abstract, let abstractNode = HTMLParser().parse(abstract), let attributedAbstract = HTMLRenderer().render(abstractNode) {
       let separatorView = UIView()
       separatorView.backgroundColor = .separator
       addArrangedSubview(separatorView)
@@ -181,12 +181,13 @@ final class EventView: UIStackView {
       subtitleLabel.text = event.subtitle ?? L10n.Event.abstract
       addArrangedSubview(subtitleLabel)
 
-      let abstractLabel = UILabel()
-      abstractLabel.font = .fos_preferredFont(forTextStyle: .body)
-      abstractLabel.adjustsFontForContentSizeCategory = true
-      abstractLabel.numberOfLines = 0
-      abstractLabel.text = abstract
-      addArrangedSubview(abstractLabel)
+      let abstractView = UITextView()
+      abstractView.isScrollEnabled = false
+      abstractView.isEditable = false
+      abstractView.textContainer.lineFragmentPadding = 0
+      abstractView.adjustsFontForContentSizeCategory = true
+      abstractView.attributedText = attributedAbstract
+      addArrangedSubview(abstractView)
     }
 
     let groups: [EventAdditionsGroup] = [

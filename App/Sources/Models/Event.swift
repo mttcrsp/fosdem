@@ -78,18 +78,6 @@ extension Event {
     TrackFormatter().formattedName(from: track)
   }
 
-  #if os(iOS)
-  var formattedAbstract: String? {
-    guard let abstract, let html = abstract.data(using: .utf8), let attributedString = try? NSAttributedString.fromHTML(html) else { return nil }
-
-    var string = attributedString.string
-    string = string.trimmingCharacters(in: .whitespacesAndNewlines)
-    string = string.replacingOccurrences(of: "\t", with: " ")
-    string = string.replacingOccurrences(of: "\n", with: "\n\n")
-    return string
-  }
-  #endif
-
   var formattedSummary: String? {
     var string = summary
     string = string?.replacingOccurrences(of: "\t", with: " ")
