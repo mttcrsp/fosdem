@@ -22,6 +22,7 @@ class TextViewController: UIViewController {
     textView.isEditable = false
     textView.backgroundColor = .systemGroupedBackground
     textView.adjustsFontForContentSizeCategory = true
+    textView.textContainer.lineFragmentPadding = 0
   }
 
   override func viewDidLayoutSubviews() {
