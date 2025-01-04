@@ -28,7 +28,7 @@ final class MoreController: UISplitViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    let moreViewController = MoreViewController(style: .grouped)
+    let moreViewController = MoreViewController(style: .insetGrouped)
     moreViewController.title = L10n.More.title
     moreViewController.delegate = self
     self.moreViewController = moreViewController
