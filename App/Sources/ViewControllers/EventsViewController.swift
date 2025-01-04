@@ -197,24 +197,19 @@ private extension UITableViewCell {
   }
 
   var showsLiveIndicator: Bool {
-    get {
-      imageView?.image == .liveIndicator
-    }
+    get { imageView?.image == .live }
     set {
-      imageView?.image = newValue ? .liveIndicator : nil
+      imageView?.image = newValue ? .live : nil
+      imageView?.tintColor = .systemRed
       imageView?.accessibilityIdentifier = newValue ? "live" : nil
+      if #available(iOS 17.0, *) {
+        imageView?.addSymbolEffect(.pulse)
+      }
     }
   }
 }
 
 private extension UIImage {
-  static let liveIndicator: UIImage = {
-    let size = CGSize(width: 12, height: 12)
-    let rect = CGRect(origin: .zero, size: size)
-    let render = UIGraphicsImageRenderer(bounds: rect)
-    return render.image { context in
-      context.cgContext.setFillColor(UIColor.systemRed.cgColor)
-      UIBezierPath(ovalIn: rect).fill()
-    }
-  }()
+  static let live = UIImage(systemName: "circle.fill")?
+    .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12))
 }
