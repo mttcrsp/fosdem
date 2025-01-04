@@ -7,6 +7,11 @@ enum Info: String {
 }
 
 final class InfoService {
+  enum Error: CustomNSError {
+    case htmlParsingFailed
+    case htmlRenderingFailed
+  }
+  
   private let queue: DispatchQueue
   private let bundleService: InfoServiceBundle
 
@@ -15,46 +20,19 @@ final class InfoService {
     self.queue = queue
   }
 
-  func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Error>) -> Void) {
+  func loadAttributedText(for info: Info, completion: @escaping (Result<NSAttributedString, Swift.Error>) -> Void) {
     queue.async { [weak self] in
+      guard let self else { return }
+
       do {
-        guard let self else { return }
-
-        let attributedData = try bundleService.data(forResource: info.resource, withExtension: "html")
-        let attributedText = try NSMutableAttributedString.fromHTML(attributedData) as NSMutableAttributedString
-
-        let string = attributedText.string
-        let lowerbound = string.startIndex
-        let upperbound = string.endIndex
-        let range = NSRange(lowerbound ..< upperbound, in: string)
-
-        var boldRanges: [NSRange] = []
-        var linkRanges: [NSRange] = []
-
-        attributedText.enumerateAttributes(in: range) { attributes, range, _ in
-          if attributes.containsLinkAttribute {
-            linkRanges.append(range)
-          } else if attributes.containsBoldAttribute {
-            boldRanges.append(range)
-          }
-        }
-
-        let boldFont = UIFont.fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitBold)
-        let bodyFont = UIFont.fos_preferredFont(forTextStyle: .body)
-
-        attributedText.addAttribute(.font, value: bodyFont, range: range)
-        attributedText.addAttribute(.foregroundColor, value: UIColor.label, range: range)
-
-        for range in boldRanges {
-          attributedText.removeAttribute(.font, range: range)
-          attributedText.addAttribute(.font, value: boldFont, range: range)
-        }
-
-        for range in linkRanges {
-          attributedText.removeAttribute(.font, range: range)
-          attributedText.addAttribute(.font, value: bodyFont, range: range)
-        }
-
+        let data = try bundleService.data(forResource: info.resource, withExtension: "html")
+        
+        guard let html = HTMLParser().parse(String(decoding: data, as: UTF8.self))
+        else { throw Error.htmlParsingFailed }
+        
+        guard let attributedText = HTMLRenderer().render(html)
+        else { throw Error.htmlRenderingFailed }
+        
         completion(.success(attributedText))
       } catch {
         completion(.failure(error))
