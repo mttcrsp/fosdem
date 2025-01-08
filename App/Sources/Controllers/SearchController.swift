@@ -68,7 +68,6 @@ final class SearchController: UISplitViewController {
     tracksViewController.favoritesDelegate = self
     tracksViewController.indexDataSource = self
     tracksViewController.indexDelegate = self
-    tracksViewController.dataSource = self
     tracksViewController.delegate = self
     self.tracksViewController = tracksViewController
 
@@ -80,56 +79,17 @@ final class SearchController: UISplitViewController {
       viewControllers.append(makeWelcomeViewController())
     }
 
-    reloadTracks()
+    reloadTracks(animated: false)
     observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
-      self?.reloadTracks()
+      self?.reloadTracks(animated: true)
     }
   }
 
-  private func reloadTracks() {
+  private func reloadTracks(animated: Bool) {
     dependencies.tracksService.loadConfiguration { [weak self] tracksConfiguration in
-      self?.tracksLoadingDidSucceed(tracksConfiguration)
-    }
-  }
-
-  private func tracksLoadingDidSucceed(_ tracksConfiguration: TracksConfiguration) {
-    guard let currentTracksConfiguration = self.tracksConfiguration else {
+      guard let self else { return }
       self.tracksConfiguration = tracksConfiguration
-      tracksViewController?.reloadData()
-      return
-    }
-
-    let oldNonFavoriteTracks = currentTracksConfiguration.filteredTracks[selectedFilter]?.map(\.name) ?? []
-    let newNonFavoriteTracks = tracksConfiguration.filteredTracks[selectedFilter]?.map(\.name) ?? []
-    guard oldNonFavoriteTracks == newNonFavoriteTracks else {
-      self.tracksConfiguration = tracksConfiguration
-      tracksViewController?.reloadData()
-      return
-    }
-
-    var oldIdentifiers = currentTracksConfiguration.filteredFavoriteTracks[selectedFilter]?.map(\.name) ?? []
-    let newIdentifiers = tracksConfiguration.filteredFavoriteTracks[selectedFilter]?.map(\.name) ?? []
-    let deletesIdentifiers = Set(oldIdentifiers).subtracting(Set(newIdentifiers))
-    let insertsIdentifiers = Set(newIdentifiers).subtracting(Set(oldIdentifiers))
-
-    tracksViewController?.performBatchUpdates {
-      switch (oldIdentifiers.isEmpty, newIdentifiers.isEmpty) {
-      case (true, false): tracksViewController?.insertFavoritesSection()
-      case (false, true): tracksViewController?.deleteFavoritesSection()
-      default: break
-      }
-
-      for (index, track) in oldIdentifiers.enumerated().reversed() where deletesIdentifiers.contains(track) {
-        tracksViewController?.deleteFavorite(at: index)
-        oldIdentifiers.remove(at: index)
-      }
-
-      for (index, track) in newIdentifiers.enumerated() where insertsIdentifiers.contains(track) {
-        tracksViewController?.insertFavorite(at: index)
-        oldIdentifiers.insert(track, at: index)
-      }
-
-      self.tracksConfiguration = tracksConfiguration
+      self.tracksViewController?.setSections(tracksSections, animatingDifferences: animated)
     }
   }
 }
@@ -145,7 +105,7 @@ extension SearchController: UISplitViewControllerDelegate {
   }
 }
 
-extension SearchController: TracksViewControllerDataSource, TracksViewControllerDelegate {
+extension SearchController: TracksViewControllerDelegate {
   private var filteredTracks: [Track] {
     tracksConfiguration?.filteredTracks[selectedFilter] ?? []
   }
@@ -158,28 +118,25 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     !filteredFavoriteTracks.isEmpty
   }
 
-  private func isFavoriteSection(_ section: Int) -> Bool {
-    section == 0 && hasFavoriteTracks
-  }
-
-  func numberOfSections(in _: TracksViewController) -> Int {
-    hasFavoriteTracks ? 2 : 1
-  }
-
-  func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? L10n.Search.Filter.favorites : selectedFilter.title
-  }
-
-  func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? "favorites" : selectedFilter.accessibilityIdentifier
-  }
-
-  func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
-    isFavoriteSection(section) ? filteredFavoriteTracks.count : filteredTracks.count
-  }
-
-  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    isFavoriteSection(indexPath.section) ? filteredFavoriteTracks[indexPath.row] : filteredTracks[indexPath.row]
+  var tracksSections: [TracksSection] {
+    var sections: [TracksSection] = []
+    if hasFavoriteTracks {
+      sections.append(
+        .init(
+          title: L10n.Search.Filter.favorites,
+          accessibilityIdentifier: "favorites",
+          tracks: filteredFavoriteTracks
+        )
+      )
+    }
+    sections.append(
+      .init(
+        title: selectedFilter.title,
+        accessibilityIdentifier: selectedFilter.accessibilityIdentifier,
+        tracks: filteredTracks
+      )
+    )
+    return sections
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
@@ -217,8 +174,9 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     let filters = tracksConfiguration?.filters ?? []
     for filter in filters where filter != selectedFilter {
       let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in
-        self?.selectedFilter = filter
-        self?.tracksViewController?.reloadData()
+        guard let self else { return }
+        self.selectedFilter = filter
+        self.tracksViewController?.setSections(tracksSections, animatingDifferences: false)
       }
       let action = UIAlertAction(title: filter.title, style: .default, handler: actionHandler)
       alertController.addAction(action)
