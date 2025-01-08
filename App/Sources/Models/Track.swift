@@ -10,12 +10,6 @@ extension Track: Equatable {
   }
 }
 
-extension Track: Hashable {
-  func hash(into hasher: inout Hasher) {
-    hasher.combine(name)
-  }
-}
-
 extension Track {
   var formattedName: String {
     TrackFormatter().formattedName(from: name)
