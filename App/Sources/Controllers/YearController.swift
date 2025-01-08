@@ -9,7 +9,6 @@ final class YearController: TracksViewController {
   private weak var eventsViewController: EventsViewController?
   private var searchController: UISearchController?
 
-  private var tracks: [Track] = []
   private var events: [Event] = []
   var results: [Event] = []
 
@@ -33,7 +32,6 @@ final class YearController: TracksViewController {
     view.backgroundColor = .systemGroupedBackground
 
     delegate = self
-    dataSource = self
     definesPresentationContext = true
 
     let resultsViewController = EventsViewController(style: .grouped)
@@ -54,27 +52,14 @@ final class YearController: TracksViewController {
         case let .failure(error):
           self.didError?(self, error)
         case let .success(tracks):
-          self.tracks = tracks
-          self.reloadData()
+          self.setSections([.init(tracks: tracks)])
         }
       }
     }
   }
 }
 
-extension YearController: TracksViewControllerDataSource, TracksViewControllerDelegate {
-  func numberOfSections(in _: TracksViewController) -> Int {
-    1
-  }
-
-  func tracksViewController(_: TracksViewController, numberOfTracksIn _: Int) -> Int {
-    tracks.count
-  }
-
-  func tracksViewController(_: TracksViewController, trackAt indexPath: IndexPath) -> Track {
-    tracks[indexPath.row]
-  }
-
+extension YearController: TracksViewControllerDelegate {
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
     let eventsViewController = EventsViewController(style: .grouped)
     eventsViewController.title = track.formattedName
