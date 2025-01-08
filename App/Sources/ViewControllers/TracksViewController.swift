@@ -54,50 +54,17 @@ class TracksViewController: UITableViewController {
   weak var favoritesDataSource: TracksViewControllerFavoritesDataSource?
   weak var favoritesDelegate: TracksViewControllerFavoritesDelegate?
   private lazy var feedbackGenerator = UISelectionFeedbackGenerator()
-  private var diffableDataSource: TracksDiffableDataSource?
-
-  func setSections(_ models: [TracksSection], animatingDifferences: Bool = false) {
-    var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
-    for model in models {
-      let section = Section(title: model.title, accessibilityIdentifier: model.accessibilityIdentifier)
-      let items = model.tracks.map { track in
-        Item(track: track, sectionAccessibilityIdentifier: model.accessibilityIdentifier)
-      }
-
-      snapshot.appendSections([section])
-      snapshot.appendItems(items, toSection: section)
-    }
-
-    diffableDataSource?.apply(snapshot, animatingDifferences: animatingDifferences)
-  }
-
-  func scrollToRow(at indexPath: IndexPath, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {
-    tableView.scrollToRow(at: indexPath, at: scrollPosition, animated: animated)
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    tableView.tableFooterView = UIView()
-    tableView.estimatedRowHeight = 44
-    tableView.estimatedSectionHeaderHeight = 44
-    tableView.accessibilityIdentifier = "tracks"
-    tableView.rowHeight = UITableView.automaticDimension
-    tableView.sectionHeaderHeight = UITableView.automaticDimension
-    tableView.showsVerticalScrollIndicator = indexDataSource == nil
-    tableView.sectionHeaderHeight = indexDataSource == nil ? 0 : UITableView.automaticDimension
-    tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
-    tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
-
-    diffableDataSource = .init(tableView: tableView) { tableView, indexPath, item in
+  private lazy var diffableDataSource: TracksDiffableDataSource = {
+    let diffableDataSource = TracksDiffableDataSource(tableView: tableView) { tableView, indexPath, item in
       let cell = tableView.dequeueReusableCell(withIdentifier: UITableViewCell.reuseIdentifier, for: indexPath)
       cell.configure(with: item.track)
       return cell
     }
-    diffableDataSource?.sectionIndexTitles = { [weak self] _ in
+    diffableDataSource.sectionIndexTitles = { [weak self] _ in
       guard let self else { return nil }
       return indexDataSource?.sectionIndexTitles(in: self)
     }
-    diffableDataSource?.sectionForSectionIndexTitle = { [weak self] _, _, index in
+    diffableDataSource.sectionForSectionIndexTitle = { [weak self] _, _, index in
       guard let self else { return 0 }
 
       // HACK: UITableView only supports using section index titles pointing
@@ -128,10 +95,45 @@ class TracksViewController: UITableViewController {
 
       return 0
     }
+
+    return diffableDataSource
+  }()
+
+  func setSections(_ models: [TracksSection], animatingDifferences: Bool = false) {
+    var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+    for model in models {
+      let section = Section(title: model.title, accessibilityIdentifier: model.accessibilityIdentifier)
+      let items = model.tracks.map { track in
+        Item(track: track, sectionAccessibilityIdentifier: model.accessibilityIdentifier)
+      }
+
+      snapshot.appendSections([section])
+      snapshot.appendItems(items, toSection: section)
+    }
+
+    diffableDataSource.apply(snapshot, animatingDifferences: animatingDifferences)
+  }
+
+  func scrollToRow(at indexPath: IndexPath, at scrollPosition: UITableView.ScrollPosition, animated: Bool) {
+    tableView.scrollToRow(at: indexPath, at: scrollPosition, animated: animated)
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    tableView.tableFooterView = UIView()
+    tableView.estimatedRowHeight = 44
+    tableView.estimatedSectionHeaderHeight = 44
+    tableView.accessibilityIdentifier = "tracks"
+    tableView.rowHeight = UITableView.automaticDimension
+    tableView.sectionHeaderHeight = UITableView.automaticDimension
+    tableView.showsVerticalScrollIndicator = indexDataSource == nil
+    tableView.sectionHeaderHeight = indexDataSource == nil ? 0 : UITableView.automaticDimension
+    tableView.register(UITableViewCell.self, forCellReuseIdentifier: UITableViewCell.reuseIdentifier)
+    tableView.register(LabelTableHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: LabelTableHeaderFooterView.reuseIdentifier)
   }
 
   override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-    guard let section = diffableDataSource?.snapshot().sectionIdentifiers[section] else { return nil }
+    guard let section = diffableDataSource.sectionIdentifier(for: section) else { return nil }
     let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: LabelTableHeaderFooterView.reuseIdentifier) as! LabelTableHeaderFooterView
     view.accessibilityIdentifier = section.accessibilityIdentifier
     view.text = section.title
@@ -184,7 +186,7 @@ class TracksViewController: UITableViewController {
   }
 
   private func track(at indexPath: IndexPath) -> Track? {
-    diffableDataSource?.itemIdentifier(for: indexPath)?.track
+    diffableDataSource.itemIdentifier(for: indexPath)?.track
   }
 }
 
