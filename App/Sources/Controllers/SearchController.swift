@@ -3,15 +3,19 @@ import UIKit
 final class SearchController: UISplitViewController {
   typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTracksService & HasYearsService
 
-  private(set) weak var resultsViewController: EventsViewController?
-  private weak var tracksViewController: TracksViewController?
-  private weak var searchController: UISearchController?
-  private weak var filtersButton: UIBarButtonItem?
+  private var selectedFilter: TracksFilter = .all {
+    didSet { reloadFilterButton() }
+  }
+
+  private var tracksConfiguration: TracksConfiguration? {
+    didSet { reloadFilterButton() }
+  }
 
   var results: [Event] = []
 
-  private var selectedFilter: TracksFilter = .all
-  private var tracksConfiguration: TracksConfiguration?
+  private(set) weak var resultsViewController: EventsViewController?
+  private weak var tracksViewController: TracksViewController?
+  private weak var searchController: UISearchController?
   private var observer: NSObjectProtocol?
 
   private let dependencies: Dependencies
@@ -41,12 +45,6 @@ final class SearchController: UISplitViewController {
 
     delegate = self
 
-    let filtersTitle = L10n.Search.Filter.title
-    let filtersAction = #selector(didTapChangeFilter)
-    let filtersButton = UIBarButtonItem(title: filtersTitle, style: .plain, target: self, action: filtersAction)
-    filtersButton.accessibilityIdentifier = "filters"
-    self.filtersButton = filtersButton
-
     let resultsViewController = EventsViewController(style: .grouped)
     resultsViewController.favoritesDataSource = self
     resultsViewController.favoritesDelegate = self
@@ -60,7 +58,6 @@ final class SearchController: UISplitViewController {
 
     let tracksViewController = TracksViewController(style: .insetGrouped)
     tracksViewController.title = L10n.Search.title
-    tracksViewController.navigationItem.rightBarButtonItem = filtersButton
     tracksViewController.navigationItem.largeTitleDisplayMode = .always
     tracksViewController.addSearchViewController(searchController)
     tracksViewController.definesPresentationContext = true
@@ -208,28 +205,6 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
     let availableWidth = view.bounds.size.width - view.layoutMargins.left - view.layoutMargins.right - 32
     return preferredWidth < availableWidth ? .always : .never
   }
-
-  @objc private func didTapChangeFilter() {
-    let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-    alertController.popoverPresentationController?.barButtonItem = filtersButton
-    alertController.view.accessibilityIdentifier = "filters"
-
-    let filters = tracksConfiguration?.filters ?? []
-    for filter in filters where filter != selectedFilter {
-      let actionHandler: (UIAlertAction) -> Void = { [weak self] _ in
-        self?.selectedFilter = filter
-        self?.tracksViewController?.reloadData()
-      }
-      let action = UIAlertAction(title: filter.title, style: .default, handler: actionHandler)
-      alertController.addAction(action)
-    }
-
-    let cancelTitle = L10n.Search.Filter.cancel
-    let cancelAction = UIAlertAction(title: cancelTitle, style: .cancel)
-    alertController.addAction(cancelAction)
-
-    tracksViewController?.present(alertController, animated: true)
-  }
 }
 
 extension SearchController: TracksViewControllerIndexDataSource, TracksViewControllerIndexDelegate {
@@ -308,6 +283,31 @@ extension SearchController: UISearchResultsUpdating, EventsSearchController {
 }
 
 private extension SearchController {
+  private func reloadFilterButton() {
+    var item: UIBarButtonItem?
+    if let tracksConfiguration {
+      item = UIBarButtonItem(
+        title: L10n.Search.Filter.title,
+        image: UIImage(systemName: "line.3.horizontal.decrease"),
+        menu: UIMenu(
+          title: L10n.Search.Filter.Menu.title,
+          children: tracksConfiguration.filters.map { filter in
+            UIAction(
+              title: filter.action,
+              state: filter == selectedFilter ? .on : .off,
+              handler: { [weak self] _ in
+                guard self?.selectedFilter != filter else { return }
+                self?.selectedFilter = filter
+                self?.tracksViewController?.reloadData()
+              }
+            )
+          })
+      )
+    }
+
+    tracksViewController?.navigationItem.rightBarButtonItem = item
+  }
+
   func makeWelcomeViewController() -> WelcomeViewController {
     WelcomeViewController(year: type(of: dependencies.yearsService).current)
   }

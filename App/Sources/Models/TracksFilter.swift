@@ -27,6 +27,15 @@ extension TracksFilter {
     }
   }
 
+  var action: String {
+    switch self {
+    case .all:
+      L10n.Search.Filter.Menu.Action.all
+    case let .day(day):
+      L10n.Search.Filter.Menu.Action.day(day)
+    }
+  }
+
   var accessibilityIdentifier: String {
     switch self {
     case .all:
