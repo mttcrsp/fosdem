@@ -182,6 +182,7 @@ final class EventView: UIStackView {
       addArrangedSubview(subtitleLabel)
 
       let abstractView = UITextView()
+      abstractView.backgroundColor = .clear
       abstractView.isScrollEnabled = false
       abstractView.isEditable = false
       abstractView.textContainer.lineFragmentPadding = 0
