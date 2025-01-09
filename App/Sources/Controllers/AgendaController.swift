@@ -7,7 +7,6 @@ final class AgendaController: UIViewController {
 
   private weak var agendaViewController: EventsViewController?
   private weak var eventViewController: UIViewController?
-  private weak var filterButton: UIBarButtonItem?
 
   private weak var rootViewController: UIViewController? {
     didSet { didChangeRootViewController(from: oldValue, to: rootViewController) }
@@ -100,29 +99,31 @@ private extension AgendaController {
   }
 
   func reloadFilterButton() {
-    guard canFilterEvents else {
-      agendaViewController?.navigationItem.rightBarButtonItem = nil
-      return
+    var item: UIBarButtonItem?
+    if canFilterEvents {
+      item = UIBarButtonItem(
+        title: L10n.Agenda.Filter.title,
+        image: UIImage(systemName: "line.3.horizontal.decrease"),
+        menu: UIMenu(children: [false, true].map { shouldFilterEvents in
+          UIAction(
+            title: shouldFilterEvents
+              ? L10n.Agenda.Filter.Menu.Action.upcoming
+              : L10n.Agenda.Filter.Menu.Action.all,
+            state: shouldFilterEvents == self.shouldFilterEvents
+              ? .on : .off,
+            handler: { [weak self] _ in
+              self?.didToggleFilter(shouldFilterEvents)
+            }
+          )
+        })
+      )
+      item?.accessibilityHint =
+        shouldFilterEvents
+          ? L10n.Agenda.Filter.Accessibility.hint
+          : nil
     }
 
-    if filterButton == nil {
-      let filterAction = #selector(didTapFilter)
-      let filterButton = UIBarButtonItem(image: nil, style: .plain, target: self, action: filterAction)
-      self.filterButton = filterButton
-      agendaViewController?.navigationItem.rightBarButtonItem = filterButton
-    }
-
-    filterButton?.image = shouldFilterEvents
-      ? UIImage(systemName: "line.3.horizontal.decrease.circle.fill")
-      : UIImage(systemName: "line.3.horizontal.decrease.circle")
-    filterButton?.accessibilityLabel = shouldFilterEvents
-      ? L10n.Agenda.Filter.Accessibility.on
-      : L10n.Agenda.Filter.Accessibility.off
-    if shouldFilterEvents {
-      filterButton?.accessibilityTraits.remove(.selected)
-    } else {
-      filterButton?.accessibilityTraits.insert(.selected)
-    }
+    agendaViewController?.navigationItem.rightBarButtonItem = item
   }
 
   func reloadFavoriteEvents(animated: Bool) {
@@ -229,8 +230,9 @@ extension AgendaController: EventsViewControllerLiveDataSource {
 }
 
 private extension AgendaController {
-  @objc private func didTapFilter() {
-    shouldFilterEvents.toggle()
+  private func didToggleFilter(_ shouldFilterEvents: Bool) {
+    guard self.shouldFilterEvents != shouldFilterEvents else { return }
+    self.shouldFilterEvents = shouldFilterEvents
     reloadFilterButton()
     reloadEvents(animated: true)
   }
@@ -274,6 +276,6 @@ private extension UserDefaults {
 
   var shouldFilterEvents: Bool {
     set { set(newValue, forKey: Self.shouldFilterEventsKey) }
-    get { object(forKey: Self.shouldFilterEventsKey) != nil ? bool(forKey: Self.shouldFilterEventsKey) : true }
+    get { bool(forKey: Self.shouldFilterEventsKey) }
   }
 }
