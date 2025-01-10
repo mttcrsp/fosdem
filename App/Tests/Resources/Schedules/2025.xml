@@ -285,6 +285,36 @@ Can Flang actually do that?&lt;/p&gt;</abstract>
         <links>
         </links>
       </event>
+      <event guid="d44a95d8-5ca8-5695-926d-9cf86826bd14" id="5456">
+        <date>2025-02-01T13:15:00+01:00</date>
+        <start>13:15</start>
+        <duration>00:25</duration>
+        <room>K.3.201</room>
+        <slug>fosdem-2025-5456-an-introduction-to-building-and-using-llvm-libc</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-5456-an-introduction-to-building-and-using-llvm-libc/</url>
+        <title>An introduction to building and using LLVM libc</title>
+        <subtitle></subtitle>
+        <track>LLVM</track>
+        <type>devroom</type>
+        <language>en</language>
+        <abstract>&lt;p&gt;LLVM libc has been steadily growing over the past few years. From its origins as an overlay to be used on top of an existing libc, LLVM libc is now complete enough and scalable enough to be used on embedded toolchains too.&lt;/p&gt;
+&lt;p&gt;This talk will contain:
+* LLVM libc's current status.
+* Why you might want to use LLVM libc. 
+* How to build it for linux and an embedded system.
+* How to use a prebuilt example from LLVM Embedded Toolchain for Arm.
+* Other uses including the Google Pigweed SDK.&lt;/p&gt;
+&lt;p&gt;LLVM libc in llvm-project https://github.com/llvm/llvm-project/tree/main/libc&lt;/p&gt;</abstract>
+        <description></description>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/7HBSAB/feedback/</feedback_url>
+        <persons>
+          <person id="1581">Peter Smith</person>
+        </persons>
+        <attachments>
+        </attachments>
+        <links>
+        </links>
+      </event>
       <event guid="fb4b20bd-28cf-57ae-8748-9758a77fd728" id="6644">
         <date>2025-02-01T13:45:00+01:00</date>
         <start>13:45</start>
@@ -639,18 +669,21 @@ Incremental LTO will be a new feature of GCC 15 which aims to reduce those compi
         <start>10:30</start>
         <duration>00:30</duration>
         <room>K.3.401</room>
-        <slug>fosdem-2025-4862-zero-downtime-vs-zero-data-loss-insights-from-large-scale-s3-migrations</slug>
-        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-4862-zero-downtime-vs-zero-data-loss-insights-from-large-scale-s3-migrations/</url>
-        <title>Zero Downtime vs. Zero Data Loss: Insights from Large-Scale S3 Migrations</title>
+        <slug>fosdem-2025-4862-declarative-object-storage-at-scale-integrating-rook-ceph-and-openstack</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-4862-declarative-object-storage-at-scale-integrating-rook-ceph-and-openstack/</url>
+        <title>Declarative Object Storage at Scale: Integrating Rook, Ceph, and OpenStack</title>
         <subtitle></subtitle>
         <track>Software Defined Storage</track>
         <type>devroom</type>
         <language>en</language>
-        <abstract>&lt;p&gt;Building upon previous work presented at FOSDEM, this talk provides updates on the Chorus project's advancements in large-scale S3 object storage migrations. We introduce key enhancements including the Chorus Agent, which enables proxy-free live migrations through bucket notifications, along with SWIFT API support and scheduled migrations. Drawing from real-world multi-petabyte migration experiences, we analyze two migration strategies through their disaster recovery metrics. The first achieves zero-downtime with optimal Recovery Time Objective (RTO) but variable Recovery Point Objective (RPO) during outages, while the second guarantees zero RPO at the cost of planned downtime. We present practical insights and recommendations for implementing large-scale S3 migrations while minimizing operational risks and disruptions.&lt;/p&gt;</abstract>
+        <abstract>&lt;p&gt;This talk outlines our journey in building a reproducible Ceph object storage setup that can be deployed across multiple regions with a single click, using an Configuration-as-Code approach with Rook. Our primary goal was to replace OpenStack Swift with Ceph RGW to achieve strictly consistent object storage while maintaining backward compatibility with existing OpenStack components such as Keystone and Barbican.&lt;/p&gt;
+&lt;p&gt;The good news? Many of these capabilities already existed in Ceph, albeit in varying states of readiness. However, not all of them were natively configurable in a declarative manner using Rook. This presentation will dive into the challenges we encountered while integrating Ceph, OpenStack, and Rook. We'll explore the gaps we identified, the features we developed or refined, and the current state of the ecosystem for those considering a similar path today.&lt;/p&gt;
+&lt;p&gt;Attendees will gain practical insights into building resilient object storage solutions and learn how to navigate the complexities of integrating Ceph into modern cloud-native and OpenStack environments.&lt;/p&gt;</abstract>
         <description></description>
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/FUJ3AC/feedback/</feedback_url>
         <persons>
           <person id="2841">Sirisha Guduru</person>
+          <person id="3721">Joachim Kraftmayer</person>
           <person id="4046">Artem Torubarov</person>
         </persons>
         <attachments>
@@ -681,6 +714,30 @@ Incremental LTO will be a new feature of GCC 15 which aims to reduce those compi
         </attachments>
         <links>
           <link href="https://github.com/ceph/ceph">Ceph repository</link>
+        </links>
+      </event>
+      <event guid="1a537aa5-3dfe-58b4-af8f-57ee854f5fc8" id="5929">
+        <date>2025-02-01T11:40:00+01:00</date>
+        <start>11:40</start>
+        <duration>00:30</duration>
+        <room>K.3.401</room>
+        <slug>fosdem-2025-5929-security-in-ceph-and-rook-recent-improvements</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-5929-security-in-ceph-and-rook-recent-improvements/</url>
+        <title>Security in Ceph and Rook, recent improvements</title>
+        <subtitle></subtitle>
+        <track>Software Defined Storage</track>
+        <type>devroom</type>
+        <language>en</language>
+        <abstract>&lt;p&gt;We explore the security model exposed by Rook with Ceph, the leading software-defined storage platform of the Open Source world. We discuss major updates within the past year to our threat model, dashboard, call home, and encryption, including work on TCMs, NVMe and exploration of open source post quantum encryption algorithms, within a major project. We discuss the challenges and benefits of promoting open source, and how to ensure we adhere to Executive Order 14028, and the challenges and rewards of dependency tracking and updating.&lt;/p&gt;</abstract>
+        <description></description>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/8XBTUB/feedback/</feedback_url>
+        <persons>
+          <person id="1912">Federico Lucifredi</person>
+          <person id="1989">Sage  McTaggart</person>
+        </persons>
+        <attachments>
+        </attachments>
+        <links>
         </links>
       </event>
       <event guid="bd7a69fb-a53c-5874-90d3-0065ebdc47a8" id="6460">
@@ -902,34 +959,6 @@ the &lt;a href="atlas.cern.ch"&gt;ATLAS&lt;/a&gt; and &lt;a href="cms.cern.ch"&g
         <attachments>
         </attachments>
         <links>
-        </links>
-      </event>
-      <event guid="0b3e0eb7-e52c-51c7-9285-99129d14d4c3" id="4385">
-        <date>2025-02-01T17:10:00+01:00</date>
-        <start>17:10</start>
-        <duration>00:30</duration>
-        <room>K.3.401</room>
-        <slug>fosdem-2025-4385-state-of-cephfs-three-easy-pieces</slug>
-        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-4385-state-of-cephfs-three-easy-pieces/</url>
-        <title>State of CephFS: Three Easy Pieces</title>
-        <subtitle></subtitle>
-        <track>Software Defined Storage</track>
-        <type>devroom</type>
-        <language>en</language>
-        <abstract>&lt;p&gt;This talk focusses on the current (and near future) state of the three pieces that make up a Ceph File System - Ceph Metadata Sever (MDS), Clients and a set of Ceph Manager Plugins. Much advancements have been made to the Ceph File System recently, opening up gateways for wider adoption. Some features are already available in recent releases and some are under development. We detail these enhancements by breaking up nicely into each of the three pieces. Ceph File System specific manager plugins have come a long way to now becoming the de-facto for subvolume/crash-consistent snapshot management and mirroring. We discuss about those. And finally, we peek into what is upcoming in CephFS for Tentacle ("T") release. Existing and new CephFS users would find it helpful to assess and plan ahead for its adoption.&lt;/p&gt;</abstract>
-        <description></description>
-        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/898UDH/feedback/</feedback_url>
-        <persons>
-          <person id="1987">Patrick Donnelly</person>
-          <person id="2339">Venky Shankar</person>
-        </persons>
-        <attachments>
-        </attachments>
-        <links>
-          <link href="https://github.com/ceph/ceph/">Ceph Github Repo</link>
-          <link href="https://docs.ceph.com/en/latest/cephfs/administration/">Ceph File System Administrative Guide</link>
-          <link href="https://docs.ceph.com/en/latest/cephfs/">Ceph File System Architecture</link>
-          <link href="https://pad.ceph.com/p/cephfs-tentacle">Ceph File System "Tentacle" Release Topics</link>
         </links>
       </event>
       <event guid="53d3a33d-bfa6-54fb-a496-716e5b8385da" id="6598">
@@ -4229,6 +4258,34 @@ and how the many BLE-enabled emulators and simulators provided by Zephyr can be 
           <link href="https://nextcloud.com/blog/nextcloud-hub8/">Nextcloud Hub 8 - so, so close!</link>
         </links>
       </event>
+      <event guid="e379dfd0-065c-5843-89f8-dc9281fd3c96" id="5094">
+        <date>2025-02-01T11:15:00+01:00</date>
+        <start>11:15</start>
+        <duration>00:25</duration>
+        <room>H.1308 (Rolin)</room>
+        <slug>fosdem-2025-5094-open-cloud-mesh</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-5094-open-cloud-mesh/</url>
+        <title>Open Cloud Mesh</title>
+        <subtitle></subtitle>
+        <track>Collaboration and Content Management</track>
+        <type>devroom</type>
+        <language>en</language>
+        <abstract>&lt;p&gt;Personal cloud servers like &lt;a href="https://nextcloud.com/"&gt;Nextcloud&lt;/a&gt;, &lt;a href="https://owncloud.com/"&gt;ownCloud&lt;/a&gt;, &lt;a href="https://www.seafile.com/en/home/"&gt;SeaFile&lt;/a&gt; and &lt;a href="https://cernbox.docs.cern.ch/"&gt;CERNBox&lt;/a&gt; have for several years now supported the &lt;a href="https://datatracker.ietf.org/doc/draft-lopresti-open-cloud-mesh/"&gt;Open Cloud Mesh protocol&lt;/a&gt; for inviting collaborators to a document or folder.&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/cs3org/ocm-api"&gt;Open Cloud Mesh&lt;/a&gt; is an authorisation flow, rather than a data access protocol. In this sense it's similar to the role OAuth plays for establishing API access.&lt;/p&gt;
+&lt;p&gt;Open Cloud Mesh can be used to establish collaboration, after which the actual read/write traffic would for instance be handled via server-to-server WebDAV connections.&lt;/p&gt;
+&lt;p&gt;This means that Open Cloud Mesh can be used in combination with many other protocols, in many different scenarios, depending on document type and mode of collaboration. The protocol is agnostic about whether the collaboration that is being established concerns for instance a text file or a real-time video conference.&lt;/p&gt;
+&lt;p&gt;We recently published this protocol as an Internet Draft, we run automated tests between implementers and we recently held a technical workshop about the protocol, where implementers came together to compare notes and discuss possible features to add.&lt;/p&gt;
+&lt;p&gt;This talk will give an overview of how Open Cloud Mesh works and hopefully we can get into a discussion of how Open Cloud Mesh can be useful to others.&lt;/p&gt;</abstract>
+        <description></description>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/UTYFKN/feedback/</feedback_url>
+        <persons>
+          <person id="4176">Michiel de Jong</person>
+        </persons>
+        <attachments>
+        </attachments>
+        <links>
+        </links>
+      </event>
       <event guid="f3bb70f0-cb71-55c2-9f74-3ce45397d15d" id="5867">
         <date>2025-02-01T11:45:00+01:00</date>
         <start>11:45</start>
@@ -4382,6 +4439,29 @@ working hard to expose even more powerful browser-based collaborative functional
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/LQMBLT/feedback/</feedback_url>
         <persons>
           <person id="2923">Michael Meeks</person>
+        </persons>
+        <attachments>
+        </attachments>
+        <links>
+        </links>
+      </event>
+      <event guid="488455a7-3c17-5d06-9402-0b226814837c" id="6657">
+        <date>2025-02-01T15:00:00+01:00</date>
+        <start>15:00</start>
+        <duration>00:25</duration>
+        <room>H.1308 (Rolin)</room>
+        <slug>fosdem-2025-6657-openproject-a-review-of-the-latest-features-and-innovations</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-6657-openproject-a-review-of-the-latest-features-and-innovations/</url>
+        <title>OpenProject: A Review of the Latest Features and Innovations</title>
+        <subtitle></subtitle>
+        <track>Collaboration and Content Management</track>
+        <type>devroom</type>
+        <language>en</language>
+        <abstract>&lt;p&gt;Join us for a comprehensive review of the newest features and innovations in OpenProject, developed over the past year. This session will explore key updates, including enhancements to project portfolio management, deeper integration with the openDesk application bundle, and the exciting progress of a mobile app spike. Discover how these developments empower teams to collaborate more effectively, manage projects with greater precision, and streamline workflows. Whether you’re a long-time user or new to OpenProject, this talk will offer valuable insights into how the platform continues to evolve and create value.&lt;/p&gt;</abstract>
+        <description></description>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/AQGUFU/feedback/</feedback_url>
+        <persons>
+          <person id="3064">Wieland Lindenthal</person>
         </persons>
         <attachments>
         </attachments>
@@ -7026,6 +7106,7 @@ Images abound on the web and digital social networks. Their proliferation is one
         <persons>
           <person id="3901">Félix Alié</person>
           <person id="3903">David Godicke</person>
+          <person id="5101">Edouard Bouté</person>
         </persons>
         <attachments>
         </attachments>
@@ -7785,32 +7866,6 @@ We will discuss the challenges that prompted the migration, why we chose TiDB, o
         <links>
         </links>
       </event>
-      <event guid="6e10bc98-7937-5b8a-8989-3a9e9ac5c481" id="5289">
-        <date>2025-02-01T16:00:00+01:00</date>
-        <start>16:00</start>
-        <duration>00:10</duration>
-        <room>UA2.118 (Henriot)</room>
-        <slug>fosdem-2025-5289-friendica-under-the-radar-since-2010</slug>
-        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-5289-friendica-under-the-radar-since-2010/</url>
-        <title>Friendica - under the radar since 2010</title>
-        <subtitle></subtitle>
-        <track>Social Web</track>
-        <type>devroom</type>
-        <language>en</language>
-        <abstract>&lt;p&gt;Friendica has been part of the Fediverse since 2010, building bridges between Laconica and Diaspora*, making it one of the oldest active projects of the Fediverse - yet Friendica has flown under the radar most of the time. &lt;/p&gt;
-&lt;p&gt;In this talk we will give a short introduction to Friendica, its unique features and how it differs from other systems.&lt;/p&gt;
-&lt;p&gt;The Friendica project homepage can be found at &lt;a href="https://friendi.ca"&gt;friendi.ca&lt;/a&gt;, the source code for the &lt;a href="https://github.com/friendica/friendica"&gt;core is maintained on github&lt;/a&gt; and for the &lt;a href="https://git.friendi.ca/friendica/friendica-addons"&gt;addons on git.friendi.ca&lt;/a&gt;.&lt;/p&gt;</abstract>
-        <description></description>
-        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/D3SCCZ/feedback/</feedback_url>
-        <persons>
-          <person id="4288">Tobias Diekershoff</person>
-          <person id="4292">Michael Vogel</person>
-        </persons>
-        <attachments>
-        </attachments>
-        <links>
-        </links>
-      </event>
       <event guid="a2bc3e2b-db6d-5583-9762-95f6cec48d5a" id="5601">
         <date>2025-02-01T16:20:00+01:00</date>
         <start>16:20</start>
@@ -7913,6 +7968,32 @@ efforts and the reference implementation.&lt;/p&gt;</abstract>
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/MLJKHB/feedback/</feedback_url>
         <persons>
           <person id="3584">James Smith</person>
+        </persons>
+        <attachments>
+        </attachments>
+        <links>
+        </links>
+      </event>
+      <event guid="6e10bc98-7937-5b8a-8989-3a9e9ac5c481" id="5289">
+        <date>2025-02-01T18:00:00+01:00</date>
+        <start>18:00</start>
+        <duration>00:30</duration>
+        <room>UA2.118 (Henriot)</room>
+        <slug>fosdem-2025-5289-friendica-under-the-radar-since-2010</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-5289-friendica-under-the-radar-since-2010/</url>
+        <title>Friendica - under the radar since 2010</title>
+        <subtitle></subtitle>
+        <track>Social Web</track>
+        <type>devroom</type>
+        <language>en</language>
+        <abstract>&lt;p&gt;Friendica has been part of the Fediverse since 2010, building bridges between Laconica and Diaspora*, making it one of the oldest active projects of the Fediverse - yet Friendica has flown under the radar most of the time. &lt;/p&gt;
+&lt;p&gt;In this talk we will give a short introduction to Friendica, its unique features and how it differs from other systems.&lt;/p&gt;
+&lt;p&gt;The Friendica project homepage can be found at &lt;a href="https://friendi.ca"&gt;friendi.ca&lt;/a&gt;, the source code for the &lt;a href="https://github.com/friendica/friendica"&gt;core is maintained on github&lt;/a&gt; and for the &lt;a href="https://git.friendi.ca/friendica/friendica-addons"&gt;addons on git.friendi.ca&lt;/a&gt;.&lt;/p&gt;</abstract>
+        <description></description>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/D3SCCZ/feedback/</feedback_url>
+        <persons>
+          <person id="4288">Tobias Diekershoff</person>
+          <person id="4292">Michael Vogel</person>
         </persons>
         <attachments>
         </attachments>
@@ -8111,6 +8192,30 @@ efforts and the reference implementation.&lt;/p&gt;</abstract>
         <persons>
           <person id="4270">Eric Seckler</person>
           <person id="4301">Gurj Bahia</person>
+        </persons>
+        <attachments>
+        </attachments>
+        <links>
+        </links>
+      </event>
+      <event guid="166ef5af-d183-5f95-afd2-4dab94b0c695" id="6738">
+        <date>2025-02-01T18:20:00+01:00</date>
+        <start>18:20</start>
+        <duration>00:20</duration>
+        <room>UA2.220 (Guillissen)</room>
+        <slug>fosdem-2025-6738-collaborate-using-the-firefox-profiler</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-6738-collaborate-using-the-firefox-profiler/</url>
+        <title>Collaborate using the Firefox Profiler</title>
+        <subtitle></subtitle>
+        <track>Web Performance</track>
+        <type>devroom</type>
+        <language>en</language>
+        <abstract>&lt;p&gt;Tracking down performance issues can be tough, especially when you're not quite sure how to fix them and need to reach out to someone on your team for help. In this talk, we’ll explore how the Firefox Profiler not only helps identify performance bottlenecks but also makes it easy to collaborate with your team to find solutions faster.&lt;/p&gt;
+&lt;p&gt;We’ll show how to collect and analyze profiling data, spot key issues, and share your findings, so everyone can work together more effectively. We’ll go through real-world examples of how using the Firefox Profiler can streamline your debugging process and improve teamwork.&lt;/p&gt;</abstract>
+        <description></description>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/ZZ97DZ/feedback/</feedback_url>
+        <persons>
+          <person id="5107">Nazım Can Altınova</person>
         </persons>
         <attachments>
         </attachments>
@@ -9818,33 +9923,6 @@ https://github.com/genodelabs&lt;/p&gt;</abstract>
         </attachments>
         <links>
           <link href="https://ldbcouncil.org/">LDBC website</link>
-        </links>
-      </event>
-      <event guid="732358ec-3b55-5888-9ab7-58b39b591813" id="4865">
-        <date>2025-02-01T11:50:00+01:00</date>
-        <start>11:50</start>
-        <duration>00:30</duration>
-        <room>UB5.132</room>
-        <slug>fosdem-2025-4865-apache-xtable-interoperability-across-apache-hudi-apache-iceberg-and-delta-lake</slug>
-        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-4865-apache-xtable-interoperability-across-apache-hudi-apache-iceberg-and-delta-lake/</url>
-        <title>Apache XTable - Interoperability Across Apache Hudi, Apache Iceberg, and Delta Lake</title>
-        <subtitle></subtitle>
-        <track>Data Analytics</track>
-        <type>devroom</type>
-        <language>en</language>
-        <abstract>&lt;p&gt;With rise in organizations adopting the open data lakehouse architecture, the ecosystem continues to evolve rapidly. Even as industry vendors attempt to standardize around a replacement for good-old Hive, users continue to choose specific table formats such as Apache Hudi, Iceberg, or Delta Lake, for their strengths around specific workloads. New open table formats and columnar file formats optimized for streaming or unstructured data all continue to emerge and recently a crop of new open-source data catalogs have also been gaining mindshare.&lt;/p&gt;
-&lt;p&gt;These developments underscore the need an interoperability standard for the open data lakehouse, to ensure all the pieces fit with each other without any lockin to any one format, catalog or compute engine. Apache XTable, an open-source project currently incubating under the Apache Software Foundation, addresses this challenge by enabling interoperability across table formats without the need to rewrite any data files, ensuring that each format’s benefits remain accessible within a unified lakehouse setup.&lt;/p&gt;
-&lt;p&gt;This talk will go over XTable's architecture and its capabilities, designed to support omnidirectional translation between open table formats. By utilizing shared metadata information, XTable enables continuous metadata translation across these formats, allowing data to be accessed by various compute engines and workflows without duplication or extensive rewrites. Unlike one-off conversions, XTable’s continuous metadata updates enable seamless translation of new commits incrementally, which can be beneficial at scale. Moving up a layer, we will then show how to synchronize XTable across multiple open-source and proprietary data catalogs to manage permissions and access control policies. This finally makes it easy for users to bring the best-of-breed compute engines to their data easily. &lt;/p&gt;
-&lt;p&gt;Finally, we’ll present lessons learned and updates from the community on various deployment options for XTable for example using Managed Workflows for Apache Airflow (MWAA) and AWS Lambda, or how Microsoft Fabric and Snowflake are pursuing interoperability with XTable.&lt;/p&gt;
-&lt;p&gt;project: https://github.com/apache/incubator-xtable&lt;/p&gt;</abstract>
-        <description></description>
-        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/USFSDC/feedback/</feedback_url>
-        <persons>
-          <person id="4048">Dipankar Mazumdar</person>
-        </persons>
-        <attachments>
-        </attachments>
-        <links>
         </links>
       </event>
       <event guid="9331872d-05ff-529c-90f8-9bffdb011550" id="6349">
@@ -13284,7 +13362,7 @@ It will also go over what has happened since it went into effect in 2018.&lt;/p&
         <description></description>
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/FK3RXK/feedback/</feedback_url>
         <persons>
-          <person id="4094">me@josuah.net</person>
+          <person id="4094">Josuah Demangeon</person>
         </persons>
         <attachments>
         </attachments>
@@ -16799,30 +16877,27 @@ For example, static typing and compilation to native code make it intrinsically 
           <link href="https://wiki.f-si.org/index.php?title=VACASK:_a_Verilog-A_Circuit_Analysis_Kernel">VACASK at FSiC 2024</link>
         </links>
       </event>
-      <event guid="cfc7d110-b429-51cf-b874-3368d1612bc4" id="5358">
+      <event guid="d5a1347a-be7f-5354-9496-9c601174a9f2" id="6604">
         <date>2025-02-02T10:40:00+01:00</date>
         <start>10:40</start>
         <duration>00:30</duration>
         <room>H.1309 (Van Rijn)</room>
-        <slug>fosdem-2025-5358-hardware-without-borders-democratizing-pathogen-detection</slug>
-        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-5358-hardware-without-borders-democratizing-pathogen-detection/</url>
-        <title>Hardware Without Borders: Democratizing Pathogen Detection</title>
+        <slug>fosdem-2025-6604-postcad-opencascade-in-the-database</slug>
+        <url>https://fosdem.org/2025/schedule/event/fosdem-2025-6604-postcad-opencascade-in-the-database/</url>
+        <title>PostCAD: OpenCASCADE in the Database</title>
         <subtitle></subtitle>
         <track>Open Hardware and CAD/CAM</track>
         <type>devroom</type>
         <language>en</language>
-        <abstract>&lt;p&gt;In a world where diseases spread globally within days, relying on closed, proprietary technologies is dangerously outdated. At Varro, we're revolutionizing disease prevention through open hardware innovation.&lt;/p&gt;
-&lt;p&gt;Our platform centers on the micro immuno-electrode (MIE), a breakthrough technology combining hardware engineering with pathogen detection. While traditional biotech companies build patent walls, we're making our designs, specifications, and manufacturing processes openly available. This enables local production and adaptation of life-saving devices worldwide.&lt;/p&gt;
-&lt;p&gt;The COVID-19 pandemic exposed how proprietary approaches delay protection for vulnerable communities. Our open hardware model changes this by enabling rapid local deployment. We maintain competitive advantage through manufacturing excellence and R&amp;amp;D innovation, not restriction. We're building a state-of-the-art facility to produce high-quality, affordable MIEs while developing a comprehensive nanobody library for rapid response to emerging threats.&lt;/p&gt;
-&lt;p&gt;Key takeaways:
-• Open hardware enables local manufacturing of pathogen detection technology
-• Innovation comes from engineering excellence, not patent restrictions
-• Global protection requires distributed production and adaptation&lt;/p&gt;
-&lt;p&gt;The future of disease prevention isn't in patents and restrictions—it's in open access and global collaboration. Together, we can build a world better prepared to protect itself from infectious diseases.&lt;/p&gt;</abstract>
+        <abstract>&lt;p&gt;OpenCASCADE is the elephant in the room. Let's enlist an elephant of our own, PostgreSQL!&lt;/p&gt;
+&lt;p&gt;Learning from the geospatial ecosystem's PostGIS (a database extension that provides geospatial data types and operations) I propose a parallel of our own, PostCAD.&lt;/p&gt;
+&lt;p&gt;Wrapping OpenCASCADE, it would provide CAD data types and operations and turn a database into a feature-rich CAD application server backed by battle-tested DB software.&lt;/p&gt;
+&lt;p&gt;As in the geospatial world, this could form the basis for an ecosystem of CAD web apps, mirroring GeoAlchemy, GeoDjango, Leaflet.js, and others.&lt;/p&gt;
+&lt;p&gt;In this talk, I'll outline what this future PostCAD world could look like, featuring specific use cases for new applications, as well as potential for integrating with FreeCAD and unlocking local-first yet cloud-boosted CAD on the desktop.&lt;/p&gt;</abstract>
         <description></description>
-        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/LRAZEY/feedback/</feedback_url>
+        <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/8KEZWN/feedback/</feedback_url>
         <persons>
-          <person id="4290">Addie Girouard</person>
+          <person id="4994">Kurt Kremitzki</person>
         </persons>
         <attachments>
         </attachments>
@@ -21196,7 +21271,7 @@ I show you how I built a working encoder in a few days by leveraging the precise
           <person id="4087">Gautier de Montmollin</person>
         </persons>
         <attachments>
-          <attachment type="slides" href="https://fosdem.org/2025/events/attachments/fosdem-2025-5148-advent-of-compression-writing-a-working-bzip2-encoder-in-ada-from-scratch-in-a-few-days/slides/23315/ada_bzip2_fosdem_2025_QJkjqpy.ppt">Slides</attachment>
+          <attachment type="slides" href="https://fosdem.org/2025/events/attachments/fosdem-2025-5148-advent-of-compression-writing-a-working-bzip2-encoder-in-ada-from-scratch-in-a-few-days/slides/23315/ada_bzip2_fosdem_2025_cR8jwp7.ppt">Slides</attachment>
         </attachments>
         <links>
           <link href="https://unzip-ada.sourceforge.io/">Zip-Ada</link>
@@ -21228,7 +21303,7 @@ We show you how, including with a live demo of HAC embedded within a "full Ada" 
           <person id="4087">Gautier de Montmollin</person>
         </persons>
         <attachments>
-          <attachment type="slides" href="https://fosdem.org/2025/events/attachments/fosdem-2025-4939-ada-and-mini-ada-a-solution-to-the-two-language-problem/slides/23314/ada_mini_ada_fosdem_2025_vyDZjix.ppt">Slides</attachment>
+          <attachment type="slides" href="https://fosdem.org/2025/events/attachments/fosdem-2025-4939-ada-and-mini-ada-a-solution-to-the-two-language-problem/slides/23314/ada_mini_ada_fosdem_2025_Kb94fNs.ppt">Slides</attachment>
         </attachments>
         <links>
           <link href="https://hacadacompiler.sourceforge.io/">HAC Ada Compiler</link>
@@ -22108,6 +22183,7 @@ This session will give attendees an overview of the MOF and practical informatio
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/FRVVRL/feedback/</feedback_url>
         <persons>
           <person id="4334">Lawrence Li</person>
+          <person id="5106">Frank Mai</person>
         </persons>
         <attachments>
         </attachments>
@@ -22395,6 +22471,7 @@ In this talk we'll take you end-to-end through the process of designing custom A
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/BKE7VT/feedback/</feedback_url>
         <persons>
           <person id="1491">William Jones</person>
+          <person id="2394">Jeremy Bennett</person>
         </persons>
         <attachments>
         </attachments>
@@ -23610,7 +23687,7 @@ However, efficiently allocating expensive GPU resources in multi-tenant environm
         <description></description>
         <feedback_url>https://pretalx.fosdem.org/fosdem-2025/talk/DKZUNZ/feedback/</feedback_url>
         <persons>
-          <person id="5036">Todd Gamblin</person>
+          <person id="5102">Gregory Becker</person>
         </persons>
         <attachments>
         </attachments>
