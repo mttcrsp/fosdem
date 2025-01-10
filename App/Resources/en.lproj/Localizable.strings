@@ -97,15 +97,13 @@
 // A button that lets the user filter a list of tracks
 "search.filter.title" = "Filters";
 // Title for a section showing all tracks
-"search.filter.day" = "Day %d";
-// Title for a section showing tracks for a given day
 "search.filter.all" = "All tracks";
 // Title for a context menu that lets the user choose how to filter the list of tracks
-"search.filter.menu.title" = "Show";
+"search.filter.menu.title" = "Show tracks for";
 // A button that lets the user filter the list of all tracks by displaying only the ones for a given day
-"search.filter.menu.action.day" = "Only day %d";
+"search.filter.menu.action.day" = "Only %@";
 // A button that forces display of all tracks
-"search.filter.menu.action.all" = "All tracks";
+"search.filter.menu.action.all" = "Both days";
 // Title for a section containing the user favorite tracks
 "search.filter.favorites" = "Your Favorites";
 // Caption that reports the weekday and time at which an event will start

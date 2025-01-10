@@ -12,4 +12,10 @@ extension DateFormatter {
     formatter.dateFormat = "EEEE"
     return formatter
   }()
+
+  static var weekdayWithShortDate: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "EEEE, d MMMM"
+    return formatter
+  }()
 }

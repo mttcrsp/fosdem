@@ -1,7 +1,7 @@
 import Foundation
 
 enum TracksFilter: Equatable, Hashable {
-  case all, day(Int)
+  case all, day(Date)
 }
 
 extension TracksFilter: Comparable {
@@ -22,8 +22,8 @@ extension TracksFilter {
     switch self {
     case .all:
       L10n.Search.Filter.all
-    case let .day(day):
-      L10n.Search.Filter.day(day)
+    case let .day(date):
+      DateFormatter.weekdayWithShortDate.string(from: date)
     }
   }
 
@@ -31,8 +31,8 @@ extension TracksFilter {
     switch self {
     case .all:
       L10n.Search.Filter.Menu.Action.all
-    case let .day(day):
-      L10n.Search.Filter.Menu.Action.day(day)
+    case let .day(date):
+      L10n.Search.Filter.Menu.Action.day(DateFormatter.weekday.string(from: date))
     }
   }
 
@@ -40,8 +40,8 @@ extension TracksFilter {
     switch self {
     case .all:
       "all"
-    case let .day(index):
-      "day \(index)"
+    case let .day(date):
+      "\(date)"
     }
   }
 }

@@ -26,7 +26,7 @@ final class TracksService {
       var filters: Set<TracksFilter> = [.all]
 
       for (offset, track) in tracks.enumerated() {
-        let filter = TracksFilter.day(track.day)
+        let filter = TracksFilter.day(track.date)
         filters.insert(filter)
         configuration.filteredTracks[.all, default: []].append(track)
         configuration.filteredTracks[filter, default: []].append(track)
