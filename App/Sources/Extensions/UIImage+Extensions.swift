@@ -17,3 +17,13 @@ extension UIImage {
     }
   }
 }
+
+extension UIImage {
+  static let filter: UIImage? = {
+    if #available(iOS 15.0, *) {
+      UIImage(systemName: "line.3.horizontal.decrease")
+    } else {
+      UIImage(systemName: "line.horizontal.3.decrease")
+    }
+  }()
+}

@@ -288,7 +288,7 @@ private extension SearchController {
     if let tracksConfiguration {
       item = UIBarButtonItem(
         title: L10n.Search.Filter.title,
-        image: UIImage(systemName: "line.3.horizontal.decrease"),
+        image: .filter,
         menu: UIMenu(
           title: L10n.Search.Filter.Menu.title,
           children: tracksConfiguration.filters.map { filter in
@@ -301,7 +301,8 @@ private extension SearchController {
                 self?.tracksViewController?.reloadData()
               }
             )
-          })
+          }
+        )
       )
     }
 

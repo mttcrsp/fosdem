@@ -103,7 +103,7 @@ private extension AgendaController {
     if canFilterEvents {
       item = UIBarButtonItem(
         title: L10n.Agenda.Filter.title,
-        image: UIImage(systemName: "line.3.horizontal.decrease"),
+        image: .filter,
         menu: UIMenu(
           title: L10n.Agenda.Filter.Menu.title,
           children: [false, true].map { shouldFilterEvents in
@@ -117,7 +117,8 @@ private extension AgendaController {
                 self?.didToggleFilter(shouldFilterEvents)
               }
             )
-          })
+          }
+        )
       )
       item?.accessibilityHint =
         shouldFilterEvents
