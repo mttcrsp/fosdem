@@ -67,7 +67,12 @@ final class EventAdditionsItemView: UIControl {
   }
 
   private func didChangeGroup() {
-    imageView.image = group?.image
+    imageView.image = group?.image?
+      .withConfiguration(
+        UIImage.SymbolConfiguration(
+          font: .fos_preferredFont(forTextStyle: .body)
+        )
+      )
   }
 }
 
