@@ -104,18 +104,20 @@ private extension AgendaController {
       item = UIBarButtonItem(
         title: L10n.Agenda.Filter.title,
         image: UIImage(systemName: "line.3.horizontal.decrease"),
-        menu: UIMenu(children: [false, true].map { shouldFilterEvents in
-          UIAction(
-            title: shouldFilterEvents
-              ? L10n.Agenda.Filter.Menu.Action.upcoming
-              : L10n.Agenda.Filter.Menu.Action.all,
-            state: shouldFilterEvents == self.shouldFilterEvents
-              ? .on : .off,
-            handler: { [weak self] _ in
-              self?.didToggleFilter(shouldFilterEvents)
-            }
-          )
-        })
+        menu: UIMenu(
+          title: L10n.Agenda.Filter.Menu.title,
+          children: [false, true].map { shouldFilterEvents in
+            UIAction(
+              title: shouldFilterEvents
+                ? L10n.Agenda.Filter.Menu.Action.upcoming
+                : L10n.Agenda.Filter.Menu.Action.all,
+              state: shouldFilterEvents == self.shouldFilterEvents
+                ? .on : .off,
+              handler: { [weak self] _ in
+                self?.didToggleFilter(shouldFilterEvents)
+              }
+            )
+          })
       )
       item?.accessibilityHint =
         shouldFilterEvents
