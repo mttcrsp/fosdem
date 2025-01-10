@@ -72,7 +72,7 @@
 // A button that forces display of all events
 "agenda.filter.menu.action.all" = "All events";
 // A button that only upcoming events will be displayed
-"agenda.filter.menu.action.upcoming" = "Only upcoming";
+"agenda.filter.menu.action.upcoming" = "Upcoming only";
 
 /// MARK: - Soon
 
@@ -101,7 +101,7 @@
 // Title for a context menu that lets the user choose how to filter the list of tracks
 "search.filter.menu.title" = "Show tracks for";
 // A button that lets the user filter the list of all tracks by displaying only the ones for a given day
-"search.filter.menu.action.day" = "Only %@";
+"search.filter.menu.action.day" = "%@ only";
 // A button that forces display of all tracks
 "search.filter.menu.action.all" = "Both days";
 // Title for a section containing the user favorite tracks
