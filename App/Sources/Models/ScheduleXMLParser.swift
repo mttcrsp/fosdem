@@ -269,13 +269,11 @@ private extension Event {
     }
 
     let calendar = Calendar.gregorian
-    var components = calendar.dateComponents([.day, .month, .year], from: dateWithoutTime)
-    components.timeZone = TimeZone(identifier: "Europe/Brussels")
-    components.minute = startMinute
-    components.hour = startHour
-
-    guard let date = calendar.date(from: components) else {
-      throw Error(element: "day date time", value: startRawValue)
+    guard let dateWithoutMinutes = calendar.date(byAdding: .hour, value: startHour, to: dateWithoutTime) else {
+      throw Error(element: "day date hour", value: dateRawValue)
+    }
+    guard let date = calendar.date(byAdding: .minute, value: startMinute, to: dateWithoutMinutes) else {
+      throw Error(element: "day date minutes", value: dateRawValue)
     }
 
     let summary = attributes["summary"]
