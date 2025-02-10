@@ -1,7 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTimeService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTimeService & HasTimeFormattingService
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -13,7 +13,7 @@ final class AgendaController: UIViewController {
   }
 
   private var events: [Event] = []
-  private var observations: [NSObjectProtocol] = []
+  private var observers: [NSObjectProtocol] = []
   private var shouldFilterEvents: Bool {
     get { UserDefaults.standard.shouldFilterEvents }
     set { UserDefaults.standard.shouldFilterEvents = newValue }
@@ -45,7 +45,8 @@ final class AgendaController: UIViewController {
     super.viewDidLoad()
 
     reloadFavoriteEvents(animated: false)
-    observations = [
+    
+    observers = [
       dependencies.favoritesService.addObserverForEvents { [weak self] in
         self?.reloadFavoriteEvents(animated: true)
       },
@@ -54,6 +55,9 @@ final class AgendaController: UIViewController {
         reloadLiveStatus()
         reloadFilterButton()
         reloadEvents(animated: true)
+      },
+      dependencies.timeFormattingService.addObserverForDisplayTimeZoneChanges { [weak self] in
+        self?.agendaViewController?.reloadData()
       },
     ]
   }
@@ -199,7 +203,11 @@ private extension AgendaController {
 
 extension AgendaController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
-    [event.formattedStart, event.room, event.formattedTrack].compactMap { $0 }.joined(separator: " - ")
+    var components: [String?] = []
+    components.append(dependencies.timeFormattingService.time(from: event.date))
+    components.append(event.room)
+    components.append(TrackFormatter().formattedName(from: event.track))
+    return components.compactMap { $0 }.joined(separator: " - ")
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {

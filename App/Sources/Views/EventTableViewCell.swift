@@ -1,6 +1,8 @@
 import UIKit
 
 final class EventTableViewCell: UITableViewCell {
+  typealias Dependencies = HasTimeFormattingService
+
   private let eventView = EventView()
 
   var dataSource: EventViewDataSource? {
@@ -11,6 +13,11 @@ final class EventTableViewCell: UITableViewCell {
   var delegate: EventViewDelegate? {
     get { eventView.delegate }
     set { eventView.delegate = newValue }
+  }
+
+  var dependencies: Dependencies? {
+    get { eventView.dependencies }
+    set { eventView.dependencies = newValue }
   }
 
   var allowsTrackSelection: Bool {

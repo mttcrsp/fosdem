@@ -46,6 +46,21 @@ class EventsViewController: UITableViewController {
     get { emptyBackgroundView.message }
     set { emptyBackgroundView.message = newValue }
   }
+  
+  func reloadData(animatingDifferences animated: Bool = false) {
+    guard let diffableDataSource else { return }
+
+    var snapshot = NSDiffableDataSourceSnapshot<Event, Event>()
+    for event in events {
+      snapshot.appendSections([event])
+      snapshot.appendItems([event], toSection: event)
+    }
+
+    diffableDataSource.apply(snapshot, animatingDifferences: animated) { [weak self] in
+      guard let self else { return }
+      tableView.backgroundView = snapshot.numberOfSections == 0 ? emptyBackgroundView : nil
+    }
+  }
 
   func reloadLiveStatus() {
     guard viewIfLoaded?.window != nil, let diffableDataSource else { return }
@@ -162,21 +177,6 @@ class EventsViewController: UITableViewController {
 
   private func shouldShowLiveIndicator(for event: Event) -> Bool {
     liveDataSource?.eventsViewController(self, shouldShowLiveIndicatorFor: event) ?? false
-  }
-
-  private func reloadData(animatingDifferences animated: Bool = false) {
-    guard let diffableDataSource else { return }
-
-    var snapshot = NSDiffableDataSourceSnapshot<Event, Event>()
-    for event in events {
-      snapshot.appendSections([event])
-      snapshot.appendItems([event], toSection: event)
-    }
-
-    diffableDataSource.apply(snapshot, animatingDifferences: animated) { [weak self] in
-      guard let self else { return }
-      tableView.backgroundView = snapshot.numberOfSections == 0 ? emptyBackgroundView : nil
-    }
   }
 }
 

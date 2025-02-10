@@ -7,6 +7,10 @@ struct TracksConfiguration: Equatable {
   var filteredIndexTitles: [TracksFilter: [String: Int]] = [:]
 }
 
+enum TracksFilter: Equatable, Hashable {
+  case all, day(Date)
+}
+
 final class TracksService {
   private var observation: NSObjectProtocol?
 
@@ -55,6 +59,19 @@ final class TracksService {
       DispatchQueue.main.async {
         completion(configuration)
       }
+    }
+  }
+}
+
+extension TracksFilter: Comparable {
+  static func < (lhs: TracksFilter, rhs: TracksFilter) -> Bool {
+    switch (lhs, rhs) {
+    case (.all, _):
+      true
+    case (.day, .all):
+      false
+    case let (.day(lhs), .day(rhs)):
+      lhs < rhs
     }
   }
 }

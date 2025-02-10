@@ -9,6 +9,7 @@ enum MoreItem: String, CaseIterable {
   case devrooms
   case transportation
   case acknowledgements
+  case timeZone
 
   #if DEBUG
   case overrideTime
@@ -33,6 +34,8 @@ extension MoreItem {
       return L10n.Transportation.title
     case .acknowledgements:
       return L10n.Acknowledgements.title
+    case .timeZone:
+      return L10n.TimeZone.title
     case .years:
       let lowerBound = YearsService.all.lowerBound
       let upperBound = YearsService.all.upperBound
@@ -64,6 +67,8 @@ extension MoreItem {
       return Asset.More.transportation.image
     case .acknowledgements:
       return Asset.More.document.image
+    case .timeZone:
+      return Asset.More.timezone.image
     #if DEBUG
     case .overrideTime, .generateDatabase:
       return nil
@@ -81,7 +86,7 @@ extension MoreItem {
       return .devrooms
     case .transportation:
       return .transportation
-    case .code, .years, .video, .acknowledgements:
+    case .code, .years, .video, .timeZone, .acknowledgements:
       return nil
     #if DEBUG
     case .overrideTime, .generateDatabase:

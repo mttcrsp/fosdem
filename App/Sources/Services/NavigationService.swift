@@ -14,6 +14,10 @@ extension NavigationService {
     AgendaController(dependencies: services)
   }
 
+  func makeDisplayTimeZoneViewController() -> DisplayTimeZoneViewController {
+    DisplayTimeZoneViewController(dependencies: services)
+  }
+
   func makeEventViewController(for event: Event) -> EventController {
     EventController(event: event, dependencies: services)
   }
@@ -66,6 +70,7 @@ extension NavigationService {
 /// @mockable
 protocol NavigationServiceProtocol {
   func makeAgendaViewController() -> AgendaController
+  func makeDisplayTimeZoneViewController() -> DisplayTimeZoneViewController
   func makeEventViewController(for event: Event) -> EventController
   func makeInfoViewController(for info: Info) -> InfoController
   func makeMapViewController() -> MapController

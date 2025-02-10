@@ -1,7 +1,7 @@
 import AVKit
 
 final class EventController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasPlaybackService & HasTimeService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasPlaybackService & HasTimeService & HasTimeFormattingService
   typealias PlayerViewController = AVPlayerViewControllerProtocol & UIViewController
 
   var showsFavoriteButton = true {
@@ -76,7 +76,7 @@ final class EventController: UIViewController {
   }
 
   private var isEventToday: Bool {
-    event.isSameDay(as: dependencies.timeService.now)
+    Calendar.gregorian.isDate(event.date, inSameDayAs: dependencies.timeService.now)
   }
 
   private var hasLivestream: Bool {
@@ -93,6 +93,7 @@ final class EventController: UIViewController {
     let eventViewController = EventViewController(style: style)
     eventViewController.allowsTrackSelection = allowsTrackSelection
     eventViewController.showsLivestream = hasLivestream && isEventToday
+    eventViewController.dependencies = dependencies
     eventViewController.dataSource = self
     eventViewController.delegate = self
     eventViewController.event = event

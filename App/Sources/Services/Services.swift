@@ -8,6 +8,7 @@ class Services {
   let playbackService: PlaybackServiceProtocol = PlaybackService()
   let acknowledgementsService: AcknowledgementsServiceProtocol = AcknowledgementsService()
   let preferencesService: PreferencesServiceProtocol = PreferencesService()
+  let timeFormattingService: TimeFormattingServiceProtocol = TimeFormattingService()
   let ubiquitousPreferencesService: UbiquitousPreferencesServiceProtocol = UbiquitousPreferencesService()
 
   private(set) lazy var navigationService: NavigationServiceProtocol = NavigationService(services: self)
@@ -71,7 +72,7 @@ class Services {
   }
 }
 
-extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasNavigationService, HasAcknowledgementsService, HasUbiquitousPreferencesService {}
+extension Services: HasOpenService, HasInfoService, HasSoonService, HasTimeService, HasYearsService, HasLaunchService, HasTracksService, HasUpdateService, HasVideosService, HasPlaybackService, HasScheduleService, HasBuildingsService, HasFavoritesService, HasNavigationService, HasAcknowledgementsService, HasTimeFormattingService, HasUbiquitousPreferencesService {}
 
 extension Services: HasPersistenceService {
   var persistenceService: PersistenceServiceProtocol {

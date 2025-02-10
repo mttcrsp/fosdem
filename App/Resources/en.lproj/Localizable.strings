@@ -163,8 +163,21 @@
 "more.section.recent" = "Recent";
 // Title of a section containing links to screens with history of the conference, an explanation of what developer rooms are and information on how to get to the conference
 "more.section.about" = "About";
+// Title of a section containing configuration settings for the app
+"more.section.settings" = "Settings";
 // Title of a section containing links to legal, a prompt for contributing to the application project and the acknowledgements section of the app
 "more.section.other" = "Other";
+
+/// MARK: - TimeZone
+
+// Title of a screen that allows users to control whether dates are displayed based on the conference time zone
+"timeZone.title" = "Time Zone";
+// Title of an item that specifies that dates are displayed based on the conference time zone
+"timeZone.conference" = "Conference";
+// Title of an item that specifies that dates are displayed based on the device time zone
+"timeZone.current" = "Your device's";
+// Footer that describes how user can select an option to control whether dates are displayed based in the conference time zone
+"timeZone.footer" = "Choose which time zone to display event dates and times in.";
 
 /// MARK: - Recent
 

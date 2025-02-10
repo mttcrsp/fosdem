@@ -14,6 +14,8 @@ protocol EventViewControllerDataSource: AnyObject {
 }
 
 final class EventViewController: UITableViewController {
+  typealias Dependencies = HasTimeFormattingService
+  
   weak var delegate: EventViewControllerDelegate?
   weak var dataSource: EventViewControllerDataSource?
 
@@ -29,6 +31,11 @@ final class EventViewController: UITableViewController {
   var showsLivestream: Bool {
     get { eventCell.showsLivestream }
     set { eventCell.showsLivestream = newValue }
+  }
+
+  var dependencies: Dependencies? {
+    get { eventCell.dependencies }
+    set { eventCell.dependencies = newValue }
   }
 
   func reloadPlaybackPosition() {

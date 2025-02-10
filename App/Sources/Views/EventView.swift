@@ -12,11 +12,15 @@ protocol EventViewDataSource: AnyObject {
 }
 
 final class EventView: UIStackView {
+  typealias Dependencies = HasTimeFormattingService
+
   weak var delegate: EventViewDelegate?
   weak var dataSource: EventViewDataSource? {
     didSet { reloadPlaybackPosition() }
   }
 
+  var dependencies: Dependencies?
+  private var observer: NSObjectProtocol?
   private weak var livestreamButton: RoundedButton?
   private weak var trackAttributeView: EventAttributeView?
   private weak var videoButton: RoundedButton?
@@ -114,12 +118,19 @@ final class EventView: UIStackView {
       font: UIFont.fos_preferredFont(forTextStyle: .title2)
     )
 
-    if let date = event.formattedDate {
+    if let date = dependencies?.timeFormattingService.date(for: event) {
       let attributeView = EventAttributeView()
       attributeView.accessibilityLabel = date
       attributeView.text = date
       attributeView.image = .init(systemName: "clock.circle.fill", withConfiguration: configuration)
       attributesView.addArrangedSubview(attributeView)
+
+      observer = dependencies?.timeFormattingService.addObserverForDisplayTimeZoneChanges { [weak self, weak attributeView] in
+        if let date = self?.dependencies?.timeFormattingService.date(for: event) {
+          attributeView?.accessibilityLabel = date
+          attributeView?.text = date
+        }
+      }
     }
 
     let roomAttributeView = EventAttributeView()
@@ -129,7 +140,8 @@ final class EventView: UIStackView {
     roomAttributeView.image = .init(systemName: "mappin.circle.fill", withConfiguration: configuration)
     attributesView.addArrangedSubview(roomAttributeView)
 
-    if !event.people.isEmpty, let people = event.formattedPeople {
+    if !event.people.isEmpty {
+      let people = PeopleFormatter().formattedPeople(from: event.people)
       let attributeView = EventAttributeView()
       attributeView.accessibilityLabel = L10n.Event.people
       attributeView.accessibilityValue = people
@@ -138,16 +150,17 @@ final class EventView: UIStackView {
       attributesView.addArrangedSubview(attributeView)
     }
 
+    let track = TrackFormatter().formattedName(from: event.track)
     let trackAttributeView = EventAttributeView()
     trackAttributeView.accessibilityLabel = L10n.Event.track
-    trackAttributeView.accessibilityValue = event.formattedTrack
-    trackAttributeView.text = event.formattedTrack
+    trackAttributeView.accessibilityValue = track
+    trackAttributeView.text = track
     trackAttributeView.image = .init(systemName: "grid.circle.fill", withConfiguration: configuration)
     trackAttributeView.addTarget(self, action: #selector(didTapTrack), for: .touchUpInside)
     self.trackAttributeView = trackAttributeView
     attributesView.addArrangedSubview(trackAttributeView)
 
-    if let summary = event.formattedSummary {
+    if let summary = event.summary {
       let separatorView = UIView()
       separatorView.backgroundColor = .separator
       addArrangedSubview(separatorView)
@@ -156,6 +169,7 @@ final class EventView: UIStackView {
         separatorView.widthAnchor.constraint(equalTo: widthAnchor),
       ])
 
+      let summary = SummaryFormatter().formattedSummary(from: summary)
       let summaryLabel = UILabel()
       summaryLabel.font = .fos_preferredFont(forTextStyle: .body, withSymbolicTraits: .traitItalic)
       summaryLabel.adjustsFontForContentSizeCategory = true
@@ -265,6 +279,23 @@ final class EventView: UIStackView {
   @objc private func didTapAdditionalItem(_ itemView: EventAdditionsItemView) {
     if let item = itemView.item {
       delegate?.eventView(self, didSelect: item.url)
+    }
+  }
+}
+
+private extension TimeFormattingServiceProtocol {
+  func date(for event: Event) -> String? {
+    var items: [String] = []
+    items.append(time(from: event.date))
+    items.append(L10n.Event.weekday(weekday(from: event.date)))
+    if let duration = DurationFormatter().duration(from: event.duration) {
+      items.append("(\(L10n.Event.duration(duration)))")
+    }
+
+    if items.isEmpty {
+      return nil
+    } else {
+      return items.joined(separator: " ")
     }
   }
 }

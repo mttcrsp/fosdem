@@ -1,15 +1,12 @@
 import UIKit
 
 final class TrackController: EventsViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTimeFormattingService
 
   var didError: ((UIViewController, Error) -> Void)?
-
   private var favoriteButton: UIBarButtonItem?
-
   private var captions: [Event: String] = [:]
-  private var observer: NSObjectProtocol?
-
+  private var observers: [NSObjectProtocol] = []
   private let dependencies: Dependencies
   private let track: Track
 
@@ -33,7 +30,7 @@ final class TrackController: EventsViewController {
         case let .failure(error):
           completion(error)
         case let .success(events):
-          captions = events.captions
+          captions = makeCaptions(for: events)
           setEvents(events)
           completion(nil)
         }
@@ -54,9 +51,16 @@ final class TrackController: EventsViewController {
     navigationItem.rightBarButtonItem = favoriteButton
 
     reloadFavoriteButton()
-    observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
-      self?.reloadFavoriteButton()
-    }
+    observers = [
+      dependencies.favoritesService.addObserverForTracks { [weak self] in
+        self?.reloadFavoriteButton()
+      },
+      dependencies.timeFormattingService.addObserverForDisplayTimeZoneChanges { [weak self] in
+        guard let self else { return }
+        captions = makeCaptions(for: events)
+        reloadData()
+      }
+    ]
   }
 
   private func reloadFavoriteButton() {
@@ -100,23 +104,28 @@ extension TrackController: EventsViewControllerFavoritesDataSource, EventsViewCo
   }
 }
 
-private extension [Event] {
-  var captions: [Event: String] {
+private extension TrackController {
+  func makeCaptions(for events: [Event]) -> [Event: String] {
+    let timeZone = dependencies.timeFormattingService.displayTimeZone.timeZone
+
     var result: [Event: String] = [:]
-
-    if let event = first, let caption = event.formattedStartWithWeekday {
-      result[event] = caption
-    }
-
-    for (lhs, rhs) in zip(self, dropFirst()) {
-      if lhs.isSameWeekday(as: rhs) {
-        if let caption = rhs.formattedStart {
-          result[rhs] = caption
+    for (index, event) in events.enumerated() {
+      var showWeekday = index == 0
+      if index > 0 {
+        let calendar = Calendar.gregorian
+        let components1 = calendar.dateComponents(in: timeZone, from: event.date)
+        let components2 = calendar.dateComponents(in: timeZone, from: events[index - 1].date)
+        if components1.weekday != components2.weekday {
+          showWeekday = true
         }
+      }
+
+      let start = dependencies.timeFormattingService.time(from: event.date)
+      if showWeekday {
+        let weekday = dependencies.timeFormattingService.weekday(from: event.date)
+        result[event] = L10n.Search.Event.start(start, weekday)
       } else {
-        if let caption = rhs.formattedStartWithWeekday {
-          result[rhs] = caption
-        }
+        result[event] = start
       }
     }
 

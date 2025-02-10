@@ -28,7 +28,14 @@ final class MoreController: UISplitViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    let moreViewController = MoreViewController(style: .insetGrouped)
+    var sections = MoreSection.allCases
+    let seconds1 = DisplayTimeZone.current.timeZone.secondsFromGMT()
+    let seconds2 = DisplayTimeZone.conference.timeZone.secondsFromGMT()
+    if #available(iOS 17.0, *), seconds1 != seconds2 {} else {
+      sections.removeAll { $0 == .settings }
+    }
+
+    let moreViewController = MoreViewController(sections: sections, style: .insetGrouped)
     moreViewController.title = L10n.More.title
     moreViewController.delegate = self
     self.moreViewController = moreViewController
@@ -105,6 +112,14 @@ extension MoreController: MoreViewControllerDelegate {
 
     case .history, .legal, .devrooms:
       self.moreViewController(moreViewController, didSelectInfoItem: item)
+
+    case .timeZone:
+      if #available(iOS 17.0, *) {
+        let timeZoneViewController = dependencies.navigationService.makeDisplayTimeZoneViewController()
+        showDetailViewController(timeZoneViewController)
+      } else {
+        assertionFailure("Attempted to display unsupported item \(item)")
+      }
 
     #if DEBUG
     case .overrideTime:
