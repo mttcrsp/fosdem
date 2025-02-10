@@ -96,7 +96,7 @@ final class VideosController: UIPageViewController {
 
 extension VideosController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
-    event.formattedPeople
+    PeopleFormatter().formattedPeople(from: event.people)
   }
 
   func eventsViewController(_: EventsViewController, didSelect event: Event) {

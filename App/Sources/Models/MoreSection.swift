@@ -4,6 +4,7 @@ enum MoreSection: CaseIterable {
   case years
   case about
   case recent
+  case settings
   case other
   #if DEBUG
   case debug
@@ -21,6 +22,8 @@ extension MoreSection {
       return [.code, .acknowledgements, .legal]
     case .about:
       return [.history, .devrooms, .transportation]
+    case .settings:
+      return [.timeZone]
     #if DEBUG
     case .debug:
       return [.overrideTime, .generateDatabase]
@@ -36,6 +39,8 @@ extension MoreSection {
       return L10n.More.Section.recent
     case .about:
       return L10n.More.Section.about
+    case .settings:
+      return L10n.More.Section.settings
     case .other:
       return L10n.More.Section.other
     #if DEBUG

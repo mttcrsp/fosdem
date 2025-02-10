@@ -1,7 +1,7 @@
 import UIKit
 
 final class SearchController: UISplitViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTracksService & HasYearsService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasDateFormattingService & HasTracksService & HasYearsService
 
   private var selectedFilter: TracksFilter = .all {
     didSet { reloadFilterButton() }
@@ -12,12 +12,10 @@ final class SearchController: UISplitViewController {
   }
 
   var results: [Event] = []
-
   private(set) weak var resultsViewController: EventsViewController?
   private weak var tracksViewController: TracksViewController?
   private weak var searchController: UISearchController?
-  private var observer: NSObjectProtocol?
-
+  private var observers: [NSObjectProtocol] = []
   private let dependencies: Dependencies
 
   init(dependencies: Dependencies) {
@@ -78,9 +76,14 @@ final class SearchController: UISplitViewController {
     }
 
     reloadTracks()
-    observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
-      self?.reloadTracks()
-    }
+    observers = [
+      dependencies.favoritesService.addObserverForTracks { [weak self] in
+        self?.reloadTracks()
+      },
+      dependencies.dateFormattingService.addObserverForFormattingTimeZoneChanges { [weak self] in
+        self?.reloadTracks()
+      }
+    ]
   }
 
   private func reloadTracks() {
@@ -164,11 +167,29 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_: TracksViewController, titleForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? L10n.Search.Filter.favorites : selectedFilter.title
+    if isFavoriteSection(section) {
+      return L10n.Search.Filter.favorites
+    }
+
+    switch selectedFilter {
+    case .all:
+      return L10n.Search.Filter.all
+    case let .day(date):
+      return dependencies.dateFormattingService.weekdayWithShortDate(from: date)
+    }
   }
 
   func tracksViewController(_: TracksViewController, accessibilityIdentifierForSectionAt section: Int) -> String? {
-    isFavoriteSection(section) ? "favorites" : selectedFilter.accessibilityIdentifier
+    if isFavoriteSection(section) {
+      return "favorites"
+    }
+
+    switch selectedFilter {
+    case .all:
+      return "all"
+    case let .day(date):
+      return "\(date)"
+    }
   }
 
   func tracksViewController(_: TracksViewController, numberOfTracksIn section: Int) -> Int {
@@ -243,7 +264,7 @@ extension SearchController: TracksViewControllerFavoritesDataSource, TracksViewC
 
 extension SearchController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
-    event.formattedTrack
+    TrackFormatter().formattedName(from: event.track)
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {
@@ -286,6 +307,13 @@ private extension SearchController {
   private func reloadFilterButton() {
     var item: UIBarButtonItem?
     if let tracksConfiguration {
+      let title = switch selectedFilter {
+      case .all:
+        L10n.Search.Filter.Menu.Action.all
+      case let .day(date):
+        L10n.Search.Filter.Menu.Action.day(dependencies.dateFormattingService.weekday(from: date))
+      }
+
       item = UIBarButtonItem(
         title: L10n.Search.Filter.title,
         image: .filter,
@@ -293,7 +321,7 @@ private extension SearchController {
           title: L10n.Search.Filter.Menu.title,
           children: tracksConfiguration.filters.map { filter in
             UIAction(
-              title: filter.action,
+              title: title,
               state: filter == selectedFilter ? .on : .off,
               handler: { [weak self] _ in
                 guard self?.selectedFilter != filter else { return }

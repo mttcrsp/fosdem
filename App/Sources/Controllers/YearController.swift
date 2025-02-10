@@ -100,7 +100,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
 
 extension YearController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
-    event.formattedPeople
+    PeopleFormatter().formattedPeople(from: event.people)
   }
 
   func eventsViewController(_ viewController: EventsViewController, didSelect event: Event) {

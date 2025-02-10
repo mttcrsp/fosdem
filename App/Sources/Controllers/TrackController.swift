@@ -1,15 +1,12 @@
 import UIKit
 
 final class TrackController: EventsViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasDateFormattingService
 
   var didError: ((UIViewController, Error) -> Void)?
-
   private var favoriteButton: UIBarButtonItem?
-
   private var captions: [Event: String] = [:]
-  private var observer: NSObjectProtocol?
-
+  private var observers: [NSObjectProtocol] = []
   private let dependencies: Dependencies
   private let track: Track
 
@@ -33,7 +30,7 @@ final class TrackController: EventsViewController {
         case let .failure(error):
           completion(error)
         case let .success(events):
-          captions = events.captions
+          captions = makeCaptions(for: events)
           setEvents(events)
           completion(nil)
         }
@@ -54,9 +51,16 @@ final class TrackController: EventsViewController {
     navigationItem.rightBarButtonItem = favoriteButton
 
     reloadFavoriteButton()
-    observer = dependencies.favoritesService.addObserverForTracks { [weak self] in
-      self?.reloadFavoriteButton()
-    }
+    observers = [
+      dependencies.favoritesService.addObserverForTracks { [weak self] in
+        self?.reloadFavoriteButton()
+      },
+      dependencies.dateFormattingService.addObserverForFormattingTimeZoneChanges { [weak self] in
+        guard let self else { return }
+        captions = makeCaptions(for: events)
+        reloadData()
+      }
+    ]
   }
 
   private func reloadFavoriteButton() {
@@ -100,26 +104,25 @@ extension TrackController: EventsViewControllerFavoritesDataSource, EventsViewCo
   }
 }
 
-private extension [Event] {
-  var captions: [Event: String] {
-    var result: [Event: String] = [:]
-
-    if let event = first, let caption = event.formattedStartWithWeekday {
-      result[event] = caption
-    }
-
-    for (lhs, rhs) in zip(self, dropFirst()) {
-      if lhs.isSameWeekday(as: rhs) {
-        if let caption = rhs.formattedStart {
-          result[rhs] = caption
-        }
-      } else {
-        if let caption = rhs.formattedStartWithWeekday {
-          result[rhs] = caption
-        }
+private extension TrackController {
+  func makeCaptions(for events: [Event]) -> [Event: String] {
+    let components: [(event: Event, start: String, weekday: String)] =
+      events.map { event in
+        (event,
+         dependencies.dateFormattingService.time(from: event.date),
+         dependencies.dateFormattingService.weekday(from: event.date))
       }
+
+    var captions: [Event: String] = [:]
+    for (i, component) in components.enumerated() {
+      captions[component.event] =
+        if i == 0 || components[i].weekday != components[i - 1].weekday {
+          L10n.Search.Event.start(component.start, component.weekday)
+        } else {
+          component.start
+        }
     }
 
-    return result
+    return captions
   }
 }

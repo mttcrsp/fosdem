@@ -28,7 +28,14 @@ final class MoreController: UISplitViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    let moreViewController = MoreViewController(style: .insetGrouped)
+    var sections = MoreSection.allCases
+    let seconds1 = FormattingTimeZone.current.timeZone.secondsFromGMT()
+    let seconds2 = FormattingTimeZone.conference.timeZone.secondsFromGMT()
+    if seconds1 != seconds2 {} else {
+      sections.removeAll { $0 == .settings }
+    }
+
+    let moreViewController = MoreViewController(sections: sections, style: .insetGrouped)
     moreViewController.title = L10n.More.title
     moreViewController.delegate = self
     self.moreViewController = moreViewController
@@ -105,6 +112,10 @@ extension MoreController: MoreViewControllerDelegate {
 
     case .history, .legal, .devrooms:
       self.moreViewController(moreViewController, didSelectInfoItem: item)
+
+    case .timeZone:
+      let timeZoneViewController = dependencies.navigationService.makeFormattingTimeZoneViewController()
+      showDetailViewController(timeZoneViewController)
 
     #if DEBUG
     case .overrideTime:

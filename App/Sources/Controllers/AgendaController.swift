@@ -1,7 +1,7 @@
 import UIKit
 
 final class AgendaController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTimeService
+  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasTimeService & HasDateFormattingService
 
   var didError: ((AgendaController, Error) -> Void)?
 
@@ -13,7 +13,7 @@ final class AgendaController: UIViewController {
   }
 
   private var events: [Event] = []
-  private var observations: [NSObjectProtocol] = []
+  private var observers: [NSObjectProtocol] = []
   private var shouldFilterEvents: Bool {
     get { UserDefaults.standard.shouldFilterEvents }
     set { UserDefaults.standard.shouldFilterEvents = newValue }
@@ -45,7 +45,8 @@ final class AgendaController: UIViewController {
     super.viewDidLoad()
 
     reloadFavoriteEvents(animated: false)
-    observations = [
+    
+    observers = [
       dependencies.favoritesService.addObserverForEvents { [weak self] in
         self?.reloadFavoriteEvents(animated: true)
       },
@@ -54,6 +55,9 @@ final class AgendaController: UIViewController {
         reloadLiveStatus()
         reloadFilterButton()
         reloadEvents(animated: true)
+      },
+      dependencies.dateFormattingService.addObserverForFormattingTimeZoneChanges { [weak self] in
+        self?.agendaViewController?.reloadData()
       },
     ]
   }
@@ -199,7 +203,9 @@ private extension AgendaController {
 
 extension AgendaController: EventsViewControllerDelegate {
   func eventsViewController(_: EventsViewController, captionFor event: Event) -> String? {
-    [event.formattedStart, event.room, event.formattedTrack].compactMap { $0 }.joined(separator: " - ")
+    let start = dependencies.dateFormattingService.time(from: event.date)
+    let track = TrackFormatter().formattedName(from: event.track)
+    return [start, event.room, track].joined(separator: " • ")
   }
 
   func eventsViewController(_ eventsViewController: EventsViewController, didSelect event: Event) {

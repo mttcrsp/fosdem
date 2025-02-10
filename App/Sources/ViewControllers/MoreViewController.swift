@@ -8,8 +8,17 @@ protocol MoreViewControllerDelegate: AnyObject {
 final class MoreViewController: UITableViewController {
   weak var delegate: MoreViewControllerDelegate?
 
-  private let sections = MoreSection.allCases
-
+  private let sections: [MoreSection]
+  
+  init(sections: [MoreSection], style: UITableView.Style) {
+    self.sections = sections
+    super.init(style: style)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     tableView.estimatedRowHeight = 44
