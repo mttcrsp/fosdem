@@ -34,8 +34,8 @@ final class WelcomeViewController: UIViewController {
     return messageLabel
   }()
 
-  private lazy var continueButton: RoundedButton = {
-    let continueButton = RoundedButton()
+  private lazy var continueButton: UIButton = {
+    let continueButton = UIButton.fos_rounded()
     continueButton.accessibilityIdentifier = "continue"
     continueButton.setTitle(L10n.Welcome.continue, for: .normal)
     continueButton.addTarget(self, action: #selector(continueTapped), for: .touchUpInside)

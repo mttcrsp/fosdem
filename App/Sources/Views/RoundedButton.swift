@@ -1,6 +1,42 @@
 import UIKit
 
-final class RoundedButton: UIButton {
+extension UIButton {
+  static func fos_rounded() -> UIButton {
+    if #available(iOS 26.0, *) {
+      RoundedButton()
+    } else {
+      PreLiquidGlassRoundedButton()
+    }
+  }
+}
+
+@available(iOS 26.0, *)
+private final class RoundedButton: UIButton {
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    commonInit()
+  }
+
+  required init?(coder: NSCoder) {
+    super.init(coder: coder)
+    commonInit()
+  }
+
+  private func commonInit() {
+    var configuration = UIButton.Configuration.prominentGlass()
+    configuration.buttonSize = .large
+    configuration.titleTextAttributesTransformer =
+      UIConfigurationTextAttributesTransformer { attributes in
+        var attributes = attributes
+        attributes.font = .fos_preferredFont(
+          forTextStyle: .body, withSymbolicTraits: .traitBold)
+        return attributes
+      }
+    self.configuration = configuration
+  }
+}
+
+private final class PreLiquidGlassRoundedButton: UIButton {
   private lazy var size = CGSize(width: 1, height: 1)
   private lazy var rect = CGRect(origin: .zero, size: size)
   private lazy var renderer = UIGraphicsImageRenderer(size: size)

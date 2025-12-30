@@ -15,7 +15,7 @@ final class ErrorViewController: UIViewController {
 
   private let titleLabel = UILabel()
   private let messageLabel = UILabel()
-  private let actionButton = RoundedButton()
+  private let actionButton = UIButton.fos_rounded()
 
   init() {
     super.init(nibName: nil, bundle: nil)

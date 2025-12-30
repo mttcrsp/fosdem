@@ -21,9 +21,9 @@ final class EventView: UIStackView {
 
   var dependencies: Dependencies?
   private var observer: NSObjectProtocol?
-  private weak var livestreamButton: RoundedButton?
+  private weak var livestreamButton: UIButton?
   private weak var trackAttributeView: EventAttributeView?
-  private weak var videoButton: RoundedButton?
+  private weak var videoButton: UIButton?
 
   var event: Event? {
     didSet { didChangeEvent() }
@@ -82,7 +82,7 @@ final class EventView: UIStackView {
 
     if event.video != nil {
       let videoAction = #selector(didTapVideo)
-      let videoButton = RoundedButton()
+      let videoButton = UIButton.fos_rounded()
       videoButton.accessibilityLabel = L10n.Event.Video.Accessibility.begin
       videoButton.addTarget(self, action: videoAction, for: .touchUpInside)
       videoButton.titleLabel?.adjustsFontForContentSizeCategory = true
@@ -95,7 +95,7 @@ final class EventView: UIStackView {
       reloadPlaybackPosition()
     } else if showsLivestream {
       let livestreamAction = #selector(didTapLivestream)
-      let livestreamButton = RoundedButton()
+      let livestreamButton = UIButton.fos_rounded()
       livestreamButton.accessibilityIdentifier = "livestream"
       livestreamButton.titleLabel?.adjustsFontForContentSizeCategory = true
       livestreamButton.addTarget(self, action: livestreamAction, for: .touchUpInside)
