@@ -1,7 +1,7 @@
 import UIKit
 
 final class SearchController: UISplitViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasDateFormattingService & HasTracksService & HasYearsService
+  typealias Dependencies = HasDateFormattingService & HasFavoritesService & HasNavigationService & HasPersistenceService & HasTracksService & HasYearsService
 
   private var selectedFilter: TracksFilter = .all {
     didSet { reloadFilterButton() }
@@ -307,20 +307,20 @@ private extension SearchController {
   private func reloadFilterButton() {
     var item: UIBarButtonItem?
     if let tracksConfiguration {
-      let title = switch selectedFilter {
-      case .all:
-        L10n.Search.Filter.Menu.Action.all
-      case let .day(date):
-        L10n.Search.Filter.Menu.Action.day(dependencies.dateFormattingService.weekday(from: date))
-      }
-
       item = UIBarButtonItem(
         title: L10n.Search.Filter.title,
         image: .filter,
         menu: UIMenu(
           title: L10n.Search.Filter.Menu.title,
           children: tracksConfiguration.filters.map { filter in
-            UIAction(
+            let title = switch filter {
+            case .all:
+              L10n.Search.Filter.Menu.Action.all
+            case let .day(date):
+              L10n.Search.Filter.Menu.Action.day(dependencies.dateFormattingService.weekday(from: date))
+            }
+
+            return UIAction(
               title: title,
               state: filter == selectedFilter ? .on : .off,
               handler: { [weak self] _ in
