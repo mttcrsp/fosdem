@@ -101,6 +101,7 @@ final class EventController: UIViewController {
 
     addChild(eventViewController)
     view.addSubview(eventViewController.view)
+    eventViewController.view.frame = view.bounds
     eventViewController.didMove(toParent: self)
 
     didChangeShowsFavoriteButton()
