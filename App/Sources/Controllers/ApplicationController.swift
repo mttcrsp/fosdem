@@ -129,12 +129,12 @@ final class ApplicationController: UIViewController {
     }
   }
 
-  func applicationDidBecomeActive() {
+  func sceneDidBecomeActive() {
     dependencies.timeService.startMonitoring()
     dependencies.scheduleService.startUpdating()
   }
 
-  func applicationWillResignActive() {
+  func sceneWillResignActive() {
     dependencies.timeService.stopMonitoring()
   }
 }
