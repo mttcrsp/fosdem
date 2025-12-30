@@ -27,12 +27,11 @@ class TextViewController: UIViewController {
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-
+    
     let verticalInset: CGFloat = 20
-    let horizontalInset = max(10, textView.readableContentGuide.layoutFrame.minX)
     textView.textContainerInset.top = verticalInset
     textView.textContainerInset.bottom = verticalInset
-    textView.textContainerInset.left = horizontalInset
-    textView.textContainerInset.right = horizontalInset
+    textView.textContainerInset.left = view.safeAreaInsets.left + 16
+    textView.textContainerInset.right = view.safeAreaInsets.right + 16
   }
 }
