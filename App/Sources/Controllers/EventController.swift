@@ -194,7 +194,7 @@ extension EventController: EventViewControllerDelegate, EventViewControllerDataS
   }
 
   private func eventViewController(_ eventViewController: EventViewController, didLoad track: Track) {
-    let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
+    let style: UITableView.Style = traitCollection.userInterfaceIdiom == .pad ? .insetGrouped : .fos_grouped
     let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
     trackViewController.title = track.formattedName
     trackViewController.load { [weak self] error in

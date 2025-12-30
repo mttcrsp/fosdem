@@ -146,7 +146,7 @@ extension VideosController: UIPageViewControllerDelegate {
 
 private extension VideosController {
   func makeEventsViewController() -> EventsViewController {
-    let eventsViewController = EventsViewController(style: .grouped)
+    let eventsViewController = EventsViewController(style: .fos_grouped)
     eventsViewController.navigationItem.largeTitleDisplayMode = .never
     eventsViewController.deleteDelegate = self
     eventsViewController.delegate = self

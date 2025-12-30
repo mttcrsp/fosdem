@@ -182,7 +182,7 @@ extension MoreController: MoreViewControllerDelegate {
   }
 
   private var preferredDetailViewControllerStyle: UITableView.Style {
-    traitCollection.userInterfaceIdiom == .pad ? .insetGrouped : .grouped
+    traitCollection.userInterfaceIdiom == .pad ? .insetGrouped : .fos_grouped
   }
 }
 

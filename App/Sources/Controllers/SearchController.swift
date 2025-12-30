@@ -43,7 +43,7 @@ final class SearchController: UISplitViewController {
 
     delegate = self
 
-    let resultsViewController = EventsViewController(style: .grouped)
+    let resultsViewController = EventsViewController(style: .fos_grouped)
     resultsViewController.favoritesDataSource = self
     resultsViewController.favoritesDelegate = self
     resultsViewController.delegate = self
@@ -201,7 +201,7 @@ extension SearchController: TracksViewControllerDataSource, TracksViewController
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .grouped
+    let style = traitCollection.userInterfaceIdiom == .pad ? UITableView.Style.insetGrouped : .fos_grouped
     let trackViewController = dependencies.navigationService.makeTrackViewController(for: track, style: style)
     trackViewController.navigationItem.largeTitleDisplayMode = preferredLargeTitleDisplayModeForDetail(withTitle: track.formattedName)
     trackViewController.title = track.formattedName

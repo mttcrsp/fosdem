@@ -9,7 +9,7 @@ class TransportationController: UINavigationController {
     self.dependencies = dependencies
     super.init(nibName: nil, bundle: nil)
 
-    let style = traitCollection.userInterfaceIdiom == .phone ? UITableView.Style.insetGrouped : .grouped
+    let style = traitCollection.userInterfaceIdiom == .phone ? UITableView.Style.insetGrouped : .fos_grouped
     let transportationViewController = TransportationViewController(style: style)
     transportationViewController.title = L10n.Transportation.title
     transportationViewController.delegate = self

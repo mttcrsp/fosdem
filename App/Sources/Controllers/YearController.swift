@@ -19,7 +19,14 @@ final class YearController: TracksViewController {
   init(persistenceService: PersistenceServiceProtocol, dependencies: Dependencies) {
     self.dependencies = dependencies
     self.persistenceService = persistenceService
-    super.init(nibName: nil, bundle: nil)
+
+    let style: UITableView.Style =
+      if #available(iOS 26.0, *) {
+        .insetGrouped
+      } else {
+        .plain
+      }
+    super.init(style: style)
   }
 
   @available(*, unavailable)
@@ -36,7 +43,7 @@ final class YearController: TracksViewController {
     dataSource = self
     definesPresentationContext = true
 
-    let resultsViewController = EventsViewController(style: .grouped)
+    let resultsViewController = EventsViewController(style: .fos_grouped)
     resultsViewController.delegate = self
     self.resultsViewController = resultsViewController
 
@@ -76,7 +83,7 @@ extension YearController: TracksViewControllerDataSource, TracksViewControllerDe
   }
 
   func tracksViewController(_ tracksViewController: TracksViewController, didSelect track: Track) {
-    let eventsViewController = EventsViewController(style: .grouped)
+    let eventsViewController = EventsViewController(style: .fos_grouped)
     eventsViewController.title = track.formattedName
     eventsViewController.delegate = self
     self.eventsViewController = eventsViewController

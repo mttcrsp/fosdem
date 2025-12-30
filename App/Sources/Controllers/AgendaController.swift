@@ -247,7 +247,7 @@ private extension AgendaController {
   }
 
   func makeAgendaNavigationController() -> UINavigationController {
-    let agendaViewController = EventsViewController(style: .grouped)
+    let agendaViewController = EventsViewController(style: .fos_grouped)
     agendaViewController.emptyBackgroundMessage = L10n.Agenda.Empty.message
     agendaViewController.emptyBackgroundTitle = L10n.Agenda.Empty.title
     agendaViewController.title = L10n.Agenda.title
