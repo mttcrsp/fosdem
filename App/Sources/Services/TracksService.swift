@@ -40,16 +40,16 @@ final class TracksService {
           configuration.filteredFavoriteTracks[filter, default: []].append(track)
         }
 
-        if let initial = track.name.first, let titles = configuration.filteredIndexTitles[.all], titles[String(initial)] == nil {
-          configuration.filteredIndexTitles[.all, default: [:]][String(initial)] = offset
+        if let sectionIndexTitle = track.sectionIndexTitle, configuration.filteredIndexTitles[.all]?[sectionIndexTitle] == nil {
+          configuration.filteredIndexTitles[.all, default: [:]][sectionIndexTitle] = offset
         }
       }
 
       for filter in filters.filter({ filter in filter != .all }) {
         let tracks = configuration.filteredTracks[filter] ?? []
         for (offset, track) in tracks.enumerated() {
-          if let initial = track.name.first, let titles = configuration.filteredIndexTitles[filter], titles[String(initial)] == nil {
-            configuration.filteredIndexTitles[filter, default: [:]][String(initial)] = offset
+          if let sectionIndexTitle = track.sectionIndexTitle, configuration.filteredIndexTitles[filter]?[sectionIndexTitle] == nil {
+            configuration.filteredIndexTitles[filter, default: [:]][sectionIndexTitle] = offset
           }
         }
       }
@@ -73,6 +73,12 @@ extension TracksFilter: Comparable {
     case let (.day(lhs), .day(rhs)):
       lhs < rhs
     }
+  }
+}
+
+private extension Track {
+  var sectionIndexTitle: String? {
+    name.first?.uppercased()
   }
 }
 
