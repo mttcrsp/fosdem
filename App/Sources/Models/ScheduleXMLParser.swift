@@ -61,7 +61,9 @@ final class ScheduleXMLParser: NSObject, XMLParserDelegate {
       switch name {
       case Link.name:
         try didParseLink(with: attributes)
-      case Person.name:
+      // Ignore the top level list of people introduced in 2026. Only consider
+      // the list of people associated with an event.
+      case Person.name where stack.map(\.name) != [Schedule.name, "persons"]:
         try didParsePerson(with: attributes)
       case Attachment.name:
         try didParseAttachment(with: attributes)
