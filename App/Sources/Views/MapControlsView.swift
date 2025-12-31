@@ -13,25 +13,40 @@ final class MapControlsView: UIView {
     didSet { didChangeAuthorizationStatus() }
   }
 
-  private let backgroundShadowView = UIView()
-  private let backgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
+  private var backgroundView: UIVisualEffectView?
+  private var legacyBackgroundShadowView: UIView?
+  private var legacyBackgroundView: UIVisualEffectView?
   private let resetButton = MapControlView()
   private let locationButton = MapControlView()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
 
-    backgroundShadowView.translatesAutoresizingMaskIntoConstraints = false
-    backgroundShadowView.layer.shadowRadius = 12
-    backgroundShadowView.layer.shadowOpacity = 0.3
-    backgroundShadowView.layer.shadowOffset = .zero
-    backgroundShadowView.layer.shadowColor = UIColor.black.cgColor
-    addSubview(backgroundShadowView)
+    if #available(iOS 26.0, *) {
+      let effect = UIGlassEffect()
+      effect.isInteractive = true
+      let backgroundView = UIVisualEffectView(effect: effect)
+      backgroundView.translatesAutoresizingMaskIntoConstraints = false
+      backgroundView.cornerConfiguration = preferredBackgroundCornerConfiguration
+      self.backgroundView = backgroundView
+      addSubview(backgroundView)
+    } else {
+      let legacyBackgroundView = UIVisualEffectView(effect: UIBlurEffect(style: .systemChromeMaterial))
+      legacyBackgroundView.translatesAutoresizingMaskIntoConstraints = false
+      legacyBackgroundView.layer.cornerRadius = 8
+      legacyBackgroundView.layer.masksToBounds = true
+      self.legacyBackgroundView = legacyBackgroundView
+      addSubview(legacyBackgroundView)
 
-    backgroundView.translatesAutoresizingMaskIntoConstraints = false
-    backgroundView.layer.cornerRadius = 8
-    backgroundView.layer.masksToBounds = true
-    addSubview(backgroundView)
+      let legacyBackgroundShadowView = UIView()
+      legacyBackgroundShadowView.translatesAutoresizingMaskIntoConstraints = false
+      legacyBackgroundShadowView.layer.shadowRadius = 12
+      legacyBackgroundShadowView.layer.shadowOpacity = 0.3
+      legacyBackgroundShadowView.layer.shadowOffset = .zero
+      legacyBackgroundShadowView.layer.shadowColor = UIColor.black.cgColor
+      self.legacyBackgroundShadowView = legacyBackgroundShadowView
+      addSubview(legacyBackgroundShadowView)
+    }
 
     locationButton.title = authorizationStatus.title
     locationButton.image = CLAuthorizationStatus.notDetermined.image
@@ -46,6 +61,7 @@ final class MapControlsView: UIView {
     resetButton.title = L10n.Map.reset
 
     let separatorView = UIView()
+    separatorView.isHidden = legacyBackgroundView == nil
     separatorView.backgroundColor = .label.withAlphaComponent(0.3)
 
     let stackView = UIStackView(arrangedSubviews: [resetButton, separatorView, locationButton])
@@ -53,24 +69,33 @@ final class MapControlsView: UIView {
     stackView.axis = .vertical
     addSubview(stackView)
 
-    NSLayoutConstraint.activate([
+    var constraints: [NSLayoutConstraint] = [
       separatorView.heightAnchor.constraint(equalToConstant: 1 / traitCollection.displayScale),
-
-      backgroundView.topAnchor.constraint(equalTo: topAnchor),
-      backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor),
-      backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
-      backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
-
-      backgroundShadowView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
-      backgroundShadowView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
-      backgroundShadowView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),
-      backgroundShadowView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor),
-
       stackView.topAnchor.constraint(equalTo: topAnchor),
       stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
       stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
       stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-    ])
+    ]
+
+    if let backgroundView = backgroundView ?? legacyBackgroundView {
+      constraints.append(contentsOf: [
+        backgroundView.topAnchor.constraint(equalTo: topAnchor),
+        backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor),
+        backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
+        backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor),
+      ])
+
+      if backgroundView == legacyBackgroundView, let legacyBackgroundShadowView {
+        constraints.append(contentsOf: [
+          legacyBackgroundShadowView.topAnchor.constraint(equalTo: backgroundView.topAnchor),
+          legacyBackgroundShadowView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor),
+          legacyBackgroundShadowView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor),
+          legacyBackgroundShadowView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor),
+        ])
+      }
+    }
+
+    NSLayoutConstraint.activate(constraints)
   }
 
   @available(*, unavailable)
@@ -80,10 +105,28 @@ final class MapControlsView: UIView {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    backgroundShadowView.layer.shadowPath = UIBezierPath(
-      roundedRect: backgroundView.bounds,
-      cornerRadius: backgroundView.layer.cornerRadius
-    ).cgPath
+    if let legacyBackgroundView, let legacyBackgroundShadowView {
+      legacyBackgroundShadowView.layer.shadowPath = UIBezierPath(
+        roundedRect: legacyBackgroundView.bounds,
+        cornerRadius: legacyBackgroundView.layer.cornerRadius
+      ).cgPath
+    }
+  }
+
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+    if #available(iOS 26.0, *) {
+      if traitCollection.fos_hasRegularSizeClasses != previousTraitCollection?.fos_hasRegularSizeClasses {
+        backgroundView?.cornerConfiguration = preferredBackgroundCornerConfiguration
+      }
+    }
+  }
+
+  @available(iOS 26.0, *)
+  private var preferredBackgroundCornerConfiguration: UICornerConfiguration {
+    traitCollection.fos_hasRegularSizeClasses
+      ? .corners(radius: .fixed(16))
+      : .capsule()
   }
 
   @objc private func didTapReset() {

@@ -37,21 +37,25 @@ final class MapControlView: UIControl {
       addSubview(subview)
     }
 
+    let regularHorizontalInset: CGFloat =
+      if #available(iOS 26.0, *) { 16 } else { 12 }
     regularConstraints = [
-      imageView.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-      imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+      imageView.topAnchor.constraint(equalTo: topAnchor, constant: regularHorizontalInset),
+      imageView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -regularHorizontalInset),
       imageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
       label.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 10),
       label.firstBaselineAnchor.constraint(equalTo: imageView.firstBaselineAnchor),
       label.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -16),
     ]
 
+    let compactSize: CGFloat =
+      if #available(iOS 26.0, *) { 48 } else { 44 }
     compactConstraints = [
       imageView.topAnchor.constraint(equalTo: topAnchor),
       imageView.bottomAnchor.constraint(equalTo: bottomAnchor),
       imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
       imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-      imageView.widthAnchor.constraint(greaterThanOrEqualToConstant: 44),
+      imageView.widthAnchor.constraint(greaterThanOrEqualToConstant: compactSize),
       imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
     ]
   }
