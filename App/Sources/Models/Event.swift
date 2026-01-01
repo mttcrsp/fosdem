@@ -2,6 +2,7 @@ import Foundation
 
 struct Event: Codable {
   let id: Int
+  let url: URL?
   let room: String
   let track: String
 

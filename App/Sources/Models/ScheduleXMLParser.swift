@@ -237,7 +237,7 @@ private extension Event {
   }
 
   static var attributesNames: Set<String> {
-    ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description"]
+    ["start", "duration", "room", "slug", "title", "subtitle", "track", "type", "language", "abstract", "description", "url"]
   }
 
   init(attributes: [String: String], state: ScheduleXMLParser.EventState, dayAttributes: [String: String]) throws {
@@ -281,7 +281,8 @@ private extension Event {
     let summary = attributes["summary"]
     let subtitle = attributes["subtitle"]
     let abstract = attributes["abstract"]
-    self.init(id: id, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, date: date, start: start, duration: duration, links: state.links, people: state.people, attachments: state.attachments)
+    let url = attributes["url"].flatMap(URL.init)
+    self.init(id: id, url: url, room: room, track: track, title: title, summary: summary, subtitle: subtitle, abstract: abstract, date: date, start: start, duration: duration, links: state.links, people: state.people, attachments: state.attachments)
   }
 }
 

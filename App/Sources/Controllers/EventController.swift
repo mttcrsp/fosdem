@@ -1,7 +1,7 @@
 import AVKit
 
 final class EventController: UIViewController {
-  typealias Dependencies = HasFavoritesService & HasNavigationService & HasPersistenceService & HasPlaybackService & HasTimeService & HasDateFormattingService
+  typealias Dependencies = HasDateFormattingService & HasFavoritesService & HasNavigationService & HasPersistenceService & HasPlaybackService & HasTimeService
   typealias PlayerViewController = AVPlayerViewControllerProtocol & UIViewController
 
   var showsFavoriteButton = true {
@@ -11,6 +11,13 @@ final class EventController: UIViewController {
   var allowsTrackSelection = true {
     didSet { didChangeAllowsTrackSelection() }
   }
+
+  private lazy var shareButton: UIBarButtonItem? = {
+    guard event.url != nil else { return nil }
+    let shareAction = #selector(didTapShare)
+    let shareImage = UIImage(systemName: "square.and.arrow.up")
+    return UIBarButtonItem(image: shareImage, style: .plain, target: self, action: shareAction)
+  }()
 
   private weak var playerViewController: PlayerViewController?
   private weak var eventViewController: EventViewController?
@@ -86,6 +93,7 @@ final class EventController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    navigationItem.rightBarButtonItem = shareButton
     navigationItem.backButtonTitle = event.title
     navigationItem.largeTitleDisplayMode = .never
 
@@ -119,6 +127,18 @@ final class EventController: UIViewController {
       dependencies.favoritesService.addEvent(withIdentifier: event.id)
     }
   }
+  
+  @objc private func didTapShare() {
+    if let url = event.url {
+      let activityViewController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+      if #available(iOS 16.0, *) {
+        activityViewController.popoverPresentationController?.sourceItem = shareButton
+      } else {
+        activityViewController.popoverPresentationController?.barButtonItem = shareButton
+      }
+      present(activityViewController, animated: true)
+    }
+  }
 
   private func didChangeAllowsTrackSelection() {
     eventViewController?.allowsTrackSelection = allowsTrackSelection
@@ -139,7 +159,7 @@ final class EventController: UIViewController {
     let favoriteButton = UIBarButtonItem(title: nil, style: .plain, target: self, action: favoriteAction)
     favoriteButton.image = favoriteImage
     favoriteButton.accessibilityIdentifier = favoriteAccessibilityIdentifier
-    navigationItem.rightBarButtonItem = favoriteButton
+    navigationItem.rightBarButtonItems = [favoriteButton, shareButton].compactMap { $0 }
 
     favoritesObserver = dependencies.favoritesService.addObserverForEvents { [weak favoriteButton, weak self] in
       favoriteButton?.accessibilityIdentifier = self?.favoriteAccessibilityIdentifier
@@ -153,7 +173,7 @@ final class EventController: UIViewController {
       favoritesObserver = nil
     }
 
-    navigationItem.rightBarButtonItem = nil
+    navigationItem.rightBarButtonItems = [shareButton].compactMap { $0 }
   }
 }
 

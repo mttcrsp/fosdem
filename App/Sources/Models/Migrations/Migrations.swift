@@ -6,6 +6,7 @@ extension [PersistenceServiceMigration] {
       CreateEventsTable(),
       CreateEventsSearchTable(),
       CreateParticipationsTable(),
+      AddURLColumnToEventsTable(),
     ]
   }
 }
