@@ -28,6 +28,8 @@ protocol EventsViewControllerDeleteDelegate: AnyObject {
 }
 
 class EventsViewController: UITableViewController {
+  var emptyBackgroundTitle: String?
+  var emptyBackgroundMessage: String?
   weak var delegate: EventsViewControllerDelegate?
   weak var deleteDelegate: EventsViewControllerDeleteDelegate?
   weak var favoritesDataSource: EventsViewControllerFavoritesDataSource?
@@ -36,16 +38,6 @@ class EventsViewController: UITableViewController {
   private var diffableDataSource: DiffableDataSource?
   private(set) var events: [Event] = []
   private lazy var emptyBackgroundView = TableBackgroundView()
-
-  var emptyBackgroundTitle: String? {
-    get { emptyBackgroundView.title }
-    set { emptyBackgroundView.title = newValue }
-  }
-
-  var emptyBackgroundMessage: String? {
-    get { emptyBackgroundView.message }
-    set { emptyBackgroundView.message = newValue }
-  }
   
   func reloadData(animatingDifferences animated: Bool = false) {
     guard let diffableDataSource else { return }
@@ -58,7 +50,18 @@ class EventsViewController: UITableViewController {
 
     diffableDataSource.apply(snapshot, animatingDifferences: animated) { [weak self] in
       guard let self else { return }
-      tableView.backgroundView = snapshot.numberOfSections == 0 ? emptyBackgroundView : nil
+      
+      let isEmpty = snapshot.numberOfSections == 0
+      if #available(iOS 17.0, *) {
+        var configuration = UIContentUnavailableConfiguration.empty()
+        configuration.text = emptyBackgroundTitle
+        configuration.secondaryText = emptyBackgroundMessage
+        contentUnavailableConfiguration = isEmpty ? configuration : nil
+      } else {
+        emptyBackgroundView.title = emptyBackgroundTitle
+        emptyBackgroundView.message = emptyBackgroundMessage
+        tableView.backgroundView = isEmpty ? emptyBackgroundView : nil
+      }
     }
   }
 
