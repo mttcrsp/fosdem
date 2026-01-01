@@ -45,6 +45,23 @@ class MapContainerViewController: UIViewController {
   }
 
   private lazy var scrollView = UIScrollView()
+  private lazy var detailContainerView: UIView = {
+    if #available(iOS 26.0, *) {
+      let effectView = UIVisualEffectView(effect: UIGlassEffect())
+      effectView.cornerConfiguration = .uniformCorners(radius: 16)
+      effectView.translatesAutoresizingMaskIntoConstraints = false
+      return effectView
+    } else {
+      let view = UIView()
+      view.layer.cornerRadius = 8
+      view.layer.shadowRadius = 8
+      view.layer.shadowOpacity = 0.2
+      view.layer.shadowOffset = .zero
+      view.layer.masksToBounds = true
+      view.layer.shadowColor = UIColor.black.cgColor
+      return view
+    }
+  }()
 
   private var observer: NSObjectProtocol?
 
@@ -71,6 +88,7 @@ class MapContainerViewController: UIViewController {
     scrollView.decelerationRate = .fast
     scrollView.showsVerticalScrollIndicator = false
     scrollView.showsHorizontalScrollIndicator = false
+    scrollView.addSubview(detailContainerView)
 
     observer = scrollView.observe(\.contentOffset) { [weak self] _, _ in
       if let self {
@@ -107,12 +125,13 @@ class MapContainerViewController: UIViewController {
       scrollView.contentSize.width += offset
     }
 
-    detailView.frame.size = detailRect.size
-    detailView.frame.origin = .zero
+    detailContainerView.frame.size = detailRect.size
+    detailContainerView.frame.origin = .zero
+    detailView.frame.size = detailContainerView.bounds.size
     switch scrollDirection {
     case .vertical:
       let offset = view.bounds.height - detailRect.maxY
-      detailView.frame.origin.y = detailRect.size.height + offset
+      detailContainerView.frame.origin.y = detailRect.size.height + offset
     case .horizontal:
       break
     }
@@ -170,16 +189,14 @@ class MapContainerViewController: UIViewController {
 
     if let childViewController = new {
       addChild(childViewController)
-
       let detailView: UIView = childViewController.view
-      detailView.layer.cornerRadius = 8
-      detailView.layer.shadowRadius = 8
-      detailView.layer.shadowOpacity = 0.2
-      detailView.layer.shadowOffset = .zero
-      detailView.layer.masksToBounds = true
-      detailView.layer.shadowColor = UIColor.black.cgColor
-      scrollView.addSubview(detailView)
-
+      if let detailContainerView = detailContainerView as? UIVisualEffectView {
+        detailView.layer.cornerRadius = 16
+        detailView.layer.masksToBounds = true
+        detailContainerView.contentView.addSubview(detailView)
+      } else {
+        detailContainerView.addSubview(detailView)
+      }
       childViewController.didMove(toParent: self)
     }
   }

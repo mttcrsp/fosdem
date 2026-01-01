@@ -59,8 +59,12 @@ final class BlueprintsViewController: UIPageViewController {
     dataSource = self
 
     view.addGestureRecognizer(fullscreenRecognizer)
-    view.backgroundColor = .tertiarySystemBackground
     view.accessibilityIdentifier = style.accessibilityIdentifier
+    if #available(iOS 26.0, *) {
+      view.backgroundColor = .tertiarySystemBackground
+    } else if style == .fullscreen {
+      view.backgroundColor = .tertiarySystemBackground
+    }
 
     let dismissAction = #selector(didTapDismiss)
     let dismissImage = UIImage(systemName: "xmark")
