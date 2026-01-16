@@ -31,7 +31,7 @@ targets:
       - package: GRDB
     settings:
       CODE_SIGN_ENTITLEMENTS: App/Resources/FOSDEM.entitlements
-      CURRENT_PROJECT_VERSION: 1
+      CURRENT_PROJECT_VERSION: 2
       INFOPLIST_FILE: App/Resources/Info.plist
       MARKETING_VERSION: 1.7.0
       PRODUCT_BUNDLE_IDENTIFIER: com.mttcrsp.fosdem
