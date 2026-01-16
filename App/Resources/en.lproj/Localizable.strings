@@ -60,9 +60,9 @@
 // Title for a screen with the list of events that the user plans to attend to
 "agenda.title" = "Agenda";
 // A short message reporting that the user has no events he plans to attend to
-"agenda.empty.title" = "No favorite events";
+"agenda.empty.title" = "No events yet";
 // A multiline instructional message specifying that events favorited by the user will appear in this screen
-"agenda.empty.message" = "Events you favorite will appear here to allow you to better plan your FOSDEM";
+"agenda.empty.message" = "Add events to your agenda to plan your time at FOSDEM";
 // A label describing a button that allows the user to filter the list of events in the agenda
 "agenda.filter.title" = "Filter events";
 // A label that hints that only upcoming events are currently being displayed
@@ -105,7 +105,7 @@
 // A button that forces display of all tracks
 "search.filter.menu.action.all" = "Both days";
 // Title for a section containing the user favorite tracks
-"search.filter.favorites" = "Your Favorites";
+"search.filter.favorites" = "Your favorites";
 // Caption that reports the weekday and time at which an event will start
 "search.event.start" = "%@ on %@";
 // A short message reporting that no results were found while searching for an event
