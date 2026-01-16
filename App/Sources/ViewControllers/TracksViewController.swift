@@ -186,13 +186,13 @@ class TracksViewController: UITableViewController {
 
     if favoritesDataSource.tracksViewController(self, canFavorite: track) {
       let title = L10n.favorite
-      let image = UIImage(systemName: "star.fill")
+      let image = UIImage(systemName: "star")
       return [Action(title: title, image: image) { [weak self] in
         self?.didFavorite(track)
       }]
     } else {
       let title = L10n.unfavorite
-      let image = UIImage(systemName: "star.slash.fill")
+      let image = UIImage(systemName: "star.fill")
       return [Action(title: title, image: image, style: .destructive) { [weak self] in
         self?.didUnfavorite(track)
       }]

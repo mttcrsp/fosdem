@@ -66,7 +66,7 @@ final class TrackController: EventsViewController {
   private func reloadFavoriteButton() {
     let isFavorite = dependencies.favoritesService.contains(track)
     favoriteButton?.accessibilityIdentifier = isFavorite ? "unfavorite" : "favorite"
-    favoriteButton?.image = UIImage(systemName: isFavorite ? "star.slash.fill" : "star.fill")
+    favoriteButton?.image = UIImage(systemName: isFavorite ? "star.fill" : "star")
   }
 }
 
